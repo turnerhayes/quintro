@@ -1,0 +1,57 @@
+{{#if IS_DEVELOPMENT}}
+<div class="board-controls">
+	<div class="control-row">
+		<label>
+			Number of players:
+			<input type="number" name="number-of-players" min="3" max="6" value="6" />
+		</label>
+	</div>
+	<div class="control-row">
+		<label>
+			Color:
+			<select name="color">
+				<option value="black">black</option>
+				<option value="blue">blue</option>
+				<option value="red">red</option>
+				<option value="white">white</option>
+				<option value="yellow">yellow</option>
+				<option value="green">green</option>
+			</select>
+		</label>
+
+		<button name="next-color">&raquo;</button>
+
+		<label>
+			<input type="checkbox" name="auto-progress" checked />
+			Auto-progress
+		</label>
+	</div>
+	<div class="control-row">
+		<label>
+			Width:
+			<input type="number" name="board-width" min="7" max="25" value="21" />
+		</label>
+		<label>
+			Height:
+			<input type="number" name="board-height" min="7" max="25" value="19" />
+		</label>
+	</div>
+</div>
+{{/if}}
+
+<div class="board-container">
+	<div class="board">
+		{{#Times 19}}
+		<div class="board-row">
+			{{#Times 21}}
+			<div class="board-cell"></div>
+			{{/Times}}
+		</div>
+		{{/Times}}
+	</div>
+</div>
+
+{{#contentFor "scripts"}}
+<script src="/static/javascripts/board.js"></script>
+<script src="/static/javascripts/board-controls.js"></script>
+{{/contentFor}}

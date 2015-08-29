@@ -1,0 +1,4 @@
+{
+	"environment": "development|production",
+	"secret": "some super secret"
+}
