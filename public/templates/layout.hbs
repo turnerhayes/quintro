@@ -7,10 +7,27 @@
 	{{{block "styles"}}}
 </head>
 <body>
-	{{{body}}}
+	<header class="page-layout--header">
+	{{{block "page-header"}}}
+	</header>
+	<main class="page-layout--main">
+		<section class="page-layout--main--middle">
+		{{{body}}}
+		</section>
+		<section class="page-layout--main--left">
+		{{{block "page-content--left"}}}
+		</section>
+		<aside class="page-layout--main--right">
+		{{{block "page-content--right"}}}
+		</aside>
+	</main>
+	<footer class="page-layout--footer">
+		
+	</footer>
 
 	<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="/static/bower_components/lodash/lodash.min.js"></script>
+	<script src="/static/dist/js/build.js"></script>
 	{{{block "scripts"}}}
 </body>
 </html>

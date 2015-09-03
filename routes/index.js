@@ -5,7 +5,7 @@ var router = express.Router();
 router.route('/')
 	.get(
 		function(req, res, next) {
-			res.render('board', { title: 'Quintro!' });
+			res.render('board-page', { title: 'Quintro!', width: 20, height: 20 });
 		}
 );
 

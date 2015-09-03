@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "nodemon": "nodemon ./bin/www",
+    "debug": "DEBUG=quintro:* npm run nodemon"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
@@ -18,7 +20,11 @@
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
+    "babelify": "^6.2.0",
     "browserify": "^11.0.1",
+    "gulp-babel": "^5.2.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-debug": "^2.1.0",
     "gulp-jshint": "^1.11.2",
     "gulp-less": "^3.0.3",
     "gulp-rename": "^1.2.2",
@@ -34,5 +40,17 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.3.1"
-  }
+  },
+  "description": "Classic marble game in HTML",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turnerhayes/quintro.git"
+  },
+  "author": "Turner Hayes <dev@turnerhayes.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/turnerhayes/quintro/issues"
+  },
+  "homepage": "https://github.com/turnerhayes/quintro#readme"
 }

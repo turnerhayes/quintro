@@ -22,7 +22,7 @@ app.set('env', appConfig.environment);
 // view engine setup
 app.engine('hbs', hbs.express4({
 	defaultLayout: path.join(pathsConfig.templates, 'layout.hbs'),
-	partialsDir: pathsConfig.templates,
+	partialsDir: path.join(pathsConfig.templates, 'partials'),
 }));
 
 hbs.registerHelper(require(path.join(pathsConfig.static, "hbs-helpers"))(hbs.handlebars));

@@ -1,0 +1,24 @@
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+.page-layout--main {
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+
+	&--left {
+		order: 0;
+	}
+
+	&--middle {
+		order: 1;
+		flex: 1;
+	}
+
+	&--right {
+		order: 2;
+		display: none;
+	}
+}

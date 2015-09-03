@@ -1,0 +1,38 @@
+<div class="board-controls">
+	<div class="control-row">
+		<label>
+			Number of players:
+			<input type="number" name="number-of-players" class="form-control" min="3" max="6" value="6" />
+		</label>
+	</div>
+	<div class="control-row">
+		<label>
+			Color:
+			<select name="color" class="form-control">
+				<option value="black">black</option>
+				<option value="blue">blue</option>
+				<option value="red">red</option>
+				<option value="white">white</option>
+				<option value="yellow">yellow</option>
+				<option value="green">green</option>
+			</select>
+		</label>
+
+		<button name="next-color" class="btn btn-default">&raquo;</button>
+
+		<label>
+			<input type="checkbox" name="auto-progress" checked />
+			Auto-progress
+		</label>
+	</div>
+	<div class="control-row">
+		<label>
+			Width:
+			<input type="number" name="board-width" class="form-control" min="7" max="25" value="{{width}}" />
+		</label>
+		<label>
+			Height:
+			<input type="number" name="board-height" class="form-control" min="7" max="25" value="{{height}}" />
+		</label>
+	</div>
+</div>
