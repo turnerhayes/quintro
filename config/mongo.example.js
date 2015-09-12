@@ -12,9 +12,15 @@ Object.defineProperties(
 		connectionString: {
 			enumerable: true,
 			get: function() {
-				var conn = 'mongodb://' + config.host;
+				var conn = 'mongodb://';
 
-				if (!config.port) {
+				if (!_.isNull(credentialsConfig.mongodb.username)) {
+					conn += credentialsConfig.mongodb.username + ':' + credentialsConfig.mongodb.password + '@';
+				}
+
+				conn += config.host;
+
+				if (config.port) {
 					conn += ':' + config.port;
 				}
 
