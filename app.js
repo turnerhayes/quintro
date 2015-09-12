@@ -17,6 +17,7 @@ var log            = require('log4js');
 var pathsConfig    = require('./config/paths');
 var appConfig      = require('./config/app');
 var mongoConfig    = require('./config/mongo');
+var MongoUtils     = require('./lib/mongo-utils');
 var SocketManager  = require('./lib/socket-manager');
 var setupPassport  = require('./passport-authentication');
 
@@ -25,7 +26,7 @@ var authenticationRoutes = require('./routes/authentication');
 var gameRoutes           = require('./routes/game');
 var searchRoutes         = require('./routes/search');
 
-mongoose.connect(mongoConfig.connectionString);
+mongoose.connect(MongoUtils.getConnectionString(mongoConfig));
 mongoose.set('debug', process.env.DEBUG_DB);
 
 log.configure('./config/log4js.json');
@@ -33,9 +34,7 @@ log.configure('./config/log4js.json');
 var errorLogger = log.getLogger('server-error');
 
 var sessionStore = new MongoStore({
-	"host": appConfig.session.store.host,
-	"port" : appConfig.session.store.port,
-	"db": appConfig.session.store.database,
+	"url": MongoUtils.getConnectionString(appConfig.session.store)
 });
 
 var sessionInstance = session({

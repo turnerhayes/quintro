@@ -9,6 +9,8 @@
 		"store": {
 			"host": "localhost",
 			"port": null,
+			"username": "my-session-db-username",
+			"password": "my-session-db-password",
 			"database": "quintro-session"
 		}
 	},

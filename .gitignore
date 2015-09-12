@@ -38,5 +38,5 @@ public/dist
 config/app.json
 config/credentials.json
 config/log4js.json
-config/mongo.js
+config/mongo.json
 
