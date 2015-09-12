@@ -1,0 +1,30 @@
+<div class="create-game-form-container">
+	<form class="create-game-form" enctype="application/www-form-urlencoded" method="post" action="/game/create">
+		<div class="form-row form-group">
+			<label>
+				Name:
+				<input type="text" class="form-control" name="short_id"{{#req.query.name}} value="{{.}}"{{/req.query.name}} />
+			</label>
+		</div>
+		<div class="form-row form-group">
+			<span>Dimensions:</span>
+			<label>
+				Width:
+				<input type="number" class="form-control" min="15" max="25" name="width" {{#req.query.width}}value="{{.}}"{{/req.query.width}}{{^req.query.width}}value="20"{{/req.query.width}} />
+			</label>
+			<label>
+				Height:
+				<input type="number" class="form-control" min="15" max="25" name="height" {{#req.query.height}}value="{{.}}"{{/req.query.height}}{{^req.query.height}}value="20"{{/req.query.height}} />
+			</label>
+		</div>
+		<div class="form-row form-group">
+			<label>
+				Number of players:
+				<input type="number" class="form-control" min="3" max="6" name="number-of-players" {{#req.query.[number-of-players]}}value="{{.}}"{{/req.query.[number-of-players]}}{{^req.query.[number-of-players]}}value="4"{{/req.query.[number-of-players]}} />
+			</label>
+		</div>
+		<div class="form-row form-group">
+			<button class="btn btn-primary" type="submit">Create</button>
+		</div>
+	</form>
+</div>

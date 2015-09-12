@@ -1,0 +1,18 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="home-link navbar-brand" href="/">Quintro!</a>
+
+			<div class="user-controls">
+				{{#req.user}}
+				<input type="hidden" name="user" value='{{#Serialize .}}{{/Serialize}}' />
+				Logged in as <a href="/user/{{username}}">{{preferredDisplayName}}</a>
+				<a href="/logout">Log out</a>
+				{{/req.user}}
+				{{^req.user}}
+				<a href="/login">Log in</a>
+				{{/req.user}}
+			</div>
+		</div>
+	</div>
+</div>

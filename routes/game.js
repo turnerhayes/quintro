@@ -1,28 +1,62 @@
 "use strict";
 
+var _         = require('lodash');
 var express   = require('express');
 var GameStore = require('../lib/persistence/stores/game');
 
 var router = new express.Router();
 
-function _createGame(req, res) {
+var PLAYERS = [
+	'black',
+	'blue',
+	'red',
+	'yellow',
+	'green',
+	'white',
+];
+
+function _createGame(req, res, next) {
+	var players = req.params.players || req.body.players;
+	var numberOfPlayers;
+
+	if (!players || players.length === 0) {
+		numberOfPlayers = Number(req.params['number-of-players'] || req.body['number-of-players']);
+
+		players = _.take(PLAYERS, numberOfPlayers);
+	}
+
 	GameStore.createGame({
 		short_id: req.params.short_id || req.body.short_id,
-		width: req.body.width,
-		height: req.body.height,
+		width: req.params.width || req.body.width,
+		height: req.params.height || req.body.height,
+		players: players,
 	}).done(
 		function(game) {
-			console.log('created game');
-			res.status(201);
-			res.set('Location', '/game/' + game.short_id);
-			res.json(game);
+			res.format({
+				html: function() {
+					res.redirect(game.short_id);
+				},
+				json: function() {
+					res.status(201);
+					res.set('Location', '/game/' + game.short_id);
+					res.json(game);
+				}
+			});
 		},
 		function(err) {
 			console.error('Error creating game: ', err);
 			res.status(500);
-			res.json({
-				error: {
-					message: err.message
+			
+			res.format({
+				html: function() {
+					next(err);
+				},
+				json: function() {
+					res.json({
+						error: {
+							message: err.message
+						}
+					});
 				}
 			});
 		}
@@ -31,6 +65,13 @@ function _createGame(req, res) {
 
 router.route('/')
 	.post(_createGame);
+
+router.route('/create')
+	.get(
+		function(req, res) {
+			res.render('create-game', {title: "Create a game", req: req});
+		}
+	).post(_createGame);
 
 router.route('/:short_id')
 	.get(
@@ -50,7 +91,11 @@ router.route('/:short_id')
 							res.json(game);
 						},
 						html: function() {
-							res.render('board-page', { game: game.toObject() });
+							res.render('board-page', {
+								title: 'Play Quintro Online! -- ' + game.short_id,
+								req: req,
+								game: game.toObject()
+							});
 						}
 					})
 				}

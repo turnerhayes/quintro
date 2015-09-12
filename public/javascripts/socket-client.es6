@@ -10,7 +10,7 @@ class SocketClient {
 		$(window).on('beforeunload', function() {
 			client._ioClient.close();
 		});
-	}
+	}l
 
 	emit(eventName, ...data) {
 		var client = this;

@@ -22,7 +22,8 @@ var setupPassport  = require('./passport-authentication');
 
 var indexRoutes          = require('./routes/index');
 var authenticationRoutes = require('./routes/authentication');
-var gameRoutes = require('./routes/game');
+var gameRoutes           = require('./routes/game');
+var searchRoutes         = require('./routes/search');
 
 mongoose.connect(mongoConfig.connectionString);
 mongoose.set('debug', process.env.DEBUG_DB);
@@ -90,6 +91,7 @@ SocketManager.initialize({
 app.use('/', indexRoutes);
 app.use('/', authenticationRoutes);
 app.use('/game', gameRoutes);
+app.use('/search', searchRoutes);
 
 app.locals.IS_DEVELOPMENT = app.get('env') === 'development';
 
