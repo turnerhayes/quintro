@@ -34,5 +34,7 @@ public/bower_components
 # Compiled static files
 public/dist
 
-# Should create a new app.json by copying and changing app.example.json
+# Should create config files by copying and changing .example. files
 config/app.json
+config/mongo.js
+

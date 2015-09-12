@@ -32,6 +32,8 @@ var pathsConfig          = require('./config/paths');
 
 var helperNames = _.keys(require(path.join(pathsConfig.static, 'hbs-helpers'))(Handlebars));
 
+var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
+
 // var USE_ES6 = !!process.env.USE_ES6;
 var USE_ES6 = true;
 
@@ -71,7 +73,7 @@ gulp.task('scripts', function() {
 
 gulp.task('watch-scripts', function() {
 	var mainJSFile = "./public/javascripts/main." + (USE_ES6 ? 'es6' : 'js');
-	var bundler = watchify(browserify(mainJSFile, browserifyOptions));
+	var bundler = watchify(browserify(thirdPartyJS.concat([mainJSFile]), browserifyOptions));
 	
 	bundler.transform(babelify.configure(babelifyOptions));
 
@@ -113,7 +115,7 @@ gulp.task('styles', function() {
 			// modifyVars: {
 			// 	"@fa-font-path": "../fonts/font-awesome"
 			// },
-			plugins: [cleancss/*, autoprefix*/]
+			plugins: [cleancss, autoprefix]
 		}))
 		.pipe(rename({
 			dirname: '',

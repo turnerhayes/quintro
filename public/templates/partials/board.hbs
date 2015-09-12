@@ -1,4 +1,18 @@
 <div class="board">
+	{{#board}}
+	{{#each structure}}
+	<div class="board-row">
+		{{#each .}}
+		<div class="board-cell{{#if .}} filled {{.}}{{/if}}">
+			{{#if .}}
+			<div class="marble {{.}}"></div>
+			{{/if}}
+		</div>
+		{{/each}}
+	</div>
+	{{/each}}
+	{{/board}}
+	{{^board}}
 	{{#Times height}}
 	<div class="board-row">
 		{{#Times width}}
@@ -6,4 +20,5 @@
 		{{/Times}}
 	</div>
 	{{/Times}}
+	{{/board}}
 </div>

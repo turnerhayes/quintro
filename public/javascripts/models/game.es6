@@ -25,9 +25,11 @@ class GameModel extends Backbone.Model {
 	initialize(options) {
 		var model = this;
 
-		model.set('players', _getPlayerColors(options.numberOfPlayers));
+		if (!model.get('players') || model.get('players').length === 0) {
+			model.set('players', _getPlayerColors(options.numberOfPlayers));
+			model.set('current_player', _.first(model.get('players')));
+		}
 
-		model.set('currentPlayer', _.first(model.get('players')));
 
 		model._attachEventListeners();
 	}
@@ -36,15 +38,15 @@ class GameModel extends Backbone.Model {
 		var model = this;
 
 		model.on('marble-placed', function(data) {
-			var previousPlayer = model.get('currentPlayer');
+			var previousPlayer = model.get('current_player');
 
 			model.set(
-				'currentPlayer',
+				'current_player',
 				model.get('players')[
 					(
 						_.indexOf(
 							model.get('players'),
-							model.get('currentPlayer')
+							model.get('current_player')
 						) + 1
 					) % _.size(model.get('players'))
 				]
@@ -52,7 +54,7 @@ class GameModel extends Backbone.Model {
 
 			model.trigger('player-changed', {
 				previousPlayer: previousPlayer,
-				currentPlayer: model.get('currentPlayer'),
+				currentPlayer: model.get('current_player'),
 			});
 		});
 	}

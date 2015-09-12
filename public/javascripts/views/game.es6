@@ -2,12 +2,13 @@ import assert from "assert";
 import _ from "lodash";
 import $ from "jquery";
 import Backbone from "backbone";
+import Handlebars from "handlebars";
 import BoardView from "./board";
 import TurnIndicatorView from "./turn-indicator";
 import GameModel from '../models/game';
+import BoardModel from '../models/board';
 import boardTemplate from "../../templates/partials/board.hbs";
-
-import Handlebars from "handlebars";
+import SocketClient from "../socket-client";
 
 class GameView extends Backbone.View {
 	initialize(options) {
@@ -19,22 +20,38 @@ class GameView extends Backbone.View {
 		
 		assert(options.$turnIndicatorEl, "Need to specify $turnIndicatorEl in options");
 
-		assert(!_.isUndefined(options.players), "Need to specify number of players in `players` property of options");
+		view.short_id = options.short_id || view.$('[name="game-id"]').val();
 
-		assert(options.players >= 3 && options.players <= 6, "Number of players must be between 3 and 6 (inclusive)");
+		var serializedGameModel = view.$('[name="game-model"]').val();
 
-		view.model = new GameModel({
-			numberOfPlayers: options.players,
-		});
+		if (serializedGameModel) {
+			serializedGameModel = JSON.parse(serializedGameModel);
+		}
+
+		view.model = new GameModel(
+			serializedGameModel ||
+			{
+				numberOfPlayers: options.players,
+			}
+		);
 
 		view.boardView = new BoardView({
-			el: options.$boardEl.get(0)
+			el: options.$boardEl.get(0),
+			model: (
+				serializedGameModel ?
+				new BoardModel(serializedGameModel.board) :
+				undefined
+			),
 		});
 
 		view.turnIndicatorView = new TurnIndicatorView({
 			el: options.$turnIndicatorEl.get(0),
-			numberOfPlayers: options.players,
-		})
+			players: view.model.get('players'),
+		});
+		
+		view.boardView.color = view.model.get('current_player');
+
+		SocketClient.emit('game:join', view.model.get('short_id'));
 
 		view._attachEventListeners();
 	}
@@ -63,17 +80,50 @@ class GameView extends Backbone.View {
 	_attachEventListeners() {
 		var view = this;
 
-		view.listenTo(view.boardView.model, 'marble-placed', function() {
-			view.model.trigger('marble-placed');
+		SocketClient.on('game:updated', function(data) {
+			console.log('game:updated: ', data);
+			view._synchronize(data);
+		});
+
+		view.listenTo(view.boardView.model, 'marble-placed', function(data) {
+			view.model.trigger('marble-placed', data);
+
+			if (!_.isUndefined(view.model.get('short_id'))) {
+				SocketClient.emit('board:marble-placed', {
+					short_id: view.short_id,
+					player: data.color,
+					position: data.position,
+				});
+			}
+		});
+
+		view.listenTo(view.boardView.model, 'quintro', function(data) {
+			view.endGame({
+				winner: data.color
+			});
 		});
 
 		view.listenTo(view.model, 'player-changed', function(data) {
-			view.boardView.color = view.model.get('currentPlayer');
+			view.boardView.color = view.model.get('current_player');
 			view.turnIndicatorView.setActivePlayer(view.boardView.color);
 		});
 	}
 
 	_detachEventListeners() {
+	}
+
+	_synchronize(trueState) {
+		var view = this;
+
+		view.boardView.update(trueState.game.board);
+		view.boardView.color = trueState.game.current_player;
+		view.turnIndicatorView.setActivePlayer(trueState.game.current_player);
+	}
+
+	endGame() {
+		var view = this;
+
+		view.$el.addClass('game-over');
 	}
 }
 

@@ -10,4 +10,5 @@ module.exports = {
 	"root": rootPath,
 	"static": staticPath,
 	"templates": path.join(staticPath, "templates"),
+	"logs": path.join(rootPath, "logs"),
 };

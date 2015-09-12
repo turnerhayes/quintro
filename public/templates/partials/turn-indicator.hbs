@@ -1,8 +1,7 @@
 <ul class="turn-indicator">
-	<li class="player black" data-player="black"></li>
-	<li class="player blue" data-player="blue"></li>
-	<li class="player red" data-player="red"></li>
-	<li class="player white" data-player="white"></li>
-	<li class="player yellow" data-player="yellow"></li>
-	<li class="player green" data-player="green"></li>
+	<input type="hidden" name="players" value='{{#Serialize players}}{{/Serialize}}'>
+		<input type="hidden" name="current_player" value='{{current_player}}'>
+	{{#players}}
+	<li class="player {{.}}{{#Compare . '===' ../current_player}} active{{/Compare}}" data-player="{{.}}"></li>
+	{{/players}}
 </ul>

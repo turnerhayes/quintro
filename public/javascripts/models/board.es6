@@ -100,6 +100,24 @@ class BoardModel extends Backbone.Model {
 		return quintros;
 	}
 
+	update(boardData) {
+		var model = this;
+
+		_.each(
+			boardData.structure,
+			function(row, rowNumber) {
+				_.each(
+					row,
+					function(cell, columnNumber) {
+						model._boardArray[rowNumber][columnNumber] = cell;
+					}
+				)
+			}
+		);
+
+		model.trigger('board-updated');
+	}
+
 	_checkCellsHorizontal(position) {
 		var model = this;
 

@@ -1,13 +1,69 @@
 .board-container {
-	/*perspective: 1000px;*/
-	display: flex;
-	justify-content: center;
+	.keyframe-definitions() {
+		0% {
+			top: 0;
+			transform: translate(-50%, 0);
+		}
+
+		50% {
+			transform: translate(-50%, -50%);
+		}
+
+		75% {
+			top: 35%;
+		}
+
+		100% {
+			top: 50%;
+		}
+	}
+
+	@-webkit-keyframes game-over-text {
+		.keyframe-definitions();
+	}
+
+	@keyframes game-over-text {
+		.keyframe-definitions();
+	}
+
+	// perspective: 1000px;
+	position: relative;
+	display: inline-block;
+
+	&.game-over {
+		&::before {
+			content: "";
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			bottom: 0px;
+			left: 0px;
+			background-color: rgba(0, 0, 0, 0.4);
+			z-index: 1;
+		}
+
+		&::after {
+			content: "Game Over!";
+			position: absolute;
+			font-weight: bold;
+			font-size: 85px;
+			color: white;
+			top: 50%;
+			left: 50%;
+			display: inline-block;
+			// animation: game-over-text 0.8s ease-out;
+			animation: game-over-text 0.8s cubic-bezier(.66,.57,.81,.99);
+			transform: translate(-50%, -50%);
+			white-space: nowrap;
+			z-index: 2;
+		}
+	}
 }
 
 .board {
 	display: table;
 	border-collapse: collapse;
-	/*transform: rotateX(40deg);*/
+	// transform: rotateX(40deg);
 	background-image: url(/static/images/wood/wood2.jpg);
 	background-position: top left;
 	background-size: 100% 100%;
@@ -15,6 +71,10 @@
 
 	&.game-over {
 		opacity: 0.6;
+
+		.board-cell {
+			cursor: not-allowed;
+		}
 	}
 
 	.board-row {

@@ -12,14 +12,22 @@ class QuintroBoard extends Backbone.View {
 	initialize() {
 		var view = this;
 
-		view.model = new BoardModel({
-			width: view.$el.find('.board-row').first().children('.board-cell').length,
-			height: view.$el.find('.board-row').length
-		});
+		if (!view.model) {
+			view.model = new BoardModel({
+				width: view.$el.find('.board-row').first().children('.board-cell').length,
+				height: view.$el.find('.board-row').length
+			});
+		}
 
 		view._bindCellsToModel();
 
 		view._attachEventListeners();
+	}
+
+	update(boardData) {
+		var view = this;
+
+		view.model.update(boardData);
 	}
 
 	_bindCellsToModel() {
@@ -41,6 +49,11 @@ class QuintroBoard extends Backbone.View {
 	_handleCellClick(event) {
 		var view = this;
 
+		// TODO: Don't reach outside our $el
+		if (view.$el.parents('.game-over').length > 0) {
+			return;
+		}
+
 		var $cell = $(event.currentTarget);
 
 		var column = $cell.index();
@@ -51,7 +64,7 @@ class QuintroBoard extends Backbone.View {
 			view.model.setMarble([column, row], view.color);
 		}
 		catch(ex) {
-			
+
 		}
 	}
 
@@ -66,74 +79,33 @@ class QuintroBoard extends Backbone.View {
 			$cell.append($('<div></div>').addClass('marble ' + data.color));
 		});
 
-		view.listenTo(view.model, 'quintro', function(data) {
-			view.endGame({
-				winner: data.color
-			});
-		});
-
-		view.listenTo(view.model, 'change:width change:height', function() {
-			view._resizeBoard();
-		});
+		view.listenTo(view.model, 'board-updated', _.bind(view._onBoardUpdated, view));
 	}
 
-	_resizeBoard() {
-		var view = this;
-		var $row;
-		var i;
+	_onBoardUpdated() {
+		var view = this; 
 
-		var dimensions = {
-			width: view.model.get('width'),
-			height: view.model.get('height'),
-		};
+		var classRegex = new RegExp('\\b(?:filled|black|blue|red|white|yellow|green)\\b');
 
-		if (dimensions.height < view.dimensions.height) {
-			while (view.$el.find('.board-row').length > dimensions.height) {
-				view.$el.find('.board-row').last().remove();
-			}
-		}
-		else if (dimensions.height > view.dimensions.height) {
-			while (dimensions.height > view.$el.find('.board-row').length) {
-				$row = $('<div></div>').addClass('board-row');
+		view.$('.board-row').each(
+			function(rowIndex) {
+				$(this).find('.board-cell').each(
+					function(columnIndex) {
+						var $cell = $(this);
+						var player = view.model._boardArray[rowIndex][columnIndex];
 
-				for (i = 0; i < dimensions.row; i++) {
-					$row.append($('<div></div>').addClass('board-cell'));
-				}
-
-				view.$el.find('.board-row').last().insertAfter($row);
-			}
-		}
-
-		if (dimensions.width < view.dimensions.width) {
-			view.$el.find('.board-row').each(
-				function() {
-					$(this).find('.board-cell').each(
-						function(index) {
-							if (index >= dimensions.width) {
-								$(this).remove();
-							}
+						if (_.isNull(player)) {
+							$cell.attr('class', $cell.attr('class').replace(classRegex, ''))
+								.empty();
 						}
-					);
-				}
-			);
-		}
-		else if (dimensions.width > view.dimensions.width) {
-			view.$el.find('.board-row').each(
-				function() {
-					var $row = $(this);
-
-					while (dimensions.width > $row.children('.board-cell').length) {
-						$row.append($('<div></div>').addClass('board-cell'));
+						else {
+							$cell.addClass('filled ' + player)
+								.append($('<div></div>').addClass('marble ' + player));
+						}
 					}
-				}
-			);
-		}
-	}
-
-	endGame() {
-		var view = this;
-
-		view.$el.addClass('game-over');
+				);
+			}
+		);
 	}
 
 	get color() {

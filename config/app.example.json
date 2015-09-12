@@ -1,4 +1,21 @@
 {
 	"environment": "development|production",
-	"secret": "some super secret"
+	"secret": "some super secret",
+	"logging": {
+		"format": "dev"
+	},
+	"session": {
+		"key": "quintro.sid",
+		"store": {
+			"host": "localhost",
+			"port": null,
+			"database": "quintro-session"
+		}
+	},
+	"address": {
+		"isSecure": false,
+		"host": "localhost",
+		"port": 7000,
+		"externalPort": null
+	}
 }

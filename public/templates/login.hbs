@@ -1,0 +1,40 @@
+{{#contentFor "page-header"}}
+<header>
+	<h3>Login to Quintro</h3>
+</header>
+{{/contentFor}}
+
+<section class="login-section" data-view-classes="login">
+	<ul class="nav nav-tabs" data-tabs="tabs">
+		<li class="active" role="presentation">
+			<a href="#social-login" role="tab" data-toggle="tab">Facebook</a>
+		</li>
+		<li role="presentation">
+			<a href="#credentials-login" role="tab" data-toggle="tab">Username/Password</a>
+		</li>
+	</ul>
+	<div class="tab-content">
+		<div class="sso-buttons tab-pane active" id="social-login" role="tabpanel">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<button class="btn btn-default login-button facebook">Login with Facebook</button>
+				</div>
+			</div>
+		</div>
+		<div id="credentials-login" class="tab-pane" role="tabpanel">
+			<form class="login-form" action="/login" method="post">
+				<fieldset class="form-field-container input-group">
+					{{!-- <div class="form-row"> 
+						{{> widgets/form-fields/textbox name="username" id="login--fields--username" placeholder="Username" input=(Object classes="form-control") }}
+					</div>
+					<div class="form-row"> 
+						{{> widgets/form-fields/textbox type="password" name="password" id="login--fields--password" placeholder="Password" input=(Object classes="form-control") }}
+					</div>
+					<div class="form-row"> 
+						{{> widgets/form-fields/button type="submit" id="login--fields--submit" label="Log in" input=(Object classes="form-control") }}
+					</div> --}}
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</section>

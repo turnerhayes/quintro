@@ -1,7 +1,5 @@
 "use strict";
 
-var hbs = require('express-hbs');
-
 module.exports = function(Handlebars) {
 	return {
 		"Times": function(num, options) {
@@ -10,7 +8,6 @@ module.exports = function(Handlebars) {
 			var data;
 
 			if (options.data) {
-				debugger;
 				data = Handlebars.createFrame(options.data);
 			}
 
@@ -37,6 +34,81 @@ module.exports = function(Handlebars) {
 			}
 
 			return new Handlebars.SafeString(result);
-		}
+		},
+
+		Range: function(min, max, options) {
+			var i;
+			var result;
+
+			if (options === void 0) {
+				options = max;
+				max = min;
+				min = 0;
+			}
+
+			if (max <= min) {
+				return [];
+			}
+
+			result = [];
+
+			for (i = min; i < max; i++) {
+				result.push(i);
+			}
+
+			return result;
+		},
+
+		Serialize: function(obj, options) {
+			return new Handlebars.SafeString(JSON.stringify(obj));
+		},
+
+		Default: function(value, defaultValue) {
+			return value || defaultValue;
+		},
+
+		Compare: function(lvalue, operator, rvalue, options) {
+			var operators, result;
+			
+			if (arguments.length < 3) {
+				throw new Error("Helper 'Compare' needs 2 parameters");
+			}
+			
+			if (options === undefined) {
+				options = rvalue;
+				rvalue = operator;
+				operator = "===";
+			}
+
+			operators = {
+				'==': function (l, r) { return l == r; },
+				'===': function (l, r) { return l === r; },
+				'!=': function (l, r) { return l != r; },
+				'!==': function (l, r) { return l !== r; },
+				'<': function (l, r) { return l < r; },
+				'>': function (l, r) { return l > r; },
+				'<=': function (l, r) { return l <= r; },
+				'>=': function (l, r) { return l >= r; },
+				'typeof': function (l, r) { return typeof l == r; },
+				'regex': function(l, r) { return (new RegExp(r)).test(l); }
+			};
+			
+			if (!(operator in operators)) {
+				throw new Error("Helper 'Compare' doesn't know the operator " + operator);
+			}
+			
+			result = operators[operator](lvalue, rvalue);
+
+			// Being called as a subexpression
+			if (!options.fn) {
+				return result;
+			}
+
+			if (result) {
+				return options.fn(this);
+			} else if (options.inverse) {
+				return options.inverse(this);
+			}
+		},
 	}
 };

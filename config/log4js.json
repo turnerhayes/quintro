@@ -1,0 +1,18 @@
+{
+	"appenders": [
+		{
+			"type": "file",
+			"filename": "logs/socket.log",
+			"category": "socket",
+			"maxLogSize": 20480,
+			"backups": 5
+		},
+		{
+			"type": "file",
+			"filename": "logs/server-errors.log",
+			"category": "server-errors",
+			"maxLogSize": 20480,
+			"backups": 10
+		}
+	]
+}
