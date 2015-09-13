@@ -29,7 +29,7 @@ var searchRoutes         = require('./routes/search');
 mongoose.connect(MongoUtils.getConnectionString(mongoConfig));
 mongoose.set('debug', process.env.DEBUG_DB);
 
-log.configure('./config/log4js.json');
+log.configure(path.join(__dirname, 'config', 'log4js.json'));
 
 var errorLogger = log.getLogger('server-error');
 
