@@ -40,4 +40,4 @@ config/app.js
 config/credentials.json
 config/log4js.json
 config/mongo.json
-
+config/websockets.json

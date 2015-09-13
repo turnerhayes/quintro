@@ -1,11 +1,22 @@
 import SocketIOClient from "socket.io-client";
 import $ from "jquery";
+import WebsocketsConfig from "../../config/websockets";
+
+var websocketsUrl = WebsocketsConfig.domain;
+
+if (WebsocketsConfig.port) {
+	websocketsUrl += ':' + WebsocketsConfig.port;
+}
+
+if (WebsocketsConfig.path) {
+	websocketsUrl += '/' + WebsocketsConfig.path;
+}
 
 class SocketClient {
 	constructor() {
 		var client = this;
 
-		client._ioClient = new SocketIOClient();
+		client._ioClient = new SocketIOClient(websocketsUrl);
 
 		$(window).on('beforeunload', function() {
 			client._ioClient.close();
