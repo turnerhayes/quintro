@@ -36,6 +36,7 @@ public/dist
 
 # Should create config files by copying and changing .example. files
 config/app.json
+config/app.js
 config/credentials.json
 config/log4js.json
 config/mongo.json
