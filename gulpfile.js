@@ -34,9 +34,6 @@ var helperNames = _.keys(require(path.join(pathsConfig.static, 'hbs-helpers'))(H
 
 var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
 
-// var USE_ES6 = !!process.env.USE_ES6;
-var USE_ES6 = true;
-
 var browserifyOptions = _.extend({}, watchify.args, {
 	debug: true,
 	extensions: ['.es6', '.js', '.json']
@@ -72,15 +69,15 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('watch-scripts', function() {
-	var mainJSFile = "./public/javascripts/main." + (USE_ES6 ? 'es6' : 'js');
-	var bundler = watchify(browserify(thirdPartyJS.concat([mainJSFile]), browserifyOptions));
+	var mainJSFile = "./public/javascripts/main.es6";
+	var bundler = watchify(browserify([mainJSFile].concat(thirdPartyJS), browserifyOptions));
 	
 	bundler.transform(babelify.configure(babelifyOptions));
 
 	bundler.transform(hbsfy.configure(hbsfyOptions));
 
 	function scripts(changedFiles) {
-		var filesPattern = './public/javascripts/**/*.' + (USE_ES6 ? '{js,es6}' : 'js');
+		var filesPattern = './public/javascripts/**/*.{js,es6}';
 
 		var compileStream = bundler
 			.bundle()

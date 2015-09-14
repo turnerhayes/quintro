@@ -1,0 +1,15 @@
+{
+  "name": "quintro-apps-socket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Turner Hayes <dev@turnerhayes.com>",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "connect-mongo": "^0.8.2",
+    "express": "^4.13.3",
+    "express-session": "^1.11.3"
+  }
+}

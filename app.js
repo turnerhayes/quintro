@@ -9,8 +9,6 @@ var fs             = require('fs');
 var cookieParser   = require('cookie-parser');
 var bodyParser     = require('body-parser');
 var lessMiddleware = require('less-middleware');
-var session        = require('express-session');
-var MongoStore     = require('connect-mongo')(session);
 var hbs            = require('express-hbs');
 var mongoose       = require('mongoose');
 var log            = require('log4js');
@@ -20,6 +18,8 @@ var mongoConfig    = require('./config/mongo');
 var MongoUtils     = require('./lib/mongo-utils');
 var SocketManager  = require('./lib/socket-manager');
 var setupPassport  = require('./passport-authentication');
+var getSocketApp   = require('./apps/socket');
+var session        = require('./session');
 
 var indexRoutes          = require('./routes/index');
 var authenticationRoutes = require('./routes/authentication');
@@ -33,21 +33,13 @@ log.configure(path.join(__dirname, 'config', 'log4js.json'));
 
 var errorLogger = log.getLogger('server-error');
 
-var sessionStore = new MongoStore({
-	"url": MongoUtils.getConnectionString(appConfig.session.store)
-});
-
-var sessionInstance = session({
-	key: appConfig.session.key,
-	store: sessionStore,
-	secret: appConfig.secret,
-	saveUninitialized: true,
-	resave: false
-});
-
 var app = express();
 
 var server = http.createServer(app);
+
+app.use(getSocketApp({
+	server: server,
+}));
 
 app.set('env', appConfig.environment);
 
@@ -76,16 +68,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser(appConfig.secret));
 
-app.use(sessionInstance);
+app.use(session.instance);
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
 setupPassport(app);
-
-SocketManager.initialize({
-	server: server,
-	session: sessionInstance,
-	sessionStore: sessionStore,
-});
 
 app.use('/', indexRoutes);
 app.use('/', authenticationRoutes);
