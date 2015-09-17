@@ -8,7 +8,6 @@ var http           = require('http');
 var fs             = require('fs');
 var cookieParser   = require('cookie-parser');
 var bodyParser     = require('body-parser');
-var lessMiddleware = require('less-middleware');
 var hbs            = require('express-hbs');
 var mongoose       = require('mongoose');
 var log            = require('log4js');
@@ -16,9 +15,7 @@ var pathsConfig    = require('./config/paths');
 var appConfig      = require('./config/app');
 var mongoConfig    = require('./config/mongo');
 var MongoUtils     = require('./lib/mongo-utils');
-var SocketManager  = require('./lib/socket-manager');
 var setupPassport  = require('./passport-authentication');
-var getSocketApp   = require('./apps/socket');
 var session        = require('./session');
 
 var indexRoutes          = require('./routes/index');
@@ -34,12 +31,6 @@ log.configure(path.join(__dirname, 'config', 'log4js.json'));
 var errorLogger = log.getLogger('server-error');
 
 var app = express();
-
-var server = http.createServer(app);
-
-app.use(getSocketApp({
-	server: server,
-}));
 
 app.set('env', appConfig.environment);
 
@@ -89,7 +80,7 @@ app.use(function(req, res, next) {
 });
 
 
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
 	var status = err.status || 500;
 
 	res.status(status);
@@ -108,7 +99,4 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = {
-	app: app,
-	server: server,
-};
+module.exports = app;

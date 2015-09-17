@@ -5,7 +5,8 @@
  * Module dependencies.
  */
 
-var qunitroServer = require('../app');
+var http          = require('http');
+var app           = require('../app');
 var debug         = require('debug')('quintro:server');
 
 /**
@@ -13,15 +14,17 @@ var debug         = require('debug')('quintro:server');
  */
 
 var port = normalizePort(process.env.PORT || '7000');
-qunitroServer.app.set('port', port);
+app.set('port', port);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-qunitroServer.server.listen(port);
-qunitroServer.server.on('error', onError);
-qunitroServer.server.on('listening', onListening);
+var server = http.createServer(app);
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -76,7 +79,7 @@ function onError(error) {
  */
 
 function onListening() {
-	var addr = qunitroServer.server.address();
+	var addr = server.address();
 	var bind = typeof addr === 'string' ?
 		'pipe ' + addr :
 		'port ' + addr.port;
