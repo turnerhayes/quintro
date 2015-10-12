@@ -1,0 +1,62 @@
+.turn-indicator {
+	ul {
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.player {
+		.player-profile-photo {
+			border-bottom: 20px solid;
+
+			&.photo-missing::before {
+				font-size: 44px;
+			}
+		}
+
+		&.black {
+			.player-profile-photo {
+				border-bottom-color: black;
+			}
+		}
+
+		&.blue {
+			.player-profile-photo {
+				border-bottom-color: blue;
+			}
+		}
+
+		&.red {
+			.player-profile-photo {
+				border-bottom-color: red;
+			}
+		}
+
+		&.white {
+			.player-profile-photo {
+				border-bottom-color: white;
+			}
+		}
+
+		&.yellow {
+			.player-profile-photo {
+				border-bottom-color: yellow;
+			}
+		}
+
+		&.green {
+			.player-profile-photo {
+				border-bottom-color: green;
+			}
+		}
+
+		&.active {
+			.player-profile-photo {
+				box-shadow: 2px 2px 9px;
+			}
+		}
+
+		&.hidden {
+			display: none;
+		}
+	}
+}

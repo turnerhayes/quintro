@@ -1,28 +1,43 @@
-import $ from 'jquery';
-import _ from 'lodash';
-import Backbone from 'backbone';
-import BoardModel from '../models/board';
+import $            from 'jquery';
+import _            from 'lodash';
+import Backbone     from 'backbone';
+import BoardModel   from '../models/board';
+import GameApp      from '../apps/game';
+
+var _events = {
+	'click .board-cell': '_handleCellClick',
+};
 
 class QuintroBoard extends Backbone.View {
 	get events() {
-		return {
-			'click .board-cell': '_handleCellClick',
-		};
+		return _events;
 	}
 
 	initialize() {
 		var view = this;
 
-		if (!view.model) {
-			view.model = new BoardModel({
-				width: view.$el.find('.board-row').first().children('.board-cell').length,
-				height: view.$el.find('.board-row').length
-			});
-		}
+		view._getModelPromise = GameApp.getCurrentGame().then(
+			function(game) {
+				view.model = game.get('board');
+				view._game = game;
 
-		view._bindCellsToModel();
+				return view.model;
+			}
+		);
+	}
 
-		view._attachEventListeners();
+	render() {
+		var view = this;
+
+		view._getModelPromise.done(
+			function() {
+				view._bindCellsToModel();
+
+				view._attachEventListeners();
+			}
+		);
+
+		return view;
 	}
 
 	update(boardData) {
@@ -50,8 +65,7 @@ class QuintroBoard extends Backbone.View {
 	_handleCellClick(event) {
 		var view = this;
 
-		// TODO: Don't reach outside our $el
-		if (view.$el.parents('.game-over').length > 0) {
+		if (view._game.get('is_over')) {
 			return;
 		}
 
@@ -62,29 +76,40 @@ class QuintroBoard extends Backbone.View {
 		var row = $cell.parent().index();
 
 		try {
-			view.model.setMarble([column, row], view.color);
+			view.model.requestMarblePlacement([column, row], view.color);
 		}
 		catch(ex) {
-
+			console.error('failed to place marble: ', ex.message);
 		}
 	}
 
 	_attachEventListeners() {
 		var view = this;
 
-		view.listenTo(view.model, 'marble-placed', function(data) {
-			var $cell = view._positionCellMap[JSON.stringify(data.position)];
+		view.listenTo(view.model, 'marbles-added', function(data) {
+			_.each(
+				data.cells,
+				function(cell) {
+					var $cell = view._positionCellMap[JSON.stringify(cell.position)];
 
-			$cell.addClass('filled ' + data.color);
+					$cell.addClass('filled ' + cell.color);
 
-			$cell.append($('<div></div>').addClass('marble ' + data.color));
+					$cell.append($('<div></div>').addClass('marble ' + cell.color));
+				}
+			);
 		});
 
 		view.listenTo(view.model, 'board-updated', _.bind(view._onBoardUpdated, view));
+
+		view.listenTo(view._game, 'player-added', function(data) {
+			if (data.addedModel.get('is_self')) {
+				view.color = data.addedModel.get('color');
+			}
+		});
 	}
 
 	_onBoardUpdated() {
-		var view = this; 
+		var view = this;
 
 		var classRegex = new RegExp('\\b(?:filled|black|blue|red|white|yellow|green)\\b');
 

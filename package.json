@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "nodemon": "nodemon ./bin/www",
-    "debug": "DEBUG=quintro:* npm run nodemon"
+    "debug": "DEBUG=quintro:* npm run nodemon",
+    "startall": "DEBUG=quintro:* DEBUG_DB=1 concurrent --prefix=command -l 20 \"nodemon bin/www\" \"nodemon websocket-server.js\""
   },
   "dependencies": {
     "body-parser": "~1.13.2",
@@ -24,15 +25,14 @@
     "passport": "^0.3.0",
     "passport-facebook": "^2.0.0",
     "passport-local": "^1.0.0",
-    "passport.socketio": "^3.5.1",
     "q": "^1.4.1",
     "serve-favicon": "~2.3.0",
-    "socket.io": "^1.3.6",
-    "socket.io-express-session": "^0.1.2"
+    "socket.io": "^1.3.6"
   },
   "devDependencies": {
     "babelify": "^6.2.0",
     "browserify": "^11.0.1",
+    "concurrently": "^0.1.1",
     "gulp-babel": "^5.2.1",
     "gulp-concat": "^2.6.0",
     "gulp-debug": "^2.1.0",

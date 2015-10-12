@@ -6,24 +6,9 @@ var GameStore = require('../lib/persistence/stores/game');
 
 var router = new express.Router();
 
-var PLAYERS = [
-	'black',
-	'blue',
-	'red',
-	'yellow',
-	'green',
-	'white',
-];
-
 function _createGame(req, res, next) {
 	var players = req.params.players || req.body.players;
 	var numberOfPlayers;
-
-	if (!players || players.length === 0) {
-		numberOfPlayers = Number(req.params['number-of-players'] || req.body['number-of-players']);
-
-		players = _.take(PLAYERS, numberOfPlayers);
-	}
 
 	GameStore.createGame({
 		short_id: req.params.short_id || req.body.short_id,
@@ -32,19 +17,19 @@ function _createGame(req, res, next) {
 		players: players,
 	}).done(
 		function(game) {
+			res.status(201);
+			res.set('Location', '/game/' + game.short_id);
+
 			res.format({
 				html: function() {
 					res.redirect(game.short_id);
 				},
 				json: function() {
-					res.status(201);
-					res.set('Location', '/game/' + game.short_id);
-					res.json(game);
+					res.json(game.toFrontendObject());
 				}
 			});
 		},
 		function(err) {
-			console.error('Error creating game: ', err);
 			res.status(500);
 			
 			res.format({
@@ -69,7 +54,13 @@ router.route('/')
 router.route('/create')
 	.get(
 		function(req, res) {
-			res.render('create-game', {title: "Create a game", req: req});
+			res.render(
+				'create-game',
+				{
+					title: "Create a game",
+					req: req
+				}
+			);
 		}
 	).post(_createGame);
 
@@ -88,16 +79,16 @@ router.route('/:short_id')
 
 					res.format({
 						json: function() {
-							res.json(game);
+							res.json(game.toFrontendObject());
 						},
 						html: function() {
 							res.render('board-page', {
 								title: 'Play Quintro Online! -- ' + game.short_id,
 								req: req,
-								game: game.toObject()
+								game: game.toFrontendObject(),
 							});
 						}
-					})
+					});
 				}
 			);
 		}

@@ -1,12 +1,8 @@
-import Handlebars from "handlebars";
+import Handlebars from "hbsfy/runtime";
 import getHelpers from "../../../hbs-helpers";
 
-var helpers = getHelpers(Handlebars);
-
 function init() {
-	Handlebars.registerHelper(
-		helpers
-	);
+	Handlebars.registerHelper(getHelpers(Handlebars));
 }
 
 export default init;

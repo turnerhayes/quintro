@@ -13,6 +13,13 @@
 			"category": "server-errors",
 			"maxLogSize": 20480,
 			"backups": 10
+		},
+		{
+			"type": "file",
+			"filename": "logs/games.log",
+			"category": "games",
+			"maxLogSize": 20480,
+			"backups": 20
 		}
 	]
 }

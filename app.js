@@ -4,7 +4,6 @@ var express        = require('express');
 var path           = require('path');
 var favicon        = require('serve-favicon');
 var logger         = require('morgan');
-var http           = require('http');
 var fs             = require('fs');
 var cookieParser   = require('cookie-parser');
 var bodyParser     = require('body-parser');
@@ -70,7 +69,6 @@ app.use('/game', gameRoutes);
 app.use('/search', searchRoutes);
 
 app.locals.IS_DEVELOPMENT = app.get('env') === 'development';
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

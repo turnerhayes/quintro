@@ -16,7 +16,6 @@ var watchify             = require('watchify');
 var browserify           = require('browserify');
 var hbsfy                = require('hbsfy');
 var babelify             = require('babelify');
-var Handlebars           = require('handlebars');
 var source               = require('vinyl-source-stream');
 var buffer               = require('vinyl-buffer');
 var merge                = require('merge-stream');
@@ -30,7 +29,7 @@ var autoprefix           = new LessPluginAutoPrefix({ browsers: ["last 2 version
 
 var pathsConfig          = require('./config/paths');
 
-var helperNames = _.keys(require(path.join(pathsConfig.static, 'hbs-helpers'))(Handlebars));
+var hbsHelpers = require(path.join(pathsConfig.static, 'hbs-helpers'))(require("hbsfy/runtime"));
 
 var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
 
@@ -126,3 +125,5 @@ gulp.task('styles', function() {
 gulp.task('watch-styles', function() {
 	gulp.watch('./public/stylesheets/**/*.less', ['styles']);
 });
+
+gulp.task('watch-static', ['watch-styles', 'watch-scripts']);

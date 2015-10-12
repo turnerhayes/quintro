@@ -1,5 +1,7 @@
-import Backbone from "backbone";
-import _ from "lodash";
+import assert       from "assert";
+import Backbone     from "backbone";
+import _            from "lodash";
+import SocketClient from "../socket-client";
 
 function _setupBoardArray(width, height) {
 	return _.reduce(
@@ -20,17 +22,8 @@ function _setupBoardArray(width, height) {
 }
 
 class BoardModel extends Backbone.Model {
-	initialize() {
+	initialize(options) {
 		var model = this;
-
-		model._boardArray = _setupBoardArray(model.get('width'), model.get('height'));
-	}
-
-	get defaults() {
-		return {
-			width: 20,
-			height: 20
-		};
 	}
 
 	_getCellAtPosition(position) {
@@ -38,11 +31,23 @@ class BoardModel extends Backbone.Model {
 
 		var [column, row] = position;
 
-		return model._boardArray[row][column];
+		return model.get('structure')[row][column];
 	}
 
-	setMarble(position, color) {
+	requestMarblePlacement(position, color) {
 		var model = this;
+
+		SocketClient.emit(
+			'board:place-marble',
+			{
+				short_id: model.get('game').get('short_id'),
+				color: color,
+				position: position,
+			},
+			_.bind(model._handleMarblePlacedResponse, model)
+		);
+
+		return;
 
 		var cell = model._getCellAtPosition(position);
 
@@ -57,18 +62,41 @@ class BoardModel extends Backbone.Model {
 
 		var [column, row] = position;
 
-		model._boardArray[row][column] = color;
+		// model.get('structure')[row][column] = color;
 
-		var quintroResults = model._checkCellsForQuintro(position);
+		// var quintroResults = model._checkCellsForQuintro(position);
 
-		if (!_.isEmpty(quintroResults)) {
-			model.trigger('quintro', quintroResults);
-		}
+		// if (!_.isEmpty(quintroResults)) {
+		// 	model.trigger('quintro', quintroResults);
+		// }
 
 		model.trigger('marble-placed', {
 			position: position,
 			color: color
 		});
+	}
+
+	addMarbles(cells) {
+		var model = this;
+
+		assert(_.size(cells) > 0, "addMarbles() called with no cells");
+
+		_.each(
+			cells,
+			function(cell) {
+				model.get('structure')[cell.position[1]][cell.position[0]] = cell.color;
+			}
+		);
+
+		model.trigger('marbles-added', {
+			cells: cells
+		});
+	}
+
+	_handleMarblePlacedResponse(data) {
+		if (data.error) {
+			console.error('marble placement error: ', data.message);
+		}
 	}
 
 	_checkCellsForQuintro(position) {
@@ -109,7 +137,7 @@ class BoardModel extends Backbone.Model {
 				_.each(
 					row,
 					function(cell, columnNumber) {
-						model._boardArray[rowNumber][columnNumber] = cell;
+						model.get('structure')[rowNumber][columnNumber] = cell;
 					}
 				)
 			}

@@ -23,16 +23,16 @@ class SocketClient {
 		});
 	}
 
-	emit(eventName, ...data) {
+	emit() {
 		var client = this;
 
-		client._ioClient.emit.apply(client._ioClient, [eventName].concat(data));
+		return client._ioClient.emit.apply(client._ioClient, arguments);
 	}
 
-	on(eventName, cb) {
+	on() {
 		var client = this;
 
-		client._ioClient.on.call(client._ioClient, eventName, cb);
+		return client._ioClient.on.apply(client._ioClient, arguments);
 	}
 }
 

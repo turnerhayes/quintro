@@ -8,11 +8,14 @@ var socketApp       = require('./apps/socket/app');
 var MongoUtils      = require('./lib/mongo-utils');
 var websocketConfig = require('./config/websockets');
 var mongoConfig     = require('./config/mongo');
+var setupPassport   = require('./passport-authentication');
 
 mongoose.set('debug', process.env.DEBUG_DB);
 mongoose.connect(MongoUtils.getConnectionString(mongoConfig));
 
 log.configure(path.join(__dirname, 'config', 'log4js.json'));
+
+setupPassport(socketApp.app);
 
 function _onError(error) {
 	if (error.syscall !== 'listen') {

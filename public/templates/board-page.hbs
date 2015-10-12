@@ -2,7 +2,7 @@
 	{{> turn-indicator players=game.players current_player=game.current_player}}
 {{/contentFor}}
 
-<div class="board-container">
+<div class="board-container" data-view-classes="game">
 	<input type="hidden" name="game-model" value='{{#Serialize game}}{{/Serialize}}' />
 	<input type="hidden" name="game-id" value="{{game.short_id}}" />
 	{{> board board=game.board}}

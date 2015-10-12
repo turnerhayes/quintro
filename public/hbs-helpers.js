@@ -2,7 +2,7 @@
 
 module.exports = function(Handlebars) {
 	return {
-		"Times": function(num, options) {
+		Times: function(num, options) {
 			var i;
 			var result;
 			var data;
@@ -59,7 +59,7 @@ module.exports = function(Handlebars) {
 			return result;
 		},
 
-		Serialize: function(obj, options) {
+		Serialize: function(obj) {
 			return new Handlebars.SafeString(JSON.stringify(obj));
 		},
 
@@ -109,6 +109,29 @@ module.exports = function(Handlebars) {
 			} else if (options.inverse) {
 				return options.inverse(this);
 			}
+		},
+
+		"Object": function(options) {
+			var obj = {};
+			var key;
+
+			if (!options.hash) {
+				return obj;
+			}
+
+			for (key in options.hash) {
+				if (options.hash.hasOwnProperty(key)) {
+					obj[key] = options.hash[key];
+				}
+			}
+
+			return obj;
+		},
+
+		"Array": function() {
+			return arguments.length === 0 ?
+				[] :
+				Array.prototype.slice.call(arguments, 0, arguments.length - 1);
 		},
 	}
 };
