@@ -9,6 +9,7 @@
   "private": true,
   "dependencies": {
     "express": "^4.13.3",
-    "log4js": "^0.6.26"
+    "log4js": "^0.6.26",
+    "morgan": "^1.6.1"
   }
 }
