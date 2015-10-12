@@ -1,5 +1,17 @@
 "use strict";
 
+var appUtils = require('./lib/utils/app');
+
+process.on('unhandledException', function(ex) {
+	appUtils.logFatalException(
+		ex,
+		"logs/websocket-server-crash.log",
+		function() {
+			process.exit(1);
+		}
+	);
+});
+
 var path            = require('path');
 var mongoose        = require('mongoose');
 var log             = require('log4js');

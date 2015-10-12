@@ -1,5 +1,5 @@
 import $                 from "jquery";
-import initHandlebars    from "./init/es6/handlebars";
+import initHandlebars    from "./init/handlebars";
 import ViewStarter       from './view-starter';
 
 initHandlebars();

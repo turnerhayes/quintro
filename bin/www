@@ -1,13 +1,25 @@
 #!/usr/bin/env node
 "use strict";
 
+var appUtils = require('../lib/utils/app');
+
+process.on('uncaughtException', function(ex) {
+	appUtils.logFatalException(
+		ex,
+		"logs/server-crash.log",
+		function() {
+			process.exit(1);
+		}
+	);
+});
+
 /**
  * Module dependencies.
  */
 
-var http          = require('http');
-var app           = require('../app');
-var debug         = require('debug')('quintro:server');
+var http  = require('http');
+var app   = require('../app');
+var debug = require('debug')('quintro:server');
 
 /**
  * Get port from environment and store in Express.
