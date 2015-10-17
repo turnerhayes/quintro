@@ -12,20 +12,18 @@ process.on('unhandledException', function(ex) {
 	);
 });
 
-var path            = require('path');
-var mongoose        = require('mongoose');
-var log             = require('log4js');
-var debug           = require('debug')('quintro:websockets');
-var socketApp       = require('./apps/socket/app');
-var MongoUtils      = require('./lib/mongo-utils');
-var websocketConfig = require('./config/websockets');
-var mongoConfig     = require('./config/mongo');
-var setupPassport   = require('./passport-authentication');
+var mongoose      = require('mongoose');
+var log           = require('log4js');
+var debug         = require('debug')('quintro:websockets');
+var socketApp     = require('./apps/socket/app');
+var MongoUtils    = require('./lib/utils/mongo');
+var config        = require('./lib/utils/config-manager');
+var setupPassport = require('./passport-authentication');
 
 mongoose.set('debug', process.env.DEBUG_DB);
-mongoose.connect(MongoUtils.getConnectionString(mongoConfig));
+mongoose.connect(config.mongo.url || MongoUtils.getConnectionString(config.mongo));
 
-log.configure(path.join(__dirname, 'config', 'log4js.json'));
+log.configure(config.log4js);
 
 setupPassport(socketApp.app);
 
@@ -37,11 +35,11 @@ function _onError(error) {
 	// handle specific listen errors with friendly messages
 	switch (error.code) {
 		case 'EACCES':
-			console.error('Port' + websocketConfig.port + ' requires elevated privileges');
+			console.error('Port' + config.websockets.port + ' requires elevated privileges');
 			process.exit(1);
 			break;
 		case 'EADDRINUSE':
-			console.error('Port' + websocketConfig.port + ' is already in use');
+			console.error('Port' + config.websockets.port + ' is already in use');
 			process.exit(1);
 			break;
 		default:
@@ -66,4 +64,4 @@ socketApp.app.use(function(req, res) {
 socketApp.server.on('error', _onError);
 socketApp.server.on('listening', _onListening);
 
-socketApp.server.listen(websocketConfig.port);
+socketApp.server.listen(config.websockets.port);

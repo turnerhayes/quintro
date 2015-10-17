@@ -1,62 +1,64 @@
 "use strict";
 
-var express        = require('express');
-var path           = require('path');
-var favicon        = require('serve-favicon');
-var logger         = require('morgan');
-var fs             = require('fs');
-var cookieParser   = require('cookie-parser');
-var bodyParser     = require('body-parser');
-var hbs            = require('express-hbs');
-var mongoose       = require('mongoose');
-var log            = require('log4js');
-var pathsConfig    = require('./config/paths');
-var appConfig      = require('./config/app');
-var mongoConfig    = require('./config/mongo');
-var MongoUtils     = require('./lib/mongo-utils');
-var setupPassport  = require('./passport-authentication');
-var session        = require('./session');
+var express       = require('express');
+var path          = require('path');
+var favicon       = require('serve-favicon');
+var logger        = require('morgan');
+var fs            = require('fs');
+var cookieParser  = require('cookie-parser');
+var bodyParser    = require('body-parser');
+var hbs           = require('express-hbs');
+var mongoose      = require('mongoose');
+var log           = require('log4js');
+var config        = require('./lib/utils/config-manager');
+var MongoUtils    = require('./lib/utils/mongo');
+var setupPassport = require('./passport-authentication');
+var session       = require('./session');
+
+if (process.env.IS_HEROKU) {
+	require('./heroku-setup');
+}
 
 var indexRoutes          = require('./routes/index');
 var authenticationRoutes = require('./routes/authentication');
 var gameRoutes           = require('./routes/game');
 var searchRoutes         = require('./routes/search');
 
-mongoose.connect(MongoUtils.getConnectionString(mongoConfig));
+mongoose.connect(config.mongo.url || MongoUtils.getConnectionString(config.mongo));
 mongoose.set('debug', process.env.DEBUG_DB);
 
-log.configure(path.join(__dirname, 'config', 'log4js.json'));
+log.configure(config.log4js);
 
 var errorLogger = log.getLogger('server-error');
 
 var app = express();
 
-app.set('env', appConfig.environment);
+app.set('env', config.app.environment);
 
 // view engine setup
 app.engine('hbs', hbs.express4({
-	defaultLayout: path.join(pathsConfig.templates, 'layout.hbs'),
-	partialsDir: path.join(pathsConfig.templates, 'partials'),
+	defaultLayout: path.join(config.paths.templates, 'layout.hbs'),
+	partialsDir: path.join(config.paths.templates, 'partials'),
 }));
 
-hbs.registerHelper(require(path.join(pathsConfig.static, "hbs-helpers"))(hbs.handlebars));
+hbs.registerHelper(require(path.join(config.paths.static, "hbs-helpers"))(hbs.handlebars));
 
-app.set('views', pathsConfig.templates);
+app.set('views', config.paths.templates);
 app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(
 	logger(
-		appConfig.logging.format || 'combined',
+		config.app.logging.format || 'combined',
 		{
-			stream: fs.createWriteStream(path.join(pathsConfig.logs, 'access.log'), {flags: 'a'})
+			stream: fs.createWriteStream(path.join(config.paths.logs, 'access.log'), {flags: 'a'})
 		}
 	)
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser(appConfig.secret));
+app.use(cookieParser(config.app.secret));
 
 app.use(session.instance);
 app.use('/static', express.static(path.join(__dirname, 'public')));

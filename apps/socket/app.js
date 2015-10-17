@@ -6,8 +6,7 @@ var path          = require('path');
 var express       = require('express');
 var logger        = require('morgan');
 var SocketManager = require('../../lib/socket-manager');
-var appConfig     = require('../../config/app');
-var pathsConfig   = require('../../config/paths');
+var config        = require('../../lib/utils/config-manager');
 
 var app = express();
 
@@ -15,10 +14,10 @@ var server = http.createServer(app);
 
 app.use(
 	logger(
-		appConfig.logging.format || 'combined',
+		config.app.logging.format || 'combined',
 		{
 			stream: fs.createWriteStream(
-				path.join(pathsConfig.logs, 'websocket-access.log'), {flags: 'a'}
+				path.join(config.paths.logs, 'websocket-access.log'), {flags: 'a'}
 			)
 		}
 	)

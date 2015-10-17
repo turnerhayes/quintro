@@ -1,5 +1,6 @@
 {
 	"domain": "ws.domain.com",
 	"port": 12345,
-	"path": "sockets"
+	"path": "sockets",
+	"externalPort": null
 }

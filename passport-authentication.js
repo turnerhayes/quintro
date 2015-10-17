@@ -6,15 +6,14 @@ var FacebookStrategy     = require('passport-facebook').Strategy;
 var LocalStrategy        = require('passport-local').Strategy;
 var UserStore            = require('./lib/persistence/stores/user');
 var UserModel            = require('./lib/persistence/models/user');
-var authenticationConfig = require('./config/authentication');
-var appConfig            = require('./config/app');
+var config               = require('./lib/utils/config-manager');
 
-var callbackURL = "http" + (appConfig.address.isSecure ? "s" : "") + "://" + appConfig.address.host;
-var port = appConfig.address.externalPort;
+var callbackURL = "http" + (config.app.address.isSecure ? "s" : "") + "://" + config.app.address.host;
+var port = config.app.address.externalPort;
 
 // if no external port is specified, assume it's the same as the listening port
 if (_.isNull(port)) {
-	port = appConfig.address.port;
+	port = config.app.address.port;
 }
 
 // If the port is 80, don't bother adding it
@@ -22,7 +21,7 @@ if (Number(port) !== 80) {
 	callbackURL += ":" + port;
 }
 
-callbackURL += authenticationConfig.facebook.callbackURL;
+callbackURL += config.authentication.facebook.callbackURL;
 
 passport.serializeUser(function(user, done) {
 	done(null, user._id);
@@ -37,10 +36,10 @@ passport.deserializeUser(function(id, done) {
 passport.use(
 	new FacebookStrategy(
 		{
-			clientID: authenticationConfig.facebook.appID,
-			clientSecret: authenticationConfig.facebook.appSecret,
-			callbackURL: callbackURL,
-			profileFields: authenticationConfig.facebook.profileFields,
+			clientID         : config.credentials.facebook.appID,
+			clientSecret     : config.credentials.facebook.appSecret,
+			callbackURL      : callbackURL,
+			profileFields    : config.authentication.facebook.profileFields,
 			passReqToCallback: true
 		},
 		function(req, accessToken, refreshToken, profile, done) {

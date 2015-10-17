@@ -1,8 +1,8 @@
 "use strict";
 
-var express              = require('express');
-var passport             = require('passport');
-var authenticationConfig = require('../config/authentication');
+var express  = require('express');
+var passport = require('passport');
+var config   = require('../lib/utils/config-manager');
 
 function login(req, res) {
 	res.render('login');
@@ -35,10 +35,10 @@ router.route('/logout')
 
 router.route('/auth/fb')
 	.get(
-		passport.authenticate('facebook', { "scope": authenticationConfig.facebook.scope || [] })
+		passport.authenticate('facebook', { "scope": config.authentication.facebook.scope || [] })
 	);
 
-router.route(authenticationConfig.facebook.callbackURL)
+router.route(config.authentication.facebook.callbackURL)
 	.get(
 		passport.authenticate(
 			'facebook',

@@ -2,19 +2,19 @@
 
 var session    = require('express-session');
 var MongoStore = require('connect-mongo')(session);
-var MongoUtils = require('./lib/mongo-utils');
-var appConfig  = require('./config/app');
+var MongoUtils = require('./lib/utils/mongo');
+var config     = require('./lib/utils/config-manager');
 
 var sessionStore = new MongoStore({
-	url: MongoUtils.getConnectionString(appConfig.session.store)
+	url: config.app.session.store.url || MongoUtils.getConnectionString(config.app.session.store)
 });
 
 var sessionInstance = session({
-	key: appConfig.session.key,
+	key: config.app.session.key,
 	store: sessionStore,
-	secret: appConfig.secret,
+	secret: config.app.secret,
 	cookie: {
-		domain: '.' + appConfig.address.host
+		domain: '.' + config.app.address.host
 	},
 	saveUninitialized: true,
 	resave: false

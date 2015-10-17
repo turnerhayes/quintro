@@ -1,15 +1,15 @@
 import SocketIOClient from "socket.io-client";
 import $ from "jquery";
-import WebsocketsConfig from "../../config/websockets";
+import config from "../../lib/utils/config-manager";
 
-var websocketsUrl = WebsocketsConfig.domain;
+var websocketsUrl = config.websockets.domain;
 
-if (WebsocketsConfig.port) {
-	websocketsUrl += ':' + WebsocketsConfig.port;
+if (config.websockets.externalPort) {
+	websocketsUrl += ':' + config.websockets.externalPort;
 }
 
-if (WebsocketsConfig.path) {
-	websocketsUrl += '/' + WebsocketsConfig.path;
+if (config.websockets.path) {
+	websocketsUrl += '/' + config.websockets.path;
 }
 
 class SocketClient {

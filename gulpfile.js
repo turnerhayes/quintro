@@ -27,9 +27,9 @@ var LessPluginAutoPrefix = require('less-plugin-autoprefix');
 var cleancss             = new LessPluginCleanCSS({ advanced: true });
 var autoprefix           = new LessPluginAutoPrefix({ browsers: ["last 2 versions"] });
 
-var pathsConfig          = require('./config/paths');
+var config               = require('./lib/utils/config-manager');
 
-var hbsHelpers = require(path.join(pathsConfig.static, 'hbs-helpers'))(require("hbsfy/runtime"));
+var hbsHelpers = require(path.join(config.paths.static, 'hbs-helpers'))(require("hbsfy/runtime"));
 
 var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
 
@@ -53,7 +53,7 @@ var hbsfyOptions = {
 };
 
 var babelifyOptions = {
-	sourceRoot: path.join(pathsConfig.static, 'javascripts'),
+	sourceRoot: path.join(config.paths.static, 'javascripts'),
 	modules: 'umd',
 	extensions: ['.es6'],
 };
