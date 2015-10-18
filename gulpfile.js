@@ -1,5 +1,12 @@
 "use strict";
 
+var debug = require('debug')('quintro:build');
+
+if (process.env.IS_HEROKU) {
+	debug('Running setup for Heroku');
+	require('./heroku-setup');
+}
+
 var _                    = require('lodash');
 var path                 = require('path');
 
