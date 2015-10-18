@@ -1,5 +1,12 @@
 "use strict";
 
+var debug         = require('debug')('quintro:app');
+
+if (process.env.IS_HEROKU) {
+	debug('Running setup for Heroku');
+	require('./heroku-setup');
+}
+
 var express       = require('express');
 var path          = require('path');
 var favicon       = require('serve-favicon');
@@ -11,22 +18,19 @@ var hbs           = require('express-hbs');
 var http          = require('http');
 var mongoose      = require('mongoose');
 var log           = require('log4js');
-var debug         = require('debug')('quintro:app');
-var config        = require('./lib/utils/config-manager');
 var MongoUtils    = require('./lib/utils/mongo');
+var config        = require('./lib/utils/config-manager');
 var setupPassport = require('./passport-authentication');
 var session       = require('./session');
-
-if (process.env.IS_HEROKU) {
-	require('./heroku-setup');
-}
 
 var indexRoutes          = require('./routes/index');
 var authenticationRoutes = require('./routes/authentication');
 var gameRoutes           = require('./routes/game');
 var searchRoutes         = require('./routes/search');
 
-mongoose.connect(config.mongo.url || MongoUtils.getConnectionString(config.mongo));
+var connectionString = config.mongo.url || MongoUtils.getConnectionString(config.mongo);
+debug('Connecting to database at ', connectionString);
+mongoose.connect(connectionString);
 mongoose.set('debug', process.env.DEBUG_DB);
 
 log.configure(config.log4js);
