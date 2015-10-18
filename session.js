@@ -1,12 +1,17 @@
 "use strict";
 
 var session    = require('express-session');
+var debug      = require('debug')('quintro:session');
 var MongoStore = require('connect-mongo')(session);
 var MongoUtils = require('./lib/utils/mongo');
 var config     = require('./lib/utils/config-manager');
 
+
+var connectionString = config.app.session.store.url || MongoUtils.getConnectionString(config.app.session.store);
+
+debug('Connecting to session store at ', connectionString);
 var sessionStore = new MongoStore({
-	url: config.app.session.store.url || MongoUtils.getConnectionString(config.app.session.store)
+	url: connectionString
 });
 
 var sessionInstance = session({
