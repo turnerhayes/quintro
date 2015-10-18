@@ -1,7 +1,7 @@
 "use strict";
 
 process.env.DATA_DB_URI               = process.env.DATA_DB_URI || process.env.MONGOLAB_URI;
-process.env.SESSION_DB_URI            = process.env.DATA_DB_URI;
+process.env.SESSION_STORE_URI            = process.env.DATA_DB_URI;
 process.env.ENVIRONMENT               = process.env.ENVIRONMENT || process.env.NODE_ENV;
 process.env.NODE_ENV                  = process.env.ENVIRONMENT;
 process.env.APP_ADDRESS_IS_SECURE     = true;
