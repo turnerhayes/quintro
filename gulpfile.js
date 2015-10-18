@@ -29,8 +29,6 @@ var autoprefix           = new LessPluginAutoPrefix({ browsers: ["last 2 version
 
 var config               = require('./lib/utils/config-manager');
 
-var hbsHelpers = require(path.join(config.paths.static, 'hbs-helpers'))(require("hbsfy/runtime"));
-
 var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
 
 var browserifyOptions = _.extend({}, watchify.args, {
@@ -38,19 +36,7 @@ var browserifyOptions = _.extend({}, watchify.args, {
 	extensions: ['.es6', '.js', '.json']
 });
 
-var hbsfyOptions = {
-	// "precompilerOptions": {
-	// 	"knownHelpers": _.reduce(
-	// 		helperNames,
-	// 		function(helpersObj, helperName) {
-	// 			helpersObj[helperName] = true;
-
-	// 			return helpersObj;
-	// 		},
-	// 		{}
-	// 	)
-	// }
-};
+var hbsfyOptions = {};
 
 var babelifyOptions = {
 	sourceRoot: path.join(config.paths.static, 'javascripts'),
@@ -58,50 +44,54 @@ var babelifyOptions = {
 	extensions: ['.es6'],
 };
 
-gulp.task('scripts', function() {
-	return gulp.src('./public/javascripts/**/*.js')
-		.pipe(sourcemaps.init())
-		.pipe(babel())
-		.pipe(concat('build.js'))
-		.pipe(sourcemaps.write())
-		.pipe(gulp.dest('./public/dist/js/'));
-});
+function _compileScripts(bundler, changedFiles) {
+	var filesPattern = './public/javascripts/**/*.{js,es6}';
 
-gulp.task('watch-scripts', function() {
-	var mainJSFile = "./public/javascripts/main.es6";
-	var bundler = watchify(browserify([mainJSFile].concat(thirdPartyJS), browserifyOptions));
+	var compileStream = bundler
+		.bundle()
+		.on('error', function(err) {
+			gutil.log(gutil.colors.red('Browserify Error\n'), err.message, err.stack || '');
+		})
+		.on('log', gutil.log)
+		.pipe(source('build.js'))
+		.pipe(buffer())
+		.pipe(sourcemaps.init({
+			loadMaps: true // loads map from browserify file
+		}))
+		.pipe(sourcemaps.write('.')) // writes .map file
+		.pipe(gulp.dest('./public/dist/js/'));
+
+	var lintStream = gulp.src(changedFiles || [filesPattern])
+		.pipe(jshint())
+		.pipe(jshint.reporter(stylish));
+
+	return merge(lintStream, compileStream);
+}
+
+function _scriptsTask(watch) {
+	var bundler = browserify(["./public/javascripts/main.es6"].concat(thirdPartyJS), browserifyOptions);
+	
+	if (watch) {
+		bundler = watchify(bundler);
+	}
 	
 	bundler.transform(babelify.configure(babelifyOptions));
 
 	bundler.transform(hbsfy.configure(hbsfyOptions));
 
-	function scripts(changedFiles) {
-		var filesPattern = './public/javascripts/**/*.{js,es6}';
-
-		var compileStream = bundler
-			.bundle()
-			.on('error', function(err) {
-				gutil.log(gutil.colors.red('Browserify Error\n'), err.message, err.stack || '');
-			})
-			.on('log', gutil.log)
-			.pipe(source('build.js'))
-			.pipe(buffer())
-			.pipe(sourcemaps.init({
-				loadMaps: true // loads map from browserify file
-			}))
-			.pipe(sourcemaps.write('.')) // writes .map file
-			.pipe(gulp.dest('./public/dist/js/'));
-
-		var lintStream = gulp.src(changedFiles || [filesPattern])
-			.pipe(jshint())
-			.pipe(jshint.reporter(stylish));
-
-		return merge(lintStream, compileStream);
+	if (watch) {
+		bundler.on('update', _.bind(_compileScripts, undefined, bundler));
 	}
 
-	bundler.on('update', scripts);
+	return _compileScripts(bundler);
+}
 
-	return scripts();
+gulp.task('scripts', function() {
+	return _scriptsTask();
+});
+
+gulp.task('watch-scripts', function() {
+	return _scriptsTask(true);
 });
 
 gulp.task('styles', function() {
@@ -125,5 +115,7 @@ gulp.task('styles', function() {
 gulp.task('watch-styles', function() {
 	gulp.watch('./public/stylesheets/**/*.less', ['styles']);
 });
+
+gulp.task('static', ['styles', 'scripts']);
 
 gulp.task('watch-static', ['watch-styles', 'watch-scripts']);
