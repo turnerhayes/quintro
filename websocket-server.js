@@ -1,23 +1,34 @@
 "use strict";
 
-var appUtils = require('./lib/utils/app');
+var config = require('./lib/utils/config-manager');
+var appUtils;
 
-process.on('unhandledException', function(ex) {
-	appUtils.logFatalException(
-		ex,
-		"logs/websocket-server-crash.log",
-		function() {
-			process.exit(1);
-		}
-	);
-});
+var debug      = require('debug')('quintro:websockets');
+
+if (process.env.IS_HEROKU) {
+	debug('Running setup in websockets server for Heroku');
+	require('../heroku-setup');
+}
+
+if (!config.app.logging.useConsole) {
+	appUtils = require('./lib/utils/app');
+
+	process.on('unhandledException', function(ex) {
+		appUtils.logFatalException(
+			ex,
+			"logs/websocket-server-crash.log",
+			function() {
+				process.exit(1);
+			}
+		);
+	});
+}
+
 
 var mongoose      = require('mongoose');
 var log           = require('log4js');
-var debug         = require('debug')('quintro:websockets');
 var getSocketApp  = require('./apps/socket/app').get;
 var MongoUtils    = require('./lib/utils/mongo');
-var config        = require('./lib/utils/config-manager');
 var setupPassport = require('./passport-authentication');
 
 mongoose.set('debug', process.env.DEBUG_DB);

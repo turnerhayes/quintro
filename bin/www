@@ -7,17 +7,23 @@ if (process.env.IS_HEROKU) {
 	require('../heroku-setup');
 }
 
-var appUtils = require('../lib/utils/app');
+var config = require('../lib/utils/config-manager');
 
-process.on('uncaughtException', function(ex) {
-	appUtils.logFatalException(
-		ex,
-		"logs/server-crash.log",
-		function() {
-			process.exit(1);
-		}
-	);
-});
+var appUtils;
+
+if (!config.app.logging.useConsole) {
+	appUtils = require('../lib/utils/app');
+
+	process.on('uncaughtException', function(ex) {
+		appUtils.logFatalException(
+			ex,
+			"logs/server-crash.log",
+			function() {
+				process.exit(1);
+			}
+		);
+	});
+}
 
 /**
  * Module dependencies.
