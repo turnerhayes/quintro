@@ -22,10 +22,6 @@ function _setupBoardArray(width, height) {
 }
 
 class BoardModel extends Backbone.Model {
-	initialize(options) {
-		var model = this;
-	}
-
 	_getCellAtPosition(position) {
 		var model = this;
 
@@ -46,34 +42,6 @@ class BoardModel extends Backbone.Model {
 			},
 			_.bind(model._handleMarblePlacedResponse, model)
 		);
-
-		return;
-
-		var cell = model._getCellAtPosition(position);
-
-		if (!_.isNull(cell)) {
-			let err = new Error('Cell ' + JSON.stringify(position) + ' is already occupied by ' + cell);
-
-			err.position = position;
-			err.color = cell;
-
-			throw err;
-		}
-
-		var [column, row] = position;
-
-		// model.get('structure')[row][column] = color;
-
-		// var quintroResults = model._checkCellsForQuintro(position);
-
-		// if (!_.isEmpty(quintroResults)) {
-		// 	model.trigger('quintro', quintroResults);
-		// }
-
-		model.trigger('marble-placed', {
-			position: position,
-			color: color
-		});
 	}
 
 	addMarbles(cells) {

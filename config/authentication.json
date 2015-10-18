@@ -1,0 +1,14 @@
+{
+	"facebook": {
+		"profileFields": [
+			"id",
+			"name",
+			"displayName",
+			"emails"
+		],
+		"scope": [
+			"email"
+		],
+		"callbackURL": "/auth/fb/callback"
+	}
+}

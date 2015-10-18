@@ -1,6 +1,8 @@
 {
+	"inline": false,
+	"isSecure": false,
 	"domain": "ws.domain.com",
 	"port": 12345,
-	"path": "sockets",
-	"externalPort": null
+	"externalPort": null,
+	"path": "sockets"
 }

@@ -2,14 +2,21 @@ import SocketIOClient from "socket.io-client";
 import $ from "jquery";
 import config from "../../lib/utils/config-manager";
 
-var websocketsUrl = config.websockets.domain;
+var websocketsUrl;
 
-if (config.websockets.externalPort) {
-	websocketsUrl += ':' + config.websockets.externalPort;
+if (config.websockets.inline) {
+	websocketsUrl = '';
 }
+else {
+	websocketsUrl = config.websockets.domain;
 
-if (config.websockets.path) {
-	websocketsUrl += '/' + config.websockets.path;
+	if (config.websockets.externalPort) {
+		websocketsUrl += ':' + config.websockets.externalPort;
+	}
+
+	if (config.websockets.path) {
+		websocketsUrl += '/' + config.websockets.path;
+	}
 }
 
 class SocketClient {

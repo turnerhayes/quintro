@@ -8,8 +8,10 @@ var fs            = require('fs');
 var cookieParser  = require('cookie-parser');
 var bodyParser    = require('body-parser');
 var hbs           = require('express-hbs');
+var http          = require('http');
 var mongoose      = require('mongoose');
 var log           = require('log4js');
+var debug         = require('debug')('quintro:app');
 var config        = require('./lib/utils/config-manager');
 var MongoUtils    = require('./lib/utils/mongo');
 var setupPassport = require('./passport-authentication');
@@ -32,6 +34,8 @@ log.configure(config.log4js);
 var errorLogger = log.getLogger('server-error');
 
 var app = express();
+
+var server = http.createServer(app);
 
 app.set('env', config.app.environment);
 
@@ -80,7 +84,7 @@ app.use(function(req, res, next) {
 });
 
 
-app.use(function(err, req, res) {
+app.use(function(err, req, res, next) { // jshint unused: false
 	var status = err.status || 500;
 
 	res.status(status);
@@ -98,5 +102,12 @@ app.use(function(err, req, res) {
 	);
 });
 
+if (config.websockets.inline) {
+	debug('Starting websockets app as an inline server');
+	require('./apps/socket/app').get(app, server);
+}
 
-module.exports = app;
+module.exports = {
+	app: app,
+	server: server
+};
