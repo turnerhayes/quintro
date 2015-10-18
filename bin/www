@@ -4,7 +4,7 @@ var debug      = require('debug')('quintro:server');
 
 if (process.env.IS_HEROKU) {
 	debug('Running setup for Heroku');
-	require('./heroku-setup');
+	require('../heroku-setup');
 }
 
 var appUtils = require('../lib/utils/app');
