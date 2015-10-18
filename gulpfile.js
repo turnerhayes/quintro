@@ -54,7 +54,7 @@ var babelifyOptions = {
 var jsFilesPattern = './public/javascripts/**/*.{js,es6}';
 
 function _getLintStream(files) {
-	gulp.src(files || [jsFilesPattern])
+	return gulp.src(files || [jsFilesPattern])
 		.pipe(jshint())
 		.pipe(jshint.reporter(stylish));
 }
