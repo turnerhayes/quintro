@@ -3,24 +3,6 @@ import Backbone     from "backbone";
 import _            from "lodash";
 import SocketClient from "../socket-client";
 
-function _setupBoardArray(width, height) {
-	return _.reduce(
-		_.range(0, height),
-		function(boardArray) {
-			var row = [];
-
-			for (let i = 0; i < width; i++) {
-				row[i] = null;
-			}
-
-			boardArray.push(row);
-
-			return boardArray;
-		},
-		[]
-	);
-}
-
 class BoardModel extends Backbone.Model {
 	_getCellAtPosition(position) {
 		var model = this;
@@ -107,7 +89,7 @@ class BoardModel extends Backbone.Model {
 					function(cell, columnNumber) {
 						model.get('structure')[rowNumber][columnNumber] = cell;
 					}
-				)
+				);
 			}
 		);
 

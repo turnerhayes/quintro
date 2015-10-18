@@ -1,11 +1,10 @@
 import Backbone           from "backbone";
-import _                  from "lodash";
 import $                  from "jquery";
 import GameApp            from "../apps/game";
 import PlayerItemTemplate from "../../templates/partials/player-turn-item.hbs";
 
 class TurnIndicatorView extends Backbone.View {
-	initialize(options) {
+	initialize() {
 		var view = this;
 
 		view._getGamePromise = GameApp.getCurrentGame().then(
@@ -38,8 +37,6 @@ class TurnIndicatorView extends Backbone.View {
 	}
 
 	_getPlayerEl(player) {
-		var view = this;
-
 		return $('<div></div>').addClass('player ' + player)
 			.attr('data-player', player);
 	}

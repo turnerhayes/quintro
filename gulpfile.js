@@ -44,9 +44,15 @@ var babelifyOptions = {
 	extensions: ['.es6'],
 };
 
-function _compileScripts(bundler, changedFiles) {
-	var filesPattern = './public/javascripts/**/*.{js,es6}';
+var jsFilesPattern = './public/javascripts/**/*.{js,es6}';
 
+function _getLintStream(files) {
+	gulp.src(files || [jsFilesPattern])
+		.pipe(jshint())
+		.pipe(jshint.reporter(stylish));
+}
+
+function _compileScripts(bundler, changedFiles) {
 	var compileStream = bundler
 		.bundle()
 		.on('error', function(err) {
@@ -61,9 +67,7 @@ function _compileScripts(bundler, changedFiles) {
 		.pipe(sourcemaps.write('.')) // writes .map file
 		.pipe(gulp.dest('./public/dist/js/'));
 
-	var lintStream = gulp.src(changedFiles || [filesPattern])
-		.pipe(jshint())
-		.pipe(jshint.reporter(stylish));
+	var lintStream = _getLintStream(changedFiles);
 
 	return merge(lintStream, compileStream);
 }
@@ -92,6 +96,10 @@ gulp.task('scripts', function() {
 
 gulp.task('watch-scripts', function() {
 	return _scriptsTask(true);
+});
+
+gulp.task('lint', function() {
+	return _getLintStream();
 });
 
 gulp.task('styles', function() {

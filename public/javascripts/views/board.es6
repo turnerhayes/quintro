@@ -1,7 +1,6 @@
 import $            from 'jquery';
 import _            from 'lodash';
 import Backbone     from 'backbone';
-import BoardModel   from '../models/board';
 import GameApp      from '../apps/game';
 
 var _events = {

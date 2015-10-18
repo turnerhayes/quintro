@@ -1,12 +1,5 @@
-import assert            from "assert";
-import _                 from "lodash";
-import $                 from "jquery";
 import Backbone          from "backbone";
-import BoardView         from "./board";
 import GameApp           from '../apps/game';
-import GameModel         from '../models/game';
-import BoardModel        from '../models/board';
-import boardTemplate     from "../../templates/partials/board.hbs";
 
 class GameView extends Backbone.View {
 	initialize(options) {

@@ -2,7 +2,6 @@ import $              from 'jquery';
 import _              from 'lodash';
 import Q              from 'q';
 import GameCollection from '../collections/games';
-import SocketClient   from '../socket-client';
 
 class GameApp {
 	constructor() {
@@ -32,7 +31,7 @@ class GameApp {
 			function(game) {
 				return game.join();
 			}
-		)
+		);
 	}
 
 	_populateFromDOM() {
