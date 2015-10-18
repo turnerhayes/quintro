@@ -36,7 +36,6 @@ mongoose.set('debug', process.env.DEBUG_DB);
 log.configure(config.log4js);
 
 var errorLogger = log.getLogger('server-error');
-
 var app = express();
 
 var server = http.createServer(app);
@@ -56,12 +55,17 @@ app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+var loggingArgs = {};
+
+if (!config.app.logging.useConsole) {
+	loggingArgs.stream = fs.createWriteStream(path.join(config.paths.logs, 'access.log'), {flags: 'a'});
+}
+
 app.use(
 	logger(
 		config.app.logging.format || 'combined',
-		{
-			stream: fs.createWriteStream(path.join(config.paths.logs, 'access.log'), {flags: 'a'})
-		}
+		loggingArgs
 	)
 );
 app.use(bodyParser.json());

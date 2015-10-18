@@ -25,14 +25,16 @@ exports = module.exports = {
 				server = http.createServer(app);
 			}
 
+			var loggingArgs = {};
+
+			if (!config.app.logging.useConsole) {
+				loggingArgs.stream = fs.createWriteStream(path.join(config.paths.logs, 'access.log'), {flags: 'a'});
+			}
+
 			app.use(
 				logger(
 					config.app.logging.format || 'combined',
-					{
-						stream: fs.createWriteStream(
-							path.join(config.paths.logs, 'websocket-access.log'), {flags: 'a'}
-						)
-					}
+					loggingArgs
 				)
 			);
 		}
