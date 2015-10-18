@@ -10,6 +10,7 @@
     "start-websocket": "node ./websocket-server.js",
     "start-inspector": "DEBUG=quintro:* DEBUG_DB=1 node-debug ./bin/www",
     "compile-static": "gulp static",
+    "postinstall": "cd public && npm install && cd .. && gulp static",
     "nodemon": "nodemon ./bin/www",
     "debug": "DEBUG=quintro:* npm run nodemon",
     "startall": "DEBUG=quintro:* DEBUG_DB=1 concurrent --prefix=command -l 20 \"nodemon bin/www\" \"nodemon websocket-server.js\""
@@ -52,7 +53,6 @@
     "jshint-stylish": "^2.0.1",
     "less-plugin-autoprefix": "^1.4.2",
     "less-plugin-clean-css": "^1.5.1",
-    "lodash": "^3.10.1",
     "merge-stream": "^1.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
