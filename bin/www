@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 "use strict";
+var debug      = require('debug')('quintro:server');
+
+if (process.env.IS_HEROKU) {
+	debug('Running setup for Heroku');
+	require('./heroku-setup');
+}
 
 var appUtils = require('../lib/utils/app');
 
@@ -17,7 +23,6 @@ process.on('uncaughtException', function(ex) {
  * Module dependencies.
  */
 
-var debug      = require('debug')('quintro:server');
 var quintroApp = require('../app');
 var config     = require('../lib/utils/config-manager');
 

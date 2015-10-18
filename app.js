@@ -1,12 +1,6 @@
 "use strict";
 
 var debug         = require('debug')('quintro:app');
-
-if (process.env.IS_HEROKU) {
-	debug('Running setup for Heroku');
-	require('./heroku-setup');
-}
-
 var express       = require('express');
 var path          = require('path');
 var favicon       = require('serve-favicon');
