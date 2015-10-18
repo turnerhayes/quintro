@@ -1,1 +1,1 @@
-web: npm start
+web: IS_HEROKU=1 npm start
