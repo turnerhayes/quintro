@@ -119,3 +119,5 @@ gulp.task('watch-styles', function() {
 gulp.task('static', ['styles', 'scripts']);
 
 gulp.task('watch-static', ['watch-styles', 'watch-scripts']);
+
+gulp.task('build', ['static']);

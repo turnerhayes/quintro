@@ -10,7 +10,6 @@
     "start-websocket": "node ./websocket-server.js",
     "start-inspector": "DEBUG=quintro:* DEBUG_DB=1 node-debug ./bin/www",
     "compile-static": "gulp static",
-    "build": "npm run compile-static",
     "nodemon": "nodemon ./bin/www",
     "debug": "DEBUG=quintro:* npm run nodemon",
     "startall": "DEBUG=quintro:* DEBUG_DB=1 concurrent --prefix=command -l 20 \"nodemon bin/www\" \"nodemon websocket-server.js\""
