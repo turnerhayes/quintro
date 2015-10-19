@@ -1,14 +1,15 @@
 "use strict";
 
 var debug = require('debug')('quintro:build');
-var appUtils = require('./lib/utils/app');
-
-appUtils.configFilesToEnvironment();
 
 if (process.env.IS_HEROKU) {
 	debug('Running setup for Heroku');
 	require('./heroku-setup');
 }
+
+var appUtils = require('./lib/utils/app');
+
+appUtils.configFilesToEnvironment();
 
 var _                    = require('lodash');
 var path                 = require('path');

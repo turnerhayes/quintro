@@ -1,10 +1,5 @@
 "use strict";
 
-var appUtils = require('./lib/utils/app');
-
-appUtils.configFilesToEnvironment();
-
-var config = require('./lib/utils/config-manager');
 
 var debug      = require('debug')('quintro:websockets');
 
@@ -12,6 +7,13 @@ if (process.env.IS_HEROKU) {
 	debug('Running setup in websockets server for Heroku');
 	require('../heroku-setup');
 }
+
+var appUtils = require('./lib/utils/app');
+
+appUtils.configFilesToEnvironment();
+
+var config = require('./lib/utils/config-manager');
+
 
 if (!config.app.logging.useConsole) {
 	process.on('unhandledException', function(ex) {
