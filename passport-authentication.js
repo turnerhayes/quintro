@@ -9,10 +9,10 @@ var UserModel            = require('./lib/persistence/models/user');
 var config               = require('./lib/utils/config-manager');
 
 var callbackURL = "http" + (config.app.address.isSecure ? "s" : "") + "://" + config.app.address.host;
-var port = Number(config.app.address.externalPort);
+var port = config.app.address.externalPort && Number(config.app.address.externalPort);
 
 // If the port is 80, don't bother adding it
-if (!_.isNaN(port) && port !== 80) {
+if (port && port !== 80) {
 	callbackURL += ":" + port;
 }
 
