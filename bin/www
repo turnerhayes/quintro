@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 "use strict";
-var debug      = require('debug')('quintro:server');
+var debug    = require('debug')('quintro:server');
+var appUtils = require('../lib/utils/app');
+
+appUtils.configFilesToEnvironment();
 
 if (process.env.IS_HEROKU) {
 	debug('Running setup for Heroku');
@@ -9,11 +12,7 @@ if (process.env.IS_HEROKU) {
 
 var config = require('../lib/utils/config-manager');
 
-var appUtils;
-
 if (!config.app.logging.useConsole) {
-	appUtils = require('../lib/utils/app');
-
 	process.on('uncaughtException', function(ex) {
 		appUtils.logFatalException(
 			ex,

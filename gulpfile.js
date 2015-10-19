@@ -1,6 +1,9 @@
 "use strict";
 
 var debug = require('debug')('quintro:build');
+var appUtils = require('./lib/utils/app');
+
+appUtils.configFilesToEnvironment();
 
 if (process.env.IS_HEROKU) {
 	debug('Running setup for Heroku');
@@ -40,13 +43,7 @@ var thirdPartyJS = ['./public/node_modules/bootstrap/dist/js/bootstrap.js'];
 
 var browserifyOptions = _.extend({}, watchify.args, {
 	debug: true,
-	extensions: ['.es6', '.js', '.json'],
-	// The below is neccessary for the config-manager; browserify can't deal with
-	// conditional requires; it will try to resolve them no matter what the code does.
-	// This poses a problem for the config manager, because we don't want to try to load
-	// the config files if we're using an environment variable configuration. We tell
-	// browserify to ignore those errors. This is probably not ideal.
-	ignoreMissing: true,
+	extensions: ['.es6', '.js', '.json']
 });
 
 var hbsfyOptions = {};

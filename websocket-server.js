@@ -1,7 +1,10 @@
 "use strict";
 
+var appUtils = require('./lib/utils/app');
+
+appUtils.configFilesToEnvironment();
+
 var config = require('./lib/utils/config-manager');
-var appUtils;
 
 var debug      = require('debug')('quintro:websockets');
 
@@ -11,8 +14,6 @@ if (process.env.IS_HEROKU) {
 }
 
 if (!config.app.logging.useConsole) {
-	appUtils = require('./lib/utils/app');
-
 	process.on('unhandledException', function(ex) {
 		appUtils.logFatalException(
 			ex,
