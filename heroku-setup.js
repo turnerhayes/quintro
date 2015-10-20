@@ -8,6 +8,8 @@ process.env.APP_ADDRESS_IS_SECURE     = process.env.APP_ADDRESS_IS_SECURE !== un
 	process.env.APP_ADDRESS_IS_SECURE :
 	true;
 process.env.APP_ADDRESS_HOST          = process.env.APP_ADDRESS_HOST || "quintro.herokuapp.com";
-process.env.USE_ENVIRONMENT_CONFIG    = true;
+process.env.USE_ENVIRONMENT_CONFIG    = process.env.USE_ENVIRONMENT_CONFIG !== undefined ?
+	process.env.USE_ENVIRONMENT_CONFIG :
+	true;
 process.env.LOGGING_USE_CONSOLE       = true;
 process.env.WEB_SOCKETS_INLINE        = true;
