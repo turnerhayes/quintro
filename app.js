@@ -12,7 +12,6 @@ var hbs           = require('express-hbs');
 var http          = require('http');
 var mongoose      = require('mongoose');
 var log           = require('log4js');
-var MongoUtils    = require('./lib/utils/mongo');
 var config        = require('./lib/utils/config-manager');
 var setupPassport = require('./passport-authentication');
 var session       = require('./session');
@@ -22,9 +21,8 @@ var authenticationRoutes = require('./routes/authentication');
 var gameRoutes           = require('./routes/game');
 var searchRoutes         = require('./routes/search');
 
-var connectionString = config.mongo.url || MongoUtils.getConnectionString(config.mongo);
-debug('Connecting to database at ', connectionString);
-mongoose.connect(connectionString);
+debug('Connecting to database at ', config.mongo.url);
+mongoose.connect(config.mongo.url);
 mongoose.set('debug', process.env.DEBUG_DB);
 
 log.configure(config.log4js);

@@ -1,5 +1,3 @@
 {
-	"host": "some.host",
-	"port": null,
-	"database": "qunitro"
+	"url": "mongodb://user:pass@domain:port/database"
 }

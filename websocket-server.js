@@ -31,11 +31,10 @@ if (!config.app.logging.useConsole) {
 var mongoose      = require('mongoose');
 var log           = require('log4js');
 var getSocketApp  = require('./apps/socket/app').get;
-var MongoUtils    = require('./lib/utils/mongo');
 var setupPassport = require('./passport-authentication');
 
 mongoose.set('debug', process.env.DEBUG_DB);
-mongoose.connect(config.mongo.url || MongoUtils.getConnectionString(config.mongo));
+mongoose.connect(config.mongo.url);
 
 log.configure(config.log4js);
 
