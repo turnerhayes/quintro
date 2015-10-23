@@ -4,6 +4,7 @@ import _                 from "lodash";
 import Q                 from "q";
 import BoardModel        from "./board";
 import PlayersCollection from "../collections/players";
+import PlayerModel       from "../models/player";
 import SocketClient      from "../socket-client";
 
 class GameModel extends Backbone.Model {
@@ -17,7 +18,7 @@ class GameModel extends Backbone.Model {
 
 	get defaults() {
 		return {
-			currentPlayer: null,
+			current_player: null,
 			players: new PlayersCollection()
 		};
 	}
@@ -28,6 +29,16 @@ class GameModel extends Backbone.Model {
 		super.initialize.apply(model, arguments);
 
 		model.set('players', new PlayersCollection(model.get('players')));
+
+		if (model.get('current_player')) {
+			model.set('current_player',
+				model.get('players').find(
+					function(player) {
+						return model.get('current_player').user.id === player.get('user').get('id');
+					}
+				) || new PlayerModel(model.get('current_player'))
+			);
+		}
 
 		model.set(
 			'board',
@@ -49,7 +60,7 @@ class GameModel extends Backbone.Model {
 			player.order :
 			undefined;
 
-		model.get('players').add(
+		var playerModel = model.get('players').add(
 			{
 				user: player.user,
 				color: player.color,
@@ -59,6 +70,10 @@ class GameModel extends Backbone.Model {
 				at: index
 			}
 		);
+
+		if (player.is_current) {
+			model.set('current_player', playerModel);
+		}
 	}
 
 	join() {
@@ -80,6 +95,26 @@ class GameModel extends Backbone.Model {
 		});
 
 		return deferred.promise;
+	}
+
+	toJSON() {
+		var model = this;
+
+		var json = super.toJSON.apply(model, arguments);
+
+		json.players = model.get('players').map(
+			function(player) {
+				return player.toJSON();
+			}
+		);
+
+		json.current_player = model.get('current_player') ?
+			model.get('current_player').toJSON() :
+			undefined;
+
+		json.board = model.get('board').toJSON();
+
+		return json;
 	}
 
 	_attachEventListeners() {

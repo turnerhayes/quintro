@@ -31,8 +31,12 @@ class TurnIndicatorView extends Backbone.View {
 	_setActiveColor() {
 		var view = this;
 
+		if (!view.model.get('current_player')) {
+			return;
+		}
+
 		view.$el.find('.player').removeClass('active')
-			.filter('.' + view.model.get('current_player').color)
+			.filter('.' + view.model.get('current_player').get('color'))
 			.addClass('active');
 	}
 
@@ -63,7 +67,6 @@ class TurnIndicatorView extends Backbone.View {
 		}
 
 		var $playerElAtIndex = view.$('.player').eq(order);
-		// var $playerItem = $('<li></li>').addClass('player ' + color);
 		var playerItemHTML = PlayerItemTemplate({
 			color: color,
 			user: user
