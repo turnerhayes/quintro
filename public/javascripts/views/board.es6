@@ -74,12 +74,7 @@ class QuintroBoard extends Backbone.View {
 
 		var row = $cell.parent().index();
 
-		try {
-			view.model.requestMarblePlacement([column, row], view.color);
-		}
-		catch(ex) {
-			console.error('failed to place marble: ', ex.message);
-		}
+		view.model.requestMarblePlacement([column, row]);
 	}
 
 	_attachEventListeners() {
@@ -99,12 +94,6 @@ class QuintroBoard extends Backbone.View {
 		});
 
 		view.listenTo(view.model, 'board-updated', _.bind(view._onBoardUpdated, view));
-
-		view.listenTo(view._game, 'player-added', function(data) {
-			if (data.addedModel.get('is_self')) {
-				view.color = data.addedModel.get('color');
-			}
-		});
 	}
 
 	_onBoardUpdated() {

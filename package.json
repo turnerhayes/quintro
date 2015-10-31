@@ -13,7 +13,8 @@
     "postinstall": "cd public && npm install && cd .. && gulp static",
     "nodemon": "nodemon ./bin/www",
     "debug": "DEBUG=quintro:* npm run nodemon",
-    "startall": "DEBUG=quintro:* DEBUG_DB=1 concurrent --prefix=command -l 20 \"nodemon bin/www\" \"nodemon websocket-server.js\""
+    "startall": "DEBUG=quintro:* DEBUG_DB=1 concurrent --prefix=command -l 20 \"nodemon bin/www\" \"nodemon websocket-server.js\"",
+    "test": "cd tests && npm run all"
   },
   "dependencies": {
     "body-parser": "~1.13.2",

@@ -9,7 +9,6 @@ export default class UserModel extends Backbone.Model {
 				last: undefined
 			},
 			username: undefined,
-			ip: undefined,
 			preferredDisplayName: undefined,
 			email: undefined,
 			profilePhotoURL: undefined

@@ -19,7 +19,11 @@ class GameModel extends Backbone.Model {
 	get defaults() {
 		return {
 			current_player: null,
-			players: new PlayersCollection()
+			players: new PlayersCollection(),
+			own_color: null,
+			is_over: false,
+			winner: null,
+			winning_quintros: null
 		};
 	}
 
@@ -30,14 +34,8 @@ class GameModel extends Backbone.Model {
 
 		model.set('players', new PlayersCollection(model.get('players')));
 
-		if (model.get('current_player')) {
-			model.set('current_player',
-				model.get('players').find(
-					function(player) {
-						return model.get('current_player').user.id === player.get('user').get('id');
-					}
-				) || new PlayerModel(model.get('current_player'))
-			);
+		if (_.isObject(model.get('current_player'))) {
+			model.set('current_player', model._findOrAddPlayer(model.get('current_player')));
 		}
 
 		model.set(
@@ -73,6 +71,10 @@ class GameModel extends Backbone.Model {
 
 		if (player.is_current) {
 			model.set('current_player', playerModel);
+		}
+
+		if (player.is_self) {
+			model.set('own_color', player.color);
 		}
 	}
 
@@ -128,6 +130,10 @@ class GameModel extends Backbone.Model {
 			model._handleUpdate(data);
 		});
 
+		SocketClient.on('game:over', function(data) {
+			model._handleGameOver(data);
+		});
+
 		model.listenTo(model.get('players'), 'add', function(addedModel, collection, options) {
 			model.trigger('player-added', {
 				addedModel,
@@ -154,8 +160,28 @@ class GameModel extends Backbone.Model {
 		}
 
 		if ("current_player" in data.changed) {
-			model.set("current_player", data.changed.current_player);
+			model.set("current_player", model._findOrAddPlayer(data.changed.current_player));
 		}
+	}
+
+	_handleGameOver(data) {
+		var model = this;
+
+		model.set({
+			is_over: true,
+			winner: model._findOrAddPlayer(data.player),
+			winning_quintros: data.quintros
+		});
+	}
+
+	_findOrAddPlayer(playerToFind) {
+		var model = this;
+
+		return model.get('players').find(
+			function(player) {
+				return playerToFind.user.id === player.get('user').get('id');
+			}
+		) || model.get('players').add(playerToFind);
 	}
 }
 

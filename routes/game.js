@@ -77,15 +77,32 @@ router.route('/:short_id')
 						return;
 					}
 
+					game = game.toFrontendObject();
+
+					var selfPlayer = _.find(
+						game.players,
+						function(player) {
+							return player.user.id === _.get(req.user, 'id');
+						}
+					);
+
+					if (!_.isUndefined(selfPlayer)) {
+						selfPlayer.is_self = true;
+
+						if (_.get(game.current_player, 'user.id') === selfPlayer.user.id) {
+							game.current_player.is_self = true;
+						}
+					}
+
 					res.format({
 						json: function() {
-							res.json(game.toFrontendObject());
+							res.json(game);
 						},
 						html: function() {
 							res.render('board-page', {
 								title: 'Play Quintro Online! -- ' + game.short_id,
 								req: req,
-								game: game.toFrontendObject(),
+								game: game,
 							});
 						}
 					});

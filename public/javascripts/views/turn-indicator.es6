@@ -48,8 +48,8 @@ class TurnIndicatorView extends Backbone.View {
 	_attachEventListeners() {
 		var view = this;
 
-		view.listenTo(view.model, 'player-added', function(data) {
-			view._addPlayer(data.addedModel.get('color'), data.addedModel.get('user'), data.index);
+		view.listenTo(view.model.get('players'), 'add', function(addedModel, collection, options) {
+			view._addPlayer(addedModel, options.at);
 
 			view._setActiveColor();
 		});
@@ -59,20 +59,17 @@ class TurnIndicatorView extends Backbone.View {
 		});
 	}
 
-	_addPlayer(color, user, order) {
+	_addPlayer(player, order) {
 		var view = this;
 
-		if (view.$('.player.' + color).length > 0) {
+		if (view.$('.player.' + player.get('color')).length > 0) {
 			return;
 		}
 
 		var $playerElAtIndex = view.$('.player').eq(order);
-		var playerItemHTML = PlayerItemTemplate({
-			color: color,
-			user: user
-		});
+		var playerItemHTML = PlayerItemTemplate(player.toJSON());
 
-		if ($playerElAtIndex.length > 0 && !$playerElAtIndex.hasClass(color)) {
+		if ($playerElAtIndex.length > 0 && !$playerElAtIndex.hasClass(player.get('color'))) {
 			$playerElAtIndex.before(playerItemHTML);
 		}
 		else {

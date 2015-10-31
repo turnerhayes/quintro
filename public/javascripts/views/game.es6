@@ -23,6 +23,7 @@ class GameView extends Backbone.View {
 
 		view._getGamePromise.done(
 			function() {
+				view._setYourTurn();
 				view._attachEventListeners();
 			}
 		);
@@ -31,14 +32,28 @@ class GameView extends Backbone.View {
 	_attachEventListeners() {
 		var view = this;
 
-		view.listenTo(view.model.get('board'), 'quintro', function(data) {
-			view.endGame({
-				winner: data.color
-			});
+		view.listenTo(view.model, 'change:current_player', function() {
+			view._setYourTurn();
+		});
+
+		view.listenTo(view.model, 'change:is_over', function() {
+			console.log('GAME OVER');
+
+			if (view.model.get('winner') === view.model.get('own_color')) {
+				console.log('YOU WON!!');
+			}
+
+			view.endGame();
 		});
 	}
 
 	_detachEventListeners() {
+	}
+
+	_setYourTurn() {
+		var view = this;
+
+		view.$el.toggleClass('your-turn', view.model.get('current_player').get('is_self'));
 	}
 
 	endGame() {
