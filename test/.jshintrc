@@ -1,0 +1,6 @@
+{
+	"node": true,
+	"unused": true,
+	"undef": true,
+	"predef": ["describe", "it"]
+}
