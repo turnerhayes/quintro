@@ -2,7 +2,13 @@
 	{{> turn-indicator players=game.players current_player=game.current_player}}
 {{/contentFor}}
 
-<div class="board-container{{#game.is_over}} game-over{{/game.is_over}}" data-view-classes="game">
+<div
+	class="board-container{{#game.is_over}} game-over{{/game.is_over}}"
+	data-view-classes="game"
+	{{#game.winner}}
+	data-winning-color="{{#Capitalize}}{{.}}{{/Capitalize}}"
+	{{/game.winner}}
+>
 	<input type="hidden" name="game-model" value='{{#Serialize game}}{{/Serialize}}' />
 	<input type="hidden" name="game-id" value="{{game.short_id}}" />
 	{{> board board=game.board}}

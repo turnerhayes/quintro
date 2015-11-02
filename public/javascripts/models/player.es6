@@ -28,6 +28,17 @@ class PlayerModel extends Backbone.Model {
 
 		return json;
 	}
+
+	equals(other) {
+		var model = this;
+
+		if (!other || !other.get('user')) {
+			return false;
+		}
+
+		return model.get('user').equals(other.get('user')) &&
+			model.get('color') === other.get('color');
+	}
 }
 
 export default PlayerModel;

@@ -18,4 +18,14 @@ export default class UserModel extends Backbone.Model {
 	get url() {
 		return "/user/" + this.get('username');
 	}
+
+	equals(other) {
+		var model = this;
+
+		if (!other) {
+			return false;
+		}
+
+		return model.get('id') === other.get('id');
+	}
 }

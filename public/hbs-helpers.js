@@ -133,5 +133,20 @@ module.exports = function(Handlebars) {
 				[] :
 				Array.prototype.slice.call(arguments, 0, arguments.length - 1);
 		},
+
+		Capitalize: function(word, options) {
+			// Can be called either as {{#Capitalize "word"}}{{/Capitalize}} or
+			// {{#Capitalize}}word{{/Capitalize}}
+			if (!options) {
+				options = word;
+				word = options.fn(this);
+			}
+
+			if (word) {
+				word = word[0].toUpperCase() + word.substring(1);
+			}
+
+			return word;
+		}
 	}
 };

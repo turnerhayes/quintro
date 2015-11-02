@@ -1,6 +1,11 @@
+import _              from "lodash";
+import $              from "jquery";
+import Backbone       from "backbone";
 import SocketIOClient from "socket.io-client";
-import $ from "jquery";
-import config from "../../lib/utils/config-manager";
+import dbg            from "debug";
+import config         from "../../lib/utils/config-manager";
+
+var debug = dbg('quintro:socket-client');
 
 var websocketsUrl;
 
@@ -19,28 +24,125 @@ else {
 	}
 }
 
+var LOCAL_EVENTS = ['connection'];
+
 class SocketClient {
-	constructor() {
-		var client = this;
-
-		client._ioClient = new SocketIOClient(websocketsUrl);
-
-		$(window).on('beforeunload', function() {
-			client._ioClient.close();
-		});
+	get isConnectionOpen() {
+		return this._connectionOpen;
 	}
 
 	emit() {
 		var client = this;
 
-		return client._ioClient.emit.apply(client._ioClient, arguments);
+		return client._ensureClient().emit.apply(client._ensureClient(), arguments);
 	}
 
-	on() {
+	on(eventName) {
 		var client = this;
 
-		return client._ioClient.on.apply(client._ioClient, arguments);
+		var colonIndex = eventName.indexOf(':');
+		var eventPrefix;
+
+		if (colonIndex) {
+			eventPrefix = eventName.substring(0, colonIndex);
+
+			if (_.contains(LOCAL_EVENTS, eventPrefix)) {
+				Backbone.Events.on.apply(client, arguments);
+				return client;
+			}
+		}
+
+		client._ensureClient().on.apply(client._ensureClient(), arguments);
+
+		return client;
+	}
+
+	_ensureClient() {
+		var client = this;
+
+		if (!client._ioClient) {
+			client._ioClient = new SocketIOClient(websocketsUrl);
+
+			client._connectionOpen = true;
+
+			client._ioClient.on(
+				'connect_error',
+				_.bind(
+					client._handleConnectError,
+					client,
+					'connect_error'
+				)
+			);
+
+			client._ioClient.on(
+				'connect_timeout',
+				_.bind(
+					client._handleConnectError,
+					client,
+					'connect_timeout'
+				)
+			);
+
+			client._ioClient.on(
+				'reconnect_error',
+				_.bind(
+					client._handleConnectError,
+					client,
+					'reconnect_error'
+				)
+			);
+
+			client._ioClient.on(
+				'reconnect_failed',
+				_.bind(
+					client._handleConnectError,
+					client,
+					'reconnect_failed'
+				)
+			);
+
+			client._ioClient.on(
+				'reconnect',
+				_.bind(
+					client._handleReconnect,
+					client
+				)
+			);
+
+			$(window).on('beforeunload', function() {
+				client._ioClient.close();
+			});
+		}
+
+		return client._ioClient;
+	}
+
+	_handleConnectError(reason, error) {
+		var client = this;
+
+		debug('Socket connection failure (' + reason + ')');
+
+		if (client._connectionOpen) {
+			client.trigger('connection:closed', {
+				reason: reason,
+				error: error
+			});
+			client._connectionOpen = false;
+		}
+	}
+
+	_handleReconnect() {
+		var client = this;
+
+		debug('Reconnected to socket server');
+
+		if (!client._connectionOpen) {
+			client.trigger('connection:restored');
+			client._connectionOpen = true;
+		}
 	}
 }
+
+_.extend(SocketClient.prototype, Backbone.Events);
 
 export default new SocketClient();

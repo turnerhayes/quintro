@@ -1,5 +1,9 @@
-import Backbone          from "backbone";
-import GameApp           from '../apps/game';
+import _                            from "lodash";
+import $                            from "jquery";
+import Backbone                     from "backbone";
+import GameApp                      from '../apps/game';
+import SocketClient                 from "../socket-client";
+import ConnectionLostDialogTemplate from "../../templates/modals/connection-lost.hbs";
 
 class GameView extends Backbone.View {
 	initialize(options) {
@@ -19,8 +23,6 @@ class GameView extends Backbone.View {
 	render() {
 		var view = this;
 
-		view._detachEventListeners();
-
 		view._getGamePromise.done(
 			function() {
 				view._setYourTurn();
@@ -37,17 +39,16 @@ class GameView extends Backbone.View {
 		});
 
 		view.listenTo(view.model, 'change:is_over', function() {
-			console.log('GAME OVER');
-
-			if (view.model.get('winner') === view.model.get('own_color')) {
-				console.log('YOU WON!!');
-			}
-
 			view.endGame();
 		});
-	}
 
-	_detachEventListeners() {
+		view.listenTo(SocketClient, 'connection:closed', function() {
+			view._handleConnectionLost();
+		});
+
+		view.listenTo(SocketClient, 'connection:restored', function() {
+			view._handleConnectionRestored();
+		});
 	}
 
 	_setYourTurn() {
@@ -56,10 +57,34 @@ class GameView extends Backbone.View {
 		view.$el.toggleClass('your-turn', view.model.get('current_player').get('is_self'));
 	}
 
+	_handleConnectionLost() {
+		var view = this;
+
+		if (!view._$connectionLostModal) {
+			view._$connectionLostModal = $(ConnectionLostDialogTemplate());
+			view._$connectionLostModal.modal({
+				show: false,
+				keyboard: false,
+				backdrop: 'static'
+			});
+		}
+
+		view._$connectionLostModal.modal('show');
+	}
+
+	_handleConnectionRestored() {
+		var view = this;
+
+		if (view._$connectionLostModal) {
+			view._$connectionLostModal.modal('hide');
+		}
+	}
+
 	endGame() {
 		var view = this;
 
-		view.$el.addClass('game-over');
+		view.$el.attr('data-winning-color', _.capitalize(view.model.get('winner').get('color')))
+			.addClass('game-over');
 	}
 }
 

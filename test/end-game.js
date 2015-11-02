@@ -5,8 +5,7 @@ var mongoose        = require('mongoose');
 var GameModel       = require('../lib/persistence/models/game');
 var MongoTestConfig = require('./config/mongo');
 
-console.log('MongoTestConfig: ', MongoTestConfig);
-mongoose.set('debug', true);
+mongoose.set('debug', !!process.env.DEBUG_DB);
 mongoose.connect(MongoTestConfig.url);
 
 function _close(cb) {
