@@ -62,7 +62,9 @@ class GameModel extends Backbone.Model {
 			{
 				user: player.user,
 				color: player.color,
-				is_self: player.is_self
+				is_self: player.is_self,
+				is_current: player.is_current,
+				is_present: player.is_present
 			},
 			{
 				at: index
@@ -90,13 +92,38 @@ class GameModel extends Backbone.Model {
 			}
 
 			model.addPlayer(
-				_.extend(data, { is_self: true })
+				_.extend(
+					data,
+					{
+						is_self: true,
+						is_present: true
+					}
+				)
 			);
 
 			deferred.resolve(model);
 		});
 
 		return deferred.promise;
+	}
+
+	refreshPlayerPresences() {
+		var model = this;
+
+		SocketClient.emit('game:get-player-presence', model.get('short_id'), 
+			function(players) {
+				var gamePlayers = _.map(players, _.bind(model._findOrAddPlayer, model));
+
+				model.get('players').each(
+					function(player) {
+						// Self player can be assumed to be present.
+						if (!player.get('is_self')) {
+							player.set('is_present', _.contains(gamePlayers, player));
+						}
+					}
+				);
+			}
+		);
 	}
 
 	toJSON() {
@@ -122,8 +149,14 @@ class GameModel extends Backbone.Model {
 	_attachEventListeners() {
 		var model = this;
 
-		SocketClient.on('game:player-joined', function(data) {
-			model.addPlayer(data);
+		SocketClient.on('game:player-joined', function(player) {
+			player.is_present = true;
+
+			model.addPlayer(player);
+		});
+
+		SocketClient.on('game:player-left', function(data) {
+			model._findOrAddPlayer(data.player).set('is_present', false);
 		});
 
 		SocketClient.on('game:updated', function(data) {

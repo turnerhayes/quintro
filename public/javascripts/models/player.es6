@@ -7,7 +7,8 @@ class PlayerModel extends Backbone.Model {
 		return {
 			user: undefined,
 			color: undefined,
-			is_self: false
+			is_self: false,
+			is_present: false
 		};
 	}
 

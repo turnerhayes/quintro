@@ -40,9 +40,16 @@ class TurnIndicatorView extends Backbone.View {
 			.addClass('active');
 	}
 
-	_getPlayerEl(player) {
-		return $('<div></div>').addClass('player ' + player)
-			.attr('data-player', player);
+	_setPlayerAbsent(player) {
+		var view = this;
+
+		view._findPlayerEl(player).toggleClass('absent', !player.get('is_present'));
+	}
+
+	_findPlayerEl(player) {
+		var view = this;
+
+		return view.$('.player.' + player.get('color'));
 	}
 
 	_attachEventListeners() {
@@ -54,6 +61,10 @@ class TurnIndicatorView extends Backbone.View {
 			view._setActiveColor();
 		});
 
+		view.listenTo(view.model.get('players'), 'change:is_present', function(player) {
+			view._setPlayerAbsent(player);
+		});
+
 		view.listenTo(view.model, 'change:current_player', function() {
 			view._setActiveColor();
 		});
@@ -62,7 +73,11 @@ class TurnIndicatorView extends Backbone.View {
 	_addPlayer(player, order) {
 		var view = this;
 
-		if (view.$('.player.' + player.get('color')).length > 0) {
+		var $playerEl = view._findPlayerEl(player);
+
+		if ($playerEl.length > 0) {
+			$playerEl.toggleClass('absent', !player.get('is_present'))
+				.toggleClass('active', !player.get('is_active'));
 			return;
 		}
 

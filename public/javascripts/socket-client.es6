@@ -26,6 +26,26 @@ else {
 
 var LOCAL_EVENTS = ['connection'];
 
+function _on(eventName) {
+	var client = this;
+
+	var colonIndex = eventName.indexOf(':');
+	var eventPrefix;
+
+	if (colonIndex) {
+		eventPrefix = eventName.substring(0, colonIndex);
+
+		if (_.contains(LOCAL_EVENTS, eventPrefix)) {
+			Backbone.Events.on.apply(client, arguments);
+			return client;
+		}
+	}
+
+	client._ensureClient().on.apply(client._ensureClient(), arguments);
+
+	return client;
+}
+
 class SocketClient {
 	get isConnectionOpen() {
 		return this._connectionOpen;
@@ -37,31 +57,16 @@ class SocketClient {
 		return client._ensureClient().emit.apply(client._ensureClient(), arguments);
 	}
 
-	on(eventName) {
-		var client = this;
-
-		var colonIndex = eventName.indexOf(':');
-		var eventPrefix;
-
-		if (colonIndex) {
-			eventPrefix = eventName.substring(0, colonIndex);
-
-			if (_.contains(LOCAL_EVENTS, eventPrefix)) {
-				Backbone.Events.on.apply(client, arguments);
-				return client;
-			}
-		}
-
-		client._ensureClient().on.apply(client._ensureClient(), arguments);
-
-		return client;
-	}
-
 	_ensureClient() {
 		var client = this;
 
 		if (!client._ioClient) {
-			client._ioClient = new SocketIOClient(websocketsUrl);
+			client._ioClient = new SocketIOClient(
+				websocketsUrl,
+				{
+					'sync disconnect on unload': true
+				}
+			);
 
 			client._connectionOpen = true;
 
@@ -143,6 +148,8 @@ class SocketClient {
 	}
 }
 
-_.extend(SocketClient.prototype, Backbone.Events);
+_.extend(SocketClient.prototype, Backbone.Events, {
+	on: _on
+});
 
 export default new SocketClient();

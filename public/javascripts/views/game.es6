@@ -27,6 +27,7 @@ class GameView extends Backbone.View {
 			function() {
 				view._setYourTurn();
 				view._attachEventListeners();
+				view.model.refreshPlayerPresences();
 			}
 		);
 	}

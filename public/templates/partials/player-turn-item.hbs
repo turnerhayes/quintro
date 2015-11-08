@@ -1,4 +1,6 @@
-<li class="player {{color}}{{#Compare color '===' ../current_player/color}} active{{/Compare}}" data-player='{{#Serialize .}}{{/Serialize}}'>
+<li
+	class="player {{color}}{{#Compare color '===' ../current_player/color}} active{{/Compare}} {{^is_present}}absent{{/is_present}}"
+>
 	{{#user.profilePhotoURL}}
 	<img src="{{.}}" class="player-profile-photo" />
 	{{/user.profilePhotoURL}}
