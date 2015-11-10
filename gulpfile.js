@@ -23,6 +23,7 @@ var gutil                = require('gulp-util');
 var sourcemaps           = require('gulp-sourcemaps');
 var rename               = require('gulp-rename');
 var less                 = require('gulp-less');
+var uglify               = require('gulp-uglify');
 var runSequence          = require('run-sequence');
 
 var watchify             = require('watchify');
@@ -165,6 +166,7 @@ function _compileScripts(bundler, changedFiles) {
 		.pipe(sourcemaps.init({
 			loadMaps: true // loads map from browserify file
 		}))
+		.pipe(uglify())
 		.pipe(sourcemaps.write('.')) // writes .map file
 		.pipe(gulp.dest(path.join(config.paths.static, 'dist', 'js/')));
 
