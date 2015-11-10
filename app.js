@@ -1,5 +1,6 @@
 "use strict";
 
+var _             = require('lodash');
 var debug         = require('debug')('quintro:app');
 var express       = require('express');
 var path          = require('path');
@@ -88,9 +89,20 @@ app.use(function(err, req, res, next) { // jshint unused: false
 	var status = err.status || 500;
 
 	res.status(status);
+
+	var errObj = {
+		status: status,
+		message: err.message,
+		stack: err.stack
+	};
+
+	if (err.name === 'ValidationError') {
+		errObj.validationErrors = err.errors;
+	}
+
 	res.render('error', {
 		message: err.message,
-		error: app.locals.IS_DEVELOPMENT ? err : {}
+		error: app.locals.IS_DEVELOPMENT ? _.omit(errObj, ['status']) : {}
 	});
 
 	errorLogger.error(

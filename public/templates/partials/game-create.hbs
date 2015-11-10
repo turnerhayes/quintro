@@ -20,7 +20,7 @@
 		<div class="form-row form-group">
 			<label>
 				Number of players:
-				<input type="number" class="form-control" min="3" max="6" name="number-of-players" {{#req.query.[number-of-players]}}value="{{.}}"{{/req.query.[number-of-players]}}{{^req.query.[number-of-players]}}value="4"{{/req.query.[number-of-players]}} />
+				<input type="number" class="form-control" min="3" max="6" name="player-limit" {{#req.query.[player-limit]}}value="{{.}}"{{/req.query.[player-limit]}}{{^req.query.[player-limit]}}value="3"{{/req.query.[player-limit]}} />
 			</label>
 		</div>
 		<div class="form-row form-group">

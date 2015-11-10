@@ -1,0 +1,19 @@
+<div class="modal" data-this='{{#Serialize .}}{{/Serialize}}'>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{{title}}</h4>
+			</div>
+			<div class="modal-body">
+				{{body}}
+			</div>
+			{{#footer}}
+			<div class="modal-footer">
+				{{#each links}}
+				<a href="{{.}}">{{@key}}</a>
+				{{/each}}
+			</div>
+			{{/footer}}
+		</div>
+	</div>
+</div>

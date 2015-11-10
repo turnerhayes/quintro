@@ -4,6 +4,8 @@ import Backbone                     from "backbone";
 import GameApp                      from '../apps/game';
 import SocketClient                 from "../socket-client";
 import ConnectionLostDialogTemplate from "../../templates/modals/connection-lost.hbs";
+import GameFullDialogTemplate       from "../../templates/modals/game-full.hbs";
+import ErrorCodes                   from "../../../shared/error-codes";
 
 class GameView extends Backbone.View {
 	initialize(options) {
@@ -16,6 +18,16 @@ class GameView extends Backbone.View {
 				view.model = game;
 
 				return view.model.join();
+			}
+		).then(
+			undefined,
+			function(err) {
+				if (err.code === ErrorCodes.GAME_FULL) {
+					view._handleGameFull();
+					return;
+				}
+
+				throw err;
 			}
 		);
 	}
@@ -55,7 +67,11 @@ class GameView extends Backbone.View {
 	_setYourTurn() {
 		var view = this;
 
-		view.$el.toggleClass('your-turn', view.model.get('current_player').get('is_self'));
+		view.$el.toggleClass(
+			'your-turn',
+			view.model.get('current_player') &&
+			view.model.get('current_player').get('is_self')
+		);
 	}
 
 	_handleConnectionLost() {
@@ -79,6 +95,21 @@ class GameView extends Backbone.View {
 		if (view._$connectionLostModal) {
 			view._$connectionLostModal.modal('hide');
 		}
+	}
+
+	_handleGameFull() {
+		var view = this;
+
+		if (!view._$gameFullModal) {
+			view._$gameFullModal = $(GameFullDialogTemplate());
+			view._$gameFullModal.modal({
+				show: false,
+				keyboard: false,
+				backdrop: 'static'
+			});
+		}
+
+		view._$gameFullModal.modal('show');
 	}
 
 	endGame() {

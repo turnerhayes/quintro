@@ -86,8 +86,12 @@ class GameModel extends Backbone.Model {
 		var deferred = Q.defer();
 
 		SocketClient.emit('game:join', model.get('short_id'), function(data) {
+			var err;
+
 			if (data.error) {
-				deferred.reject(data.message);
+				err = new Error(data.message);
+				err.code = data.code;
+				deferred.reject(err);
 				return;
 			}
 
@@ -165,6 +169,10 @@ class GameModel extends Backbone.Model {
 
 		SocketClient.on('game:over', function(data) {
 			model._handleGameOver(data);
+		});
+
+		SocketClient.on('connection:restored', function() {
+			model.refreshPlayerPresences();
 		});
 
 		model.listenTo(model.get('players'), 'add', function(addedModel, collection, options) {

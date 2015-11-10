@@ -7,14 +7,11 @@ var GameStore = require('../lib/persistence/stores/game');
 var router = new express.Router();
 
 function _createGame(req, res, next) {
-	var players = req.params.players || req.body.players;
-	var numberOfPlayers;
-
 	GameStore.createGame({
 		short_id: req.params.short_id || req.body.short_id,
 		width: req.params.width || req.body.width,
 		height: req.params.height || req.body.height,
-		players: players,
+		player_limit: req.params['player-limit'] || req.body['player-limit']
 	}).done(
 		function(game) {
 			res.status(201);
@@ -31,7 +28,7 @@ function _createGame(req, res, next) {
 		},
 		function(err) {
 			res.status(500);
-			
+
 			res.format({
 				html: function() {
 					next(err);
