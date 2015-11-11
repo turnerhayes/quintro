@@ -4,7 +4,6 @@ import _                 from "lodash";
 import Q                 from "q";
 import BoardModel        from "./board";
 import PlayersCollection from "../collections/players";
-import PlayerModel       from "../models/player";
 import SocketClient      from "../socket-client";
 
 class GameModel extends Backbone.Model {

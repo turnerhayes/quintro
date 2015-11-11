@@ -1,5 +1,4 @@
 import Backbone           from "backbone";
-import $                  from "jquery";
 import GameApp            from "../apps/game";
 import PlayerItemTemplate from "../../templates/partials/player-turn-item.hbs";
 

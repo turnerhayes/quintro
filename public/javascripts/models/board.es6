@@ -45,7 +45,7 @@ class BoardModel extends Backbone.Model {
 
 	_handleMarblePlacedResponse(data) {
 		if (data.error) {
-			console.error('marble placement error: ', data.message);
+			// TODO: handle error
 		}
 	}
 
