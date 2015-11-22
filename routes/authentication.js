@@ -5,7 +5,7 @@ var passport = require('passport');
 var config   = require('../lib/utils/config-manager');
 
 function login(req, res) {
-	res.render('login');
+	res.render('login', { title: "Quintro -- Login", req: req });
 }
 
 var router = new express.Router();
@@ -42,6 +42,23 @@ router.route(config.authentication.facebook.callbackURL)
 	.get(
 		passport.authenticate(
 			'facebook',
+			{
+				successRedirect: '/',
+				failureRedirect: '/login',
+				failureFlash: true,
+			}
+		)
+	);
+
+router.route('/auth/google')
+	.get(
+		passport.authenticate('google', { "scope": config.authentication.google.scope || "login" })
+	);
+
+router.route(config.authentication.google.callbackURL)
+	.get(
+		passport.authenticate(
+			'google',
 			{
 				successRedirect: '/',
 				failureRedirect: '/login',

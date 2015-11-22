@@ -4,7 +4,7 @@
 </header>
 {{/contentFor}}
 
-<section class="login-section" data-view-classes="login">
+<section class="login-section">
 	<ul class="nav nav-tabs" data-tabs="tabs">
 		<li class="active" role="presentation">
 			<a href="#social-login" role="tab" data-toggle="tab">Facebook</a>
@@ -17,7 +17,8 @@
 		<div class="sso-buttons tab-pane active" id="social-login" role="tabpanel">
 			<div class="panel panel-default">
 				<div class="panel-body">
-					<button class="btn btn-default login-button facebook">Login with Facebook</button>
+					<a href="/auth/fb" class="btn btn-default login-button facebook">Login with Facebook</a>
+					<a href="/auth/google" class="btn btn-default login-button google">Login with Google</a>
 				</div>
 			</div>
 		</div>

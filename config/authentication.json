@@ -10,5 +10,9 @@
 			"email"
 		],
 		"callbackURL": "/auth/fb/callback"
+	},
+	"google": {
+		"scope": ["https://www.googleapis.com/auth/plus.login", "email"],
+		"callbackURL": "/auth/google/callback"
 	}
 }
