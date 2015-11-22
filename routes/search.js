@@ -13,6 +13,7 @@ router.route('/')
 				width: req.query.width,
 				height: req.query.height,
 				player_count: req.query.player_count,
+				include_full: req.query.include_full === "true",
 			}).done(
 				function(results) {
 					res.render('search', {
@@ -30,8 +31,7 @@ router.route('/')
 				function(err) {
 					next(err);
 				}
-			)
-
+			);
 		}
 );
 

@@ -17,6 +17,11 @@
 				<input type="number" min="15" max="25" name="height" class="form-control" placeholder="Board height"{{#req.query.height}} value="{{.}}"{{/req.query.height}} />
 			</label>
 		</div>
+		<div class="form-row form-group"></div>
+			<label>
+				<input type="checkbox" name="include_full" value="true" {{#req.query.include_full}}checked{{/req.query.include_full}} />
+				Include full games
+			</label>
 		<div class="form-row form-group">
 			<button type="submit" class="btn btn-primary">Search</button>
 		</div>
