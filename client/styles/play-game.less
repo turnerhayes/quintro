@@ -1,0 +1,30 @@
+@import "_mixins.less";
+
+.c_game {
+	margin: 1em;
+
+	&--color-indicators {
+		list-style-type: none;
+		padding-left: 0;
+		margin-bottom: 1em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+
+		&--item {
+			margin: 0 0.6em;
+
+			&.active {
+				font-size: 1.3em;
+
+				.marble {
+					box-shadow: #C3C374 0px 0px 20px 6px;
+				}
+			}
+
+			.marble {
+				.m_marble-colors(3em);
+			}
+		}
+	}
+}

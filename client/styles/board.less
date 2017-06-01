@@ -1,0 +1,30 @@
+@import "_mixins.less";
+
+.c_game_board {
+	@cell-size: 4em;
+
+	border-collapse: collapse;
+	table-layout: fixed;
+
+	.board-row {
+	}
+
+	.board-cell {
+		width: @cell-size;
+		height: @cell-size;
+		min-width: @cell-size;
+		min-height: @cell-size;
+		max-width: @cell-size;
+		max-height: @cell-size;
+		border: 1px solid black;
+		cursor: pointer;
+
+		&.filled {
+			cursor: not-allowed;
+		}
+
+		.marble {
+			.m_marble-colors(90%);
+		}
+	}
+}
