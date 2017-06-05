@@ -16,7 +16,6 @@ passport.deserializeUser(function(id, done) {
 	UserStore.findByID(id).then(function(user) {
 		done(null, user);
 	}).catch(err => {
-		console.error("user deserialization error", err);
 		done(err);
 	});
 });

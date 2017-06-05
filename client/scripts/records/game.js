@@ -46,6 +46,10 @@ class GameRecord extends Record(schema, "Game") {
 	}
 }
 
+GameRecord.prototype.setMarble = function setMarble({color, position}) {
+	return this.setIn(["board", "filled", JSON.stringify(position)], Map({ color }));
+};
+
 GameRecord.prototype.advancePlayer = function advancePlayer() {
 	return this.set("currentPlayerColor", this.colors.get(
 		(

@@ -17,7 +17,7 @@ GamesStateRecord.prototype.setGetGameError = function setGetGameError(error) {
 };
 
 GamesStateRecord.prototype.addGame = function addGame(game) {
-	return this.setIn(["items", game.name], game);
+	return this.setIn(["items", game.name], new GameRecord(game));
 };
 
 GamesStateRecord.prototype.createGame = function createGame({ width, height, name, playerLimit }) {
@@ -31,8 +31,8 @@ GamesStateRecord.prototype.createGame = function createGame({ width, height, nam
 	}));
 };
 
-GamesStateRecord.prototype.placeMarble = function placeMarble({ gameName, color, position}) {
-	return this.setIn(["items", gameName, "board", position[1], position[0], "color"], color);
+GamesStateRecord.prototype.setMarble = function setMarble({ gameName, color, position}) {
+	return this.updateIn(["items", gameName], game => game.setMarble({ color, position }));
 };
 
 GamesStateRecord.prototype.advancePlayer = function advancePlayer({ gameName }) {

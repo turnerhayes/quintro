@@ -1,5 +1,4 @@
 import { push }   from "react-router-redux";
-import GameClient from "project/scripts/utils/game-client";
 import GameUtils  from "project/scripts/utils/game";
 
 export const GET_USER = "@QUINTRO/USERS/GET";
@@ -65,14 +64,15 @@ export function advancePlayer({ gameName }) {
 	};
 }
 
-export const PLACE_MARBLE = "@QUINTRO/GAME/PLACE_MARBLE";
+export const SET_MARBLE = "@QUINTRO/GAME/SET_MARBLE";
 
-export function placeMarble({ gameName, position }) {
+export function setMarble({ gameName, position, color }) {
 	return {
-		type: PLACE_MARBLE,
-		payload: GameClient.placeMarble({
+		type: SET_MARBLE,
+		payload: {
 			gameName,
-			position
-		})
+			position,
+			color
+		}
 	};
 }

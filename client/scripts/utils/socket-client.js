@@ -89,7 +89,7 @@ class SocketClient {
 			(resolve, reject) => {
 				this._ioClient.emit(eventName, eventData, (result) => {
 					if (result.error) {
-						reject(new Error(result.message));
+						reject(new Error(`Socket error: ${result.message}`));
 					}
 					else {
 						resolve(result);

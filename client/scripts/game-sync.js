@@ -12,9 +12,6 @@ export function gameSyncMiddleware() {
 						gameName: action.gameName,
 						color: action.color,
 						position: action.position,
-					},
-					(response) => {
-						console.log(response);
 					}
 				);
 			}
@@ -23,5 +20,3 @@ export function gameSyncMiddleware() {
 		next(action);
 	};
 }
-
-// SocketClient.instance.on();

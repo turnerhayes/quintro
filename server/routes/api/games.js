@@ -5,6 +5,29 @@ const HTTPStatusCodes          = require("http-status-codes");
 const rfr                      = require("rfr");
 const GamesStore               = rfr("server/persistence/stores/game");
 
+
+function prepareGame(game, req) {
+	const gameObj = game.toFrontendObject({
+		keepSessionID: true
+	});
+
+	if (req) {
+		gameObj.players.forEach(
+			(player) => {
+				player.isMe = (
+					player.user && req.user ?
+						req.user.username === player.user.username :
+						req.session.id === player.sessionID
+				);
+
+				delete player.sessionID;
+			}
+		);
+	}
+
+	return gameObj;
+}
+
 const router = express.Router();
 
 router.route("/:gameName")
@@ -15,17 +38,17 @@ router.route("/:gameName")
 			GamesStore.getGame({
 				name: gameName
 			}).then(
-				(game) => res.json(game.toFrontendObject())
+				(game) => res.json(prepareGame(game, req))
 			).catch(err => next(err));
 		}
 	)
 	.post(
 		(req, res, next) => {
 			const { width, height, playerLimit } = req.body;
-			const { name } = req.params;
+			const { gameName } = req.params;
 
 			GamesStore.createGame({
-				name,
+				name: gameName,
 				width,
 				height,
 				player_limit: playerLimit
@@ -33,7 +56,7 @@ router.route("/:gameName")
 				(game) => {
 					res.status(HTTPStatusCodes.CREATED)
 						.set("Location", `${req.baseUrl}/${game.name}`)
-						.json(game.toFrontendObject());
+						.json(prepareGame(game, req));
 				}
 			).catch(err => next(err));
 		}

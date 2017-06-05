@@ -5,13 +5,16 @@ const mongoose   = require("mongoose");
 const UserSchema = new mongoose.Schema({
 	username: {
 		type: String,
-		required: true
+		unique: true,
+		// sparse: allow multiple null values in the collection; only non-null values
+		// must be unique
+		sparse: true
 	},
 	email: {
 		type: String,
 		match: [/[^@]+@.+/, "{VALUE} is not a valid email address"],
-		required: true,
 		unique: true,
+		sparse: true
 	},
 	provider: {
 		type: String,
@@ -26,20 +29,20 @@ const UserSchema = new mongoose.Schema({
 		unique: true
 	},
 	name: {
-		first: {
-			type: String
-		},
-		middle: {
-			type: String,
-			default: null
-		},
-		last: {
-			type: String,
-			default: null
-		},
-		display: {
-			type: String,
-			default: null
+		default: null,
+		type: {
+			first: {
+				type: String
+			},
+			middle: {
+				type: String,
+			},
+			last: {
+				type: String,
+			},
+			display: {
+				type: String,
+			}
 		}
 	},
 	profilePhotoURL: {
@@ -54,7 +57,7 @@ const UserSchema = new mongoose.Schema({
 			}
 		}
 	},
-	sessionId: {
+	sessionID: {
 		type: String
 	}
 });
@@ -73,17 +76,22 @@ UserSchema.methods.toFrontendObject = function toFrontendObject() {
 };
 
 UserSchema.pre("validate", function(next) {
-	if (
-		(this.username && this.sessionId) ||
-		(!this.username && !this.sessionId)
-	) {
-		next(new Error("User must have either a username or a session ID, but not both"));
-		return;
+	if (this.sessionID) {
+		if (this.username) {
+			next(new Error("Anonymous users must not have a username"));
+			return;
+		}
 	}
+	else {
+		if (!this.username) {
+			next(new Error("Users must have either a username or a sessionID"));
+			return;
+		}
 
-	if (this.username && !this.name.first) {
-		next(new Error("Non-anonymous users (users with a username) must have a first name"));
-		return;
+		if (!this.email) {
+			next(new Error("Non-anonymous users must have an email address"));
+			return;
+		}
 	}
 
 	next();

@@ -6,7 +6,6 @@ import Board          from "project/scripts/components/Board";
 import GameRecord     from "project/scripts/records/game";
 import GameClient     from "project/scripts/utils/game-client";
 import {
-	placeMarble,
 	getGame
 }                     from "project/scripts/redux/actions";
 import                     "project/styles/play-game.less";
@@ -51,10 +50,10 @@ class PlayGame extends React.Component {
 			return;
 		}
 
-		this.props.dispatch(placeMarble({
+		GameClient.placeMarble({
 			gameName: this.props.game.name,
 			position
-		}));
+		});
 	}
 
 	renderBoard = () => {
@@ -65,20 +64,30 @@ class PlayGame extends React.Component {
 				>
 					{
 						this.props.game.players.map(
-							(player) => (
-								<li
-									key={player.color}
-									className={`c_game--color-indicators--item ${player.color === this.props.game.currentPlayerColor ? "active" : ""}`}
-								>
-									<div
-										className={`marble ${player.color}`}
-									/>
-								</li>
-							)
+							(player) => {
+								const active = player.color === this.props.game.currentPlayerColor;
+								return (
+									<li
+										key={player.color}
+										className={`c_game--color-indicators--item ${active ? "active": ""} ${player.isMe ? "current-player" : ""}`}
+									>
+										<div
+											className={`marble ${player.color}`}
+										/>
+									</li>
+								);
+							}
 						).toArray()
 					}
 					{
-						[...Array(this.props.game.playerLimit - this.props.game.players.size)].map(
+						[
+							...Array(
+								Math.max(
+									this.props.game.playerLimit - this.props.game.players.size,
+									0
+								)
+							)
+						].map(
 							(val, index) => (
 								<li
 									key={`not-filled-player-${index}`}

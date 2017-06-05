@@ -1,6 +1,5 @@
 import $          from "jquery";
 import Promise    from "bluebird";
-import GameRecord from "project/scripts/records/game";
 
 
 function prepareGame(game) {
@@ -30,9 +29,7 @@ class GameUtils {
 				jqXHR => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
-			).then(
-				game => new GameRecord(prepareGame(game))
-			)
+			).then(prepareGame)
 		);
 	}
 
@@ -51,9 +48,7 @@ class GameUtils {
 				jqXHR => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
-			).then(
-				createdGame => new GameRecord(prepareGame(createdGame))
-			)
+			).then(prepareGame)
 		);
 	}
 }

@@ -93,6 +93,7 @@ const Config = {
 	},
 	session: {
 		secret: process.env.SESSION_SECRET,
+		cookieName: process.env.SESSION_COOKIE_NAME || "quintro.sid",
 		db: {
 			url: SESSION_DB_URL
 		}

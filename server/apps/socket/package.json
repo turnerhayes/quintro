@@ -9,9 +9,12 @@
   "private": true,
   "dependencies": {
     "bluebird": "^3.5.0",
+    "cookie-parser": "^1.4.3",
     "express": "^4.13.3",
+    "express-session": "^1.15.3",
     "log4js": "^0.6.26",
     "morgan": "^1.6.1",
+    "socket.io": "^2.0.2",
     "spdy": "^3.4.7"
   },
   "bundledDependencies": [

@@ -10,6 +10,7 @@ const fs            = require("fs");
 const assert        = require("assert");
 const spdy          = require("spdy");
 const express       = require("express");
+const cookieParser  = require("cookie-parser");
 const rfr           = require("rfr");
 const rfrProject    = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..")
@@ -30,6 +31,8 @@ exports = module.exports = function(app, server) {
 
 	if (!app) {
 		app = express();
+		
+		app.use(cookieParser(Config.session.secret));
 
 		passportAuth(app);
 

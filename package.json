@@ -7,7 +7,7 @@
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:prod": "npm run build-static && node ./server/bin/www.js",
     "start:dev": "DEBUG=quintro:* nodemon ./server/bin/www.js",
-    "dev-server": "webpack-dev-server --hot --inline",
+    "dev-server": "webpack-dev-server --hot --inline --quiet --watch",
     "build-static": "webpack",
     "lint": "eslint --ext .jsx --ext .js .; exit 0"
   },

@@ -62,6 +62,11 @@ const GameSchema = new mongoose.Schema({
 			user: {
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",
+				default: null
+			},
+			sessionID: {
+				type: String,
+				default: null
 			},
 			_id: false
 		}
@@ -100,6 +105,16 @@ GameSchema.pre("validate", function(next) {
 	if (_.size(this.players) > this.player_limit) {
 		next(new Error(`Too many players in this game; only up to ${this.player_limit} allowed`));
 		return;
+	}
+
+	for (let i = this.players.length - 1; i >= 0; i--) {
+		if (
+			(!this.players[i].user && !this.players[i].sessionID) ||
+			(this.players[i].user && this.players[i].sessionID)
+		) {
+			next(new Error("Every player must either have a user or a sessionID, but not both"));
+			return;
+		}
 	}
 
 	next();
@@ -371,7 +386,7 @@ function _findTopRightDiagonalCells(args) {
 
 class Game {
 	getQuintros(startCell) {
-		const colorCells = _.where(
+		const colorCells = _.filter(
 			this.board.filled,
 			{ color: startCell.color }
 		);
@@ -402,19 +417,21 @@ class Game {
 			startCell: startCell
 		});
 
-		if (_.size(horizontalCells) >= 5) {
+		const QUINTRO_LENGTH = 5;
+
+		if (_.size(horizontalCells) >= QUINTRO_LENGTH) {
 			quintros.horizontal = horizontalCells;
 		}
 
-		if (_.size(verticalCells) >= 5) {
+		if (_.size(verticalCells) >= QUINTRO_LENGTH) {
 			quintros.vertical = verticalCells;
 		}
 
-		if (_.size(topLeftCells) >= 5) {
+		if (_.size(topLeftCells) >= QUINTRO_LENGTH) {
 			quintros.top_left = topLeftCells;
 		}
 
-		if (_.size(topRightCells) >= 5) {
+		if (_.size(topRightCells) >= QUINTRO_LENGTH) {
 			quintros.top_right = topRightCells;
 		}
 
@@ -460,7 +477,7 @@ class Game {
 		});
 	}
 
-	toFrontendObject() {
+	toFrontendObject({ keepSessionID = false } = {}) {
 		const obj = this.toObject({
 			virtuals: true,
 		});
@@ -471,8 +488,19 @@ class Game {
 		_.each(
 			obj.players,
 			function(player) {
-				if (_.isFunction(player.user.toFrontendObject)) {
-					player.user = player.user.toFrontendObject();
+				if (player.user) {
+					if (_.isFunction(player.user.toFrontendObject)) {
+						player.user = player.user.toFrontendObject();
+					}
+
+					player.isAnonymous = false;
+				}
+				else {
+					player.isAnonymous = true;
+				}
+
+				if (!keepSessionID) {
+					delete player.sessionID;
 				}
 			}
 		);

@@ -28,7 +28,7 @@ class Board extends React.Component {
 							{
 								range(this.props.board.get("width")).map(
 									(columnIndex) => {
-										const filled = this.props.board.get("filled")[JSON.stringify([columnIndex, rowIndex])];
+										const filled = this.props.board.get("filled").get(JSON.stringify([columnIndex, rowIndex]));
 
 										return (
 											<td

@@ -24,7 +24,9 @@
 			"warn",
 			{
 				"ignore": [
-					0
+					-1,
+					0,
+					1
 				],
 				"ignoreArrayIndexes": true
 			}

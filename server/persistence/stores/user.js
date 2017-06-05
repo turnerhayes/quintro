@@ -27,13 +27,14 @@ class UserStore {
 		return UserModel.findOne({provider, providerID}, {__v: false});
 	}
 
-	static createUser({ username, email, name, provider, providerID }) {
+	static createUser({ username, email, name, provider, providerID, sessionID }) {
 		return UserModel.create({
 			username,
 			email,
 			name,
 			provider,
-			providerID
+			providerID,
+			sessionID
 		});
 	}
 

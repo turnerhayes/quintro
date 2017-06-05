@@ -1,9 +1,19 @@
 import SocketClient from "project/scripts/utils/socket-client";
+import getStore    from "project/scripts/redux/store";
+import {
+	setMarble
+}                   from "project/scripts/redux/actions";
 
 class GameClient {
 	static initialize() {
-		SocketClient.instance.on("game:updated", (eventData) => {
-			console.log(eventData);
+		SocketClient.instance.on("board:marble-placed", ({ gameName, position, color }) => {
+			getStore().dispatch(
+				setMarble({
+					gameName,
+					position,
+					color
+				})
+			);
 		});
 	}
 

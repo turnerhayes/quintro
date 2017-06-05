@@ -13,7 +13,11 @@ exports = module.exports = session({
 		url: Config.session.db.url
 	}),
 	secret: Config.session.secret,
+	name: Config.session.cookieName,
 	resave: false,
-	saveUninitialized: false,
-	cookie: { maxAge: THIRTY_DAYS_IN_MILLISECONDS }
+	saveUninitialized: true,
+	cookie: {
+		maxAge: THIRTY_DAYS_IN_MILLISECONDS,
+		secure: false
+	}
 });

@@ -9,7 +9,7 @@ import {
 	ConnectedRouter
 }                       from "react-router-redux";
 import { history }      from "project/scripts/redux/configure-store";
-import store            from "project/scripts/redux/store";
+import getStore         from "project/scripts/redux/store";
 import App              from "project/scripts/components/App";
 import Home             from "project/scripts/components/Home";
 import Login            from "project/scripts/components/Login";
@@ -18,7 +18,7 @@ import PlayGame         from "project/scripts/components/PlayGame";
 
 
 ReactDOM.render(
-	<Provider store={store}>
+	<Provider store={getStore()}>
 		<ConnectedRouter history={history}>
 			<App>
 				<Route

@@ -5,14 +5,14 @@
  */
 
 import $                from "jquery";
-import { Map, fromJS }  from "immutable";
+import { Map }          from "immutable";
 import configureStore   from "project/scripts/redux/configure-store";
 import UserRecord       from "project/scripts/records/user";
 import UsersStateRecord from "project/scripts/records/state/users";
 
 const userData = $(document.body).data("user");
 
-const currentUser = userData ? new UserRecord(fromJS(userData)) : null;
+const currentUser = userData ? new UserRecord(userData) : null;
 
 const initialState = Map(
 	{
@@ -25,4 +25,15 @@ const initialState = Map(
 	}
 );
 
-export default configureStore(initialState);
+let store;
+
+export default function getStore() {
+	if (!store) {
+		store = configureStore(initialState);
+
+		///DEBUG
+		window.__store = store;
+	}
+
+	return store;
+}
