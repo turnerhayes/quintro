@@ -9,7 +9,8 @@
     "start:dev": "DEBUG=quintro:* nodemon ./server/bin/www.js",
     "dev-server": "webpack-dev-server --hot --inline --quiet --watch",
     "build-static": "webpack",
-    "lint": "eslint --ext .jsx --ext .js .; exit 0"
+    "lint": "eslint --ext .jsx --ext .js .; exit 0",
+    "test": "mocha ./test; exit 0"
   },
   "author": "Turner Hayes <dev@turnerhayes.com>",
   "license": "ISC",
@@ -88,7 +89,8 @@
     "winston": "^2.3.1"
   },
   "devDependencies": {
-    "concurrently": "^3.4.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^3.4.2",
     "redux-devtools": "^3.4.0",
     "redux-devtools-extension": "^2.13.2",
     "webpack-dev-server": "^2.4.5"
