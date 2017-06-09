@@ -5,10 +5,13 @@ const IS_DEVELOPMENT = ENVIRONMENT === "development";
 
 const WEB_SOCKETS_RUN_INLINE = !!process.env.WEB_SOCKETS_RUN_INLINE;
 
-const WEB_SOCKETS_PORT = Number(process.env.WEB_SOCKETS_PORT);
+const websocketsPath = WEB_SOCKETS_RUN_INLINE ?
+	"/sockets" :
+	undefined;
 
-const WEB_SOCKETS_URL = WEB_SOCKETS_RUN_INLINE ?
-	global.document.origin.replace(/\:\d+$/, ":" + WEB_SOCKETS_PORT) : process.env.WEB_SOCKETS_URL;
+const websocketsUrl = WEB_SOCKETS_RUN_INLINE ?
+	global.document.origin :
+	process.env.WEB_SOCKETS_URL;
 
 exports = module.exports = {
 	app: {
@@ -18,7 +21,7 @@ exports = module.exports = {
 
 	websockets: {
 		inline: WEB_SOCKETS_RUN_INLINE,
-		port: WEB_SOCKETS_RUN_INLINE ? WEB_SOCKETS_PORT : undefined,
-		url: WEB_SOCKETS_URL
+		url: websocketsUrl,
+		path: websocketsPath
 	}
 };

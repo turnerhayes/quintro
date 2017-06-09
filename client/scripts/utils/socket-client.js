@@ -26,11 +26,11 @@ class SocketClient {
 		this._ioClient = new SocketIOClient(
 			Config.websockets.url,
 			{
+				path: Config.websockets.path,
 				"sync disconnect on unload": true
 			}
 		);
 
-		window._SocketClient = this;
 		this._attachListeners();
 	}
 
@@ -38,13 +38,6 @@ class SocketClient {
 		if (this._listenersAttached) {
 			return;
 		}
-
-		this._ioClient = new SocketIOClient(
-			Config.websockets.url,
-			{
-				"sync disconnect on unload": true
-			}
-		);
 
 		this._ioClient.on(
 			"connect_error",

@@ -4,19 +4,20 @@
 
 require("dotenv").config();
 
-const debug           = require("debug")("quintro:socket:server");
-const path            = require("path");
-const rfr             = require("rfr");
-const rfrProject      = require("rfr")({
-	root: path.resolve(__dirname, "..", "..", "..", "..")
-});
-const appGenerator    = rfr("app");
-const Config          = rfrProject("server/lib/config");
+const debug            = require("debug")("quintro:socket:server");
+const rfr              = require("rfr");
+const createSocketsApp = rfr("app");
 
-const  { server } = appGenerator();
+const { server, app } = createSocketsApp();
+
+const DEFAULT_PORT = 7300;
+
+const port = Number(process.env.QUINTRO_SOCKET_PORT) || DEFAULT_PORT;
+
+app.set("port", port);
 
 server.listen(
-	Config.websockets.port,
+	port,
 	function() {
 		debug("Socket server listening on secure port " + server.address().port);
 	}

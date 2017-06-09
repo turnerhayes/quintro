@@ -189,11 +189,17 @@ class SocketManager {
 
 		assert(server, "server object is missing");
 
-		SocketManager._server = new IOServer(server);
+		let origins;
 
 		if (!Config.websockets.inline) {
-			SocketManager._server.origins(Config.websockets.url);
+			origins = [Config.app.address.origin.replace(/^https?\:\/\//, "")];
 		}
+
+		SocketManager._server = new IOServer(server, {
+			origins,
+			path: Config.websockets.path
+		});
+
 
 		const cParser = cookieParser(Config.session.secret);
 

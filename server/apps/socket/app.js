@@ -7,7 +7,6 @@ require("dotenv").config({
 });
 
 const fs            = require("fs");
-const assert        = require("assert");
 const spdy          = require("spdy");
 const express       = require("express");
 const cookieParser  = require("cookie-parser");
@@ -22,28 +21,20 @@ const SocketManager = rfr("lib/socket-manager");
 rfrProject("server/persistence/db-connection");
 
 
-exports = module.exports = function(app, server) {
-	assert(
-		(app && server) ||
-		(!app && !server),
-		"You must pass both an app and server instance, or neither"
-	);
+exports = module.exports = function createSocketsApp(server) {
+	const app = express();
+	
+	app.use(cookieParser(Config.session.secret));
 
-	if (!app) {
-		app = express();
-		
-		app.use(cookieParser(Config.session.secret));
+	passportAuth(app);
 
-		passportAuth(app);
+	if (!server) {
+		const options = {
+			key: fs.readFileSync(Config.app.ssl.key),
+			cert: fs.readFileSync(Config.app.ssl.cert)
+		};
 
-		if (!server) {
-			const options = {
-				key: fs.readFileSync(Config.app.ssl.key),
-				cert: fs.readFileSync(Config.app.ssl.cert)
-			};
-
-			server = spdy.createServer(options, app);
-		}
+		server = spdy.createServer(options, app);
 	}
 
 	SocketManager.initialize({

@@ -15,6 +15,7 @@ const Config          = rfr("server/lib/config");
 
 app.set("port", Config.app.address.port);
 
+let server;
 
 if (Config.app.ssl.key && Config.app.ssl.cert) {
 	const insecureServer = http.createServer(
@@ -39,7 +40,7 @@ if (Config.app.ssl.key && Config.app.ssl.cert) {
 		cert: fs.readFileSync(Config.app.ssl.cert)
 	};
 
-	const server = spdy.createServer(
+	server = spdy.createServer(
 		options,
 		app
 	).listen(
@@ -52,7 +53,7 @@ if (Config.app.ssl.key && Config.app.ssl.cert) {
 else {
 	Config.app.address.isSecure = false;
 
-	const server = http.createServer(
+	server = http.createServer(
 		app
 	).listen(
 		Config.app.address.port,
@@ -60,4 +61,12 @@ else {
 			debug("Express server listening on port " + server.address().port);
 		}
 	);
+}
+
+if (Config.websockets.inline) {
+	const createSocketsApp = rfr("server/apps/socket/app");
+
+	const socketsApp = createSocketsApp(server).app;
+
+	app.use(Config.websockets.path, socketsApp);
 }
