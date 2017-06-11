@@ -6,7 +6,8 @@ import GameRecord from "project/scripts/records/game";
 
 const schema = {
 	items: Map(),
-	getGameError: null
+	getGameError: null,
+	gamePlayError: null
 };
 
 class GamesStateRecord extends Record(schema, "GamesState") {
@@ -35,12 +36,20 @@ GamesStateRecord.prototype.setMarble = function setMarble({ gameName, color, pos
 	return this.updateIn(["items", gameName], game => game.setMarble({ color, position }));
 };
 
-GamesStateRecord.prototype.advancePlayer = function advancePlayer({ gameName }) {
+GamesStateRecord.prototype.setPlayer = function setPlayer({ gameName, color }) {
 	if (!this.items.has(gameName)) {
 		return this;
 	}
 
-	return this.setIn(["items", gameName], this.items.get(gameName).advancePlayer());
+	return this.setIn(["items", gameName], this.items.get(gameName).setPlayer({ color }));
+};
+
+GamesStateRecord.prototype.addPlayer = function addPlayer({ gameName, player }) {
+	if (!this.items.has(gameName)) {
+		return this;
+	}
+
+	return this.setIn(["items", gameName], this.items.get(gameName).addPlayer({ player }));
 };
 
 export default GamesStateRecord;

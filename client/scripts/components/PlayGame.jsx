@@ -1,3 +1,6 @@
+import {
+	capitalize
+}                     from "lodash";
 import React          from "react";
 import PropTypes      from "prop-types";
 import { withRouter } from "react-router";
@@ -46,7 +49,7 @@ class PlayGame extends React.Component {
 	}
 
 	handleCellClick = ({ position, cell }) => {
-		if (cell && cell.get("color")) {
+		if (this.props.game.winner || (cell && cell.get("color"))) {
 			return;
 		}
 
@@ -58,7 +61,9 @@ class PlayGame extends React.Component {
 
 	renderBoard = () => {
 		return (
-			<div className="c_game">
+			<div
+				className={`c_game ${this.props.game.winner ? "game-over" : ""}`}
+			>
 				<ul
 					className="c_game--color-indicators"
 				>
@@ -77,7 +82,7 @@ class PlayGame extends React.Component {
 									</li>
 								);
 							}
-						).toArray()
+						).toList().sortBy((player) => player.order).toArray()
 					}
 					{
 						[
@@ -102,8 +107,20 @@ class PlayGame extends React.Component {
 						)
 					}
 				</ul>
+				{
+					this.props.game.winner && (
+						<div
+							className="c_game--winner-banner"
+						>
+							<div
+								className="c_game--winner-banner--win-message"
+							>{capitalize(this.props.game.winner)} wins!</div>
+						</div>
+					)
+				}
 				<Board
 					board={this.props.game.board}
+					gameIsOver={!!this.props.game.winner}
 					onCellClick={this.handleCellClick}
 				/>
 			</div>

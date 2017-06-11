@@ -1,12 +1,13 @@
-import { range }          from "lodash";
+import { range, reduce }  from "lodash";
 import React              from "react";
 import PropTypes          from "prop-types";
-import ImmutablePropTypes from "react-immutable-proptypes";
+import BoardRecord        from "project/scripts/records/board";
 import                         "project/styles/board.less";
 
 class Board extends React.Component {
 	static propTypes = {
-		board: ImmutablePropTypes.map.isRequired,
+		board: PropTypes.instanceOf(BoardRecord).isRequired,
+		gameIsOver: PropTypes.bool,
 		onCellClick: PropTypes.func
 	}
 
@@ -18,22 +19,56 @@ class Board extends React.Component {
 	}
 
 	render() {
+		let quintros;
+
+		if (this.props.gameIsOver) {
+			quintros = this.props.board.quintros();
+
+			if (quintros) {
+				quintros = reduce(
+					quintros,
+					(cells, quintro) => {
+						quintro.forEach(
+							cell => cells[JSON.stringify(cell)] = true
+						);
+
+						return cells;
+					},
+					{}
+				);
+			}
+		}
+
+		const filledMap = this.props.board.filled.reduce(
+			(filled, cell) => {
+				const stringPosition = JSON.stringify(cell.get("position"));
+				cell = cell.toJS();
+
+				cell.isQuintroMember = quintros && !!quintros[stringPosition];
+
+				filled[stringPosition] = cell;
+
+				return filled;
+			},
+			{}
+		);
+
 		return (
 			<table className="c_game_board">
 				<tbody>
 				{
-					range(this.props.board.get("height")).map(
+					range(this.props.board.height).map(
 						(rowIndex) => (
 							<tr className="board-row" key={rowIndex}>
 							{
-								range(this.props.board.get("width")).map(
+								range(this.props.board.width).map(
 									(columnIndex) => {
-										const filled = this.props.board.get("filled").get(JSON.stringify([columnIndex, rowIndex]));
+										const filled = filledMap[JSON.stringify([columnIndex, rowIndex])];
 
 										return (
 											<td
 												key={`${columnIndex}-${rowIndex}`}
-												className={`board-cell ${filled ? "filled": ""}`}
+												className={`board-cell ${filled ? "filled": ""} ${filled && filled.isQuintroMember ? "quintro-member" : ""}`}
 												onClick={() => this.handleCellClick({
 													cell: filled,
 													position: [columnIndex, rowIndex]
@@ -41,7 +76,7 @@ class Board extends React.Component {
 											>
 												{
 													filled ? (
-														<div className={`marble ${filled.get("color")}`}></div>
+														<div className={`marble ${filled.color}`}></div>
 													) : null
 												}
 											</td>

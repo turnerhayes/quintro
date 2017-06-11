@@ -53,13 +53,47 @@ export function getGame({ gameName }) {
 	};
 }
 
-export const ADVANCE_PLAYER = "@QUINTRO/GAME/ADVANCE_PLAYER";
+export const GAME_PLAY_ERROR = "@QUINTRO/GAME/PLAY_ERROR";
 
-export function advancePlayer({ gameName }) {
+export function gamePlayError({ error }) {
 	return {
-		type: ADVANCE_PLAYER,
+		type: GAME_PLAY_ERROR,
+		payload: error
+	};
+}
+
+export const SET_PLAYER = "@QUINTRO/GAME/SET_PLAYER";
+
+export function setPlayer({ gameName, color }) {
+	return {
+		type: SET_PLAYER,
 		payload: {
-			gameName
+			gameName,
+			color
+		}
+	};
+}
+
+export const ADD_PLAYER = "@QUINTRO/GAME/ADD_PLAYER";
+
+export function addPlayer({ gameName, player }) {
+	return {
+		type: ADD_PLAYER,
+		payload: {
+			gameName,
+			player
+		}
+	};
+}
+
+export const SET_WINNER = "@QUINTRO/GAME/SET_WINNER";
+
+export function setWinner({ gameName, winner }) {
+	return {
+		type: SET_WINNER,
+		payload: {
+			gameName,
+			winner
 		}
 	};
 }

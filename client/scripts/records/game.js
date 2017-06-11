@@ -1,10 +1,10 @@
 import assert       from "assert";
 import {
 	Record,
-	Map,
-	fromJS
+	Map
 }                   from "immutable";
 import PlayerRecord from "project/scripts/records/player";
+import BoardRecord  from "project/scripts/records/board";
 
 
 const schema = {
@@ -13,49 +13,42 @@ const schema = {
 	playerLimit: 5,
 	players: Map(),
 	currentPlayerColor: null,
-	is_over: false
+	winner: null,
+	quintros: null
 };
 
 class GameRecord extends Record(schema, "Game") {
 	constructor(args) {
 		assert(args.board, 'A "board" property is required');
-		assert(
-			args.board.width && args.board.height,
-			'Must specify "board.width" and "board.height" properties'
+
+		if (!(args.board instanceof BoardRecord)) {
+			args.board = new BoardRecord(args.board);
+		}
+
+		args.players = Map(
+			args.players.map(
+				(player, order) => [player.color, new PlayerRecord(player, { order })]
+			)
 		);
 
-		if (args.board.filled) {
-			args.board.filled = args.board.filled.reduce(
-				(filled, cellInfo) => {
-					filled[JSON.stringify(cellInfo.position)] = cellInfo;
-
-					return filled;
-				},
-				{}
-			);
-		}
-		else {
-			args.board.filled = [];
-		}
-
-		args.board = fromJS(args.board);
-
-		args.players = Map(args.players.map(player => [player.color, new PlayerRecord(player)]));
-
 		super(args);
+	}
+
+	quintros() {
+		return this.board.quintros(...arguments);
 	}
 }
 
 GameRecord.prototype.setMarble = function setMarble({color, position}) {
-	return this.setIn(["board", "filled", JSON.stringify(position)], Map({ color }));
+	return this.updateIn(["board", "filled"], (filled) => filled.push(Map({ color, position })));
 };
 
-GameRecord.prototype.advancePlayer = function advancePlayer() {
-	return this.set("currentPlayerColor", this.colors.get(
-		(
-			this.colors.indexOf(this.currentColor) + 1
-		) % this.colors.size
-	));
+GameRecord.prototype.setPlayer = function setPlayer({ color }) {
+	return this.set("currentPlayerColor", color);
+};
+
+GameRecord.prototype.addPlayer = function addPlayer({ player }) {
+	return this.setIn(["players", player.color], new PlayerRecord(player));
 };
 
 export default GameRecord;

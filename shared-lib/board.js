@@ -9,12 +9,12 @@ function sortFunc(a, b) {
 	return a[0] - b[0] || a[1] - b[1];
 }
 
-function getQuintros({game, startCell}) {
+function getQuintros({boardWidth, boardHeight, filledCells, startCell}) {
 	const quintros = {};
 	const { color } = startCell;
 	const [column, row] = startCell.position;
 	const filledMap = _.reduce(
-		game.board.filled,
+		filledCells,
 		(filled, filledCell) => {
 			if (filledCell.color === color) {
 				const [column, row] = filledCell.position;
@@ -39,7 +39,7 @@ function getQuintros({game, startCell}) {
 			}
 		}
 
-		for (let i = column + 1; i < game.board.width; i++) {
+		for (let i = column + 1; i < boardWidth; i++) {
 			if (filledMap[`${i},${row}`]) {
 				maybeQuintro.push([i, row]);
 			}
@@ -66,7 +66,7 @@ function getQuintros({game, startCell}) {
 			}
 		}
 
-		for (let i = row + 1; i < game.board.height; i++) {
+		for (let i = row + 1; i < boardHeight; i++) {
 			if (filledMap[`${column},${i}`]) {
 				maybeQuintro.push([column, i]);
 			}
@@ -93,7 +93,7 @@ function getQuintros({game, startCell}) {
 			}
 		}
 
-		for (let i = column + 1, j = row + 1; i < game.board.width && j < game.board.height; i++, j++) {
+		for (let i = column + 1, j = row + 1; i < boardWidth && j < boardHeight; i++, j++) {
 			if (filledMap[`${i},${j}`]) {
 				maybeQuintro.push([i, j]);
 			}
@@ -111,7 +111,7 @@ function getQuintros({game, startCell}) {
 		// Top-right to bottom-left check
 		const maybeQuintro = [];
 
-		for (let i = column, j = row; i < game.board.width && j >= 0; i++, j--) {
+		for (let i = column, j = row; i < boardWidth && j >= 0; i++, j--) {
 			if (filledMap[`${i},${j}`]) {
 				maybeQuintro.push([i, j]);
 			}
@@ -120,7 +120,7 @@ function getQuintros({game, startCell}) {
 			}
 		}
 
-		for (let i = column - 1, j = row + 1; i >= 0 && j < game.board.height; i--, j++) {
+		for (let i = column - 1, j = row + 1; i >= 0 && j < boardHeight; i--, j++) {
 			if (filledMap[`${i},${j}`]) {
 				maybeQuintro.push([i, j]);
 			}

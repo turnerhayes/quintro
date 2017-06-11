@@ -114,7 +114,16 @@ GameSchema.pre("validate", function(next) {
 			(!this.players[i].user && !this.players[i].sessionID) ||
 			(this.players[i].user && this.players[i].sessionID)
 		) {
-			next(new Error("Every player must either have a user or a sessionID, but not both"));
+			let message = `Every player must either have a user or a sessionID, but not both. Player ${i} has `;
+
+			if (this.players[i].user) {
+				message += "both a user and a sessionID";
+			}
+			else {
+				message += "neither a user nor a sessionID";
+			}
+
+			next(new Error(message));
 			return;
 		}
 	}

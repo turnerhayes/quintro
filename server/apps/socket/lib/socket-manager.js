@@ -34,8 +34,8 @@ function _logGameEvent({ gameName, message, level, stack }) {
 }
 
 function _findPlayer({user, sessionID}, player) {
-	if (!_.isUndefined(user)) {
-		return _(player.user._id).toString() === _(user._id).toString();
+	if (user && player.user) {
+		return player.user.id === user.id;
 	}
 
 	return player.sessionID === sessionID;
@@ -53,21 +53,31 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 		name: gameName
 	}).then(
 		(game) => {
-			let err;
-			const user = socket.request.user ||
-				_.find(game.players, {sessionId: socket.request.session.id});
+			const player = _.find(
+					game.players,
+					(player) => {
+						return (
+							player.user &&
+							socket.request.user &&
+							player.user.id === socket.request.user.id
+						) || (
+							player.sessionID && player.sessionID === socket.request.session.id
+						);
+					}
+				);
 
-			if (!_.isUndefined(user)) {
+			if (!_.isUndefined(player)) {
 				return {
-					user: user,
-					game: game
+					user: player.user,
+					sessionID: player.sessionID,
+					game
 				};
 			}
 
 			// User is not currently a player; make sure there is room
 			// for them to join
 			if (_.size(game.players) >= game.player_limit) {
-				err = new Error("Game is full");
+				const err = new Error("Game is full");
 				err.code = ErrorCodes.GAME_FULL;
 
 				throw err;
@@ -76,14 +86,13 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 			if (socket.request.user) {
 				return {
 					user: socket.request.user,
-					game: game
+					game
 				};
 			}
 
 			return {
 				sessionID: socket.request.session.id,
-				user: user,
-				game: game
+				game
 			};
 		}
 	).then(
@@ -91,7 +100,7 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 			return new Promise(
 				(resolve, reject) => {
 					if (_.isUndefined(socket.request.user) && data.user) {
-						socket.request.logIn(data.user, function(err) {
+						socket.request.logIn(data.user, (err) => {
 							if (err) {
 								reject(err);
 								return;
@@ -108,20 +117,19 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 		}
 	).then(
 		(data) => {
-			let is_current;
-			let playerColor = _.get(_getPlayer(data), "color");
+			let playerIndex = _.findIndex(
+				data.game.players,
+				_.bind(_findPlayer, undefined, { user: data.user, sessionID: data.sessionID })
+			);
 
-			if (!_.isUndefined(playerColor)) {
-				return _.extend(data, {
-					color: playerColor,
-					order: _.findIndex(
-						data.game.players,
-						_.bind(_findPlayer, undefined, { user: data.user, sessionID: socket.request.session.id })
-					)
+			if (playerIndex >= 0) {
+				return Object.assign(data, {
+					color: data.game.players[playerIndex].color,
+					order: playerIndex
 				});
 			}
 
-			playerColor = _.find(
+			const playerColor = _.find(
 				GameModel.COLORS,
 				function(color) {
 					return !_.includes(
@@ -131,36 +139,27 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 				}
 			);
 
-			if (
-				_.isUndefined(_getPlayer(data))
-			) {
-				data.game.players.push({
-					user: data.user,
-					sessionID: data.sessionID,
-					color: playerColor,
-				});
-			}
+			
+			data.game.players.push({
+				user: data.user,
+				sessionID: data.sessionID,
+				color: playerColor,
+			});
+
+			playerIndex = data.game.players.length - 1;
 
 			if (_.isUndefined(data.game.current_player)) {
 				data.game.current_player_color = playerColor;
 			}
 
-			is_current = data.game.current_player.color === playerColor;
-
 			return Promise.resolve(
 				GameStore.saveGameState(data.game)
 			).then(
 				function(game) {
-					const index = _.findIndex(
-						game.players,
-						_.bind(_findPlayer, undefined, data)
-					);
-
-					return _.extend(data, {
+					return Object.assign(data, {
 						game: game,
 						color: playerColor,
-						order: index,
-						is_current: is_current,
+						order: playerIndex,
 					});
 				}
 			);
@@ -303,21 +302,25 @@ class SocketManager {
 					message: `Player ${data.color} joined`
 				});
 
-				const playerData = _.extend(data, {
-					user: data.user && data.user.toFrontendObject(),
-					is_current: data.is_current,
-				});
+				const playerData = {
+					color: data.color,
+					user: data.user ?
+						data.user.toFrontendObject :
+						undefined,
+					isAnonymous: !!data.sessionID,
+					order: data.order
+				};
 
-				socket.player = _.omit(
-					playerData,
-					[
-						"is_current",
-					]
-				);
+				socket.player = playerData;
 
 				socket.broadcast.to(gameName).emit(
-					"game:player-joined",
-					playerData
+					"game:player:joined",
+					Object.assign(
+						{
+							gameName: data.game.name
+						},
+						playerData
+					)
 				);
 
 				fn && fn(playerData);
@@ -373,7 +376,10 @@ class SocketManager {
 				const [column, row] = position;
 
 				if (color !== game.current_player.color) {
-					throw new Error(`Not ${color}'s turn`);
+					const err = new Error(`Not ${color}'s turn`);
+					err.code = ErrorCodes.NOT_PLAYERS_TURN;
+
+					throw err;
 				}
 
 				if (
@@ -421,24 +427,7 @@ class SocketManager {
 					message: `Player ${data.color} placed a marble at [${data.row}, ${data.column}]`
 				});
 
-				const eventData = {
-					game: data.game.toFrontendObject(),
-					changed: {
-						structure: [
-							{
-								row: data.row,
-								column: data.column,
-								color: data.color,
-							}
-						]
-					}
-				};
-
-				if (!data.game.is_over) {
-					eventData.changed.current_player = eventData.game.current_player;
-				}
-
-				SocketManager._server.to(data.game.name).emit("board:marble-placed", {
+				SocketManager._server.to(data.game.name).emit("board:marble:placed", {
 					gameName: data.game.name,
 					position: [data.column, data.row],
 					color: data.color
@@ -446,8 +435,14 @@ class SocketManager {
 
 				if (data.game.is_over) {
 					SocketManager._server.to(data.game.name).emit("game:over", {
-						player: eventData.game.current_player,
+						winner: data.game.current_player,
 						quintros: data.quintros
+					});
+				}
+				else {
+					SocketManager._server.to(data.game.name).emit("game:current_player:changed", {
+						gameName: data.game.name,
+						color: data.game.current_player.color
 					});
 				}
 			}

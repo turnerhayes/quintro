@@ -2,6 +2,7 @@
 
 .c_game {
 	margin: 1em;
+	position: relative;
 
 	&--color-indicators {
 		list-style-type: none;
@@ -28,5 +29,40 @@
 				.m_marble-colors(3em);
 			}
 		}
+	}
+
+	&.game-over {
+		.c_game--color-indicators {
+			&--item {
+				&.active {
+					.marble {
+						box-shadow: none;
+					}
+				}
+			}
+		}
+
+		.c_game_board .board-cell {
+			cursor: not-allowed;
+		}
+	}
+
+	&--winner-banner {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&--winner-banner--win-message {
+		font-size: 5em;
+		background-color: white;
+		border-radius: 0.3em;
+		border: 1px solid black;
+		padding: 0.2em 1em;
 	}
 }

@@ -242,7 +242,9 @@ describe("Board", function() {
 					});
 
 					const quintros = Board.getQuintros({
-						game,
+						boardWidth: game.board.width,
+						boardHeight: game.board.height,
+						filledCells: game.board.filled,
 						startCell: {
 							position: layout.start,
 							color: "red"

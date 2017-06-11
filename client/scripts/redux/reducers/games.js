@@ -1,8 +1,11 @@
 import GamesState from "project/scripts/records/state/games";
 import {
 	GET_GAME,
+	GAME_PLAY_ERROR,
 	SET_MARBLE,
-	ADVANCE_PLAYER
+	SET_PLAYER,
+	ADD_PLAYER,
+	SET_WINNER
 }                 from "project/scripts/redux/actions";
 
 export default function gamesReducer(state = new GamesState(), action) {
@@ -15,6 +18,10 @@ export default function gamesReducer(state = new GamesState(), action) {
 			return state.setGetGameError(null).addGame(action.payload);
 		}
 
+		case GAME_PLAY_ERROR: {
+			return state.set("gamePlayError", action.payload);
+		}
+
 		case SET_MARBLE: {
 			return state.setMarble({
 				gameName: action.payload.gameName,
@@ -23,8 +30,16 @@ export default function gamesReducer(state = new GamesState(), action) {
 			});
 		}
 
-		case ADVANCE_PLAYER: {
-			return state.advancePlayer({ gameName: action.payload.gameName });
+		case SET_PLAYER: {
+			return state.setPlayer({ gameName: action.payload.gameName, color: action.payload.color });
+		}
+
+		case ADD_PLAYER: {
+			return state.addPlayer({ gameName: action.payload.gameName, player: action.payload.player });
+		}
+
+		case SET_WINNER: {
+			return state.setWinner({ gameName: action.payload.gameName, winner: action.payload.winner });
 		}
 
 		default:
