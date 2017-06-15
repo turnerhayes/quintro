@@ -4,7 +4,6 @@ const express            = require("express");
 const path               = require("path");
 // const favicon            = require("serve-favicon");
 const cookieParser       = require("cookie-parser");
-const bodyParser         = require("body-parser");
 const handlebars         = require("handlebars");
 const hbs                = require("express-hbs");
 const cors               = require("cors");
@@ -60,10 +59,6 @@ app.locals.STATIC_URL = Config.staticContent.url;
 
 // app.use(favicon());
 app.use(Loggers.http);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
 app.use(cookieParser(Config.session.secret));
 
 
@@ -85,13 +80,13 @@ app.use(
 );
 
 app.use("/", cors(SITE_RESTRICTED_CORS_OPTIONS), require("./routes/authentication"));
-app.use("/api", cors(), require("./routes/api"));
-
 // Make sure no /api calls get caught by the below catch-all route handler, so that
 // /api calls can 404 correctly
-app.use("/api/*", raise404);
+app.use("/api", cors(), require("./routes/api"), raise404);
 
-app.use("/static/", express.static(Config.paths.dist));
+if (Config.staticContent.inline) {
+	app.use("/static/", express.static(Config.paths.dist), raise404);
+}
 
 app.get(
 	"*",

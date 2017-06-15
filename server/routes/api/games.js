@@ -1,9 +1,10 @@
 "use strict";
 
-const express                  = require("express");
-const HTTPStatusCodes          = require("http-status-codes");
-const rfr                      = require("rfr");
-const GamesStore               = rfr("server/persistence/stores/game");
+const express         = require("express");
+const HTTPStatusCodes = require("http-status-codes");
+const bodyParser      = require("body-parser");
+const rfr             = require("rfr");
+const GamesStore      = rfr("server/persistence/stores/game");
 
 
 function prepareGame(game, req) {
@@ -43,6 +44,11 @@ router.route("/:gameName")
 		}
 	)
 	.post(
+		bodyParser.urlencoded({
+			extended: true,
+			type: "application/x-www-form-urlencoded"
+		}),
+		bodyParser.json({ type: "application/json" }),
 		(req, res, next) => {
 			const { width, height, playerLimit } = req.body;
 			const { gameName } = req.params;

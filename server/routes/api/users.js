@@ -1,6 +1,7 @@
 "use strict";
 
 const express                  = require("express");
+const bodyParser               = require("body-parser");
 const rfr                      = require("rfr");
 const { mustAuthenticate }     = rfr("server/routes/utils");
 const UsersStore               = rfr("server/persistence/stores/user");
@@ -11,8 +12,13 @@ const router = express.Router();
 router.route("/:userID")
 	.patch(
 		mustAuthenticate("You must be logged in as the user to edit their information"),
+		bodyParser.urlencoded({
+			extended: true,
+			type: "application/x-www-form-urlencoded"
+		}),
+		bodyParser.json({ type: "application/json" }),
 		(req, res, next) => {
-			const userID = Number(req.params.userID);
+			const userID = req.params.userID;
 
 			if (req.user.id !== userID) {
 				next(new AccessForbiddenException("You do not have permissions to edit this user's information"));
@@ -25,22 +31,6 @@ router.route("/:userID")
 			}).then(
 				() => UsersStore.findByID(userID)
 			).then(
-				res.json.bind(res)
-			).catch(ex => next(ex));
-		}
-	);
-
-router.route("/:userID/subscriptions")
-	.get(
-		mustAuthenticate("You must be logged in to see a user's issue subscriptions"),
-		(req, res, next) => {
-			const userID = Number(req.params.userID);
-			const includeDeleted = !!req.query.include_deleted;
-
-			UsersStore.getIssueSubscriptions({
-				userID,
-				includeDeleted
-			}).then(
 				res.json.bind(res)
 			).catch(ex => next(ex));
 		}
