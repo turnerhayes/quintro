@@ -12,6 +12,28 @@ function resetGamePlayError() {
 	getStore().dispatch(gamePlayError({ error: null }));
 }
 
+function onPlayerJoined({ player, gameName, isMe}) {
+	if (isMe !== undefined) {
+		player.isMe = isMe;
+	}
+
+	getStore().dispatch(
+		addPlayer({
+			gameName,
+			player
+		})
+	);
+}
+
+function onCurrentPlayerChanged({ gameName, color }) {
+	getStore().dispatch(
+		setPlayer({
+			gameName,
+			color
+		})
+	);
+}
+
 class GameClient {
 	static initialize() {
 		SocketClient.instance.on("board:marble:placed", ({ gameName, position, color }) => {
@@ -25,24 +47,11 @@ class GameClient {
 		});
 
 		SocketClient.instance.on("game:current_player:changed", ({ gameName, color }) => {
-			getStore().dispatch(
-				setPlayer({
-					gameName,
-					color
-				})
-			);
+			onCurrentPlayerChanged({ gameName, color });
 		});
 
-		SocketClient.instance.on("game:player:joined", (player) => {
-			const gameName = player.gameName;
-			delete player.gameName;
-
-			getStore().dispatch(
-				addPlayer({
-					gameName,
-					player
-				})
-			);
+		SocketClient.instance.on("game:player:joined", ({ gameName, player }) => {
+			onPlayerJoined({ gameName, player });
 		});
 
 		SocketClient.instance.on("game:over", ({ gameName, winner }) => {
@@ -57,6 +66,11 @@ class GameClient {
 			"game:join",
 			{
 				gameName
+			}
+		).then(
+			({ player, current_player_color }) => {
+				onPlayerJoined({ gameName, player, isMe: true });
+				onCurrentPlayerChanged({ gameName, color: current_player_color });
 			}
 		);
 	}

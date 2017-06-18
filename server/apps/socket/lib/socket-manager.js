@@ -305,7 +305,7 @@ class SocketManager {
 				const playerData = {
 					color: data.color,
 					user: data.user ?
-						data.user.toFrontendObject :
+						data.user.toFrontendObject() :
 						undefined,
 					isAnonymous: !!data.sessionID,
 					order: data.order
@@ -313,17 +313,18 @@ class SocketManager {
 
 				socket.player = playerData;
 
+				const joinResults = {
+					gameName,
+					player: playerData,
+					current_player_color: data.game.current_player.color
+				};
+
 				socket.broadcast.to(gameName).emit(
 					"game:player:joined",
-					Object.assign(
-						{
-							gameName: data.game.name
-						},
-						playerData
-					)
+					joinResults
 				);
 
-				fn && fn(playerData);
+				fn && fn(joinResults);
 			}
 		).catch(
 			(err) => {

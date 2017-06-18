@@ -3,13 +3,13 @@
 const ENVIRONMENT = process.env.NODE_ENV || "development";
 const IS_DEVELOPMENT = ENVIRONMENT === "development";
 
-const WEB_SOCKETS_RUN_INLINE = !!process.env.WEB_SOCKETS_RUN_INLINE;
+const webSocketsInline = !process.env.WEB_SOCKETS_URL;
 
-const websocketsPath = WEB_SOCKETS_RUN_INLINE ?
+const websocketsPath = webSocketsInline ?
 	"/sockets" :
 	undefined;
 
-const websocketsUrl = WEB_SOCKETS_RUN_INLINE ?
+const websocketsUrl = webSocketsInline ?
 	global.document.origin :
 	process.env.WEB_SOCKETS_URL;
 
@@ -20,7 +20,7 @@ exports = module.exports = {
 	},
 
 	websockets: {
-		inline: WEB_SOCKETS_RUN_INLINE,
+		inline: webSocketsInline,
 		url: websocketsUrl,
 		path: websocketsPath
 	}
