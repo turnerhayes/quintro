@@ -10,7 +10,7 @@ import BoardRecord  from "project/scripts/records/board";
 const schema = {
 	name: "",
 	board: undefined,
-	playerLimit: 5,
+	playerLimit: null,
 	players: Map(),
 	currentPlayerColor: null,
 	winner: null,
@@ -36,6 +36,10 @@ class GameRecord extends Record(schema, "Game") {
 
 	quintros() {
 		return this.board.quintros(...arguments);
+	}
+
+	get me() {
+		return this.players.find((player) => player.isMe);
 	}
 }
 

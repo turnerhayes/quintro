@@ -6,6 +6,11 @@ function prepareGame(game) {
 	game.currentPlayerColor = game.current_player_color;
 	delete game.current_player_color;
 
+	if (game.player_limit) {
+		game.playerLimit = game.player_limit;
+		delete game.player_limit;
+	}
+
 	return game;
 }
 

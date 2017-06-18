@@ -6,7 +6,10 @@
 	border-collapse: collapse;
 	table-layout: fixed;
 
-	.board-row {
+	&.allow-placement {
+		.board-cell:not(.filled) {
+			cursor: pointer;
+		}
 	}
 
 	.board-cell {
@@ -17,11 +20,7 @@
 		max-width: @cell-size;
 		max-height: @cell-size;
 		border: 1px solid black;
-		cursor: pointer;
-
-		&.filled {
-			cursor: not-allowed;
-		}
+		cursor: not-allowed;
 
 		&.quintro-member {
 			background-color: rgba(255, 255, 0, 0.6);

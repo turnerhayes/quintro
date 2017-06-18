@@ -49,7 +49,7 @@ class PlayGame extends React.Component {
 	}
 
 	handleCellClick = ({ position, cell }) => {
-		if (this.props.game.winner || (cell && cell.get("color"))) {
+		if (this.props.game.winner || (cell && cell.color)) {
 			return;
 		}
 
@@ -60,9 +60,12 @@ class PlayGame extends React.Component {
 	}
 
 	renderBoard = () => {
+		const myTurn = this.props.game.me && this.props.game.me.color === this.props.game.currentPlayerColor;
+		const gameIsOver = !!this.props.game.winner;
+
 		return (
 			<div
-				className={`c_game ${this.props.game.winner ? "game-over" : ""}`}
+				className={`c_game ${gameIsOver ? "game-over" : ""}`}
 			>
 				<ul
 					className="c_game--color-indicators"
@@ -108,7 +111,7 @@ class PlayGame extends React.Component {
 					}
 				</ul>
 				{
-					this.props.game.winner && (
+					gameIsOver && (
 						<div
 							className="c_game--winner-banner"
 						>
@@ -120,7 +123,8 @@ class PlayGame extends React.Component {
 				}
 				<Board
 					board={this.props.game.board}
-					gameIsOver={!!this.props.game.winner}
+					allowPlacement={myTurn && !gameIsOver}
+					gameIsOver={gameIsOver}
 					onCellClick={this.handleCellClick}
 				/>
 			</div>

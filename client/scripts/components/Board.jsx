@@ -7,6 +7,7 @@ import                         "project/styles/board.less";
 class Board extends React.Component {
 	static propTypes = {
 		board: PropTypes.instanceOf(BoardRecord).isRequired,
+		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
 		onCellClick: PropTypes.func
 	}
@@ -54,7 +55,7 @@ class Board extends React.Component {
 		);
 
 		return (
-			<table className="c_game_board">
+			<table className={`c_game_board ${this.props.allowPlacement ? "allow-placement" : ""}`}>
 				<tbody>
 				{
 					range(this.props.board.height).map(
