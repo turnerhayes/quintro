@@ -55,8 +55,14 @@ GameRecord.prototype.setPlayer = function setPlayer({ color }) {
 GameRecord.prototype.addPlayer = function addPlayer({ player }) {
 	return this.updateIn(
 		["players", player.color],
-		new PlayerRecord(player),
-		(player) => player.set("isPresent", true)
+		(existing) => {
+			if (existing === undefined) {
+				existing = new PlayerRecord(player);
+				this.players.set(existing.color, existing);
+			}
+
+			return existing.set("isPresent", true);
+		}
 	);
 };
 
