@@ -143,6 +143,12 @@ GameSchema.pre("save", function(next) {
 
 
 class Game {
+	start() {
+		this.is_started = true;
+		this.current_player = this.players[0];
+		return this.save();
+	}
+
 	nextPlayer() {
 		this.current_player = this.players[
 			(

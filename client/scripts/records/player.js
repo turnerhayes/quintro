@@ -4,6 +4,7 @@ const schema = {
 	userID: null,
 	isAnonymous: true,
 	isMe: false,
+	isPresent: true,
 	order: null,
 	color: ""
 };

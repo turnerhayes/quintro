@@ -1,43 +1,31 @@
-@import "_mixins.less";
 
 .c_game {
 	margin: 1em;
-	position: relative;
 
-	&--color-indicators {
-		list-style-type: none;
-		padding-left: 0;
-		margin-bottom: 1em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-
-		&--item {
-			margin: 0 0.6em;
-
-			&.current-player {
-				font-size: 1.3em;
-			}
-
-			&.active {
-				.marble {
-					box-shadow: #C3C374 0px 0px 20px 6px;
-				}
-			}
-
-			.marble {
-				.m_marble-colors(3em);
-			}
-		}
+	&--board-container {
+		position: relative;
 	}
 
-	&.game-over {
-		.c_game--color-indicators {
-			&--item {
-				&.active {
-					.marble {
-						box-shadow: none;
-					}
+	&--start-game-overlay {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background-color: rgba(180, 180, 180, 0.6);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&--dialog {
+			font-size: 5em;
+
+			.btn {
+				background-color: #FFFFFF;
+
+				&[disabled] {
+					opacity: 1;
+					color: fade(#333333, 65%);
 				}
 			}
 		}

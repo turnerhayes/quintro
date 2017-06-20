@@ -241,11 +241,6 @@ class SocketManager {
 			})
 		);
 
-		socket.on("game:get-state", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
-			SocketManager._onGetGameState(this, { gameName }, fn);
-		});
-
 		socket.on("board:place-marble", function({ gameName, position }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onPlaceMarble(this, { gameName, position }, fn);
@@ -256,9 +251,14 @@ class SocketManager {
 			SocketManager._onJoinGame(this, gameName, fn);
 		});
 
-		socket.on("game:get-player-presence", function({ gameName }, fn) {
+		socket.on("game:players:presence", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onGetPlayerPresence(this, gameName, fn);
+		});
+
+		socket.on("game:start", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onGameStart(this, gameName, fn);
 		});
 
 		socket.on("disconnect", function() {
@@ -316,7 +316,7 @@ class SocketManager {
 				const joinResults = {
 					gameName,
 					player: playerData,
-					current_player_color: data.game.current_player.color
+					current_player_color: data.game.current_player && data.game.current_player.color
 				};
 
 				socket.broadcast.to(gameName).emit(
@@ -339,25 +339,6 @@ class SocketManager {
 					message: err.message,
 					code: err.code,
 
-				});
-			}
-		);
-	}
-
-	static _onGetGameState(socket, { gameName }, fn) {
-		GameStore.getGame({
-			name: gameName,
-		}).then(
-			(game) => {
-				fn && fn({
-					game: _.result(game, "toFrontendObject"),
-				});
-			}
-		).catch(
-			(err) => {
-				fn && fn({
-					error: true,
-					message: err.message,
 				});
 			}
 		);
@@ -491,10 +472,10 @@ class SocketManager {
 						_logGameEvent({gameName, message: `Player ${player.color} left`});
 
 						socket.broadcast.to(gameName).emit(
-							"game:player-left",
+							"game:player:left",
 							{
+								gameName,
 								player: Object.assign(
-									{},
 									player.toObject(),
 									{
 										user: player.user && player.user.toFrontendObject()
@@ -503,13 +484,21 @@ class SocketManager {
 							}
 						);
 					}
+				).catch(
+					(err) => {
+						_logGameEvent({
+							gameName,
+							message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
+							stack: err.stack,
+							level: LOG_LEVELS.ERROR
+						});
+					}
 				);
-
 			}
 		);
 	}
 
-	static _onGetPlayerPresence(socket, gameName, fn) {
+	static _onGetPlayerPresence(socket, { gameName }, fn) {
 		const players = _.compact(
 			_.map(
 				SocketManager._server.to(gameName).connected,
@@ -517,7 +506,51 @@ class SocketManager {
 			)
 		);
 
-		fn && fn(players);
+		fn && fn({
+			presentPlayers: players
+		});
+	}
+
+	static _onGameStart(socket, gameName, fn) {
+		GameStore.getGame({
+			name: gameName,
+		}).then(
+			(game) => {
+				return game.start();
+			}
+		).then(
+			(game) => {
+				SocketManager._server.to(gameName).emit(
+					"game:started",
+					{
+						gameName
+					}
+				);
+
+				SocketManager._server.to(gameName).emit(
+					"game:current_player:changed",
+					{
+						gameName,
+						color: game.current_player.color
+					}
+				);
+			}
+		).catch(
+			(err) => {
+				_logGameEvent({
+					gameName,
+					message: `Error starting game ${gameName}: ${err.message}`,
+					stack: err.stack,
+					level: LOG_LEVELS.ERROR
+				});
+
+				fn && fn({
+					error: true,
+					message: err.message,
+					code: err.code
+				});
+			}
+		);
 	}
 }
 

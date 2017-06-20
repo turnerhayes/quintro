@@ -14,7 +14,8 @@ const schema = {
 	players: Map(),
 	currentPlayerColor: null,
 	winner: null,
-	quintros: null
+	quintros: null,
+	isStarted: false
 };
 
 class GameRecord extends Record(schema, "Game") {
@@ -34,8 +35,8 @@ class GameRecord extends Record(schema, "Game") {
 		super(args);
 	}
 
-	quintros() {
-		return this.board.quintros(...arguments);
+	quintros(...args) {
+		return this.board.quintros(...args);
 	}
 
 	get me() {
@@ -52,7 +53,38 @@ GameRecord.prototype.setPlayer = function setPlayer({ color }) {
 };
 
 GameRecord.prototype.addPlayer = function addPlayer({ player }) {
-	return this.setIn(["players", player.color], new PlayerRecord(player));
+	return this.updateIn(
+		["players", player.color],
+		new PlayerRecord(player),
+		(player) => player.set("isPresent", true)
+	);
+};
+
+GameRecord.prototype.setPlayerPresence = function setPlayerPresence({ presenceMap, setMissingPlayersTo }) {
+	return this.updateIn(
+		["players"],
+		(players) => players.map(
+			(player) => {
+				if (player.color in presenceMap) {
+					return player.set("isPresent", presenceMap[player.color]);
+				}
+
+				if (setMissingPlayersTo !== undefined) {
+					return player.set("isPresent", setMissingPlayersTo);
+				}
+
+				return player;
+			}
+		)
+	);
+};
+
+GameRecord.prototype.start = function start() {
+	if (this.isStarted) {
+		return this;
+	}
+
+	return this.set("isStarted", true);
 };
 
 export default GameRecord;

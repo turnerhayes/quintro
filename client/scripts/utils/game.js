@@ -11,6 +11,9 @@ function prepareGame(game) {
 		delete game.player_limit;
 	}
 
+	game.isStarted = game.is_started;
+	delete game.is_started;
+
 	return game;
 }
 

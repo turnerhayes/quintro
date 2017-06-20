@@ -33,6 +33,10 @@ GamesStateRecord.prototype.createGame = function createGame({ width, height, nam
 };
 
 GamesStateRecord.prototype.setMarble = function setMarble({ gameName, color, position}) {
+	if (!this.items.has(gameName)) {
+		return this;
+	}
+
 	return this.updateIn(["items", gameName], game => game.setMarble({ color, position }));
 };
 
@@ -50,6 +54,29 @@ GamesStateRecord.prototype.addPlayer = function addPlayer({ gameName, player }) 
 	}
 
 	return this.setIn(["items", gameName], this.items.get(gameName).addPlayer({ player }));
+};
+
+GamesStateRecord.prototype.setPlayerPresence = function setPlayerPresence({
+	gameName,
+	presenceMap,
+	setMissingPlayersTo
+}) {
+	if (!this.items.has(gameName)) {
+		return this;
+	}
+
+	return this.setIn(["items", gameName], this.items.get(gameName).setPlayerPresence({
+		presenceMap,
+		setMissingPlayersTo
+	}));
+};
+
+GamesStateRecord.prototype.startGame = function startGame({ gameName }) {
+	if (!this.items.has(gameName)) {
+		return this;
+	}
+
+	return this.setIn(["items", gameName], this.items.get(gameName).start());
 };
 
 export default GamesStateRecord;

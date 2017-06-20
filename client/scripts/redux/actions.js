@@ -24,9 +24,20 @@ export function updateUserProfile({ userID }) {
 	};
 }
 
+export const START_GAME = "@QUINTRO/GAME/START";
+
+export function startGame({ gameName }) {
+	return {
+		type: START_GAME,
+		payload: {
+			gameName
+		}
+	};
+}
+
 export const CREATE_GAME = "@QUINTRO/GAME/CREATE";
 
-export function createGame({name, width, height, playerLimit}) {
+export function createGame({ name, width, height, playerLimit }) {
 	return (dispatch) => {
 		return {
 			type: CREATE_GAME,
@@ -82,6 +93,19 @@ export function addPlayer({ gameName, player }) {
 		payload: {
 			gameName,
 			player
+		}
+	};
+}
+
+export const SET_PLAYER_PRESENCE = "@QUINTRO/GAME/SET_PLAYER_PRESENCE";
+
+export function setPlayerPresence({ gameName, presenceMap, setMissingPlayersTo }) {
+	return {
+		type: SET_PLAYER_PRESENCE,
+		payload: {
+			gameName,
+			presenceMap,
+			setMissingPlayersTo
 		}
 	};
 }

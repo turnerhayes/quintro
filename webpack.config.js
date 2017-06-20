@@ -1,10 +1,12 @@
 require("dotenv").config();
 
-const path = require("path");
-const fs = require("fs");
-const webpack = require("webpack");
+const path              = require("path");
+const fs                = require("fs");
+const webpack           = require("webpack");
+const express           = require("express");
+const cors              = require("cors");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const Config = require("./server/lib/config");
+const Config            = require("./server/lib/config");
 
 const jsxFilenameRegex = /\.jsx?$/;
 
@@ -42,7 +44,7 @@ module.exports = {
 							options: {
 								sourceMap: true,
 								modifyVars: {
-									"fa-font-path": '"/static/fonts/font-awesome/"'
+									"fa-font-path": '"/static/fonts/font-awesome"'
 								}
 							}
 						},
@@ -137,6 +139,23 @@ module.exports = {
 		},
 		headers: {
 			"Access-Control-Allow-Origin": "*"
-		}
+		},
+		setup(app) {
+			app.use(
+				"/static/fonts/font-awesome",
+				cors({
+					origin: Config.app.address.origin
+				}),
+				express.static(
+					// Need to do this ugly resolve; using requre.resolve() doesn't seem to work,
+					// possibly because the font-awesome package contains no main entry or index.js,
+					// so Node treats it as not a package.
+					path.resolve(__dirname, "node_modules", "font-awesome", "fonts"),
+					{
+						fallthrough: false
+					}
+				)
+			);
+		},
 	}
 };

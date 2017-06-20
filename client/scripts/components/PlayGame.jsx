@@ -1,17 +1,21 @@
 import {
 	capitalize
-}                     from "lodash";
-import React          from "react";
-import PropTypes      from "prop-types";
-import { withRouter } from "react-router";
-import { connect }    from "react-redux";
-import Board          from "project/scripts/components/Board";
-import GameRecord     from "project/scripts/records/game";
-import GameClient     from "project/scripts/utils/game-client";
+}                       from "lodash";
+import React            from "react";
+import PropTypes        from "prop-types";
+import { withRouter }   from "react-router";
+import { connect }      from "react-redux";
+import Board            from "project/scripts/components/Board";
+import PlayerIndicators from "project/scripts/components/PlayerIndicators";
+import GameRecord       from "project/scripts/records/game";
+import GameClient       from "project/scripts/utils/game-client";
 import {
 	getGame
-}                     from "project/scripts/redux/actions";
-import                     "project/styles/play-game.less";
+}                       from "project/scripts/redux/actions";
+import                       "font-awesome/less/font-awesome.less";
+import                       "project/styles/play-game.less";
+
+const MIN_PLAYER_COUNT = 3;
 
 class PlayGame extends React.Component {
 	static propTypes = {
@@ -46,6 +50,8 @@ class PlayGame extends React.Component {
 		});
 
 		this.gameJoined = true;
+
+		GameClient.updatePlayerPresence({ gameName: game.name });
 	}
 
 	handleCellClick = ({ position, cell }) => {
@@ -59,74 +65,69 @@ class PlayGame extends React.Component {
 		});
 	}
 
+	handleStartGameButtonClick = () => {
+		GameClient.startGame({
+			gameName: this.props.game.name
+		});
+	}
+
 	renderBoard = () => {
 		const myTurn = this.props.game.me && this.props.game.me.color === this.props.game.currentPlayerColor;
 		const gameIsOver = !!this.props.game.winner;
+		const gameIsStarted = this.props.game.isStarted && !gameIsOver;
 
 		return (
 			<div
-				className={`c_game ${gameIsOver ? "game-over" : ""}`}
+				className={`c_game ${gameIsOver ? "game-over" : ""} ${gameIsStarted ? "game-started" : ""}`}
 			>
-				<ul
-					className="c_game--color-indicators"
+				<PlayerIndicators
+					players={this.props.game.players}
+					currentPlayerColor={this.props.game.currentPlayerColor}
+					playerLimit={this.props.game.playerLimit}
+					markCurrent={gameIsStarted}
+				/>
+				<div
+					className="c_game--board-container"
 				>
 					{
-						this.props.game.players.map(
-							(player) => {
-								const active = player.color === this.props.game.currentPlayerColor;
-								return (
-									<li
-										key={player.color}
-										className={`c_game--color-indicators--item ${active ? "active": ""} ${player.isMe ? "current-player" : ""}`}
-									>
-										<div
-											className={`marble ${player.color}`}
-										/>
-									</li>
-								);
-							}
-						).toList().sortBy((player) => player.order).toArray()
-					}
-					{
-						[
-							...Array(
-								Math.max(
-									this.props.game.playerLimit - this.props.game.players.size,
-									0
-								)
-							)
-						].map(
-							(val, index) => (
-								<li
-									key={`not-filled-player-${index}`}
-									className={`c_game--color-indicators--item`}
-									title="This spot is open for another player"
+						!gameIsStarted ?
+							(
+								<div
+									className="c_game--start-game-overlay"
 								>
 									<div
-										className={`marble not-filled`}
-									/>
-								</li>
-							)
+										className="c_game--start-game-overlay--dialog"
+									>
+										<button
+											className="btn btn-default btn-lg fa fa-play"
+											disabled={this.props.game.players.size < MIN_PLAYER_COUNT}
+											onClick={this.handleStartGameButtonClick}
+										>
+											Start Game
+										</button>
+									</div>
+								</div>
+							) :
+							null
+					}
+					{
+						gameIsOver && (
+							<div
+								className="c_game--winner-banner"
+							>
+								<div
+									className="c_game--winner-banner--win-message"
+								>{capitalize(this.props.game.winner)} wins!</div>
+							</div>
 						)
 					}
-				</ul>
-				{
-					gameIsOver && (
-						<div
-							className="c_game--winner-banner"
-						>
-							<div
-								className="c_game--winner-banner--win-message"
-							>{capitalize(this.props.game.winner)} wins!</div>
-						</div>
-					)
-				}
-				<Board
-					board={this.props.game.board}
-					allowPlacement={myTurn && !gameIsOver}
-					gameIsOver={gameIsOver}
-					onCellClick={this.handleCellClick}
-				/>
+					<Board
+						board={this.props.game.board}
+						allowPlacement={myTurn && gameIsStarted}
+						gameIsOver={gameIsOver}
+						onCellClick={this.handleCellClick}
+					/>
+				</div>
 			</div>
 		);
 	}

@@ -4,7 +4,9 @@ import {
 	setMarble,
 	setPlayer,
 	addPlayer,
+	setPlayerPresence,
 	setWinner,
+	startGame,
 	gamePlayError
 }                   from "project/scripts/redux/actions";
 
@@ -46,12 +48,25 @@ class GameClient {
 			);
 		});
 
-		SocketClient.instance.on("game:current_player:changed", ({ gameName, color }) => {
-			onCurrentPlayerChanged({ gameName, color });
+		SocketClient.instance.on("game:current_player:changed", onCurrentPlayerChanged);
+
+		SocketClient.instance.on("game:player:joined", onPlayerJoined);
+
+		SocketClient.instance.on("game:player:left", ({ gameName, player }) => {
+			getStore().dispatch(
+				setPlayerPresence({
+					gameName,
+					presenceMap: {
+						[player.color]: false
+					}
+				})
+			);
 		});
 
-		SocketClient.instance.on("game:player:joined", ({ gameName, player }) => {
-			onPlayerJoined({ gameName, player });
+		SocketClient.instance.on("game:started", ({ gameName }) => {
+			getStore().dispatch(
+				startGame({ gameName })
+			);
 		});
 
 		SocketClient.instance.on("game:over", ({ gameName, winner }) => {
@@ -75,6 +90,15 @@ class GameClient {
 		);
 	}
 
+	static startGame({ gameName }) {
+		SocketClient.instance.emit(
+			"game:start",
+			{
+				gameName
+			}
+		);
+	}
+
 	static placeMarble({ gameName, position }) {
 		resetGamePlayError();
 		return SocketClient.instance.emit(
@@ -86,6 +110,32 @@ class GameClient {
 		).catch(
 			(error) => {
 				getStore().dispatch(gamePlayError({ error }));
+			}
+		);
+	}
+
+	static updatePlayerPresence({ gameName }) {
+		return SocketClient.instance.emit(
+			"game:players:presence",
+			{
+				gameName
+			}
+		).then(
+			({ presentPlayers }) => {
+				getStore().dispatch(
+					setPlayerPresence({
+						gameName,
+						presenceMap: presentPlayers.reduce(
+							(presenceMap, player) => {
+								presenceMap[player.color] = true;
+
+								return presenceMap;
+							},
+							{}
+						),
+						setMissingPlayersTo: false
+					})
+				);
 			}
 		);
 	}
