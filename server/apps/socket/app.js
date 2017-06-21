@@ -10,7 +10,9 @@ const fs            = require("fs");
 const spdy          = require("spdy");
 const express       = require("express");
 const cookieParser  = require("cookie-parser");
-const rfr           = require("rfr");
+const rfr           = require("rfr")({
+	root: __dirname
+});
 const rfrProject    = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..")
 });
