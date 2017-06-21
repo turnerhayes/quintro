@@ -10,6 +10,9 @@
   "author": "Turner Hayes <dev@turnerhayes.com>",
   "license": "ISC",
   "private": true,
+  "engines": {
+    "node": "6.9.4"
+  },
   "dependencies": {
     "bluebird": "^3.5.0",
     "cookie-parser": "^1.4.3",

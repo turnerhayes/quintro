@@ -16,6 +16,9 @@
   },
   "author": "Turner Hayes <dev@turnerhayes.com>",
   "license": "ISC",
+  "engines": {
+    "node": "6.9.4"
+  },
   "dependencies": {
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
