@@ -10,7 +10,7 @@
     "dev-server": "webpack-dev-server --hot --inline --quiet --watch",
     "build-static": "webpack",
     "build-sockets-app": "$WEB_SOCKETS_URL || (cd ./server/apps/socket && npm install)",
-    "postinstall": "(test -f ./.env && . ./.env) || npm run build-sockets-app || ($STATIC_CONTENT_URL || npm run build-static)",
+    "postinstall": "(test -f ./.env && . ./.env); npm run build-sockets-app; ($STATIC_CONTENT_URL || npm run build-static)",
     "lint": "eslint --ext .jsx --ext .js .; exit 0",
     "test": "mocha ./test; exit 0"
   },
