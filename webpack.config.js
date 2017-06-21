@@ -134,8 +134,34 @@ module.exports = {
 		noInfo: true,
 		port: 7200,
 		https: {
-			key: fs.readFileSync(Config.app.ssl.key),
-			cert: fs.readFileSync(Config.app.ssl.cert)
+			key: (function() {
+				if (!Config.app.ssl.key) {
+					return undefined;
+				}
+
+				try {
+					return fs.readFileSync(Config.app.ssl.key);
+				}
+				catch (ex) {
+					// eslint-disable-next-line no-console
+					console.error(ex);
+					return undefined;
+				}
+			}()),
+			cert: (function() {
+				if (!Config.app.ssl.cert) {
+					return undefined;
+				}
+
+				try {
+					return fs.readFileSync(Config.app.ssl.cert);
+				}
+				catch (ex) {
+					// eslint-disable-next-line no-console
+					console.error(ex);
+					return undefined;
+				}
+			}())
 		},
 		headers: {
 			"Access-Control-Allow-Origin": "*"
