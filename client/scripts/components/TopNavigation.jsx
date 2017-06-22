@@ -21,11 +21,11 @@ class TopNavigation extends React.Component {
 						>Quintro</Link>
 					</div>
 					<ul className="nav navbar-nav">
-						<li>
+						{/*<li>
 							<Link to="/find-game">
 								Find a Game
 							</Link>
-						</li>
+						</li>*/}
 						<li>
 							<Link to="/game/create">
 								Start a Game
