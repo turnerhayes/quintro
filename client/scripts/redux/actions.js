@@ -112,12 +112,12 @@ export function setPlayerPresence({ gameName, presenceMap, setMissingPlayersTo }
 
 export const SET_WINNER = "@QUINTRO/GAME/SET_WINNER";
 
-export function setWinner({ gameName, winner }) {
+export function setWinner({ gameName, color }) {
 	return {
 		type: SET_WINNER,
 		payload: {
 			gameName,
-			winner
+			color
 		}
 	};
 }

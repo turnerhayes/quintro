@@ -161,17 +161,18 @@ class Game {
 	}
 
 	fillCell(args) {
-		this.board.filled.push({
+		const cell = {
 			position: args.position,
 			color   : args.color,
-		});
+		};
+
+		this.board.filled.push(cell);
 
 		const quintros = Board.getQuintros({
-			game: this,
-			startCell: {
-				position: args.position,
-				color: args.color
-			}
+			boardWidth: this.board.width,
+			boardHeight: this.board.height,
+			filledCells: this.board.filled,
+			startCell: cell
 		});
 
 		return {

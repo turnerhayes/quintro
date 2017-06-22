@@ -417,6 +417,7 @@ class SocketManager {
 
 				if (data.game.is_over) {
 					SocketManager._server.to(data.game.name).emit("game:over", {
+						gameName: data.game.name,
 						winner: data.game.current_player,
 						quintros: data.quintros
 					});

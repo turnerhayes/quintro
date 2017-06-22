@@ -71,7 +71,7 @@ class GameClient {
 
 		SocketClient.instance.on("game:over", ({ gameName, winner }) => {
 			getStore().dispatch(
-				setWinner({ gameName, winner })
+				setWinner({ gameName, color: winner.color })
 			);
 		});
 	}

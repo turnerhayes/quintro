@@ -56,6 +56,14 @@ GamesStateRecord.prototype.addPlayer = function addPlayer({ gameName, player }) 
 	return this.setIn(["items", gameName], this.items.get(gameName).addPlayer({ player }));
 };
 
+GamesStateRecord.prototype.setWinner = function setWinner({ gameName, color }) {
+	if (!this.items.has(gameName)) {
+		return this;
+	}
+
+	return this.setIn(["items", gameName, "winner"], color);
+};
+
 GamesStateRecord.prototype.setPlayerPresence = function setPlayerPresence({
 	gameName,
 	presenceMap,

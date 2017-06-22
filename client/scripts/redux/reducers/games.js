@@ -49,7 +49,7 @@ export default function gamesReducer(state = new GamesState(), action) {
 		}
 
 		case SET_WINNER: {
-			return state.setWinner({ gameName: action.payload.gameName, winner: action.payload.winner });
+			return state.setWinner({ gameName: action.payload.gameName, color: action.payload.color });
 		}
 
 		case START_GAME: {
