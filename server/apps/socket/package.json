@@ -2,7 +2,7 @@
   "name": "quintro-apps-socket",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./bin/www.js",
   "scripts": {
     "start": "cross-env DEBUG=quintro:* node ./bin/www.js",
     "start:dev": "cross-env DEBUG=quintro:* nodemon --verbose ./bin/www.js"
