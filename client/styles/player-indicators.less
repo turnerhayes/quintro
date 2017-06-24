@@ -1,0 +1,34 @@
+@import "_mixins.less";
+
+.c_player-indicators {
+	list-style-type: none;
+	padding-left: 0;
+	margin-bottom: 1em;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	&--item {
+		margin: 0 0.6em;
+
+		&.current-player {
+			font-size: 1.3em;
+		}
+
+		&.absent .marble {
+			font-size: 0.7em;
+		}
+
+		.marble {
+			.m_marble-colors(3em);
+		}
+	}
+
+	&.mark-current {
+		.c_player-indicators--item.active {
+			.marble {
+				box-shadow: #C3C374 0px 0px 20px 6px;
+			}
+		}
+	}
+}

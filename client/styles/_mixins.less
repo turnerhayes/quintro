@@ -1,0 +1,37 @@
+.m_marble-colors(@size) {
+	.gradient(@color) {
+		background: radial-gradient(circle at 10px 7px, @color, #FFFFFF);
+	}
+
+	width: @size;
+	height: @size;
+	border-radius: 100%;
+
+	&.red {
+		.gradient(red);
+	}
+
+	&.blue {
+		.gradient(blue);
+	}
+
+	&.green {
+		.gradient(green);
+	}
+
+	&.black {
+		.gradient(black);
+	}
+
+	&.white {
+		.gradient(white);
+	}
+
+	&.yellow {
+		.gradient(yellow);
+	}
+
+	&.not-filled {
+		background-color: lightgrey;
+	}
+}
