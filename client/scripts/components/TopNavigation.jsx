@@ -27,6 +27,11 @@ class TopNavigation extends React.Component {
 							</Link>
 						</li>*/}
 						<li>
+							<Link to="/how-to-play">
+								How to Play
+							</Link>
+						</li>
+						<li>
 							<Link to="/game/create">
 								Start a Game
 							</Link>
