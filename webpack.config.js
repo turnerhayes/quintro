@@ -38,7 +38,12 @@ module.exports = {
 								importLoaders: 2
 							}
 						},
-						"postcss-loader",
+						{
+							loader: "postcss-loader",
+							options: {
+								sourceMap: true,
+							}
+						},
 						{
 							loader: "less-loader",
 							options: {
@@ -55,7 +60,13 @@ module.exports = {
 
 			{
 				test: /\.woff(2)?(\?.*)?$/,
-				use: "url-loader?limit=10000&mimetype=application/font-woff"
+				use: {
+					loader: "url-loader",
+					options: {
+						limit: 10000,
+						mimetype: "application/font-woff"
+					}
+				}
 			},
 
 			{
@@ -66,6 +77,17 @@ module.exports = {
 			{
 				test: /\.eot(\?.*)?$/,
 				use: "file-loader"
+			},
+
+			{
+				test: /client\/images.*\.png$/,
+				use: {
+					loader: "url-loader",
+					options: {
+						limit: 8192,
+						name: "images/[name]-[hash].[ext]"
+					}
+				}
 			},
 
 			{
@@ -86,15 +108,11 @@ module.exports = {
 			$: "jquery"
 		}),
 
-		new webpack.DefinePlugin({
-			"process.env": {
-				// Necessary environment variables for shared-lib/config
-				NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-				WEB_SOCKETS_RUN_INLINE: JSON.stringify(process.env.WEB_SOCKETS_RUN_INLINE),
-				WEB_SOCKETS_PORT: JSON.stringify(process.env.WEB_SOCKETS_PORT),
-				WEB_SOCKETS_URL: JSON.stringify(process.env.WEB_SOCKETS_URL),
-			},
-			IS_DEVELOPMENT: JSON.stringify(Config.app.isDevelopment),
+		new webpack.EnvironmentPlugin({
+			// Necessary environment variables for shared-lib/config
+			NODE_ENV: Config.app.environment,
+			WEB_SOCKETS_URL: null,
+			STATIC_CONTENT_URL: null,
 		}),
 
 		new ExtractTextPlugin({
@@ -113,7 +131,8 @@ module.exports = {
 		alias: {
 			"project/shared-lib": path.join(__dirname, "shared-lib"),
 			"project/scripts": path.join(Config.paths.client, "scripts"),
-			"project/styles": path.join(Config.paths.client, "styles")
+			"project/styles": path.join(Config.paths.client, "styles"),
+			"project/images": path.join(Config.paths.client, "images"),
 		}
 	},
 
