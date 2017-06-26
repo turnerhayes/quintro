@@ -15,6 +15,7 @@ import Home             from "project/scripts/components/Home";
 import Login            from "project/scripts/components/Login";
 import CreateGame       from "project/scripts/components/CreateGame";
 import PlayGame         from "project/scripts/components/PlayGame";
+import HowToPlay        from "project/scripts/components/HowToPlay";
 
 
 ReactDOM.render(
@@ -32,6 +33,13 @@ ReactDOM.render(
 					name="Home"
 					path="/"
 					component={Home}
+				>
+				</Route>
+				<Route
+					exact
+					name="How to Play"
+					path="/how-to-play"
+					component={HowToPlay}
 				>
 				</Route>
 				<Switch>

@@ -47,12 +47,6 @@ const DB_URL = process.env.CREDENTIALS_DB_URL;
 
 const SESSION_DB_URL = process.env.SESSION_DB_URL;
 
-let staticContentURL = process.env.STATIC_CONTENT_URL;
-const staticContentInline = !staticContentURL;
-
-if (staticContentInline) {
-	staticContentURL = `${ORIGIN}/static`;
-}
 
 const Config = {
 	app: {
@@ -90,10 +84,7 @@ const Config = {
 		}
 	},
 	websockets: sharedConfig.websockets,
-	staticContent: {
-		inline: staticContentInline,
-		url: staticContentURL.replace(/\/$/, "")
-	},
+	staticContent: sharedConfig.staticContent,
 	storage: {
 		db: {
 			url: DB_URL
