@@ -15,7 +15,6 @@
 	<main id="app" class="page-layout__main">
 	</main>
 
-	<input type="hidden" name="data" value='<%= JSON.stringify(htmlWebpackPlugin, null, "\t") %>'>
 	<%= _.map(
 			htmlWebpackPlugin.files.js,
 			(path) => {
