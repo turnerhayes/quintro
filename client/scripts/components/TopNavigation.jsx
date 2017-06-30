@@ -3,7 +3,6 @@ import { connect }          from "react-redux";
 import PropTypes            from "prop-types";
 import { Link }             from "react-router-dom";
 import UserRecord           from "project/scripts/records/user";
-import                           "project/styles/breadcrumbs.less";
 
 class TopNavigation extends React.Component {
 	static propTypes = {
