@@ -60,7 +60,7 @@ class GameUtils {
 		);
 	}
 
-	static findGames({ numberOfPlayers }) {
+	static findOpenGames({ numberOfPlayers }) {
 		return Promise.resolve(
 			$.ajax({
 				url: `/api/games`,
@@ -73,7 +73,7 @@ class GameUtils {
 				jqXHR => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
-			).then(response => response.results.map(prepareGame))
+			).then(results => results.map(prepareGame))
 		);
 	}
 }

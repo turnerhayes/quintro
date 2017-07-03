@@ -64,24 +64,14 @@ export function getGame({ gameName }) {
 	};
 }
 
-export const FIND_GAMES = "@QUINTRO/GAMES/FIND";
+export const FIND_OPEN_GAMES = "@QUINTRO/GAMES/FIND";
 
-export function findGames({ numberOfPlayers }) {
+export function findOpenGames({ numberOfPlayers }) {
 	return {
-		type: FIND_GAMES,
-		payload: GameUtils.findGames({
+		type: FIND_OPEN_GAMES,
+		payload: GameUtils.findOpenGames({
 			numberOfPlayers
 		})
-	};
-}
-
-export const SET_FIND_GAME_RESULTS = "@QUINTRO/GAMES/SET_FIND_GAME_RESULTS";
-
-export function setFindGameResults({ results, error }) {
-	return {
-		type: SET_FIND_GAME_RESULTS,
-		error: !!error,
-		payload: error || results
 	};
 }
 

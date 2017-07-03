@@ -5,8 +5,12 @@ import { connect }        from "react-redux";
 import { withRouter }     from "react-router";
 import { push }           from "react-router-redux";
 import GameClient         from "project/scripts/utils/game-client";
+import {
+	findOpenGames
+}                         from "project/scripts/redux/actions";
 import                         "project/styles/find-game.less";
 
+const MIN_PLAYERS_IN_A_GAME = 3;
 const MAX_PLAYERS_IN_A_GAME = 6;
 
 class FindGame extends React.Component {
@@ -20,20 +24,17 @@ class FindGame extends React.Component {
 	}
 
 	state = {
-		numPlayers: null,
+		numberOfPlayers: null,
 		isSearching: false
 	}
 
 	componentDidUpdate() {
-		if (
-			this.state.isSearching && (
-				this.props.results ||
-				this.props.findGameError
-			)
-		) {
-			this.setState({ isSearching: false });
-
-			if (this.props.results) {
+		if (this.state.isSearching) {
+			if (this.props.findGameError) {
+				// TODO: display error notification
+				this.setState({ isSearching: false });
+			}
+			else if (this.props.results) {
 				this.handleGamesFound();
 			}
 		}
@@ -70,9 +71,11 @@ class FindGame extends React.Component {
 	handleSearchFormSubmit = (event) => {
 		event.preventDefault();
 
-		GameClient.findOpenGames({
-			numberOfPlayers: this.state.numPlayers
-		});
+		this.props.dispatch(
+			findOpenGames({
+				numberOfPlayers: this.state.numberOfPlayers
+			})
+		);
 
 		this.setState({ isSearching: true }); 
 	}
@@ -126,9 +129,9 @@ class FindGame extends React.Component {
 						type="number"
 						className="c_find-game--find-game-form--num-players form-control"
 						id="c_find-game--find-game-form--num-players"
-						min={3}
+						min={MIN_PLAYERS_IN_A_GAME}
 						max={MAX_PLAYERS_IN_A_GAME}
-						onChange={(event) => this.setState({numPlayers: event.target.valueAsNumber || null})}
+						onChange={(event) => this.setState({numberOfPlayers: event.target.valueAsNumber || null})}
 					/>
 					<div
 						className="label label-info"
