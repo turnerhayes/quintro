@@ -82,9 +82,7 @@ router.route("")
 				numberOfPlayers,
 				excludeUser: {
 					user: req.user,
-					sessionID: req.user ?
-						undefined :
-						req.session.id
+					sessionID: req.session.id
 				}
 			}).then(
 				(games) => res.json(games)
