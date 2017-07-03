@@ -1,3 +1,4 @@
+import _                  from "lodash";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
@@ -12,6 +13,7 @@ import                         "project/styles/find-game.less";
 
 const MIN_PLAYERS_IN_A_GAME = 3;
 const MAX_PLAYERS_IN_A_GAME = 6;
+const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
 
 class FindGame extends React.Component {
 	static propTypes = {
@@ -42,6 +44,8 @@ class FindGame extends React.Component {
 
 	joinGame = (index) => {
 		if (!this.props.results.get(index)) {
+			// ran out of results; keep trying until we have success
+			this.runSearch();
 			return;
 		}
 
@@ -58,26 +62,40 @@ class FindGame extends React.Component {
 				this.props.dispatch(push(`/play/${gameName}`));
 			}
 		).catch(
+			// If we couldn't join a game, try the next one
 			() => this.joinGame(index + 1)
 		);
 	}
 
+	runSearch = _.debounce(
+		() => {
+			this.props.dispatch(
+				findOpenGames({
+					numberOfPlayers: this.state.numberOfPlayers
+				})
+			);
+
+			this.setState({ isSearching: true }); 
+		},
+		SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS,
+		{
+			leading: true
+		}
+	)
+
 	handleGamesFound = () => {
-		if (!this.props.results.isEmpty()) {
-			this.joinGame(0);
+		if (this.props.results.isEmpty()) {
+			// Found nothing; try until we do
+			this.runSearch();
+		} else {
+			return this.joinGame(0);
 		}
 	}
 
 	handleSearchFormSubmit = (event) => {
 		event.preventDefault();
 
-		this.props.dispatch(
-			findOpenGames({
-				numberOfPlayers: this.state.numberOfPlayers
-			})
-		);
-
-		this.setState({ isSearching: true }); 
+		this.runSearch();
 	}
 
 	render() {

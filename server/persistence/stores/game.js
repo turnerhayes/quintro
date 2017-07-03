@@ -86,18 +86,26 @@ class GamesStore {
 		}
 
 		if (excludeUser) {
-			if (excludeUser.user) {
-				filters["players.user"] = {
-					$ne: {
-						_id: new mongoose.Types.ObjectId(excludeUser.user.id)
+			const userExclusionFilter = excludeUser.user ?
+				{
+					"players.user": {
+						$ne: {
+							_id: new mongoose.Types.ObjectId(excludeUser.user.id)
+						}
 					}
-				};
-			}
-			else {
-				filters["players.sessionID"] = {
-					$ne: excludeUser.sessionID
-				};
-			}
+				} :
+				undefined;
+
+			const sessionIDExclusionFilter = excludeUser.sessionID ?
+				{
+					"players.sessionID": {
+						$ne: excludeUser.sessionID
+					}
+				} :
+				undefined;
+
+			
+			Object.assign(filters, userExclusionFilter, sessionIDExclusionFilter);
 		}
 
 		let query = GameModel.find(filters, {__v: false});
