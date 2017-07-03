@@ -256,6 +256,33 @@ class SocketManager {
 			SocketManager._onGetPlayerPresence(this, gameName, fn);
 		});
 
+		socket.on("games:find", function({ numberOfPlayers }, fn) {
+			GameStore.findGames({
+				numberOfPlayers,
+				excludeUser: {
+					user: this.request.user,
+					sessionID: this.request.user ?
+						undefined :
+						this.request.session.id
+				}
+			}).then(
+				(games) => {
+					fn && fn({
+						games
+					});
+				}
+			).catch(
+				(err) => {
+					Loggers.websockets.error(`Error finding open games: ${err.message}\n${err.stack}`);
+
+					fn && fn({
+						error: true,
+						message: err.message
+					});
+				}
+			);
+		});
+
 		socket.on("game:start", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onGameStart(this, gameName, fn);
@@ -338,7 +365,6 @@ class SocketManager {
 					error: true,
 					message: err.message,
 					code: err.code,
-
 				});
 			}
 		);

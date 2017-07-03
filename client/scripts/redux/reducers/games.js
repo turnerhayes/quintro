@@ -1,6 +1,7 @@
 import GamesState from "project/scripts/records/state/games";
 import {
 	GET_GAME,
+	SET_FIND_GAME_RESULTS,
 	GAME_PLAY_ERROR,
 	SET_MARBLE,
 	SET_PLAYER,
@@ -18,6 +19,14 @@ export default function gamesReducer(state = new GamesState(), action) {
 			}
 
 			return state.setGetGameError(null).addGame(action.payload);
+		}
+
+		case SET_FIND_GAME_RESULTS: {
+			if (action.error) {
+				return state.set("findGameError", action.payload.error);
+			}
+
+			return state.setFindResults(action.payload).set("findGameError", null);
 		}
 
 		case GAME_PLAY_ERROR: {
