@@ -1,5 +1,6 @@
 "use strict";
 
+const _               = require("lodash");
 const express         = require("express");
 const HTTPStatusCodes = require("http-status-codes");
 const bodyParser      = require("body-parser");
@@ -64,6 +65,29 @@ router.route("/:gameName")
 						.set("Location", `${req.baseUrl}/${game.name}`)
 						.json(prepareGame(game, req));
 				}
+			).catch(next);
+		}
+	);
+
+router.route("")
+	.get(
+		(req, res, next) => {
+			let numberOfPlayers = Number(req.query.numberOfPlayers);
+
+			if (_.isNaN(numberOfPlayers)) {
+				numberOfPlayers = undefined;
+			}
+
+			GamesStore.findGames({
+				numberOfPlayers,
+				excludeUser: {
+					user: req.user,
+					sessionID: req.user ?
+						undefined :
+						req.session.id
+				}
+			}).then(
+				(games) => res.json(games)
 			).catch(next);
 		}
 	);
