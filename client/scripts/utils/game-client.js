@@ -7,7 +7,6 @@ import {
 	setPlayerPresence,
 	setWinner,
 	startGame,
-	setFindGameResults,
 	gamePlayError
 }                   from "project/scripts/redux/actions";
 
@@ -135,31 +134,6 @@ class GameClient {
 							{}
 						),
 						setMissingPlayersTo: false
-					})
-				);
-			}
-		);
-	}
-
-	static findOpenGames({ numberOfPlayers }) {
-		return SocketClient.instance.emit(
-			"games:find",
-			{
-				numberOfPlayers
-			}
-		).then(
-			({ games }) => {
-				getStore().dispatch(
-					setFindGameResults({
-						results: games
-					})
-				);
-			}
-		).catch(
-			(error) => {
-				getStore().dispatch(
-					setFindGameResults({
-						error
 					})
 				);
 			}
