@@ -1,13 +1,16 @@
 import {
 	Record,
-	Map
+	Map,
+	List
 }                 from "immutable";
 import GameRecord from "project/scripts/records/game";
 
 const schema = {
 	items: Map(),
 	getGameError: null,
-	gamePlayError: null
+	gamePlayError: null,
+	findGameError: null,
+	findResults: null
 };
 
 class GamesStateRecord extends Record(schema, "GamesState") {
@@ -85,6 +88,17 @@ GamesStateRecord.prototype.startGame = function startGame({ gameName }) {
 	}
 
 	return this.setIn(["items", gameName], this.items.get(gameName).start());
+};
+
+GamesStateRecord.prototype.setFindResults = function setFindResults(results) {
+	return this.set(
+		"findResults",
+		results ?
+			List(results.map(
+				(result) => new GameRecord(result)
+			)) :
+			null
+	);
 };
 
 export default GamesStateRecord;

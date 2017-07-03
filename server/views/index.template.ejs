@@ -18,7 +18,7 @@
 	<%= _.map(
 			htmlWebpackPlugin.files.js,
 			(path) => {
-				let async;
+				let async = "";
 
 				if (/\/main-/.test(path)) {
 					async = "async";

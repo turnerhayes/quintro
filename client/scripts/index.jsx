@@ -14,6 +14,7 @@ import App              from "project/scripts/components/App";
 import Home             from "project/scripts/components/Home";
 import Login            from "project/scripts/components/Login";
 import CreateGame       from "project/scripts/components/CreateGame";
+import FindGame         from "project/scripts/components/FindGame";
 import PlayGame         from "project/scripts/components/PlayGame";
 import HowToPlay        from "project/scripts/components/HowToPlay";
 
@@ -44,20 +45,31 @@ ReactDOM.render(
 				</Route>
 				<Switch>
 					<Route
+						exact
 						name="Create Game"
 						path="/game/create"
 						component={CreateGame}
 					/>
 					<Route
+						exact
+						name="Find a Game"
+						path="/game/find"
+						render={(...args) => (
+								<FindGame
+									{...args}
+								></FindGame>
+							)
+						}
+					>
+					</Route>
+					<Route
 						name="Play Game"
-						path="/game/:name"
+						path="/play/:name"
 						render={
 							({ match }) => {
 								return (
 									<PlayGame
 										gameName={match.params.name}
-										width={15}
-										height={15}
 									/>
 								);
 							}

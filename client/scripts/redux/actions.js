@@ -47,7 +47,7 @@ export function createGame({ name, width, height, playerLimit }) {
 				height,
 				playerLimit
 			}).then(
-				game => dispatch(push(`/game/${game.name}`))
+				game => dispatch(push(`/play/${game.name}`))
 			)
 		};
 	};
@@ -61,6 +61,27 @@ export function getGame({ gameName }) {
 		payload: GameUtils.getGame({
 			gameName
 		})
+	};
+}
+
+export const FIND_GAMES = "@QUINTRO/GAMES/FIND";
+
+export function findGames({ numberOfPlayers }) {
+	return {
+		type: FIND_GAMES,
+		payload: GameUtils.findGames({
+			numberOfPlayers
+		})
+	};
+}
+
+export const SET_FIND_GAME_RESULTS = "@QUINTRO/GAMES/SET_FIND_GAME_RESULTS";
+
+export function setFindGameResults({ results, error }) {
+	return {
+		type: SET_FIND_GAME_RESULTS,
+		error: !!error,
+		payload: error || results
 	};
 }
 
