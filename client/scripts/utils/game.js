@@ -59,6 +59,23 @@ class GameUtils {
 			).then(prepareGame)
 		);
 	}
+
+	static findGames({ numberOfPlayers }) {
+		return Promise.resolve(
+			$.ajax({
+				url: `/api/games`,
+				type: "GET",
+				dataType: "json",
+				data: {
+					numberOfPlayers,
+				}
+			}).catch(
+				jqXHR => {
+					throw new Error(getErrorMessageFromXHR(jqXHR));
+				}
+			).then(response => response.results.map(prepareGame))
+		);
+	}
 }
 
 export default GameUtils;

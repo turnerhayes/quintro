@@ -40,7 +40,7 @@ router.route("/:gameName")
 				name: gameName
 			}).then(
 				(game) => res.json(prepareGame(game, req))
-			).catch(err => next(err));
+			).catch(next);
 		}
 	)
 	.post(
@@ -64,9 +64,8 @@ router.route("/:gameName")
 						.set("Location", `${req.baseUrl}/${game.name}`)
 						.json(prepareGame(game, req));
 				}
-			).catch(err => next(err));
+			).catch(next);
 		}
 	);
-
 
 exports = module.exports = router;

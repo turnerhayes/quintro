@@ -47,11 +47,14 @@ class PlayGame extends React.Component {
 
 		GameClient.joinGame({
 			gameName: game.name
-		});
+		}).then(
+			() => {
+				this.gameJoined = true;
 
-		this.gameJoined = true;
+				GameClient.updatePlayerPresence({ gameName: game.name });
+			}
+		);
 
-		GameClient.updatePlayerPresence({ gameName: game.name });
 	}
 
 	handleCellClick = ({ position, cell }) => {

@@ -2,6 +2,7 @@
 
 const _                 = require("lodash");
 const Promise           = require("bluebird");
+const mongoose          = require("mongoose");
 const rfr               = require("rfr");
 const GameModel         = rfr("server/persistence/models/game");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
@@ -72,40 +73,36 @@ class GamesStore {
 		);
 	}
 
-	static findGames({ gameName, gameName_like, case_sensitive, width, height, include_full } = {}) {
-		let filters = {};
+	static findGames({ numberOfPlayers, excludeUser } = {}) {
+		let filters = {
+			is_started: {
+				$ne: true
+			},
+			winner: null
+		};
 
-		if (gameName) {
-			filters.name = gameName;
-		}
-		else if (gameName_like) {
-			filters.name = filters.name || {};
-			filters.name.$regex = new RegExp(
-				gameName_like,
-				(
-					case_sensitive ?
-					undefined :
-					"i"
-				)
-			);
+		if (numberOfPlayers > 0) {
+			filters.player_limit = numberOfPlayers;
 		}
 
-		if (width) {
-			filters["board.width"] = width;
-		}
-
-		if (height) {
-			filters["board.height"] = height;
+		if (excludeUser) {
+			if (excludeUser.user) {
+				filters["players.user"] = {
+					$ne: {
+						_id: new mongoose.Types.ObjectId(excludeUser.user.id)
+					}
+				};
+			}
+			else {
+				filters["players.sessionID"] = {
+					$ne: excludeUser.sessionID
+				};
+			}
 		}
 
 		let query = GameModel.find(filters, {__v: false});
 
-		if (include_full) {
-			query = query.$where("this.players.length >= this.player_limit");
-		}
-		else {
-			query = query.$where("this.players.length < this.player_limit");
-		}
+		query = query.$where("this.players.length < this.player_limit");
 
 		return Promise.resolve(query.populate("players.user"));
 	}

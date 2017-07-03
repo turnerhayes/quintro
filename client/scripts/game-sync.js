@@ -1,7 +1,7 @@
 import GameClient from "project/scripts/utils/game-client";
 import {
 	PLACE_MARBLE
-}                from "project/scripts/redux/actions";
+}                 from "project/scripts/redux/actions";
 
 export function gameSyncMiddleware() {
 	return next => action => {
