@@ -10,7 +10,8 @@ const schema = {
 	getGameError: null,
 	gamePlayError: null,
 	findGameError: null,
-	findResults: null
+	findResults: null,
+	userGames: null
 };
 
 class GamesStateRecord extends Record(schema, "GamesState") {
@@ -93,6 +94,17 @@ GamesStateRecord.prototype.startGame = function startGame({ gameName }) {
 GamesStateRecord.prototype.setFindResults = function setFindResults(results) {
 	return this.set(
 		"findResults",
+		results ?
+			List(results.map(
+				(result) => new GameRecord(result)
+			)) :
+			null
+	);
+};
+
+GamesStateRecord.prototype.setUserGames = function setUserGames(results) {
+	return this.set(
+		"userGames",
 		results ?
 			List(results.map(
 				(result) => new GameRecord(result)
