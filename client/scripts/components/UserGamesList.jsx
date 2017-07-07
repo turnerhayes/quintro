@@ -9,7 +9,6 @@ import {
 	TabList,
 	TabPanel
 }                         from "react-tabs";
-import UserRecord         from "project/scripts/records/user";
 import GameRecord         from "project/scripts/records/game";
 import {
 	getUserGames
@@ -20,7 +19,6 @@ import                         "project/styles/user-games-list";
 class UserGamesList extends React.Component {
 	static propTypes = {
 		dispatch: PropTypes.func.isRequired,
-		user: PropTypes.instanceOf(UserRecord).isRequired,
 		userGames: ImmutablePropTypes.listOf(
 			PropTypes.instanceOf(GameRecord)
 		),
@@ -196,11 +194,8 @@ export default connect(
 	function mapStateToProps(state) {
 		const games = state.get("games");
 		const userGames = games && games.userGames;
-		const users = state.get("users");
-		const user = users.currentUser;
 
 		return {
-			user,
 			userGames
 		};
 	}
