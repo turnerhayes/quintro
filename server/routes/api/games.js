@@ -72,6 +72,8 @@ router.route("/:gameName")
 router.route("")
 	.get(
 		(req, res, next) => {
+			const includeUserGames = !!req.query.includeUserGames;
+			const onlyOpenGames = !! req.query.onlyOpenGames;
 			let numberOfPlayers = Number(req.query.numberOfPlayers);
 
 			if (_.isNaN(numberOfPlayers)) {
@@ -80,12 +82,13 @@ router.route("")
 
 			GamesStore.findGames({
 				numberOfPlayers,
-				excludeUser: {
+				onlyOpenGames,
+				[includeUserGames ? "forUser" : "excludeUser"]: {
 					user: req.user,
 					sessionID: req.session.id
 				}
 			}).then(
-				(games) => res.json(games)
+				(games) => res.json(games.map((game) => prepareGame(game, req)))
 			).catch(next);
 		}
 	);

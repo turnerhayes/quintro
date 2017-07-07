@@ -26,6 +26,25 @@ function getErrorMessageFromXHR(jqXHR) {
 		jqXHR.responseText;
 }
 
+function searchGames({ numberOfPlayers, onlyOpenGames, includeUserGames }) {
+	return Promise.resolve(
+		$.ajax({
+			url: `/api/games`,
+			type: "GET",
+			dataType: "json",
+			data: {
+				numberOfPlayers,
+				onlyOpenGames,
+				includeUserGames
+			}
+		}).catch(
+			jqXHR => {
+				throw new Error(getErrorMessageFromXHR(jqXHR));
+			}
+		).then(results => results.map(prepareGame))
+	);
+}
+
 class GameUtils {
 	static getGame({ gameName }) {
 		return Promise.resolve(
@@ -61,20 +80,11 @@ class GameUtils {
 	}
 
 	static findOpenGames({ numberOfPlayers }) {
-		return Promise.resolve(
-			$.ajax({
-				url: `/api/games`,
-				type: "GET",
-				dataType: "json",
-				data: {
-					numberOfPlayers,
-				}
-			}).catch(
-				jqXHR => {
-					throw new Error(getErrorMessageFromXHR(jqXHR));
-				}
-			).then(results => results.map(prepareGame))
-		);
+		return searchGames({ numberOfPlayers, onlyOpenGames: true });
+	}
+
+	static getUserGames() {
+		return searchGames({ includeUserGames: true });
 	}
 }
 

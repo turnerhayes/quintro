@@ -10,7 +10,8 @@ class App extends React.Component {
 		children: PropTypes.oneOfType([
 			PropTypes.arrayOf(PropTypes.node),
 			PropTypes.node
-		])
+		]),
+		sidebar: PropTypes.element
 	}
 
 	static defaultProps = {
@@ -19,14 +20,31 @@ class App extends React.Component {
 
 	render() {
 		return (
-			<section className="page-layout__main-container">
-				<header>
+			<section
+				className="page-layout__main-container"
+			>
+				<header
+					className="page-layout__main-header"
+				>
 					<TopNavigation
 					/>
 				</header>
-				<article className="page-layout__main-content">
-					{this.props.children}
-				</article>
+				<div
+					className="page-layout__main-content-container"
+				>
+					<article
+						className="page-layout__main-content"
+					>
+						{this.props.children}
+					</article>
+					{
+						this.props.sidebar && (
+							<aside
+								className="page-layout__left-panel"
+							>{this.props.sidebar}</aside>
+						)
+					}
+				</div>
 			</section>
 		);
 	}
