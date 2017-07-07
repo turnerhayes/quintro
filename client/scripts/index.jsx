@@ -17,12 +17,22 @@ import CreateGame       from "project/scripts/components/CreateGame";
 import FindGame         from "project/scripts/components/FindGame";
 import PlayGame         from "project/scripts/components/PlayGame";
 import HowToPlay        from "project/scripts/components/HowToPlay";
+import UserGamesList    from "project/scripts/components/UserGamesList";
 
 
 ReactDOM.render(
 	<Provider store={getStore()}>
 		<ConnectedRouter history={history}>
-			<App>
+			<App
+				sidebar={
+					<Route
+						exact
+						name="Home"
+						path="/"
+						component={UserGamesList}
+					></Route>
+				}
+			>
 				<Route
 					exact
 					name="Login"

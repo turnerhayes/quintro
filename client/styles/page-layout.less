@@ -25,7 +25,32 @@ body,
 		flex-direction: column;
 	}
 
+	&__main-header {
+		width: 100%;
+
+		.navbar {
+			margin-bottom: 0;
+		}
+	}
+
+	&__main-content-container {
+		display: flex;
+		flex-direction: row;
+		flex:1;
+	}
+
 	&__main-content {
 		flex: 1;
+		order: 1;
+	}
+
+	&__left-panel {
+		width: 33%;
+		order: 0;
+		border-right: 1px solid black;
+
+		&:empty {
+			display: none;
+		}
 	}
 }

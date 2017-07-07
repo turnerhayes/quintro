@@ -88,6 +88,15 @@ export function findOpenGames({ numberOfPlayers }) {
 	};
 }
 
+export const GET_USER_GAMES = "@QUINTRO/GAMES/GET_USER_GAMES";
+
+export function getUserGames() {
+	return {
+		type: GET_USER_GAMES,
+		payload: GameUtils.getUserGames()
+	};
+}
+
 export const GAME_PLAY_ERROR = "@QUINTRO/GAME/PLAY_ERROR";
 
 export function gamePlayError({ error }) {

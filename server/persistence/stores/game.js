@@ -1,6 +1,7 @@
 "use strict";
 
 const _                 = require("lodash");
+const assert            = require("assert");
 const Promise           = require("bluebird");
 const mongoose          = require("mongoose");
 const rfr               = require("rfr");
@@ -73,25 +74,24 @@ class GamesStore {
 		);
 	}
 
-	static findGames({ numberOfPlayers, excludeUser } = {}) {
-		let filters = {
-			is_started: {
-				$ne: true
-			},
-			winner: null
-		};
+	static findGames({ numberOfPlayers, onlyOpenGames, excludeUser, forUser } = {}) {
+		assert(!(excludeUser && forUser), "Cannot pass both `excludeUser` and `forUser` to `GamesStore.findGames()`");
+		let filters = {};
 
 		if (numberOfPlayers > 0) {
 			filters.player_limit = numberOfPlayers;
 		}
 
 		if (excludeUser) {
+			assert(
+				(excludeUser.user && excludeUser.user) || excludeUser.sessionID,
+				"`excludeUser` must contain either a `user` field or a `sessionID` field (or both)"
+			);
+
 			const userExclusionFilter = excludeUser.user ?
 				{
 					"players.user": {
-						$ne: {
-							_id: new mongoose.Types.ObjectId(excludeUser.user.id)
-						}
+						$ne: new mongoose.Types.ObjectId(excludeUser.user.id)
 					}
 				} :
 				undefined;
@@ -108,9 +108,58 @@ class GamesStore {
 			Object.assign(filters, userExclusionFilter, sessionIDExclusionFilter);
 		}
 
+		if (forUser) {
+			assert(
+				(forUser.user && forUser.user) || forUser.sessionID,
+				"`forUser` must contain either a `user` field or a `sessionID` field (or both)"
+			);
+
+			const userInclusionFilter = forUser.user ?
+				{
+					"players.user": new mongoose.Types.ObjectId(forUser.user.id)
+				} :
+				undefined;
+
+			const sessionIDInclusionFilter = forUser.sessionID ?
+				{
+					"players.sessionID": forUser.sessionID
+				} :
+				undefined;
+
+			let filter;
+
+			if (userInclusionFilter && sessionIDInclusionFilter) {
+				filter = {
+					$or: [
+						userInclusionFilter,
+						sessionIDInclusionFilter
+					]
+				};	
+			}
+			else {
+				filter = userInclusionFilter || sessionIDInclusionFilter;
+			}
+
+			Object.assign(filters, filter);
+		}
+
+		if (onlyOpenGames) {
+			Object.assign(
+				filters,
+				{
+					is_started: {
+						$ne: true
+					},
+					winner: null
+				}
+			);
+		}
+
 		let query = GameModel.find(filters, {__v: false});
 
-		query = query.$where("this.players.length < this.player_limit");
+		if (onlyOpenGames) {
+			query = query.$where("this.players.length < this.player_limit");
+		}
 
 		return Promise.resolve(query.populate("players.user"));
 	}
