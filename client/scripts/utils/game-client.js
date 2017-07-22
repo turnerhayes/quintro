@@ -14,11 +14,7 @@ function resetGamePlayError() {
 	getStore().dispatch(gamePlayError({ error: null }));
 }
 
-function onPlayerJoined({ player, gameName, isMe}) {
-	if (isMe !== undefined) {
-		player.isMe = isMe;
-	}
-
+function onPlayerJoined({ player, gameName }) {
 	getStore().dispatch(
 		addPlayer({
 			gameName,
@@ -84,7 +80,7 @@ class GameClient {
 			}
 		).then(
 			({ player, current_player_color }) => {
-				onPlayerJoined({ gameName, player, isMe: true });
+				onPlayerJoined({ gameName, player });
 				onCurrentPlayerChanged({ gameName, color: current_player_color });
 			}
 		);

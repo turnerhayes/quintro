@@ -103,6 +103,12 @@ GameSchema.virtual("is_over").get(
 	}
 );
 
+GameSchema.virtual("isFull").get(
+	function() {
+		return this.players.length === this.player_limit;
+	}
+);
+
 GameSchema.pre("validate", function(next) {
 	if (_.size(this.players) > this.player_limit) {
 		next(new Error(`Too many players in this game; only up to ${this.player_limit} allowed`));
@@ -111,16 +117,16 @@ GameSchema.pre("validate", function(next) {
 
 	for (let i = this.players.length - 1; i >= 0; i--) {
 		if (
-			(!this.players[i].user && !this.players[i].sessionID) ||
-			(this.players[i].user && this.players[i].sessionID)
+			(!this.players[i].user.username && !this.players[i].user.sessionID) ||
+			(this.players[i].user.username && this.players[i].user.sessionID)
 		) {
-			let message = `Every player must either have a user or a sessionID, but not both. Player ${i} has `;
+			let message = `Every player user must either have a username or a sessionID, but not both. Player ${this.players[i].color} has `;
 
 			if (this.players[i].user) {
-				message += "both a user and a sessionID";
+				message += "both a username and a sessionID";
 			}
 			else {
-				message += "neither a user nor a sessionID";
+				message += "neither a username nor a sessionID";
 			}
 
 			next(new Error(message));
@@ -195,7 +201,7 @@ class Game {
 		});
 	}
 
-	toFrontendObject({ keepSessionID = false } = {}) {
+	toFrontendObject() {
 		const obj = this.toObject({
 			virtuals: true,
 		});
@@ -203,23 +209,16 @@ class Game {
 		delete obj._id;
 		delete obj.current_player;
 
-		_.each(
-			obj.players,
-			function(player) {
-				if (player.user) {
-					if (_.isFunction(player.user.toFrontendObject)) {
-						player.user = player.user.toFrontendObject();
-					}
+		obj.players = _.map(
+			this.players,
+			(player) => {
+				const user = player.user.toFrontendObject();
 
-					player.isAnonymous = false;
-				}
-				else {
-					player.isAnonymous = true;
-				}
+				player = player.toJSON();
 
-				if (!keepSessionID) {
-					delete player.sessionID;
-				}
+				player.user = user;
+
+				return player;
 			}
 		);
 

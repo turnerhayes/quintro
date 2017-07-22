@@ -1,26 +1,54 @@
+import { Set }    from "immutable";
 import { push }   from "react-router-redux";
 import GameUtils  from "project/scripts/utils/game";
+import UserUtils  from "project/scripts/utils/user";
 
-export const GET_USER = "@QUINTRO/USERS/GET";
+export const GET_USERS = "@QUINTRO/USERS/GET";
 
-export function getUser({ userID }) {
-	return {
-		type: GET_USER,
-		payload: userID
-		// "payload": UserUtils.getUser({ userID })
+export function getUsers({ userIDs }) {
+	return (dispatch, getState) => {
+		userIDs = Set.of(...userIDs);
+		if (userIDs.size === 0) {
+			// Nothing requested, nothing to do
+			return;
+		}
+
+		const missingUsers = userIDs.subtract(Set.fromKeys(getState().get("users").items));
+
+		if (missingUsers.size === 0) {
+			// Have the users; no need to fetch any
+			return;
+		}
+
+		return dispatch({
+			type: GET_USERS,
+			payload: UserUtils.getUsers({
+				userIDs: userIDs.toArray()
+			})
+		});
 	};
 }
 
 export const UPDATE_USER_PROFILE = "@QUINTRO/USERS/UPDATE";
 
-export function updateUserProfile({ userID }) {
+export function updateUserProfile({ user }) {
 	return {
 		type: UPDATE_USER_PROFILE,
-		payload: userID
-		// "payload": UserUtils.updateProfile({
-		// 	userID,
-		// 	location
-		// })
+		payload: {
+			user
+		}
+	};
+}
+
+export const CHANGE_USER_PROFILE = "@QUINTRO/USERS/CHANGE";
+
+export function changeUserProfile({ userID, updates }) {
+	return {
+		type: CHANGE_USER_PROFILE,
+		payload: {
+			userID,
+			updates
+		}
 	};
 }
 
@@ -155,6 +183,21 @@ export function setWinner({ gameName, color }) {
 	};
 }
 
+// This represents a request from this player to place a marble
+export const PLACE_MARBLE = "@QUINTRO/GAME/PLACE_MARBLE";
+
+export function placeMarble({ gameName, position }) {
+	return {
+		type: PLACE_MARBLE,
+		payload: {
+			gameName,
+			position
+		}
+	};
+}
+
+// This represents a notification that a marble should be set in the game
+// (whether as a play from another player or this player)
 export const SET_MARBLE = "@QUINTRO/GAME/SET_MARBLE";
 
 export function setMarble({ gameName, position, color }) {
