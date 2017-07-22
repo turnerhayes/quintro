@@ -1,23 +1,22 @@
 "use strict";
 
-const _            = require("lodash");
-const Promise      = require("bluebird");
-const path         = require("path");
-const assert       = require("assert");
-const IOServer     = require("socket.io");
-const passport     = require("passport");
-const cookieParser = require("cookie-parser");
-const rfrProject   = require("rfr")({
+const _                  = require("lodash");
+const Promise            = require("bluebird");
+const path               = require("path");
+const assert             = require("assert");
+const IOServer           = require("socket.io");
+const passport           = require("passport");
+const cookieParser       = require("cookie-parser");
+const rfrProject         = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..", "..")
 });
-const GameStore    = rfrProject("server/persistence/stores/game");
-// const UserStore  = rfrProject("server/persistence/stores/user");
-const GameModel    = rfrProject("server/persistence/models/game");
-// const UserModel  = rfrProject("server/persistence/models/user");
-const ErrorCodes   = rfrProject("shared-lib/error-codes");
-const Config       = rfrProject("server/lib/config");
-const Loggers      = rfrProject("server/lib/loggers");
-const session      = rfrProject("server/session");
+const GameStore          = rfrProject("server/persistence/stores/game");
+const UserStore          = rfrProject("server/persistence/stores/user");
+const GameModel          = rfrProject("server/persistence/models/game");
+const ErrorCodes         = rfrProject("shared-lib/error-codes");
+const Config             = rfrProject("server/lib/config");
+const Loggers            = rfrProject("server/lib/loggers");
+const session            = rfrProject("server/session");
 
 const LOG_LEVELS   = {
 	INFO: "info",
@@ -25,27 +24,108 @@ const LOG_LEVELS   = {
 	ERROR: "error"
 };
 
-function _logGameEvent({ gameName, message, level, stack }) {
-	level = level || "info";
-
+function _log({ message, level = LOG_LEVELS.INFO }) {
 	assert(_.includes(LOG_LEVELS, level), `"${level}" is not a valid log level`);
 
-	Loggers.websockets.log(level, `<${gameName}>: ${message}${stack ? "\n" + stack : ""}`);
+	Loggers.websockets.log(level, message);
 }
 
-function _findPlayer({user, sessionID}, player) {
-	if (user && player.user) {
-		return player.user.id === user.id;
-	}
-
-	return player.sessionID === sessionID;
+function _logError({ error }) {
+	_log({
+		message: `${error.message}\n\t${error.stack}`,
+		level: LOG_LEVELS.ERROR
+	});
 }
 
-function _getPlayer({game, user, sessionID}) {
+function _logGameEvent({ gameName, message, level, stack }) {
+	_log({ message: `<${gameName}>: ${message}${stack ? "\n" + stack : ""}`, level });
+}
+
+
+function _findPlayer(user, player) {
+	return player.user.id === user.id;
+}
+
+function _getPlayer({game, user}) {
 	return _.find(
 		game.players,
-		_.bind(_findPlayer, undefined, {user, sessionID})
+		_.bind(_findPlayer, undefined, user)
 	);
+}
+
+function addPlayerToGame({ socket, game }) {
+	// If the game is full, throw error
+	if (game.isFull) {
+		const err = new Error("Game is full");
+		err.code = ErrorCodes.GAME_FULL;
+
+		throw err;
+	}
+
+	const color = _.find(
+		GameModel.COLORS,
+		(color) => !_.includes(
+				_.map(game.players, "color"),
+				color
+			)
+	);
+
+	return Promise.resolve(
+		socket.request.user ||
+			UserStore.findBySessionID(socket.request.session.id).then(
+				(user) => {
+					if (user) {
+						return user;
+					}
+					else {
+						return UserStore.createUser({
+							sessionID: socket.request.session.id
+						});
+					}
+				}
+			)
+	).then(
+		(user) => GameStore.addPlayerToGame({
+			gameName: game.name,
+			player: {
+				color,
+				user
+			}
+		})
+	).then(
+		(game) => {
+			const playerIndex = _.findIndex(game.players, (player) => player.color === color);
+
+			return {
+				player: game.players[playerIndex],
+				playerIndex,
+				game
+			};
+		}
+	);
+}
+
+function getSocketPlayer({ socket, game }) {
+	const playerIndex = _.findIndex(
+		game.players,
+		(player) => (
+			socket.request.user ?
+				player.user.id === socket.request.user.id :
+				(
+					player.user.sessionID === socket.request.session.id
+				)
+		)
+	);
+
+	if (playerIndex >= 0) {
+		return {
+			player: game.players[playerIndex],
+			playerIndex,
+			game
+		};
+	}
+
+	return null;
 }
 
 function _resolvePlayerJoinData({ socket, gameName }) {
@@ -53,116 +133,41 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 		name: gameName
 	}).then(
 		(game) => {
-			const player = _.find(
-					game.players,
-					(player) => {
-						return (
-							player.user &&
-							socket.request.user &&
-							player.user.id === socket.request.user.id
-						) || (
-							player.sessionID && player.sessionID === socket.request.session.id
-						);
-					}
-				);
+			const result = getSocketPlayer({ socket, game });
 
-			if (!_.isUndefined(player)) {
-				return {
-					user: player.user,
-					sessionID: player.sessionID,
-					game
-				};
-			}
-
-			// User is not currently a player; make sure there is room
-			// for them to join
-			if (_.size(game.players) >= game.player_limit) {
-				const err = new Error("Game is full");
-				err.code = ErrorCodes.GAME_FULL;
-
-				throw err;
-			}
-
-			if (socket.request.user) {
-				return {
-					user: socket.request.user,
-					game
-				};
-			}
-
-			return {
-				sessionID: socket.request.session.id,
-				game
-			};
+			return Promise.resolve(
+				result === null ?
+					addPlayerToGame({ socket, game }) :
+					result
+			).then(
+				({ player, playerIndex, game }) => ({
+					game,
+					player,
+					order: playerIndex
+				})
+			);
 		}
 	).then(
 		(data) => {
-			return new Promise(
-				(resolve, reject) => {
-					if (_.isUndefined(socket.request.user) && data.user) {
-						socket.request.logIn(data.user, (err) => {
+			if (
+				!data.player.user.isAnonymous &&
+				!socket.request.user
+			) {
+				return new Promise(
+					(resolve, reject) => {
+						socket.request.logIn(data.player.user, (err) => {
 							if (err) {
 								reject(err);
 								return;
 							}
 
-							resolve();
+							resolve(data);
 						});
 					}
-					else {
-						resolve();
-					}					
-				}
-			).then(() => data);
-		}
-	).then(
-		(data) => {
-			let playerIndex = _.findIndex(
-				data.game.players,
-				_.bind(_findPlayer, undefined, { user: data.user, sessionID: data.sessionID })
-			);
-
-			if (playerIndex >= 0) {
-				return Object.assign(data, {
-					color: data.game.players[playerIndex].color,
-					order: playerIndex
-				});
+				);
 			}
 
-			const playerColor = _.find(
-				GameModel.COLORS,
-				function(color) {
-					return !_.includes(
-						_.map(data.game.players, "color"),
-						color
-					);
-				}
-			);
-
-			
-			data.game.players.push({
-				user: data.user,
-				sessionID: data.sessionID,
-				color: playerColor,
-			});
-
-			playerIndex = data.game.players.length - 1;
-
-			if (_.isUndefined(data.game.current_player)) {
-				data.game.current_player_color = playerColor;
-			}
-
-			return Promise.resolve(
-				GameStore.saveGameState(data.game)
-			).then(
-				function(game) {
-					return Object.assign(data, {
-						game: game,
-						color: playerColor,
-						order: playerIndex,
-					});
-				}
-			);
+			return data;
 		}
 	);
 }
@@ -262,6 +267,45 @@ class SocketManager {
 			SocketManager._onGameStart(this, gameName, fn);
 		});
 
+		socket.on("users:change-profile", function({ userID, updates }, fn) {
+			if (userID === undefined) {
+				userID = this.request.user;
+			}
+
+			let sessionID;
+
+			if (!userID) {
+				sessionID = this.req.session.id;
+			}
+
+			UserStore.updateUser({
+				userID,
+				sessionID,
+				updates
+			}).then(
+				(user) => {
+					this.broadcast.emit("users:profile-changed", {
+						user: user.toFrontendObject()
+					});
+
+					this.emit("users:profile-changed", {
+						user: user.toFrontendObject()
+					});
+				}
+			).catch(
+				(err) => {
+					_logError({
+						error: err
+					});
+					fn && fn({
+						error: true,
+						message: err.message,
+						code: err.code
+					});
+				}
+			);
+		});
+
 		socket.on("disconnect", function() {
 			SocketManager._onDisconnect(this);
 		});
@@ -277,12 +321,12 @@ class SocketManager {
 			gameName
 		}).then(
 			(data) => {
-				if (_.isUndefined(data.color)) {
+				if (_.isUndefined(data.player.color)) {
 					_logGameEvent({gameName, message: "Color not found for player"});
 					throw new Error("Color is undefined");
 				}
 
-				socket.request.session.games[gameName].color = data.color;
+				socket.request.session.games[gameName].color = data.player.color;
 				socket.request.session.games[gameName].order = data.order;
 				socket.request.session.save();
 
@@ -300,15 +344,15 @@ class SocketManager {
 
 				_logGameEvent({
 					gameName,
-					message: `Player ${data.color} joined`
+					message: `Player ${data.player.color} joined`
 				});
 
 				const playerData = {
-					color: data.color,
-					user: data.user ?
-						data.user.toFrontendObject() :
+					color: data.player.color,
+					user: data.player.user ?
+						data.player.user.toFrontendObject() :
 						undefined,
-					isAnonymous: !!data.sessionID,
+					isAnonymous: data.player.user.isAnonymous,
 					order: data.order
 				};
 
@@ -479,7 +523,7 @@ class SocketManager {
 								player: Object.assign(
 									player.toObject(),
 									{
-										user: player.user && player.user.toFrontendObject()
+										user: player.user.toFrontendObject()
 									}
 								)
 							}

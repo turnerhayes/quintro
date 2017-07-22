@@ -1,5 +1,6 @@
 "use strict";
 
+const Promise            = require("bluebird");
 const express            = require("express");
 const path               = require("path");
 // const favicon            = require("serve-favicon");
@@ -13,6 +14,7 @@ const session            = rfr("server/session");
 const Loggers            = rfr("server/lib/loggers");
 const Config             = rfr("server/lib/config");
 const passportMiddleware = rfr("server/lib/passport");
+const UsersStore         = rfr("server/persistence/stores/user");
 // Make sure to set up the default Mongoose connection
 rfr("server/persistence/db-connection");
 
@@ -43,13 +45,19 @@ app.engine(
 );
 
 handlebars.registerHelper("ToJSON", function(value, options) {
-	const args = [value];
+	const args = [value, (key, value) => {
+		if (value === null) {
+			return undefined;
+		}
+
+		return value;
+	}];
 
 	if (options.hash.pretty) {
-		args.push(null, "\t");
+		args.push("\t");
 	}
 
-	return JSON.stringify.apply(JSON, args);
+	return JSON.stringify(...args);
 });
 
 app.set("views", path.join(__dirname, "views"));
@@ -92,11 +100,20 @@ app.get(
 	"*",
 	cors(SITE_RESTRICTED_CORS_OPTIONS),
 	(req, res, next) => {
+
 		// If what we're serving is supposed to be HTML, serve the base page.
 		if (!/^\/(auth|api|static)\//.test(req.path) && req.accepts(["html", "json"]) === "html") {
-			res.render("index", {
-				user: req.user && req.user.toFrontendObject()
-			});
+			let user = req.user;
+
+			Promise.resolve(
+				user || UsersStore.findBySessionID(req.session.id)
+			).catch(() => {}).then(
+				(user) => {
+					res.render("index", {
+						user: user &&  user.toFrontendObject()
+					});
+				}
+			);
 		}
 		else {
 			next();

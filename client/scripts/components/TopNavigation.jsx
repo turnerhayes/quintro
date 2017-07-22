@@ -3,6 +3,7 @@ import { connect }          from "react-redux";
 import PropTypes            from "prop-types";
 import { Link }             from "react-router-dom";
 import UserRecord           from "project/scripts/records/user";
+import                           "bootstrap/dist/css/bootstrap.css";
 
 class TopNavigation extends React.Component {
 	static propTypes = {
@@ -10,50 +11,65 @@ class TopNavigation extends React.Component {
 	}
 
 	render() {
+		const loggedInUser = this.props.currentUser && !this.props.currentUser.isAnonymous ?
+			this.props.currentUser :
+			null;
+
 		return (
-			<nav className="top-nav navbar navbar-default">
-				<div className="container-fluid">
-					<div className="navbar-header">
+			<nav className="top-nav navbar fixed-top navbar-toggleable navbar-inverse bg-inverse">
+				<Link
+					className="navbar-brand"
+					to="/"
+				>Quintro</Link>
+				<ul className="navbar-nav">
+					<li
+						className="nav-item"
+					>
 						<Link
-							className="navbar-brand"
-							to="/"
-						>Quintro</Link>
-					</div>
-					<ul className="nav navbar-nav">
-						<li>
-							<Link to="/game/find">
-								Find a Game
-							</Link>
-						</li>
-						<li>
-							<Link to="/how-to-play">
-								How to Play
-							</Link>
-						</li>
-						<li>
-							<Link to="/game/create">
-								Start a Game
-							</Link>
-						</li>
-					</ul>
-					<p className="navbar-text navbar-right">
-						{
-							this.props.currentUser &&
-								(<span>Logged in as </span>)
-						}
-						{
-							this.props.currentUser &&
-								(<Link to="/profile">
-									{this.props.currentUser.name.get("display")}
-								</Link>)
-						}
-						{
-							this.props.currentUser ?
-								null :
-								(<Link to="/login">Log in</Link>)
-						}
-					</p>
-				</div>
+							to="/game/find"
+							className="nav-link"
+						>
+							Find a Game
+						</Link>
+					</li>
+					<li
+						className="nav-item"
+					>
+						<Link
+							to="/how-to-play"
+							className="nav-link"
+						>
+							How to Play
+						</Link>
+					</li>
+					<li
+						className="nav-item"
+					>
+						<Link
+							to="/game/create"
+							className="nav-link"
+						>
+							Start a Game
+						</Link>
+					</li>
+				</ul>
+				<span className="navbar-text ml-auto">
+					{
+						loggedInUser &&
+							(<span>Logged in as </span>)
+					}
+					{
+						loggedInUser &&
+							(<Link to="/profile">
+								{loggedInUser.name.get("display")}
+							</Link>)
+					}
+					{
+						loggedInUser ?
+							null :
+							(<Link to="/login">Log in</Link>)
+					}
+				</span>
 			</nav>
 		);
 	}

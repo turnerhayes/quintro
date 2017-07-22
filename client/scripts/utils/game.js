@@ -1,6 +1,5 @@
-import $          from "jquery";
-import Promise    from "bluebird";
-
+import $            from "jquery";
+import Promise      from "bluebird";
 
 function prepareGame(game) {
 	game.currentPlayerColor = game.current_player_color;

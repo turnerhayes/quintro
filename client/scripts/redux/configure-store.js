@@ -12,7 +12,7 @@ import invariant                        from "redux-immutable-state-invariant";
 import { routerMiddleware }             from "react-router-redux";
 import createHistory                    from "history/createBrowserHistory";
 import rootReducer                      from "project/scripts/redux/reducers";
-import { gameSyncMiddleware }           from "project/scripts/game-sync";
+import { socketMiddleware }             from "project/scripts/socket-middleware";
 import Config                           from "project/shared-lib/config";
 
 export const history = createHistory();
@@ -26,7 +26,7 @@ const middlewares = [
 	thunkMiddleware,
 	promiseMiddleware,
 	routerMiddleware(history),
-	gameSyncMiddleware
+	socketMiddleware
 ];
 
 let composedEnhancers;

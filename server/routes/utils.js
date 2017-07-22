@@ -8,7 +8,7 @@ const UserStore       = rfr("server/persistence/stores/user");
 
 const USER_ID_HEADER = "X-API-User-ID";
 
-exports = module.exports =  {
+exports = module.exports = {
 	mustAuthenticate(message) {
 		message = message || "You must be logged in to perform this action";
 

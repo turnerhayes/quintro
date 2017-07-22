@@ -2,7 +2,6 @@ import React          from "react";
 import PropTypes      from "prop-types";
 import { withRouter } from "react-router";
 import TopNavigation  from "project/scripts/components/TopNavigation";
-import                     "bootstrap/dist/js/bootstrap.js";
 import                     "project/styles/page-layout.less";
 
 class App extends React.Component {

@@ -8,26 +8,8 @@ const rfr             = require("rfr");
 const GamesStore      = rfr("server/persistence/stores/game");
 
 
-function prepareGame(game, req) {
-	const gameObj = game.toFrontendObject({
-		keepSessionID: true
-	});
-
-	if (req) {
-		gameObj.players.forEach(
-			(player) => {
-				player.isMe = (
-					player.user && req.user ?
-						req.user.username === player.user.username :
-						req.session.id === player.sessionID
-				);
-
-				delete player.sessionID;
-			}
-		);
-	}
-
-	return gameObj;
+function prepareGame(game) {
+	return game.toFrontendObject();
 }
 
 const router = express.Router();

@@ -1,15 +1,29 @@
 "use strict";
 
-// const Promise           = require("bluebird");
+const assert    = require("assert");
+const mongoose  = require("mongoose");
 const rfr       = require("rfr");
 const UserModel = rfr("server/persistence/models/user");
-// const NotFoundException = rfr("server/persistence/exceptions/not-found");
-
-// const UserModel = Models.User;
 
 class UserStore {
 	static findByID(id) {
 		return UserModel.findById(id);
+	}
+
+	static findByIDs({ ids }) {
+		return UserModel.find({
+			_id: {
+				$in: ids.map(
+					(id) => mongoose.Types.ObjectId(id)
+				)
+			}
+		});
+	}
+
+	static findBySessionID(sessionID) {
+		return UserModel.findOne({
+			sessionID
+		});
 	}
 
 	static findByUsername(username) {
@@ -38,24 +52,24 @@ class UserStore {
 		});
 	}
 
-	// static updateUser({ userID, updates } = {}) {
-	// 	const updateData = {};
-	
-	// 	return UserModel.update(
-	// 		updateData,
-	// 		{
-	// 			"where": {
-	// 				"id": userID
-	// 			}
-	// 		}
-	// 	).then(
-	// 		results => {
-	// 			if (results.length === 0) {
-	// 				throw new NotFoundException(`User with ID ${userID} was not found, so it could not be updated`);
-	// 			}
-	// 		}
-	// 	);
-	// }
+	static updateUser({ userID, sessionID, updates }) {
+		assert(userID || sessionID, "Must pass either a `userID` or a `sessionID` to `UserStore.updateUser()`");
+
+		return (
+			userID ?
+				UserStore.findByID(userID) :
+				UserStore.findBySessionID(sessionID)
+		).then(
+			(user) => UserModel.findByIdAndUpdate(
+				user.id,
+				updates,
+				{
+					new: true,
+					runValidators: true
+				}
+			)
+		);
+	}
 }
 
 module.exports = exports = UserStore;

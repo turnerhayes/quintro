@@ -38,10 +38,6 @@ class GameRecord extends Record(schema, "Game") {
 	quintros(...args) {
 		return this.board.quintros(...args);
 	}
-
-	get me() {
-		return this.players.find((player) => player.isMe);
-	}
 }
 
 GameRecord.prototype.setMarble = function setMarble({color, position}) {

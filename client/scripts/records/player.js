@@ -3,10 +3,10 @@ import { Record } from "immutable";
 const schema = {
 	userID: null,
 	isAnonymous: true,
-	isMe: false,
 	isPresent: true,
 	order: null,
-	color: ""
+	color: "",
+	user: null
 };
 
 class PlayerRecord extends Record(schema, "Player") {

@@ -9,10 +9,15 @@ import {
 	TabList,
 	TabPanel
 }                         from "react-tabs";
+import { Map }            from "immutable";
 import GameRecord         from "project/scripts/records/game";
+import PlayerRecord       from "project/scripts/records/player";
 import {
 	getUserGames
 }                         from "project/scripts/redux/actions";
+import {
+	playerSelector
+}                         from "project/scripts/redux/selectors";
 import                         "react-tabs/style/react-tabs.less";
 import                         "project/styles/user-games-list";
 
@@ -22,6 +27,12 @@ class UserGamesList extends React.Component {
 		userGames: ImmutablePropTypes.listOf(
 			PropTypes.instanceOf(GameRecord)
 		),
+		playersByGame: ImmutablePropTypes.mapOf(
+			ImmutablePropTypes.listOf(
+				PropTypes.instanceOf(PlayerRecord)
+			),
+			PropTypes.string
+		)
 	}
 
 	componentWillMount() {
@@ -78,7 +89,14 @@ class UserGamesList extends React.Component {
 							{
 								games && games.inProgress.sort((a, b) => (b.isStarted - a.isStarted)).map(
 									(game) => {
-										const classes = ["list-group-item"];
+										const players = this.props.playersByGame &&
+											this.props.playersByGame.get(game.name);
+										const classes = [
+											"list-group-item",
+											"list-group-item-action",
+											"justify-content-between",
+											"c_user-games-list--games-list--item"
+										];
 
 										if (game.isStarted) {
 											classes.push("is-started");
@@ -87,7 +105,10 @@ class UserGamesList extends React.Component {
 											classes.push("not-started");
 										}
 
-										const isWaitingForYou = game.isStarted && game.players.find((p) => p.isMe).color === game.currentPlayerColor;
+										const isWaitingForYou = game.isStarted &&
+											players && players.find(
+												(p) => p.user.isMe
+											).color === game.currentPlayerColor;
 
 										return (
 											<Link
@@ -97,29 +118,33 @@ class UserGamesList extends React.Component {
 											>
 												{game.name}
 												<span
-													className="badge fa fa-user-circle"
-													title={`Game has ${game.players.size} players`}
-												> {game.players.size}</span>
-												{
-													game.isStarted ?
-														undefined :
-														(
-															<span
-																className="badge fa fa-stop"
-																title="Game has not started yet"
-															>&#8203;</span>
-														)
-												}
-												{
-													isWaitingForYou ?
-														(
-															<span
-																className="badge fa fa-exclamation"
-																title="It's your turn!"
-															>&#8203;</span>
-														) :
-														undefined
-												}
+													className="c_user-games-list--games-list--item--badges"
+												>
+													<span
+														className="badge badge-default badge-pill fa fa-user-circle"
+														title={`Game has ${game.players.size} players`}
+													> {game.players.size}</span>
+													{
+														game.isStarted ?
+															undefined :
+															(
+																<span
+																	className="badge badge-default badge-pill fa fa-stop"
+																	title="Game has not started yet"
+																>&#8203;</span>
+															)
+													}
+													{
+														isWaitingForYou ?
+															(
+																<span
+																	className="badge badge-danger badge-pill fa fa-exclamation"
+																	title="It's your turn!"
+																>&#8203;</span>
+															) :
+															undefined
+													}
+												</span>
 											</Link>
 										);
 									}
@@ -196,7 +221,21 @@ export default connect(
 		const userGames = games && games.userGames;
 
 		return {
-			userGames
+			userGames,
+			playersByGame: userGames && Map(
+				userGames.reduce(
+					(gamesToPlayers, game) => {
+						let players = playerSelector(state, { players: game.players });
+
+						if (players) {
+							gamesToPlayers[game.name] = players;
+						}
+
+						return gamesToPlayers;
+					},
+					{}
+				)
+			)
 		};
 	}
 )(UserGamesList);
