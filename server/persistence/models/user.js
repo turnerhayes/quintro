@@ -26,7 +26,9 @@ const UserSchema = new mongoose.Schema({
 	},
 	providerID: {
 		type: String,
-		unique: true
+		unique: true,
+		// Session users don't have a provider ID
+		sparse: true
 	},
 	name: {
 		default: null,
@@ -62,7 +64,13 @@ const UserSchema = new mongoose.Schema({
 	}
 });
 
-UserSchema.methods.toFrontendObject = function toFrontendObject() {
+UserSchema.virtual("isAnonymous").get(
+	function() {
+		return !!this.sessionID;
+	}
+);
+
+UserSchema.methods.toFrontendObject = function toFrontendObject({ keepSessionID = false } = {}) {
 	const obj = this.toObject({
 		virtuals: true
 	});
@@ -71,6 +79,10 @@ UserSchema.methods.toFrontendObject = function toFrontendObject() {
 	delete obj.__v;
 	delete obj.providerID;
 	delete obj.provider;
+
+	if (!keepSessionID) {
+		delete obj.sessionID;
+	}
 
 	return obj;
 };

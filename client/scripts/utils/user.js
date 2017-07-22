@@ -32,19 +32,36 @@ class UserUtils {
 		);
 	}
 
-	static updateProfile({ userID, data }) {
+	static getUsers({ userIDs }) {
+		return Promise.resolve(
+			$.ajax({
+				url: `/api/users`,
+				type: "GET",
+				dataType: "json",
+				data: {
+					ids: userIDs.join(",")
+				}
+			}).catch(
+				jqXHR => {
+					throw new Error(getErrorMessageFromXHR(jqXHR));
+				}
+			)
+		);
+	}
+
+	static updateProfile({ userID, updates }) {
 		return Promise.resolve(
 			$.ajax({
 				url: `/api/users/${userID}`,
 				type: "PATCH",
 				dataType: "json",
-				data
-			}).then(
-				updatedUser => new UserRecord(fromJS(updatedUser))
-			).catch(
+				data: updates
+			}).catch(
 				jqXHR => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
+			).then(
+				updatedUser => new UserRecord(fromJS(updatedUser))
 			)
 		);
 	}

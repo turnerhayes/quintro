@@ -1,19 +1,27 @@
 import {
 	capitalize
-}                       from "lodash";
-import React            from "react";
-import PropTypes        from "prop-types";
-import { withRouter }   from "react-router";
-import { connect }      from "react-redux";
-import Board            from "project/scripts/components/Board";
-import PlayerIndicators from "project/scripts/components/PlayerIndicators";
-import GameRecord       from "project/scripts/records/game";
-import GameClient       from "project/scripts/utils/game-client";
+}                         from "lodash";
+import React              from "react";
+import PropTypes          from "prop-types";
+import ImmutablePropTypes from "react-immutable-proptypes";
+import { withRouter }     from "react-router";
+import { connect }        from "react-redux";
+import Board              from "project/scripts/components/Board";
+import PlayerIndicators   from "project/scripts/components/PlayerIndicators";
+import GameRecord         from "project/scripts/records/game";
+import PlayerRecord       from "project/scripts/records/player";
+import GameClient         from "project/scripts/utils/game-client";
 import {
-	getGame
-}                       from "project/scripts/redux/actions";
-import                       "font-awesome/less/font-awesome.less";
-import                       "project/styles/play-game.less";
+	getGame,
+	getUsers,
+	placeMarble,
+	changeUserProfile
+}                         from "project/scripts/redux/actions";
+import {
+	playerSelector
+}                         from "project/scripts/redux/selectors";
+import                         "font-awesome/less/font-awesome.less";
+import                         "project/styles/play-game.less";
 
 const MIN_PLAYER_COUNT = 3;
 
@@ -21,6 +29,9 @@ class PlayGame extends React.Component {
 	static propTypes = {
 		gameName: PropTypes.string,
 		game: PropTypes.instanceOf(GameRecord),
+		players: ImmutablePropTypes.listOf(
+			PropTypes.instanceOf(PlayerRecord)
+		),
 		getGameError: PropTypes.object,
 		dispatch: PropTypes.func.isRequired
 	}
@@ -35,8 +46,18 @@ class PlayGame extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.game && !this.gameJoined) {
-			this.joinGame(nextProps.game);
+		if (nextProps.game) {
+			if(!this.gameJoined) {
+				this.joinGame(nextProps.game);
+			}
+
+			if (!nextProps.players || nextProps.players.size !== nextProps.game.players.size) {
+				this.props.dispatch(getUsers({
+					userIDs: nextProps.game.players.map(
+						(player) => player.userID
+					).toArray()
+				}));
+			}
 		}
 	}
 
@@ -53,6 +74,11 @@ class PlayGame extends React.Component {
 
 				GameClient.updatePlayerPresence({ gameName: game.name });
 			}
+		).catch(
+			(err) => {
+				// eslint-disable-next-line no-console
+				console.error(err);
+			}
 		);
 
 	}
@@ -62,10 +88,12 @@ class PlayGame extends React.Component {
 			return;
 		}
 
-		GameClient.placeMarble({
-			gameName: this.props.game.name,
-			position
-		});
+		this.props.dispatch(
+			placeMarble({
+				gameName: this.props.game.name,
+				position
+			})
+		);
 	}
 
 	handleStartGameButtonClick = () => {
@@ -74,8 +102,22 @@ class PlayGame extends React.Component {
 		});
 	}
 
+	handleDisplayNameChange = ({ player, displayName }) => {
+		this.props.dispatch(
+			changeUserProfile({
+				userID: player.userID,
+				updates: {
+					name: {
+						display: displayName
+					}
+				}
+			})
+		);
+	}
+
 	renderBoard = () => {
-		const myTurn = this.props.game.me && this.props.game.me.color === this.props.game.currentPlayerColor;
+		const mePlayer = this.props.players.find((player) => player.user.isMe);
+		const myTurn = mePlayer && mePlayer.color === this.props.game.currentPlayerColor;
 		const gameIsOver = !!this.props.game.winner;
 		const gameIsStarted = this.props.game.isStarted && !gameIsOver;
 
@@ -83,12 +125,18 @@ class PlayGame extends React.Component {
 			<div
 				className={`c_game ${gameIsOver ? "game-over" : ""} ${gameIsStarted ? "game-started" : ""}`}
 			>
-				<PlayerIndicators
-					players={this.props.game.players}
-					currentPlayerColor={this.props.game.currentPlayerColor}
-					playerLimit={this.props.game.playerLimit}
-					markCurrent={gameIsStarted}
-				/>
+				{
+					this.props.players && this.props.players.size === this.props.game.players.size &&
+						(
+							<PlayerIndicators
+								players={this.props.players}
+								currentPlayerColor={this.props.game.currentPlayerColor}
+								playerLimit={this.props.game.playerLimit}
+								markCurrent={gameIsStarted}
+								onDisplayNameChange={this.handleDisplayNameChange}
+							/>
+						)
+				}
 				<div
 					className="c_game--board-container"
 				>
@@ -155,9 +203,16 @@ class PlayGame extends React.Component {
 export default withRouter(
 	connect(
 		function mapStateToProps(state, ownProps) {
-			const props = {};
 			const games = state.get("games");
+
 			const game = games && games.items.get(ownProps.gameName);
+
+			const props = {
+				players: playerSelector(state, {
+					...ownProps,
+					players: game && game.players
+				})
+			};
 
 			if (games.getGameError) {
 				props.getGameError = games.getGameError;

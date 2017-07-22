@@ -15,6 +15,10 @@ class UsersStateRecord extends Record(schema, "UsersState") {
 }
 
 UsersStateRecord.prototype.updateUsers = function updateUsers(users) {
+	if (!Array.isArray(users)) {
+		users = [users];
+	}
+	
 	return this.mergeIn(
 		["items"],
 		Map(

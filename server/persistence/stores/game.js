@@ -6,6 +6,7 @@ const Promise           = require("bluebird");
 const mongoose          = require("mongoose");
 const rfr               = require("rfr");
 const GameModel         = rfr("server/persistence/models/game");
+const UserModel         = rfr("server/persistence/models/user");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 let __gameCache = {};
@@ -71,6 +72,27 @@ class GamesStore {
 					return model;
 				}
 			)
+		);
+	}
+
+	static addPlayerToGame({ player, gameName }) {
+		assert(gameName, "Must pass a `gameName` to `addPlayerToGame`");
+		assert(player, "Must pass a `player` parameter to `addPlayerToGame`");
+		assert(player.color, "`player` parameter for `addPlayerToGame` must have a `color` property");
+		assert(
+			player.user &&
+				(player.user instanceof UserModel),
+			"`player` parameter for `addPlayerToGame` must have a `user` property that is a UserModel instance"
+		);
+
+		return GamesStore.getGame({
+			name: gameName
+		}).then(
+			(game) => {
+				game.players.push(player);
+
+				return game.save();
+			}
 		);
 	}
 
