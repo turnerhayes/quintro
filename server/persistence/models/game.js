@@ -4,6 +4,7 @@ const _        = require("lodash");
 const mongoose = require("mongoose");
 const rfr      = require("rfr");
 const Board    = rfr("shared-lib/board");
+const Config   = rfr("server/lib/config");
 
 const GameSchema = new mongoose.Schema({
 	name: {
@@ -24,14 +25,14 @@ const GameSchema = new mongoose.Schema({
 		width: {
 			type: Number,
 			required: true,
-			// min: 15,
-			max: 25,
+			min: Config.game.board.width.min,
+			max: Config.game.board.width.max,
 		},
 		height: {
 			type: Number,
 			required: true,
-			// min: 15,
-			max: 25,
+			min: Config.game.board.height.min,
+			max: Config.game.board.height.max,
 		},
 		filled: [
 			{
@@ -48,8 +49,8 @@ const GameSchema = new mongoose.Schema({
 	player_limit: {
 		type: Number,
 		required: true,
-		min: 2,
-		max: 6
+		min: Config.game.players.min,
+		max: Config.game.players.max
 	},
 	is_started: {
 		type: Boolean,

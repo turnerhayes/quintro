@@ -9,8 +9,6 @@ const GameModel         = rfr("server/persistence/models/game");
 const UserModel         = rfr("server/persistence/models/user");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
-let __gameCache = {};
-
 function _createGameName() {
 	return Date.now();
 }
@@ -20,28 +18,28 @@ class GamesStore {
 		return Promise.resolve(gameModel.save());
 	}
 
-	static getGame({ id, name } = {}) {
+	static getGame({ id, name, populate = true } = {}) {
 		let filter = {};
 
 		if (!_.isUndefined(name)) {
-			if (!_.isUndefined(__gameCache[name])) {
-				return Promise.resolve(__gameCache[name]);
-			}
-
 			filter.name = name;
 		}
 		else {
 			filter._id = id;
 		}
 
+		let promise = GameModel.findOne(filter, {__v: false});
+
+		if (populate) {
+			promise = promise.populate("players.user");
+		}
+
 
 		return Promise.resolve(
-			GameModel.findOne(filter, {__v: false}).populate("players.user")
+			promise
 		).then(
 			function(game) {
 				if (game) {
-					// __gameCache[game.name] = game;
-
 					return game;
 				}
 				else {

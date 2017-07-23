@@ -26,7 +26,24 @@ else {
 exports = module.exports = {
 	app: {
 		environment: ENVIRONMENT,
-		isDevelopment: IS_DEVELOPMENT,	
+		isDevelopment: IS_DEVELOPMENT
+	},
+
+	game: {
+		board: {
+			width: {
+				min: 15,
+				max: 25
+			},
+			height: {
+				min: 15,
+				max: 25
+			}
+		},
+		players: {
+			min: 3,
+			max: 6
+		}
 	},
 
 	staticContent: {

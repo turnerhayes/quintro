@@ -65,6 +65,7 @@ const Config = {
 			cert: process.env.APP_SSL_CERT
 		}
 	},
+	game: sharedConfig.game,
 	paths: {
 		root: PROJECT_ROOT,
 		client: CLIENT_PATH,

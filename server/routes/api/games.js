@@ -1,11 +1,12 @@
 "use strict";
 
-const _               = require("lodash");
-const express         = require("express");
-const HTTPStatusCodes = require("http-status-codes");
-const bodyParser      = require("body-parser");
-const rfr             = require("rfr");
-const GamesStore      = rfr("server/persistence/stores/game");
+const _                 = require("lodash");
+const express           = require("express");
+const HTTPStatusCodes   = require("http-status-codes");
+const bodyParser        = require("body-parser");
+const rfr               = require("rfr");
+const GamesStore        = rfr("server/persistence/stores/game");
+const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 
 function prepareGame(game) {
@@ -48,6 +49,26 @@ router.route("/:gameName")
 						.json(prepareGame(game, req));
 				}
 			).catch(next);
+		}
+	).head(
+		(req, res, next) => {
+			const { gameName } = req.params;
+
+			GamesStore.getGame({
+				name: gameName,
+				populate: false
+			}).then(
+				() => res.end()
+			).catch(
+				(err) => {
+					if (NotFoundException.isThisException(err)) {
+						next(); // 404
+						return;
+					}
+
+					next(err);
+				}
+			);
 		}
 	);
 
