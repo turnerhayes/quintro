@@ -20,10 +20,9 @@ import {
 import {
 	playerSelector
 }                         from "project/scripts/redux/selectors";
+import Config             from "project/shared-lib/config";
 import                         "font-awesome/less/font-awesome.less";
 import                         "project/styles/play-game.less";
-
-const MIN_PLAYER_COUNT = 3;
 
 class PlayGame extends React.Component {
 	static propTypes = {
@@ -151,7 +150,7 @@ class PlayGame extends React.Component {
 									>
 										<button
 											className="btn btn-default btn-lg fa fa-play"
-											disabled={this.props.game.players.size < MIN_PLAYER_COUNT}
+											disabled={this.props.game.players.size < Config.game.players.min}
 											onClick={this.handleStartGameButtonClick}
 										>
 											Start Game
