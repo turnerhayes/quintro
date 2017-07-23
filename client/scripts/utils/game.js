@@ -1,5 +1,6 @@
-import $            from "jquery";
-import Promise      from "bluebird";
+import $               from "jquery";
+import Promise         from "bluebird";
+import HTTPStatusCodes from "http-status-codes";
 
 function prepareGame(game) {
 	game.currentPlayerColor = game.current_player_color;
@@ -37,7 +38,7 @@ function searchGames({ numberOfPlayers, onlyOpenGames, includeUserGames }) {
 				includeUserGames
 			}
 		}).catch(
-			jqXHR => {
+			(jqXHR) => {
 				throw new Error(getErrorMessageFromXHR(jqXHR));
 			}
 		).then(results => results.map(prepareGame))
@@ -52,10 +53,29 @@ class GameUtils {
 				type: "GET",
 				dataType: "json"
 			}).catch(
-				jqXHR => {
+				(jqXHR) => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
 			).then(prepareGame)
+		);
+	}
+
+	static checkIfGameExists({ gameName }) {
+		return Promise.resolve(
+			$.ajax({
+				url: `/api/games/${gameName}`,
+				type: "HEAD"
+			}).then(
+				() => true
+			).catch(
+				(jqXHR) => {
+					if (jqXHR.status === HTTPStatusCodes.NOT_FOUND) {
+						return false;
+					}
+
+					throw new Error(getErrorMessageFromXHR(jqXHR));
+				}
+			)
 		);
 	}
 
@@ -71,7 +91,7 @@ class GameUtils {
 					playerLimit
 				}
 			}).catch(
-				jqXHR => {
+				(jqXHR) => {
 					throw new Error(getErrorMessageFromXHR(jqXHR));
 				}
 			).then(prepareGame)
