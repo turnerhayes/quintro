@@ -5,14 +5,13 @@ import ImmutablePropTypes from "react-immutable-proptypes";
 import { connect }        from "react-redux";
 import { withRouter }     from "react-router";
 import { push }           from "react-router-redux";
+import Config             from "project/shared-lib/config";
 import GameClient         from "project/scripts/utils/game-client";
 import {
 	findOpenGames
 }                         from "project/scripts/redux/actions";
 import                         "project/styles/find-game.less";
 
-const MIN_PLAYERS_IN_A_GAME = 3;
-const MAX_PLAYERS_IN_A_GAME = 6;
 const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
 
 class FindGame extends React.Component {
@@ -147,8 +146,8 @@ class FindGame extends React.Component {
 						type="number"
 						className="c_find-game--find-game-form--num-players form-control"
 						id="c_find-game--find-game-form--num-players"
-						min={MIN_PLAYERS_IN_A_GAME}
-						max={MAX_PLAYERS_IN_A_GAME}
+						min={Config.game.players.min}
+						max={Config.game.players.max}
 						onChange={(event) => this.setState({numberOfPlayers: event.target.valueAsNumber || null})}
 					/>
 					<div
