@@ -23,6 +23,63 @@ else {
 	staticContentURL = staticContentURL.replace(/\/$/, "");
 }
 
+
+const colors = [
+	{
+		id: "blue",
+		name: "Blue",
+		hex: "#0000FF"
+	},
+	{
+		id: "red",
+		name: "Red",
+		hex: "#FF0000"
+	},
+	{
+		id: "yellow",
+		name: "Yellow",
+		hex: "#FFFF00"
+	},
+	{
+		id: "green",
+		name: "Green",
+		hex: "#008000"
+	},
+	{
+		id: "purple",
+		name: "Purple",
+		hex: "#9706CC"
+	},
+	{
+		id: "black",
+		name: "Black",
+		hex: "#000000"
+	}
+];
+
+// Cache a mapping of color ID to index within the colors array so that
+// we can quickly look up the color definition in the `get` method below
+const colorIndexMap = colors.reduce(
+	(mapping, colorDefinition, index) => {
+		mapping[colorDefinition.id] = index;
+
+		return mapping;
+	},
+	{}
+);
+
+Object.defineProperty(
+	colors,
+	// Utility method to fetch a color definition from a color ID
+	"get",
+	{
+		value: function getColorDefinition(colorID) {
+			return colors[colorIndexMap[colorID]];
+		}
+	}
+);
+
+
 exports = module.exports = {
 	app: {
 		environment: ENVIRONMENT,
@@ -43,7 +100,8 @@ exports = module.exports = {
 		players: {
 			min: 3,
 			max: 6
-		}
+		},
+		colors
 	},
 
 	staticContent: {
