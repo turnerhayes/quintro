@@ -6,7 +6,9 @@ const ExtractTextPlugin         = require("extract-text-webpack-plugin");
 const HTMLWebpackPlugin         = require("html-webpack-plugin");
 const HTMLWebpackHarddiskPlugin = require("html-webpack-harddisk-plugin");
 const ChunkManifestPlugin       = require("chunk-manifest-webpack-plugin");
-const Config                    = require("./server/lib/config");
+const LessListsPlugin           = require("less-plugin-lists");
+const rfr                       = require("rfr");
+const Config                    = rfr("server/lib/config");
 
 const jsxFilenameRegex = /\.jsx?$/;
 
@@ -50,7 +52,17 @@ exports = module.exports = {
 								sourceMap: true,
 								modifyVars: {
 									"fa-font-path": '"/static/fonts/font-awesome"'
-								}
+								},
+								globalVars: {
+									// Converts the list of valid colors into a format that
+									// LESS can iterate over (using the LessListsPlugin)
+									_marbleColors: Config.game.colors.map(
+										(colorInfo) => `${colorInfo.id} ${colorInfo.hex}`
+									).join(", ")
+								},
+								plugins: [
+									new LessListsPlugin()
+								]
 							}
 						},
 					],

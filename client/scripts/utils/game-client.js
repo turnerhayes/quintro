@@ -72,16 +72,26 @@ class GameClient {
 		});
 	}
 
-	static joinGame({ gameName }) {
+	static joinGame({ gameName, color }) {
 		return SocketClient.instance.emit(
 			"game:join",
 			{
-				gameName
+				gameName,
+				color
 			}
 		).then(
 			({ player, current_player_color }) => {
 				onPlayerJoined({ gameName, player });
 				onCurrentPlayerChanged({ gameName, color: current_player_color });
+			}
+		);
+	}
+
+	static watchGame({ gameName }) {
+		return SocketClient.instance.emit(
+			"game:watch",
+			{
+				gameName
 			}
 		);
 	}

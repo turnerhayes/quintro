@@ -12,17 +12,21 @@ const rfrProject         = require("rfr")({
 });
 const GameStore          = rfrProject("server/persistence/stores/game");
 const UserStore          = rfrProject("server/persistence/stores/user");
-const GameModel          = rfrProject("server/persistence/models/game");
 const ErrorCodes         = rfrProject("shared-lib/error-codes");
 const Config             = rfrProject("server/lib/config");
 const Loggers            = rfrProject("server/lib/loggers");
 const session            = rfrProject("server/session");
+const {
+	getNextColor
+}                        = rfrProject("shared-lib/players");
 
 const LOG_LEVELS   = {
 	INFO: "info",
 	DEBUG: "debug",
 	ERROR: "error"
 };
+
+const VALID_COLOR_IDS = Config.game.colors.map((color) => color.id);
 
 function _log({ message, level = LOG_LEVELS.INFO }) {
 	assert(_.includes(LOG_LEVELS, level), `"${level}" is not a valid log level`);
@@ -53,7 +57,7 @@ function _getPlayer({game, user}) {
 	);
 }
 
-function addPlayerToGame({ socket, game }) {
+function addPlayerToGame({ socket, game, color }) {
 	// If the game is full, throw error
 	if (game.isFull) {
 		const err = new Error("Game is full");
@@ -62,13 +66,21 @@ function addPlayerToGame({ socket, game }) {
 		throw err;
 	}
 
-	const color = _.find(
-		GameModel.COLORS,
-		(color) => !_.includes(
-				_.map(game.players, "color"),
-				color
-			)
-	);
+	color = color || getNextColor(_.map(game.players, "color"));
+
+	if (game.players.find((player) => player.color === color)) {
+		const err = new Error(`Color ${color} is already in use by another player`);
+		err.code = ErrorCodes.COLOR_IN_USE;
+
+		throw err;
+	}
+
+	if (!Config.game.colors.get(color)) {
+		const err = new Error(`Color ${color} is not a valid color. Must be one of the following: ${VALID_COLOR_IDS.join(", ")}`);
+		err.code = ErrorCodes.INVALID_COLOR;
+
+		throw err;
+	}
 
 	return Promise.resolve(
 		socket.request.user ||
@@ -128,7 +140,7 @@ function getSocketPlayer({ socket, game }) {
 	return null;
 }
 
-function _resolvePlayerJoinData({ socket, gameName }) {
+function _resolvePlayerJoinData({ socket, gameName, color }) {
 	return GameStore.getGame({
 		name: gameName
 	}).then(
@@ -137,7 +149,7 @@ function _resolvePlayerJoinData({ socket, gameName }) {
 
 			return Promise.resolve(
 				result === null ?
-					addPlayerToGame({ socket, game }) :
+					addPlayerToGame({ socket, game, color }) :
 					result
 			).then(
 				({ player, playerIndex, game }) => ({
@@ -252,9 +264,14 @@ class SocketManager {
 			SocketManager._onPlaceMarble(this, { gameName, position }, fn);
 		});
 
-		socket.on("game:join", function({ gameName }, fn) {
+		socket.on("game:join", function({ gameName, color }, fn) {
 			ensureGame(gameName, this.request);
-			SocketManager._onJoinGame(this, gameName, fn);
+			SocketManager._onJoinGame(this, gameName, color, fn);
+		});
+
+		socket.on("game:watch", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onWatchGame(this, gameName, fn);
 		});
 
 		socket.on("game:players:presence", function({ gameName }, fn) {
@@ -311,14 +328,31 @@ class SocketManager {
 		});
 	}
 
-	static _onJoinGame(socket, gameName, fn) {
+	static _onWatchGame(socket, gameName, fn) {
+		if (!gameName) {
+			const error = new Error("No gameName specified");
+			_logError({
+				error
+			});
+
+			fn && fn(error);
+			return;
+		}
+
+		socket.join(gameName);
+
+		fn && fn({});
+	}
+
+	static _onJoinGame(socket, gameName, color, fn) {
 		if (!gameName) {
 			return;
 		}
 
 		_resolvePlayerJoinData({
 			socket,
-			gameName
+			gameName,
+			color
 		}).then(
 			(data) => {
 				if (_.isUndefined(data.player.color)) {

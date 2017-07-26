@@ -1,6 +1,6 @@
 {
   "name": "quintro",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Classic marble game in HTML",
   "scripts": {
@@ -58,6 +58,7 @@
     "kerberos": "0.0.23",
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
+    "less-plugin-lists": "^1.1.1",
     "lodash": "^4.17.4",
     "mime-types": "^2.1.15",
     "mongoose": "^4.10.0",

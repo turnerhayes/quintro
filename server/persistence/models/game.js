@@ -231,18 +231,4 @@ GameSchema.loadClass(Game);
 
 const GameModel = mongoose.model("Game", GameSchema);
 
-Object.defineProperties(GameModel, {
-	COLORS: {
-		enumerable: true,
-		value: [
-			"blue",
-			"red",
-			"yellow",
-			"green",
-			"white",
-			"black",
-		],
-	},
-});
-
 exports = module.exports = GameModel;
