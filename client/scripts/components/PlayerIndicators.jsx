@@ -1,6 +1,7 @@
 import React              from "react";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import PropTypes          from "prop-types";
+import Config             from "project/shared-lib/config";
 import PlayerRecord       from "project/scripts/records/player";
 import PlayerInfoPopup    from "project/scripts/components/PlayerInfoPopup";
 import                         "project/styles/player-indicators.less";
@@ -73,7 +74,7 @@ export default class PlayerIndicators extends React.Component {
 											onDisplayNameChange={this.props.onDisplayNameChange}
 										/>
 										<div
-											className={`marble ${player.color}`}
+											className={`marble ${Config.game.colors.get(player.color).id}`}
 										/>
 									</li>
 								);

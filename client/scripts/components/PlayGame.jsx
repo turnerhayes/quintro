@@ -1,11 +1,10 @@
-import {
-	capitalize
-}                         from "lodash";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { withRouter }     from "react-router";
 import { connect }        from "react-redux";
+import { goBack }         from "react-router-redux";
+import GameJoinDialog     from "project/scripts/components/GameJoinDialog";
 import Board              from "project/scripts/components/Board";
 import PlayerIndicators   from "project/scripts/components/PlayerIndicators";
 import GameRecord         from "project/scripts/records/game";
@@ -35,21 +34,22 @@ class PlayGame extends React.Component {
 		dispatch: PropTypes.func.isRequired
 	}
 
+	state = {
+		gameJoined: false
+	}
+
 	componentWillMount() {
-		if (this.props.game) {
-			this.joinGame();
-		}
-		else {
+		GameClient.watchGame({
+			gameName: this.props.gameName
+		});
+
+		if (!this.props.game) {
 			this.props.dispatch(getGame({ gameName: this.props.gameName }));
 		}
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.game) {
-			if(!this.gameJoined) {
-				this.joinGame(nextProps.game);
-			}
-
 			if (!nextProps.players || nextProps.players.size !== nextProps.game.players.size) {
 				this.props.dispatch(getUsers({
 					userIDs: nextProps.game.players.map(
@@ -60,18 +60,19 @@ class PlayGame extends React.Component {
 		}
 	}
 
-	joinGame = (game = this.props.game) => {
-		if (!game) {
+	joinGame = ({ color }) => {
+		if (!this.props.game || this.state.gameJoined) {
 			return;
 		}
 
 		GameClient.joinGame({
-			gameName: game.name
+			gameName: this.props.game.name,
+			color
 		}).then(
 			() => {
-				this.gameJoined = true;
+				this.setState({gameJoined: true});
 
-				GameClient.updatePlayerPresence({ gameName: game.name });
+				GameClient.updatePlayerPresence({ gameName: this.props.game.name });
 			}
 		).catch(
 			(err) => {
@@ -114,8 +115,16 @@ class PlayGame extends React.Component {
 		);
 	}
 
+	handleJoinSubmit = ({ color }) => {
+		this.joinGame({ color });
+	}
+
+	handleJoinCancel = () => {
+		this.props.dispatch(goBack());
+	}
+
 	renderBoard = () => {
-		const mePlayer = this.props.players.find((player) => player.user.isMe);
+		const mePlayer = this.props.players && this.props.players.find((player) => player.user.isMe);
 		const myTurn = mePlayer && mePlayer.color === this.props.game.currentPlayerColor;
 		const gameIsOver = !!this.props.game.winner;
 		const gameIsStarted = this.props.game.isStarted && !gameIsOver;
@@ -124,6 +133,15 @@ class PlayGame extends React.Component {
 			<div
 				className={`c_game ${gameIsOver ? "game-over" : ""} ${gameIsStarted ? "game-started" : ""}`}
 			>
+				{
+					!mePlayer && !this.state.gameJoined && (
+						<GameJoinDialog
+							game={this.props.game}
+							onSubmit={this.handleJoinSubmit}
+							onCancel={this.handleJoinCancel}
+						/>
+					)
+				}
 				{
 					this.props.players && this.props.players.size === this.props.game.players.size &&
 						(
@@ -167,7 +185,7 @@ class PlayGame extends React.Component {
 							>
 								<div
 									className="c_game--winner-banner--win-message"
-								>{capitalize(this.props.game.winner)} wins!</div>
+								>{Config.game.colors.get(this.props.game.winner).name} wins!</div>
 							</div>
 						)
 					}

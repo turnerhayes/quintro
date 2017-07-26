@@ -137,6 +137,7 @@ function getQuintros({boardWidth, boardHeight, filledCells, startCell}) {
 	return quintros;
 }
 
+
 exports = module.exports = {
 	getQuintros
 };

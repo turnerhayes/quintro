@@ -1,5 +1,6 @@
 @import (less) "~normalize.css/normalize.css";
 @import (less) "~bootstrap/dist/css/bootstrap.css";
+@import (reference) "./_constants.less";
 
 * {
 	box-sizing: border-box;
@@ -23,7 +24,7 @@ body,
 	&__main-container {
 		display: flex;
 		flex-direction: column;
-		padding-top: 60px; // Nav bar height (+ 10px)
+		padding-top: @const_top-nav-height + 10px;
 	}
 
 	&__main-header {
