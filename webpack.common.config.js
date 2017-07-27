@@ -5,7 +5,6 @@ const webpack                   = require("webpack");
 const ExtractTextPlugin         = require("extract-text-webpack-plugin");
 const HTMLWebpackPlugin         = require("html-webpack-plugin");
 const HTMLWebpackHarddiskPlugin = require("html-webpack-harddisk-plugin");
-const ChunkManifestPlugin       = require("chunk-manifest-webpack-plugin");
 const LessListsPlugin           = require("less-plugin-lists");
 const rfr                       = require("rfr");
 const Config                    = rfr("server/lib/config");
@@ -120,12 +119,6 @@ exports = module.exports = {
 
 		new webpack.optimize.CommonsChunkPlugin({
 			name: "webpackManifest"
-		}),
-
-		new ChunkManifestPlugin({
-			filename: "webpackManifest.json",
-			manifestVariable: "webpackManifest",
-			inlineManifest: true
 		}),
 
 		new webpack.ProvidePlugin({
