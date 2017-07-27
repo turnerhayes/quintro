@@ -21,6 +21,7 @@ export default class GameJoinDialog extends React.Component {
 		game: PropTypes.instanceOf(GameRecord).isRequired,
 		onSubmit: PropTypes.func.isRequired,
 		onCancel: PropTypes.func.isRequired,
+		onWatchGame: PropTypes.func
 	}
 
 	state = {
@@ -44,6 +45,10 @@ export default class GameJoinDialog extends React.Component {
 
 	handleCancelButtonClicked = () => {
 		this.props.onCancel();
+	}
+
+	handleWatchGameButtonClicked = () => {
+		this.props.onWatchGame && this.props.onWatchGame();
 	}
 
 	handleSubmit = ({ event, defaultColor }) => {
@@ -75,6 +80,10 @@ export default class GameJoinDialog extends React.Component {
 				<div>
 					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
 				</div>
+				<Button
+					color="secondary"
+					onClick={this.handleWatchGameButtonClicked}
+				>I want to watch this game</Button>
 			</div>
 		);
 	}
