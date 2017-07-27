@@ -35,7 +35,8 @@ class PlayGame extends React.Component {
 	}
 
 	state = {
-		gameJoined: false
+		gameJoined: false,
+		isWatching: false
 	}
 
 	componentWillMount() {
@@ -43,24 +44,42 @@ class PlayGame extends React.Component {
 			gameName: this.props.gameName
 		});
 
-		if (!this.props.game) {
+		if (this.props.game) {
+			this.joinIfInGame();
+		}
+		else {
 			this.props.dispatch(getGame({ gameName: this.props.gameName }));
 		}
 	}
 
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.game) {
-			if (!nextProps.players || nextProps.players.size !== nextProps.game.players.size) {
+	componentDidUpdate() {		
+		if (this.props.game) {
+			if (!this.props.players || this.props.players.size !== this.props.game.players.size) {
 				this.props.dispatch(getUsers({
-					userIDs: nextProps.game.players.map(
+					userIDs: this.props.game.players.map(
 						(player) => player.userID
 					).toArray()
 				}));
 			}
+			else {
+				this.joinIfInGame();
+			}
 		}
 	}
 
-	joinGame = ({ color }) => {
+	getMePlayer = () => {
+		return this.props.players && this.props.players.find((player) => player.user.isMe);
+	}
+
+	joinIfInGame = () => {
+		const mePlayer = this.getMePlayer();
+
+		if (mePlayer) {
+			this.joinGame();
+		}
+	}
+
+	joinGame = ({ color } = {}) => {
 		if (!this.props.game || this.state.gameJoined) {
 			return;
 		}
@@ -84,7 +103,10 @@ class PlayGame extends React.Component {
 	}
 
 	handleCellClick = ({ position, cell }) => {
-		if (this.props.game.winner || (cell && cell.color)) {
+		if (
+			this.props.game.winner || (cell && cell.color) ||
+			!this.state.gameJoined
+		) {
 			return;
 		}
 
@@ -123,8 +145,12 @@ class PlayGame extends React.Component {
 		this.props.dispatch(goBack());
 	}
 
+	handleWatchGame = () => {
+		this.setState({ isWatching: true });
+	}
+
 	renderBoard = () => {
-		const mePlayer = this.props.players && this.props.players.find((player) => player.user.isMe);
+		const mePlayer = this.getMePlayer();
 		const myTurn = mePlayer && mePlayer.color === this.props.game.currentPlayerColor;
 		const gameIsOver = !!this.props.game.winner;
 		const gameIsStarted = this.props.game.isStarted && !gameIsOver;
@@ -134,11 +160,22 @@ class PlayGame extends React.Component {
 				className={`c_game ${gameIsOver ? "game-over" : ""} ${gameIsStarted ? "game-started" : ""}`}
 			>
 				{
-					!mePlayer && !this.state.gameJoined && (
+					this.state.isWatching && (
+						<div
+							className="c_game--watching-game-notification alert alert-info"
+							role="alert"
+						>
+						You are watching this game.
+						</div>
+					)
+				}
+				{
+					!(mePlayer || this.state.gameJoined || this.state.isWatching) && (
 						<GameJoinDialog
 							game={this.props.game}
 							onSubmit={this.handleJoinSubmit}
 							onCancel={this.handleJoinCancel}
+							onWatchGame={this.handleWatchGame}
 						/>
 					)
 				}
