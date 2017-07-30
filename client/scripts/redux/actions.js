@@ -3,10 +3,16 @@ import { push }   from "react-router-redux";
 import GameUtils  from "project/scripts/utils/game";
 import UserUtils  from "project/scripts/utils/user";
 
+function getCurrentPagePath() {
+	return `${document.location.pathname}${document.location.search}${document.location.hash}`;
+}
+
 export const LOGOUT = "@QUINTRO/SESSION/LOGOUT";
 
 export function logout() {
 	return (dispatch) => {
+		const currentPage = getCurrentPagePath();
+
 		// Dispatch an action, mainly for logging purposes (in case we're logging
 		// actions)
 		dispatch(
@@ -15,7 +21,7 @@ export function logout() {
 			}
 		);
 
-		document.location.href = "/logout";
+		document.location.href = `/logout?redirectTo=${encodeURIComponent(currentPage)}`;
 	};
 }
 
@@ -23,6 +29,8 @@ export const LOGIN = "@QUINTRO/SESSION/LOGIN";
 
 export function login({ provider }) {
 	return (dispatch) => {
+		const currentPage = getCurrentPagePath();
+
 		// Dispatch an action, mainly for logging purposes (in case we're logging
 		// actions)
 		dispatch(
@@ -35,7 +43,7 @@ export function login({ provider }) {
 		);
 
 		if (provider === "facebook") {
-			document.location.href = "/auth/fb";
+			document.location.href = `/auth/fb?redirectTo=${encodeURIComponent(currentPage)}`;
 		}
 	};
 }
