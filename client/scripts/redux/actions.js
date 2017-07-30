@@ -3,6 +3,43 @@ import { push }   from "react-router-redux";
 import GameUtils  from "project/scripts/utils/game";
 import UserUtils  from "project/scripts/utils/user";
 
+export const LOGOUT = "@QUINTRO/SESSION/LOGOUT";
+
+export function logout() {
+	return (dispatch) => {
+		// Dispatch an action, mainly for logging purposes (in case we're logging
+		// actions)
+		dispatch(
+			{
+				type: LOGOUT
+			}
+		);
+
+		document.location.href = "/logout";
+	};
+}
+
+export const LOGIN = "@QUINTRO/SESSION/LOGIN";
+
+export function login({ provider }) {
+	return (dispatch) => {
+		// Dispatch an action, mainly for logging purposes (in case we're logging
+		// actions)
+		dispatch(
+			{
+				type: LOGIN,
+				payload: {
+					provider
+				}
+			}
+		);
+
+		if (provider === "facebook") {
+			document.location.href = "/auth/fb";
+		}
+	};
+}
+
 export const GET_USERS = "@QUINTRO/USERS/GET";
 
 export function getUsers({ userIDs }) {

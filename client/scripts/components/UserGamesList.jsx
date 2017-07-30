@@ -64,6 +64,7 @@ class UserGamesList extends React.Component {
 
 		return (
 			<Tabs
+				className="c_user-games-list--tabs"
 			>
 				<TabList>
 					{
@@ -82,7 +83,9 @@ class UserGamesList extends React.Component {
 
 				{
 					hasGamesInProgress && (
-						<TabPanel>	
+						<TabPanel
+							className="c_user-games-list--tab-panel"
+						>	
 							<div
 								className="c_user-games-list--games-list list-group"
 							>
@@ -168,7 +171,7 @@ class UserGamesList extends React.Component {
 											<Link
 												to={`/play/${game.name}`}
 												key={`user-game-${game.name}`}
-												className="is-over list-group-item"
+												className="is-over list-group-item list-group-item-action"
 											>
 												{game.name}
 											</Link>

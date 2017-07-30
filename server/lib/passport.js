@@ -1,5 +1,6 @@
 "use strict";
 
+const Promise          = require("bluebird");
 const passport         = require("passport");
 const FacebookStrategy = require("passport-facebook");
 const rfr              = require("rfr");
@@ -32,17 +33,10 @@ passport.use(new FacebookStrategy(
 	(req, accessToken, refreshToken, profile, done) => {
 		UserStore.findByProviderID("facebook", profile.id).then(
 			user => {
-				if (user) {
-					done(null, user);
-				}
-				else {
-					let email;
+				const email = profile.emails.length && profile.emails[0].value;
 
-					if (profile.emails.length > 0) {
-						email = profile.emails[0].value;
-					}
-
-					UserStore.createUser({
+				return Promise.resolve(
+					user || UserStore.createUser({
 						username: profile.username || email || profile.id,
 						email: email,
 						provider: "facebook",
@@ -53,8 +47,18 @@ passport.use(new FacebookStrategy(
 							last: profile.name.familyName,
 							display: profile.displayName
 						}
-					}).then(user => done(null, user));
-				}
+					})
+				).then(
+					(user) => {
+						return UserStore.convertSessionUserToSiteUser({
+							userID: user.id,
+							sessionID: req.session.id
+						}).then(
+							() => user
+						);
+					}
+				).then((user) => done(null, user));
+
 			}
 		).catch(
 			ex => done(ex)

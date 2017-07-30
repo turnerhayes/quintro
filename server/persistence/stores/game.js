@@ -94,73 +94,21 @@ class GamesStore {
 		);
 	}
 
-	static findGames({ numberOfPlayers, onlyOpenGames, excludeUser, forUser } = {}) {
-		assert(!(excludeUser && forUser), "Cannot pass both `excludeUser` and `forUser` to `GamesStore.findGames()`");
+	static findGames({ numberOfPlayers, onlyOpenGames, excludeUserID, forUserID } = {}) {
+		assert(!(excludeUserID && forUserID), "Cannot pass both `excludeUserID` and `forUserID` to `GamesStore.findGames()`");
 		let filters = {};
 
 		if (numberOfPlayers > 0) {
 			filters.player_limit = numberOfPlayers;
 		}
 
-		if (excludeUser) {
-			assert(
-				(excludeUser.user && excludeUser.user) || excludeUser.sessionID,
-				"`excludeUser` must contain either a `user` field or a `sessionID` field (or both)"
-			);
-
-			const userExclusionFilter = excludeUser.user ?
-				{
-					"players.user": {
-						$ne: new mongoose.Types.ObjectId(excludeUser.user.id)
-					}
-				} :
-				undefined;
-
-			const sessionIDExclusionFilter = excludeUser.sessionID ?
-				{
-					"players.sessionID": {
-						$ne: excludeUser.sessionID
-					}
-				} :
-				undefined;
-
-			
-			Object.assign(filters, userExclusionFilter, sessionIDExclusionFilter);
+		if (excludeUserID) {
+			filters["players.user"] = {
+				$ne: new mongoose.Types.ObjectId(excludeUserID)
+			};
 		}
-
-		if (forUser) {
-			assert(
-				(forUser.user && forUser.user) || forUser.sessionID,
-				"`forUser` must contain either a `user` field or a `sessionID` field (or both)"
-			);
-
-			const userInclusionFilter = forUser.user ?
-				{
-					"players.user": new mongoose.Types.ObjectId(forUser.user.id)
-				} :
-				undefined;
-
-			const sessionIDInclusionFilter = forUser.sessionID ?
-				{
-					"players.sessionID": forUser.sessionID
-				} :
-				undefined;
-
-			let filter;
-
-			if (userInclusionFilter && sessionIDInclusionFilter) {
-				filter = {
-					$or: [
-						userInclusionFilter,
-						sessionIDInclusionFilter
-					]
-				};	
-			}
-			else {
-				filter = userInclusionFilter || sessionIDInclusionFilter;
-			}
-
-			Object.assign(filters, filter);
+		else if (forUserID) {
+			filters["players.user"] = new mongoose.Types.ObjectId(forUserID);
 		}
 
 		if (onlyOpenGames) {
@@ -182,6 +130,22 @@ class GamesStore {
 		}
 
 		return Promise.resolve(query.populate("players.user"));
+	}
+
+	static replacePlayerUsers({ userIDToReplace, userIDToReplaceWith }) {
+		assert(userIDToReplace, "`replacePlayerUsers()` requires a `userIDToReplace` parameter");
+		assert(userIDToReplaceWith, "`replacePlayerUsers()` requires a `userIDToReplaceWith` parameter");
+
+		return GameModel.updateMany(
+			{
+				"players.user": userIDToReplace
+			},
+			{
+				$set: {
+					"players.$.user": userIDToReplaceWith
+				}
+			}
+		);
 	}
 }
 
