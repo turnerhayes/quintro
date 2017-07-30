@@ -1,11 +1,12 @@
 "use strict";
 
-const _                 = require("lodash");
+const Promise           = require("bluebird");
 const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
 const bodyParser        = require("body-parser");
 const rfr               = require("rfr");
 const GamesStore        = rfr("server/persistence/stores/game");
+const UsersStore        = rfr("server/persistence/stores/user");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 
@@ -79,18 +80,28 @@ router.route("")
 			const onlyOpenGames = !! req.query.onlyOpenGames;
 			let numberOfPlayers = Number(req.query.numberOfPlayers);
 
-			if (_.isNaN(numberOfPlayers)) {
+			if (numberOfPlayers !== numberOfPlayers) {
+				// is NaN
 				numberOfPlayers = undefined;
 			}
 
-			GamesStore.findGames({
-				numberOfPlayers,
-				onlyOpenGames,
-				[includeUserGames ? "forUser" : "excludeUser"]: {
-					user: req.user,
-					sessionID: req.session.id
+			Promise.resolve(
+				req.user || UsersStore.findBySessionID(req.session.id)
+			).then(
+				(user) => {
+					if (!user && includeUserGames) {
+						// We want the current user's games, but have no current user
+						// (and no session user for them); return empty array
+						return [];
+					}
+
+					return GamesStore.findGames({
+						numberOfPlayers,
+						onlyOpenGames,
+						[includeUserGames ? "forUserID" : "excludeUserID"]: user && user.id
+					});
 				}
-			}).then(
+			).then(
 				(games) => res.json(games.map((game) => prepareGame(game, req)))
 			).catch(next);
 		}

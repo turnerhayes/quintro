@@ -2,12 +2,24 @@ import React                from "react";
 import { connect }          from "react-redux";
 import PropTypes            from "prop-types";
 import { Link }             from "react-router-dom";
+import {
+	Dropdown,
+	DropdownToggle,
+	DropdownMenu,
+	DropdownItem
+}                           from "reactstrap";
+import AccountDialog        from "project/scripts/components/AccountDialog";
 import UserRecord           from "project/scripts/records/user";
 import                           "bootstrap/dist/css/bootstrap.css";
 
 class TopNavigation extends React.Component {
 	static propTypes = {
+		dispatch: PropTypes.func.isRequired,
 		currentUser: PropTypes.instanceOf(UserRecord)
+	}
+
+	state = {
+		accountDialogIsOpen: false
 	}
 
 	render() {
@@ -16,7 +28,7 @@ class TopNavigation extends React.Component {
 			null;
 
 		return (
-			<nav className="top-nav navbar fixed-top navbar-toggleable navbar-inverse bg-inverse">
+			<nav className="top-nav navbar navbar-toggleable navbar-inverse bg-inverse">
 				<Link
 					className="navbar-brand"
 					to="/"
@@ -53,23 +65,36 @@ class TopNavigation extends React.Component {
 						</Link>
 					</li>
 				</ul>
-				<span className="navbar-text ml-auto">
-					{
-						loggedInUser &&
-							(<span>Logged in as </span>)
-					}
-					{
-						loggedInUser &&
-							(<Link to="/profile">
-								{loggedInUser.name.get("display")}
-							</Link>)
-					}
-					{
-						loggedInUser ?
-							null :
-							(<Link to="/login">Log in</Link>)
-					}
-				</span>
+				
+				<Dropdown
+					isOpen={this.state.accountDialogIsOpen}
+					toggle={() => this.setState({ accountDialogIsOpen: !this.state.accountDialogIsOpen })}
+					className="nav-item dropdown ml-auto"
+				>
+					<DropdownToggle
+						caret
+					>
+						{
+							loggedInUser ?
+								((loggedInUser.name && loggedInUser.name.get("display")) || "Account") :
+								"Log in"
+						}
+					</DropdownToggle>
+					<DropdownMenu
+						right
+					>
+						<DropdownItem
+							tag="div"
+							header
+						>
+							<AccountDialog
+								dispatch={this.props.dispatch}
+								isOpen={this.state.accountDialogIsOpen}
+								loggedInUser={loggedInUser}
+							/>
+						</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
 			</nav>
 		);
 	}

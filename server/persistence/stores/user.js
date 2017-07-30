@@ -1,9 +1,10 @@
 "use strict";
 
-const assert    = require("assert");
-const mongoose  = require("mongoose");
-const rfr       = require("rfr");
-const UserModel = rfr("server/persistence/models/user");
+const assert     = require("assert");
+const mongoose   = require("mongoose");
+const rfr        = require("rfr");
+const UserModel  = rfr("server/persistence/models/user");
+const GamesStore = rfr("server/persistence/stores/game");
 
 class UserStore {
 	static findByID(id) {
@@ -68,6 +69,30 @@ class UserStore {
 					runValidators: true
 				}
 			)
+		);
+	}
+
+	static convertSessionUserToSiteUser({ userID, sessionID }) {
+		assert(userID, "`convertSessionUserToSiteUser` requires a `userID` parameter");
+		assert(sessionID, "`convertSessionUserToSiteUser` requires a `sessionID` parameter");
+
+		return UserStore.findBySessionID(sessionID).then(
+			(sessionUser) => {
+				if (!sessionUser) {
+					// There's no user on this session, so there's nothing to replace
+					return;
+				}
+
+				sessionID = mongoose.Types.ObjectId(sessionUser.id);
+				userID = mongoose.Types.ObjectId(userID);
+
+				return GamesStore.replacePlayerUsers({
+					userIDToReplace: sessionID,
+					userIDToReplaceWith: userID
+				}).then(
+					() => UserModel.findByIdAndRemove(sessionID)
+				);
+			}
 		);
 	}
 }

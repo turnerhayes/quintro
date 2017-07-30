@@ -12,7 +12,6 @@ import { history }      from "project/scripts/redux/configure-store";
 import getStore         from "project/scripts/redux/store";
 import App              from "project/scripts/components/App";
 import Home             from "project/scripts/components/Home";
-import Login            from "project/scripts/components/Login";
 import CreateGame       from "project/scripts/components/CreateGame";
 import FindGame         from "project/scripts/components/FindGame";
 import PlayGame         from "project/scripts/components/PlayGame";
@@ -33,12 +32,6 @@ ReactDOM.render(
 					></Route>
 				}
 			>
-				<Route
-					exact
-					name="Login"
-					path="/login"
-					component={Login}
-				/>
 				<Route
 					exact
 					name="Home"
