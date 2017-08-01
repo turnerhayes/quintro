@@ -3,7 +3,7 @@ import $              from "jquery";
 import Promise        from "bluebird";
 import SocketIOClient from "socket.io-client";
 import dbg            from "debug";
-import Config         from "project/shared-lib/config";
+import Config         from "project/scripts/config";
 
 let debug = dbg("quintro:socket-client");
 

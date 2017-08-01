@@ -7,27 +7,45 @@ const Config   = rfr("server/lib/config");
 
 const router = express.Router();
 
-router.route("/auth/fb")
-	.get(
-		(req, res, next) => { req.session.redirectTo = req.query.redirectTo; next(); },
-		passport.authenticate("facebook", { scope: Config.auth.facebook.scope || [] })
-	);
+function route({ provider, extraAuthenticateArgs }) {
+	if (Config.auth[provider].isEnabled) {
+		router.route(`/auth/${provider}`)
+			.get(
+				(req, res, next) => { req.session.redirectTo = req.query.redirectTo; next(); },
+				passport.authenticate(provider, extraAuthenticateArgs)
+			);
 
-router.route(Config.auth.facebook.callbackURL)
-	.get(
-		(req, res, next) => {
-			passport.authenticate(
-				"facebook",
-				{
-					successRedirect: req.session.redirectTo || "/",
-					failureRedirect: req.session.redirectTo || "/",
-					failureFlash: true,
+		router.route(Config.auth[provider].callbackURL)
+			.get(
+				(req, res, next) => {
+					passport.authenticate(
+						provider,
+						{
+							successRedirect: req.session.redirectTo || "/",
+							failureRedirect: req.session.redirectTo || "/",
+							failureFlash: true,
+						}
+					)(req, res, next);
+
+					delete req.session.redirectTo;
 				}
-			)(req, res, next);
+			);
+	}
+}
 
-			delete req.session.redirectTo;
-		}
-	);
+route({
+	provider: "facebook",
+	extraAuthenticateArgs: { scope: Config.auth.facebook.scope || [] }
+});
+
+route({
+	provider: "google",
+	extraAuthenticateArgs: { scope: Config.auth.google.scope || [] }
+});
+
+route({
+	provider: "twitter"
+});
 
 router.route("/logout")
 	.get(

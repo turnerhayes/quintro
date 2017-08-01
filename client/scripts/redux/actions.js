@@ -43,7 +43,13 @@ export function login({ provider }) {
 		);
 
 		if (provider === "facebook") {
-			document.location.href = `/auth/fb?redirectTo=${encodeURIComponent(currentPage)}`;
+			document.location.href = `/auth/facebook?redirectTo=${encodeURIComponent(currentPage)}`;
+		}
+		else if (provider === "google") {
+			document.location.href = `/auth/google?redirectTo=${encodeURIComponent(currentPage)}`;
+		}
+		else if (provider === "twitter") {
+			document.location.href = `/auth/twitter?redirectTo=${encodeURIComponent(currentPage)}`;
 		}
 	};
 }
