@@ -6,7 +6,8 @@ const schema = {
 	isAdmin: false,
 	isAnonymous: true,
 	isMe: false,
-	name: null
+	name: null,
+	provider: null
 };
 
 class UserRecord extends Record(schema, "User") {

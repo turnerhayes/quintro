@@ -12,7 +12,7 @@ import {
 	Button,
 	ButtonGroup
 }                    from "reactstrap";
-import Config        from "project/shared-lib/config";
+import Config        from "project/scripts/config";
 import GameRecord    from "project/scripts/records/game";
 import                    "project/styles/game-join-dialog.less";
 

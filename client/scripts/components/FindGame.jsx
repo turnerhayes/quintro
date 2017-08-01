@@ -5,7 +5,7 @@ import ImmutablePropTypes from "react-immutable-proptypes";
 import { connect }        from "react-redux";
 import { withRouter }     from "react-router";
 import { push }           from "react-router-redux";
-import Config             from "project/shared-lib/config";
+import Config             from "project/scripts/config";
 import GameClient         from "project/scripts/utils/game-client";
 import {
 	findOpenGames

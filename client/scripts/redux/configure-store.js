@@ -13,7 +13,7 @@ import { routerMiddleware }             from "react-router-redux";
 import createHistory                    from "history/createBrowserHistory";
 import rootReducer                      from "project/scripts/redux/reducers";
 import { socketMiddleware }             from "project/scripts/socket-middleware";
-import Config                           from "project/shared-lib/config";
+import Config                           from "project/scripts/config";
 
 export const history = createHistory();
 

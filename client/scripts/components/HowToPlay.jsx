@@ -1,5 +1,5 @@
 import React             from "react";
-import Config            from "project/shared-lib/config";
+import Config            from "project/scripts/config";
 import multiQuintroImage from "project/images/how-to-play/multi-quintro.png";
 import                        "project/styles/how-to-play.less";
 

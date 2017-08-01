@@ -78,7 +78,6 @@ UserSchema.methods.toFrontendObject = function toFrontendObject({ keepSessionID 
 	delete obj._id;
 	delete obj.__v;
 	delete obj.providerID;
-	delete obj.provider;
 
 	if (!keepSessionID) {
 		delete obj.sessionID;
@@ -97,11 +96,6 @@ UserSchema.pre("validate", function(next) {
 	else {
 		if (!this.username) {
 			next(new Error("Users must have either a username or a sessionID"));
-			return;
-		}
-
-		if (!this.email) {
-			next(new Error("Non-anonymous users must have an email address"));
 			return;
 		}
 	}

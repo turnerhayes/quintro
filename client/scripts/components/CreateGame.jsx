@@ -12,7 +12,7 @@ import GameUtils      from "project/scripts/utils/game";
 import {
 	createGame
 }                     from "project/scripts/redux/actions";
-import Config         from "project/shared-lib/config";
+import Config         from "project/scripts/config";
 
 const NAME_IN_USE_ERROR_MESSAGE = "That name is already in use. Please use another name.";
 const INVALID_DIMENSION_ERROR_MESSAGE = (dimension, value) => (

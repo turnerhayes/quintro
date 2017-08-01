@@ -19,7 +19,7 @@ import {
 import {
 	playerSelector
 }                         from "project/scripts/redux/selectors";
-import Config             from "project/shared-lib/config";
+import Config             from "project/scripts/config";
 import                         "font-awesome/less/font-awesome.less";
 import                         "project/styles/play-game.less";
 
