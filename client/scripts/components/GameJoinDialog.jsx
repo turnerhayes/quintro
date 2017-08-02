@@ -73,10 +73,10 @@ export default class GameJoinDialog extends React.Component {
 		);
 	}
 
-	renderGameFull = () => {
+	renderCannotJoinGame = ({ reason }) => {
 		return (
 			<div>
-				Sorry, this game is full.
+				Sorry, { reason }
 				<div>
 					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
 				</div>
@@ -163,6 +163,24 @@ export default class GameJoinDialog extends React.Component {
 	render() {
 		const isFull = this.props.game.players.size === this.props.game.playerLimit;
 
+		let body;
+		let canJoin = false;
+
+		if (isFull) {
+			body = this.renderCannotJoinGame({
+				reason: "this game is full."
+			});
+		}
+		else if (this.props.game.isStarted) {
+			body = this.renderCannotJoinGame({
+				reason: "this game is already in progress."
+			});
+		}
+		else {
+			body = this.renderPlayerForm();
+			canJoin = true;
+		}
+
 		return (
 			<Modal
 				className="c_game-join-dialog"
@@ -170,13 +188,9 @@ export default class GameJoinDialog extends React.Component {
 				isOpen={this.state.modalIsOpen}
 				fade={false}
 			>
-				{ !isFull && (<ModalHeader>Join this game</ModalHeader>) }
+				{ canJoin && (<ModalHeader>Join this game</ModalHeader>) }
 				<ModalBody>
-					{
-						isFull ?
-							this.renderGameFull() :
-							this.renderPlayerForm()
-					}
+					{ body }
 				</ModalBody>
 			</Modal>
 		);

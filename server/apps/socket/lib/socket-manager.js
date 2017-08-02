@@ -66,6 +66,13 @@ function addPlayerToGame({ socket, game, color }) {
 		throw err;
 	}
 
+	if (game.is_started) {
+		const err = new Error("Game is already started");
+		err.code = ErrorCodes.GAME_STARTED;
+
+		throw err;
+	}
+
 	color = color || getNextColor(_.map(game.players, "color"));
 
 	if (game.players.find((player) => player.color === color)) {

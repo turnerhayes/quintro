@@ -170,7 +170,7 @@ class PlayGame extends React.Component {
 					)
 				}
 				{
-					!(mePlayer || this.state.gameJoined || this.state.isWatching) && (
+					!(mePlayer || this.state.gameJoined || this.state.isWatching || gameIsOver) && (
 						<GameJoinDialog
 							game={this.props.game}
 							onSubmit={this.handleJoinSubmit}
