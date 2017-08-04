@@ -9,6 +9,7 @@ import {
 	DropdownItem
 }                           from "reactstrap";
 import AccountDialog        from "project/scripts/components/AccountDialog";
+import QuickSettingsDialog  from "project/scripts/components/QuickSettingsDialog";
 import UserRecord           from "project/scripts/records/user";
 import                           "bootstrap/dist/css/bootstrap.css";
 
@@ -19,7 +20,32 @@ class TopNavigation extends React.Component {
 	}
 
 	state = {
-		accountDialogIsOpen: false
+		accountDialogIsOpen: false,
+		quickSettingsDialogIsOpen: false
+	}
+
+	toggleAccountDialog = () => {
+		const state = {
+			accountDialogIsOpen: !this.state.accountDialogIsOpen
+		};
+
+		if (state.accountDialogIsOpen && this.state.quickSettingsDialogIsOpen) {
+			state.quickSettingsDialogIsOpen = false;
+		}
+
+		this.setState(state);
+	}
+
+	toggleQuickSettingsDialog = () => {
+		const state = {
+			quickSettingsDialogIsOpen: !this.state.quickSettingsDialogIsOpen
+		};
+
+		if (state.quickSettingsDialogIsOpen && this.state.accountDialogIsOpen) {
+			state.accountDialogIsOpen = false;
+		}
+
+		this.setState(state);
 	}
 
 	render() {
@@ -68,7 +94,7 @@ class TopNavigation extends React.Component {
 				
 				<Dropdown
 					isOpen={this.state.accountDialogIsOpen}
-					toggle={() => this.setState({ accountDialogIsOpen: !this.state.accountDialogIsOpen })}
+					toggle={this.toggleAccountDialog}
 					className="nav-item dropdown ml-auto"
 				>
 					<DropdownToggle
@@ -91,6 +117,31 @@ class TopNavigation extends React.Component {
 								dispatch={this.props.dispatch}
 								isOpen={this.state.accountDialogIsOpen}
 								loggedInUser={loggedInUser}
+							/>
+						</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
+
+				<Dropdown
+					isOpen={this.state.quickSettingsDialogIsOpen}
+					toggle={this.toggleQuickSettingsDialog}
+					className="nav-item dropdown"
+				>
+					<DropdownToggle
+						caret
+					>
+						<span
+							className="fa fa-gear"
+						/>
+					</DropdownToggle>
+					<DropdownMenu
+						right
+					>
+						<DropdownItem
+							tag="div"
+							header
+						>
+							<QuickSettingsDialog
 							/>
 						</DropdownItem>
 					</DropdownMenu>

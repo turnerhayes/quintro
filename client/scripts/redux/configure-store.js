@@ -1,19 +1,25 @@
+import { Map }                 from "immutable";
 import {
+	compose,
 	createStore,
 	applyMiddleware
-}                                       from "redux";
-import { createLogger }                 from "redux-logger";
-import thunkMiddleware                  from "redux-thunk";
-import promiseMiddleware                from "redux-promise";
-import { persistState }                 from "redux-devtools";
-import { composeWithDevTools }          from "redux-devtools-extension";
-import { Map }                          from "immutable";
-import invariant                        from "redux-immutable-state-invariant";
-import { routerMiddleware }             from "react-router-redux";
-import createHistory                    from "history/createBrowserHistory";
-import rootReducer                      from "project/scripts/redux/reducers";
-import { socketMiddleware }             from "project/scripts/socket-middleware";
-import Config                           from "project/scripts/config";
+}                              from "redux";
+import { createLogger }        from "redux-logger";
+import thunkMiddleware         from "redux-thunk";
+import promiseMiddleware       from "redux-promise";
+import {
+	persistStore
+}                              from "redux-persist-immutable";
+import { persistState }        from "redux-devtools";
+import { composeWithDevTools } from "redux-devtools-extension";
+import localForage             from "localforage";
+import invariant               from "redux-immutable-state-invariant";
+import { routerMiddleware }    from "react-router-redux";
+import createHistory           from "history/createBrowserHistory";
+import rootReducer             from "project/scripts/redux/reducers";
+import { socketMiddleware }    from "project/scripts/socket-middleware";
+import notificationMiddleware  from "project/scripts/notification-middleware";
+import Config                  from "project/scripts/config";
 
 export const history = createHistory();
 
@@ -26,32 +32,49 @@ const middlewares = [
 	thunkMiddleware,
 	promiseMiddleware,
 	routerMiddleware(history),
-	socketMiddleware
+	socketMiddleware,
+	notificationMiddleware
 ];
 
-let composedEnhancers;
+const composer = Config.app.isDevelopment ?
+	composeWithDevTools({
+		serialize: true
+	}) :
+	compose;
+
+const enhancers = [];
 
 if (Config.app.isDevelopment) {
 	middlewares.unshift(invariant());
 	middlewares.push(createLogger());
-
-	const composeEnhancers = composeWithDevTools({
-		serialize: true
-	});
 	
-	composedEnhancers = composeEnhancers(
+	enhancers.push(
 		applyMiddleware(...middlewares),
 		persistState(getDebugSessionKey())
 	);
 }
 else {
-	composedEnhancers = applyMiddleware(...middlewares);
+	enhancers.push(applyMiddleware(...middlewares));
 }
 
+const composedEnhancers = composer(...enhancers);
+
 export default function configureStore(initialState) {
-	return createStore(
+	let store = createStore(
 		rootReducer,
 		initialState || Map(),
 		composedEnhancers
 	);
+
+	persistStore(
+		store,
+		{
+			storage: localForage,
+			whitelist: [
+				"settings"
+			]
+		}
+	);
+
+	return store;
 }

@@ -91,6 +91,11 @@ exports = module.exports = {
 			},
 
 			{
+				test: /\.wav(\?.*)?$/,
+				use: "file-loader"
+			},
+
+			{
 				test: /client\/images.*\.png$/,
 				use: {
 					loader: "url-loader",
@@ -176,6 +181,7 @@ exports = module.exports = {
 			"project/scripts": path.join(Config.paths.client, "scripts"),
 			"project/styles": path.join(Config.paths.client, "styles"),
 			"project/images": path.join(Config.paths.client, "images"),
+			"project/sounds": path.join(Config.paths.client, "sounds"),
 		}
 	},
 
