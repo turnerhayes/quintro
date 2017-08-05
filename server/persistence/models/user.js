@@ -83,6 +83,10 @@ UserSchema.methods.toFrontendObject = function toFrontendObject({ keepSessionID 
 		delete obj.sessionID;
 	}
 
+	if (!keepSessionID) {
+		delete obj.sessionID;
+	}
+
 	return obj;
 };
 
