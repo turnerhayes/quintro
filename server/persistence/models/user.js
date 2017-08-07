@@ -70,7 +70,7 @@ UserSchema.virtual("isAnonymous").get(
 	}
 );
 
-UserSchema.methods.toFrontendObject = function toFrontendObject({ keepSessionID = false } = {}) {
+UserSchema.methods.toFrontendObject = function toFrontendObject() {
 	const obj = this.toObject({
 		virtuals: true
 	});
@@ -78,14 +78,6 @@ UserSchema.methods.toFrontendObject = function toFrontendObject({ keepSessionID 
 	delete obj._id;
 	delete obj.__v;
 	delete obj.providerID;
-
-	if (!keepSessionID) {
-		delete obj.sessionID;
-	}
-
-	if (!keepSessionID) {
-		delete obj.sessionID;
-	}
 
 	return obj;
 };
