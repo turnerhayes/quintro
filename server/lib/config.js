@@ -80,7 +80,6 @@ const enabledAuths = Object.keys(credentialEnvsByProvider).reduce(
 	{}
 );
 
-
 const Config = {
 	app: {
 		environment: sharedConfig.app.environment,
