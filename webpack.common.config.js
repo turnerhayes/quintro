@@ -36,7 +36,7 @@ exports = module.exports = {
 							loader: "css-loader",
 							options: {
 								sourceMap: true,
-								importLoaders: 2
+								importLoaders: 2,
 							}
 						},
 						{
@@ -65,7 +65,7 @@ exports = module.exports = {
 							}
 						},
 					],
-					publicPath: "/static/css"
+					publicPath: "/static/"
 				})
 			},
 
@@ -96,7 +96,7 @@ exports = module.exports = {
 			},
 
 			{
-				test: /client\/images.*\.png$/,
+				test: /client\/images.*\.(?:png|jpg)$/,
 				use: {
 					loader: "url-loader",
 					options: {

@@ -31,6 +31,7 @@ class PlayGame extends React.Component {
 			PropTypes.instanceOf(PlayerRecord)
 		),
 		getGameError: PropTypes.object,
+		enableBackgroundImage: PropTypes.bool,
 		dispatch: PropTypes.func.isRequired
 	}
 
@@ -155,9 +156,21 @@ class PlayGame extends React.Component {
 		const gameIsOver = !!this.props.game.winner;
 		const gameIsStarted = this.props.game.isStarted && !gameIsOver;
 
+		const classes = [
+			"c_game"
+		];
+
+		if (gameIsOver) {
+			classes.push("game-over");
+		}
+
+		if (gameIsStarted) {
+			classes.push("game-started");
+		}
+
 		return (
 			<div
-				className={`c_game ${gameIsOver ? "game-over" : ""} ${gameIsStarted ? "game-started" : ""}`}
+				className={classes.join(" ")}
 			>
 				{
 					this.state.isWatching && (
@@ -176,6 +189,7 @@ class PlayGame extends React.Component {
 							onSubmit={this.handleJoinSubmit}
 							onCancel={this.handleJoinCancel}
 							onWatchGame={this.handleWatchGame}
+							enableBackgroundImage={this.props.enableBackgroundImage}
 						/>
 					)
 				}
@@ -188,6 +202,7 @@ class PlayGame extends React.Component {
 								playerLimit={this.props.game.playerLimit}
 								markCurrent={gameIsStarted}
 								onDisplayNameChange={this.handleDisplayNameChange}
+								enableBackgroundImage={this.props.enableBackgroundImage}
 							/>
 						)
 				}
@@ -231,6 +246,7 @@ class PlayGame extends React.Component {
 						allowPlacement={myTurn && gameIsStarted}
 						gameIsOver={gameIsOver}
 						onCellClick={this.handleCellClick}
+						enableBackgroundImage={this.props.enableBackgroundImage}
 					/>
 				</div>
 			</div>
@@ -258,6 +274,7 @@ export default withRouter(
 	connect(
 		function mapStateToProps(state, ownProps) {
 			const games = state.get("games");
+			const settings = state.get("settings");
 
 			const game = games && games.items.get(ownProps.gameName);
 
@@ -265,7 +282,8 @@ export default withRouter(
 				players: playerSelector(state, {
 					...ownProps,
 					players: game && game.players
-				})
+				}),
+				enableBackgroundImage: settings.enableBackgroundImage
 			};
 
 			if (games.getGameError) {

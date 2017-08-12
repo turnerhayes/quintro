@@ -1,6 +1,7 @@
 import { range, reduce }  from "lodash";
 import React              from "react";
 import PropTypes          from "prop-types";
+import classnames         from "classnames";
 import BoardRecord        from "project/scripts/records/board";
 import                         "project/styles/board.less";
 
@@ -9,6 +10,7 @@ class Board extends React.Component {
 		board: PropTypes.instanceOf(BoardRecord).isRequired,
 		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
+		enableBackgroundImage: PropTypes.bool,
 		onCellClick: PropTypes.func
 	}
 
@@ -55,7 +57,13 @@ class Board extends React.Component {
 		);
 
 		return (
-			<table className={`c_game_board ${this.props.allowPlacement ? "allow-placement" : ""}`}>
+			<table className={classnames(
+				"c_game_board",
+				{
+					"allow-placement": this.props.allowPlacement,
+					"with-background-image": this.props.enableBackgroundImage
+				}
+			)}>
 				<tbody>
 				{
 					range(this.props.board.height).map(

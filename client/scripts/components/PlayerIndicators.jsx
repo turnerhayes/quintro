@@ -1,6 +1,7 @@
 import React              from "react";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import PropTypes          from "prop-types";
+import classnames         from "classnames";
 import Config             from "project/scripts/config";
 import PlayerRecord       from "project/scripts/records/player";
 import PlayerInfoPopup    from "project/scripts/components/PlayerInfoPopup";
@@ -17,6 +18,8 @@ export default class PlayerIndicators extends React.Component {
 		currentPlayerColor: PropTypes.string,
 
 		markCurrent: PropTypes.bool,
+
+		enableBackgroundImage: PropTypes.bool,
 
 		onDisplayNameChange: PropTypes.func,
 	}
@@ -41,7 +44,13 @@ export default class PlayerIndicators extends React.Component {
 	render() {
 		return (
 			<div
-				className={`c_player-indicators ${this.props.markCurrent ? "mark-current" : ""}`}
+				className={classnames(
+					"c_player-indicators",
+					{
+						"mark-current": this.props.markCurrent,
+						"with-background-image": this.props.enableBackgroundImage
+					}
+				)}
 			>
 				<ul
 					className="c_player-indicators--list"

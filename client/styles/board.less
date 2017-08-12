@@ -2,6 +2,7 @@
 
 .c_game_board {
 	@cell-size: 4em;
+	@marble-width: 90%;
 
 	border-collapse: collapse;
 	table-layout: fixed;
@@ -27,8 +28,24 @@
 		}
 
 		.marble {
-			.m_marble-colors(90%);
-			margin: 5%; // (100% - 90% [marble width/height]) / 2 (top/bottom, left/right)
+			.m_marble-colors(@marble-width);
+			margin: (100% - @marble-width) / 2;
 		}
 	}
+
+	&.with-background-image {
+		// background-image: url("../images/board/board.jpg");
+		// background-size: 100% 100%;
+
+		.board-cell {
+			border: none;
+			background-image: url("../images/board/cell.png");
+			background-size: 100% 100%;
+
+			.marble {
+				.m_marble-images();
+			}
+		}
+	}
+
 }
