@@ -28,22 +28,26 @@ const colors = [
 	{
 		id: "blue",
 		name: "Blue",
-		hex: "#0000FF"
+		hex: "#0000FF",
+		hasImage: true
 	},
 	{
 		id: "red",
 		name: "Red",
-		hex: "#FF0000"
+		hex: "#FF0000",
+		hasImage: true
 	},
 	{
 		id: "yellow",
 		name: "Yellow",
-		hex: "#FFFF00"
+		hex: "#FFFF00",
+		hasImage: true
 	},
 	{
 		id: "green",
 		name: "Green",
-		hex: "#008000"
+		hex: "#008000",
+		hasImage: true
 	},
 	{
 		id: "purple",
@@ -53,7 +57,15 @@ const colors = [
 	{
 		id: "black",
 		name: "Black",
-		hex: "#000000"
+		hex: "#000000",
+		hasImage: true
+	},
+	{
+		id: "white",
+		name: "White",
+		hex: "#FFFFFF",
+		hasImage: true,
+		excludeWithoutImage: true
 	}
 ];
 

@@ -21,7 +21,8 @@ export default class GameJoinDialog extends React.Component {
 		game: PropTypes.instanceOf(GameRecord).isRequired,
 		onSubmit: PropTypes.func.isRequired,
 		onCancel: PropTypes.func.isRequired,
-		onWatchGame: PropTypes.func
+		onWatchGame: PropTypes.func,
+		enableBackgroundImage: PropTypes.bool,
 	}
 
 	state = {
@@ -61,6 +62,17 @@ export default class GameJoinDialog extends React.Component {
 		this.setState({ modalIsOpen: true });
 	}
 
+	getAvailableColors = (usedColors) => {
+		return Config.game.colors.filter(
+			(colorDefinition) => usedColors.indexOf(colorDefinition.id) < 0 &&
+				(
+					this.props.mustUsePhotoColors ?
+						colorDefinition.hasImage :
+						true
+				)
+		);
+	}
+
 	renderColorOptionContent = (colorDefinition) => {
 		return (
 			<span>
@@ -90,9 +102,6 @@ export default class GameJoinDialog extends React.Component {
 
 	renderPlayerForm = () => {
 		const playerColors = this.props.game.players.map((player) => player.color).toArray();
-		const colors = Config.game.colors.filter(
-			(colorDefinition) => playerColors.indexOf(colorDefinition.id) < 0
-		);
 
 		return (
 			<form

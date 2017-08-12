@@ -16,12 +16,19 @@ class QuickSettingsDialog extends React.Component {
 		dispatch: PropTypes.func.isRequired,
 		enableSoundEffects: PropTypes.bool,
 		enableNotifications: PropTypes.bool,
+		enableBackgroundImage: PropTypes.bool,
 		isLoadingStoredSettings: PropTypes.bool
 	}
 
 	toggleEnableSoundEffects = (status) => {
 		this.props.dispatch(changeSetting({
 			enableSoundEffects: status
+		}));
+	}
+
+	toggleEnableBackgroundImage = (status) => {
+		this.props.dispatch(changeSetting({
+			enableBackgroundImage: status
 		}));
 	}
 
@@ -82,6 +89,19 @@ class QuickSettingsDialog extends React.Component {
 								Sound Effects
 							</label>
 						</div>
+						<div
+							className="form-group"
+						>
+							<label>
+								<Toggle
+									checked={this.props.enableBackgroundImage}
+									onChange={(event) => this.toggleEnableBackgroundImage(event.target.checked)}
+									disabled={this.props.isLoadingStoredSettings}
+								/>
+
+								Background Image
+							</label>
+						</div>
 					</form>
 				</div>
 			</div>
@@ -96,6 +116,7 @@ export default connect(
 		return {
 			enableSoundEffects: settings.enableSoundEffects,
 			enableNotifications: settings.enableNotifications,
+			enableBackgroundImage: settings.enableBackgroundImage,
 			isLoadingStoredSettings: !settings.wasRehydrated
 		};
 	}
