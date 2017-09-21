@@ -3,7 +3,6 @@
 const _        = require("lodash");
 const mongoose = require("mongoose");
 const rfr      = require("rfr");
-const Board    = rfr("shared-lib/board");
 const Config   = rfr("server/lib/config");
 
 const GameSchema = new mongoose.Schema({
@@ -167,35 +166,20 @@ class Game {
 		];
 	}
 
-	fillCell(args) {
-		const cell = {
-			position: args.position,
-			color   : args.color,
-		};
-
-		this.board.filled.push(cell);
-
-		const quintros = Board.getQuintros({
-			boardWidth: this.board.width,
-			boardHeight: this.board.height,
-			filledCells: this.board.filled,
-			startCell: cell
+	fillCell({ position, color }) {
+		this.board.filled.push({
+			position,
+			color
 		});
-
-		return {
-			quintros: _.isEmpty(quintros) ?
-				false :
-				quintros
-		};
 	}
 
-	cellIsFilled({ column, row }) {
+	cellIsFilled([column, row]) {
 		return !_.isUndefined(
-			this.getCell(column, row)
+			this.getCell([column, row])
 		);
 	}
 
-	getCell(column, row) {
+	getCell([column, row]) {
 		return _.find(this.board.filled, (filledCell) => {
 			return filledCell.position[0] === column &&
 				filledCell.position[1] === row;

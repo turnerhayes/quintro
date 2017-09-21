@@ -13,6 +13,7 @@ const rfrProject         = require("rfr")({
 const GameStore          = rfrProject("server/persistence/stores/game");
 const UserStore          = rfrProject("server/persistence/stores/user");
 const ErrorCodes         = rfrProject("shared-lib/error-codes");
+const Board              = rfrProject("shared-lib/board");
 const Config             = rfrProject("server/lib/config");
 const Loggers            = rfrProject("server/lib/loggers");
 const session            = rfrProject("server/session");
@@ -449,21 +450,28 @@ class SocketManager {
 					throw err;
 				}
 
-				if (
-					game.cellIsFilled({
-						row,
-						column
-					})
-				) {
-					throw new Error(`Position ${JSON.stringify(position)} is already occupied by color ${game.getCell(column, row)}`);
+				if (game.cellIsFilled(position)) {
+					throw new Error(`Position ${JSON.stringify(position)} is already occupied by color ${game.getCell(position)}`);
 				}
 
-				const result = game.fillCell({
-					position: [column, row],
-					color   : color,
+				const cell = {
+					position,
+					color,
+				};
+
+				game.fillCell(cell);
+
+				const quintros = new Board({
+					width: game.board.width,
+					height: game.board.height,
+					// game.board.filled is a collection of Mongo documents, so convert it to an
+					// array of plain objects for Board to work with
+					filledCells: game.board.filled.toObject(),
+				}).getQuintros({
+					startCell: cell,
 				});
 
-				if (result.quintros) {
+				if (quintros.size > 0) {
 					game.winner = color;
 				}
 				else {
@@ -479,8 +487,8 @@ class SocketManager {
 							color,
 						};
 
-						if (result.quintros) {
-							data.quintros = result.quintros;
+						if (quintros.size > 0) {
+							data.quintros = quintros.toJS();
 						}
 
 						return data;

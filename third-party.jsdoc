@@ -1,0 +1,32 @@
+/**
+ * @namespace Immutable
+ * @external
+ */
+
+/**
+ * @class Set
+ * @memberof external:Immutable
+ *
+ * @see {@link https://facebook.github.io/immutable-js/docs/#/Set} 
+ */
+
+/**
+ * @class Map
+ * @memberof external:Immutable
+ *
+ * @see {@link https://facebook.github.io/immutable-js/docs/#/Map}
+ */
+
+/**
+ * @class Record
+ * @memberof external:Immutable
+ *
+ * @see {@link https://facebook.github.io/immutable-js/docs/#/Record} 
+ */
+
+/**
+ * @class Collection.Indexed
+ * @memberof external:Immutable
+ *
+ * @see {@link https://facebook.github.io/immutable-js/docs/#/Collection.Indexed} 
+ */

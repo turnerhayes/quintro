@@ -19,6 +19,8 @@ export default class PlayerIndicators extends React.Component {
 		markCurrent: PropTypes.bool,
 
 		onDisplayNameChange: PropTypes.func,
+
+		onIndicatorClicked: PropTypes.func
 	}
 
 	state = {
@@ -36,6 +38,7 @@ export default class PlayerIndicators extends React.Component {
 
 	handlePlayerIndicatorClicked = (selectedPlayer) => {
 		this.togglePopoverOpened((selectedPlayer && selectedPlayer.color) || null);
+		this.props.onIndicatorClicked && this.props.onIndicatorClicked({ selectedPlayer });
 	}
 
 	render() {

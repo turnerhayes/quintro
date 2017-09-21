@@ -1,0 +1,25 @@
+/**
+ * @namespace Types
+ */
+
+/**
+ * Represents a cell on the board
+ *
+ * @typedef {Object} Cell
+ * @memberof Types
+ * @prop {Array<Number, Number>} position - the position of the cell on the board,
+ *	as a pair consisting of [columnIndex, rowIndex]
+ * @prop {string|undefined} color - the color of the marble currently occupying the
+ *	cell (if any)
+ */
+
+/**
+ * Represents a quintro or potential quintro
+ *
+ * @typedef {Object} Quintro
+ * @memberof Types
+ * @prop {string} color - the color of any filled cells in the quintro (a quintro
+ *	can only contain a combination of one or more cells of any single color plus zero
+ *	or more empty cells)
+ * @prop {Types.Cell[]} quintro - the cells that comprise this quintro
+ */
