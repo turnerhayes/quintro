@@ -23,6 +23,7 @@ export default class GameJoinDialog extends React.Component {
 		onCancel: PropTypes.func.isRequired,
 		onWatchGame: PropTypes.func,
 		enableBackgroundImage: PropTypes.bool,
+		mustUsePhotoColors: PropTypes.bool,
 	}
 
 	state = {
@@ -102,6 +103,9 @@ export default class GameJoinDialog extends React.Component {
 
 	renderPlayerForm = () => {
 		const playerColors = this.props.game.players.map((player) => player.color).toArray();
+		const colors = Config.game.colors.filter(
+			(colorDefinition) => playerColors.indexOf(colorDefinition.id) < 0
+		);
 
 		return (
 			<form
