@@ -3,5 +3,11 @@
  */
 
 /**
- * @namespace test.shared-lib
+ * @namespace shared-lib
+ * @memberof test
+ */
+
+/**
+ * @namespace test-data
+ * @memberof test.shared-lib
  */

@@ -348,7 +348,8 @@ class Board extends Record(schema, "Board") {
 				for (
 					let i = lastCellColumn + columnDelta,
 					j = lastCellRow + rowDelta;
-					i < this.width && j < this.height && filledMap.get(List([i, j])) === color;
+					i >= 0 && j >= 0 && i < this.width && j < this.height &&
+						filledMap.get(List([i, j])) === color;
 					i += columnDelta, j += rowDelta
 				) {
 					potentialQuintro.push({
@@ -565,7 +566,7 @@ class Board extends Record(schema, "Board") {
 	 * @param {Object} args - the function arguments
 	 * @param {Types.Cell|external:Immutable.Map<Types.Cell>} args.newCell - the cell to fill in
 	 *
-	 * @return {external:Immutable.Map<{added: external:Immutable.Set<shared-lib.Quintro>, removed: external:Immutable.Set<shared-lib.Quintro>}>} the changes to the set of quintros
+	 * @return {external:Immutable.Map<{added: external:Immutable.Set<shared-lib.Quintro>, removed: external:Immutable.Set<shared-lib.Quintro>, changed: external:Immutable.Set<shared-lib.Quintro>}>} the changes to the set of quintros
 	 */
 	getPotentialQuintroDelta({
 		newCell
@@ -614,8 +615,8 @@ class Board extends Record(schema, "Board") {
 					if (!quintro.equals(quintroInUpdated)) {
 						return quintros.add(Map({
 							cells: Map({
-								range: quintro.cells.map((cell) => cell.delete("color")),
-								changed: quintro.cells.map(
+								range: quintro.cells.map((cell) => cell.get("position")),
+								changes: quintro.cells.map(
 									(cell, index) => {
 										const updatedCell = quintroInUpdated.cells.get(index);
 
@@ -642,7 +643,8 @@ class Board extends Record(schema, "Board") {
 		return Map({
 			added,
 			removed,
-			changed
+			changed,
+			allContainingQuintros: quintrosWithNewCell
 		});
 	}
 }
