@@ -31,6 +31,37 @@ if (Config.app.ssl.cert) {
 	}
 }
 
+const devServer = {
+	hot: true,
+	port: 7200,
+	headers: {
+		"Access-Control-Allow-Origin": "*"
+	},
+	setup(app) {
+		app.use(
+			"/static/fonts/font-awesome",
+			cors({
+				origin: Config.app.address.origin
+			}),
+			express.static(
+				// Need to do this ugly resolve; using requre.resolve() doesn't seem to work,
+				// possibly because the font-awesome package contains no main entry or index.js,
+				// so Node treats it as not a package.
+				path.resolve(__dirname, "node_modules", "font-awesome", "fonts"),
+				{
+					fallthrough: false
+				}
+			)
+		);
+	},
+};
+
+if (sslKey && sslCert) {
+	devServer.https = {
+		key: sslKey,
+		cert: sslCert,
+	};
+}
 
 exports = module.exports = webpackMerge.smart(common, {
 	plugins: [
@@ -44,32 +75,5 @@ exports = module.exports = webpackMerge.smart(common, {
 	// Supposedly, this is not a problem when using cheap-eval-source-map
 	devtool: "cheap-eval-source-map",
 
-	devServer: {
-		hot: true,
-		port: 7200,
-		https: {
-			key: sslKey,
-			cert: sslCert,
-		},
-		headers: {
-			"Access-Control-Allow-Origin": "*"
-		},
-		setup(app) {
-			app.use(
-				"/static/fonts/font-awesome",
-				cors({
-					origin: Config.app.address.origin
-				}),
-				express.static(
-					// Need to do this ugly resolve; using requre.resolve() doesn't seem to work,
-					// possibly because the font-awesome package contains no main entry or index.js,
-					// so Node treats it as not a package.
-					path.resolve(__dirname, "node_modules", "font-awesome", "fonts"),
-					{
-						fallthrough: false
-					}
-				)
-			);
-		},
-	}
+	devServer
 });

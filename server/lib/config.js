@@ -43,9 +43,16 @@ const CLIENT_PATH = path.join(PROJECT_ROOT, "client");
 const DIST_PATH = path.join(PROJECT_ROOT, "dist");
 const LOGS_DIRECTORY = path.resolve(PROJECT_ROOT, process.env.LOGS_DIRECTORY || "logs");
 
+const sslKeyPath = IS_SECURE ?
+	path.resolve(PROJECT_ROOT, process.env.APP_SSL_KEY) :
+	undefined;
+const sslCertPath = IS_SECURE ?
+	path.resolve(PROJECT_ROOT, process.env.APP_SSL_CERT) :
+	undefined;
+
 const DB_URL = process.env.CREDENTIALS_DB_URL;
 
-const SESSION_DB_URL = process.env.SESSION_DB_URL;
+const SESSION_DB_URL = process.env.SESSION_DB_URL || DB_URL;
 
 const credentialEnvsByProvider = {};
 
@@ -93,8 +100,8 @@ const Config = {
 			origin: ORIGIN
 		},
 		ssl: {
-			key: process.env.APP_SSL_KEY,
-			cert: process.env.APP_SSL_CERT
+			key: sslKeyPath,
+			cert: sslCertPath,
 		}
 	},
 	game: sharedConfig.game,
