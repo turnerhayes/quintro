@@ -13,7 +13,7 @@ const HOST = process.env.APP_ADDRESS_HOST;
 const EXTERNAL_PORT = Number(process.env.APP_ADDRESS_EXTERNAL_PORT) || PORT;
 
 const IS_SECURE = process.env.APP_ADDRESS_IS_SECURE ||
-	process.env.APP_SSL_KEY && process.env.APP_SSL_CERT;
+	(process.env.APP_SSL_KEY && process.env.APP_SSL_CERT);
 	
 const ORIGIN = (function() {
 	let baseURL = "http" + (IS_SECURE ? "s" : "") + "://" +
@@ -43,10 +43,10 @@ const CLIENT_PATH = path.join(PROJECT_ROOT, "client");
 const DIST_PATH = path.join(PROJECT_ROOT, "dist");
 const LOGS_DIRECTORY = path.resolve(PROJECT_ROOT, process.env.LOGS_DIRECTORY || "logs");
 
-const sslKeyPath = IS_SECURE ?
+const sslKeyPath = process.env.APP_SSL_KEY ?
 	path.resolve(PROJECT_ROOT, process.env.APP_SSL_KEY) :
 	undefined;
-const sslCertPath = IS_SECURE ?
+const sslCertPath = process.env.APP_SSL_CERT ?
 	path.resolve(PROJECT_ROOT, process.env.APP_SSL_CERT) :
 	undefined;
 

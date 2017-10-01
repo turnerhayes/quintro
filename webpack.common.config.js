@@ -12,7 +12,7 @@ const Config                    = rfr("server/lib/config");
 const jsxFilenameRegex = /\.jsx?$/;
 
 exports = module.exports = {
-	entry: "./client/scripts/index.jsx",
+	entry: ["babel-polyfill", "./client/scripts/index.jsx"],
 
 	output: {
 		path: Config.paths.dist,
@@ -96,7 +96,7 @@ exports = module.exports = {
 			},
 
 			{
-				test: /client\/images.*\.png$/,
+				test: /client\/images.*\.(png|jpe?g)$/,
 				use: {
 					loader: "url-loader",
 					options: {
@@ -177,6 +177,7 @@ exports = module.exports = {
 			path.join(Config.paths.client, "styles")
 		],
 		alias: {
+			"project/ai": path.join(__dirname, "ai"),
 			"project/shared-lib": path.join(__dirname, "shared-lib"),
 			"project/scripts": path.join(Config.paths.client, "scripts"),
 			"project/styles": path.join(Config.paths.client, "styles"),

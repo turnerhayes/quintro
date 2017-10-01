@@ -15,6 +15,7 @@ import Home             from "project/scripts/components/Home";
 import CreateGame       from "project/scripts/components/CreateGame";
 import FindGame         from "project/scripts/components/FindGame";
 import PlayGame         from "project/scripts/components/PlayGame";
+import PlayAgainstComputer from "project/scripts/components/PlayAgainstComputer";
 import HowToPlay        from "project/scripts/components/HowToPlay";
 import UserGamesList    from "project/scripts/components/UserGamesList";
 
@@ -65,6 +66,18 @@ ReactDOM.render(
 						}
 					>
 					</Route>
+					<Route
+						name="Play Against Computer"
+						path="/play-against-computer"
+						render={
+							() => {
+								return (
+									<PlayAgainstComputer
+									/>
+								);
+							}
+						}
+					/>
 					<Route
 						name="Play Game"
 						path="/play/:name"
