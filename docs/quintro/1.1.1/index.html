@@ -112,17 +112,27 @@
         <article><h1>Quintro</h1><p>Classic marble game in HTML</p>
 <h1>Game description</h1><p>The game is quite simple: players go around in a set order, placing marbles of their color onto a board. The goal of the game is to get at least five marbles of your color in a line (vertically, horizontally, or diagonally). As the board gets more and more marbles on it, players have to keep track of more potential wins and decide whether to interfere with them or continue with their own efforts.</p>
 <h1>Technical structure</h1><p>Anyone can create a game, with some configurable parameters like board width/height and maximum number of players. Users connect to a created game and communicate with a <a href="https://socket.io">Socket.io</a> server that tracks game state, storing it in a <a href="https://mongodb.com">MongoDB</a> database. The server uses <a href="http://expressjs.com/">Express</a> and builds its static content (CSS/JS) via <a href="https://webpack.github.io/">Webpack</a>.</p>
-<p>The frontend is a <a href="https://facebook.github.io/react/">ReactJS</a>/<a href="http://redux.js.org/">Redux</a> web app and uses <a href="http://lesscss.org/">Less</a> for styling.</p>
-<p>The socket server can either be run as a standalone Express app or inline as part of the same server that serves the website. The static content can be served either from a directory on the filesystem that Webpack writes its results into, or via <a href="https://webpack.github.io/docs/webpack-dev-server.html">webpack-dev-server</a> (the latter is better for development, as it contains some usefule features like hot module reloading, filesystem watching and linting.</p>
+<p>The frontend is a <a href="https://facebook.github.io/react/">ReactJS</a>/<a href="http://redux.js.org/">Redux</a> web application and uses <a href="http://lesscss.org/">Less</a> for styling.</p>
+<p>The socket server can either be run as a standalone Express application or inline as part of the same server that serves the website. The static content can be served either from a directory on the filesystem that Webpack writes its results into, or via <a href="https://webpack.github.io/docs/webpack-dev-server.html">webpack-dev-server</a> (the latter is better for development, as it contains some usefule features like hot module reloading, filesystem watching and linting.</p>
 <h1>Installation</h1><p>Clone this repo and run <code>npm install</code> from within its root directory.</p>
-<h2>Configuration</h2><p>The app requires a few things at minimum to run correctly. Configuration values are set via a <a href="https://github.com/motdotla/dotenv">.env</a> file. A sample file with the relevant keys is available at <code>.env.example</code>.</p>
-<h3>Database</h3><p>The app uses a <a href="https://www.mongodb.com/">MongoDB</a> database to back its sessions, game state, etc. There are a couple of keys in the .env file relevant to the database:</p>
+<h1>Configuration</h1><p>The application requires a few things at minimum to run correctly. Configuration values are set via a <a href="https://github.com/motdotla/dotenv">.env</a> file. A sample file with the relevant keys is available at <code>.env.example</code>.</p>
+<h2>Database</h2><p>The app uses a <a href="https://www.mongodb.com/">MongoDB</a> database to back its sessions, game state, etc. There are a couple of keys in the .env file relevant to the database:</p>
 <ul>
-<li><p><code>CREDENTIALS_DB_URL</code>: this should be a <a href="https://docs.mongodb.com/manual/reference/connection-string/">MongoDB connection string uri</a> to the database where the app data is stored (game state, user profiles, etc.)</p>
+<li><p><code>CREDENTIALS_DB_URL</code>: this should be a <a href="https://docs.mongodb.com/manual/reference/connection-string/">MongoDB connection string uri</a> to the database where the application data is stored (game state, user profiles, etc.)</p>
 </li>
-<li><p><code>SESSION_DB_URL</code>: this should be a connection string to the database where the session data is stored. This can be the same as <code>CREDENTIALS_DB_URL</code>.</p>
+<li><p><code>SESSION_DB_URL</code>: this should be a connection string to the database where the session data is stored. This can be the same as <code>CREDENTIALS_DB_URL</code>; if it's not specified, it will default to be the same.</p>
 </li>
-</ul></article>
+</ul>
+<h2>SSL</h2><p>The application can be served with or without SSL. To serve it over SSL, specify the following <code>.env</code> variables:</p>
+<ul>
+<li><code>APP_SSL_KEY</code>: a file path to an SSL key file</li>
+<li><code>APP_SSL_CERT</code>: a file path to an SSL cert file</li>
+</ul>
+<p>See <a href="https://devcenter.heroku.com/articles/ssl-certificate-self">here</a> for instructions on how to create self-signed SSL keys and certificates--these are fine for development, but not good for production purposes.</p>
+<h2>Sessions</h2><p>In addition to the <code>SESSION_DB_URL</code> setting, you must also set the <code>SESSION_SECRET</code> setting; this is used to encrypt secure cookies.</p>
+<h2>Static content</h2><p>&quot;Static content&quot; refers to thinks like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the <code>STATIC_CONTENT_URL</code> setting empty. Otherwise, set it to the base URL for your static content server.</p>
+<h3>Webpack Dev Server</h3><p>For the purposes of development, the <a href="https://webpack.js.org/guides/development/#using-webpack-dev-server">Webpack dev server</a> is very useful. You can start it up by running <code>npm run dev-server</code>. This will serve your static content and update it automatically when static content files change, as well as providing neat features like Hot Module Reload. To use it as your static content server, set <code>STATIC_CONTENT_URL=https://localhost:7200/</code> (this is assuming you are and the Webpack Dev Server on localhost, which is the default, and serving the application over SSL).</p>
+<h2>Other Configuration Values</h2><p>There are some other configuration options you can set in your <code>.env</code> file, including options for logging and social login flows like Facebook and Twitter. For descriptions of these options, look at the <a href=".env.example">example .env file</a>.</p></article>
     </section>
 
 
@@ -168,7 +178,7 @@
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a>
 	
-		on 2017-09-27T01:49:53-04:00
+		on 2017-09-29T20:06:29-04:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

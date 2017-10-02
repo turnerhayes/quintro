@@ -7,7 +7,6 @@ const rfr           = require("rfr");
 const Quintro       = rfr("shared-lib/quintro");
 const {
 	generateLayout,
-	quintroCellsFromRange,
 	PLAYER_COLORS
 }                   = rfr("test/shared-lib/test-data/board/utils");
 
@@ -162,45 +161,82 @@ exports = module.exports = {
 			],
 			changed: [
 				{
-					cells: {
-						range: quintroCellsFromRange({
-							range:"6,1-5",
-							positionsOnly: true,
-						}),
-						changes: [
-							undefined,
+					quintro: new Quintro({
+						cells: [
 							{
-								// eslint-disable-next-line no-magic-numbers
+								position: [6, 1],
+								color: PLAYER_COLORS[0],
+							},
+							{
 								position: [6, 2],
 								color: PLAYER_COLORS[0],
 							},
-							undefined,
-							undefined,
-							undefined,
+							{
+								position: [6, 3],
+								color: PLAYER_COLORS[0],
+							},
+							{
+								position: [6, 4],
+								color: PLAYER_COLORS[0],
+							},
+							{
+								position: [6, 5],
+								color: PLAYER_COLORS[0],
+							},
 						]
-					},
-					numberOfEmptyCells: 0,
+					}),
+					changedCells: [
+						undefined,
+						{
+							// eslint-disable-next-line no-magic-numbers
+							position: [6, 2],
+							color: PLAYER_COLORS[0],
+						},
+						undefined,
+						undefined,
+						undefined,
+					],
 				},
 				{
-					cells: {
-						range: quintroCellsFromRange({
-							range:"2-7,6-1",
-							positionsOnly: true,
-						}),
-						changes: [
-							undefined,
-							undefined,
-							undefined,
-							undefined,
+					quintro: new Quintro({
+						cells: [
 							{
-								// eslint-disable-next-line no-magic-numbers
+								position: [2, 6],
+								color: PLAYER_COLORS[0],
+							},
+							{
+								position: [3, 5],
+								color: PLAYER_COLORS[0],
+							},
+							{
+								position: [4, 4],
+								color: PLAYER_COLORS[0],
+							},
+							{
+								position: [5, 3],
+								color: PLAYER_COLORS[0],
+							},
+							{
 								position: [6, 2],
 								color: PLAYER_COLORS[0],
 							},
-							undefined,
+							{
+								position: [7, 1],
+								color: PLAYER_COLORS[0],
+							},
 						]
-					},
-					numberOfEmptyCells: 0,
+					}),
+					changedCells: [
+						undefined,
+						undefined,
+						undefined,
+						undefined,
+						{
+							position: [6, 2],
+							color: PLAYER_COLORS[0],
+						},
+						undefined,
+					],
 				},
 			],
 		},

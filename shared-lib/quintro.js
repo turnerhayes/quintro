@@ -16,6 +16,15 @@ const schema = {
 
 const SERIALIZED_SEPARATOR = ";";
 
+/**
+ * The minimum length for a quintro.
+ *
+ * @type number
+ * @default
+ * @memberof shared-lib.Quintro
+ */
+const QUINTRO_LENGTH = 5;
+
 // Taken from https://stackoverflow.com/a/7616484/324399
 function stringHash(str) {
 	let hash = 0, i, chr;
@@ -172,5 +181,7 @@ class Quintro extends Record(schema, "Quintro") {
 		return !!this.cells.find((cell) => is(cell.get("position"), List(position)));
 	}
 }
+
+Quintro.QUINTRO_LENGTH = QUINTRO_LENGTH;
 
 exports = module.exports = Quintro;

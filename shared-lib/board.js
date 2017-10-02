@@ -3,6 +3,7 @@
 const assert  = require("assert");
 const {
 	Set,
+	OrderedSet,
 	Map,
 	List,
 	Record,
@@ -11,15 +12,6 @@ const {
 	Collection
 }             = require("immutable");
 const Quintro = require("./quintro");
-
-/**
- * The minimum length for a quintro.
- *
- * @type number
- * @default
- * @memberof shared-lib.Board
- */
-const QUINTRO_LENGTH = 5;
 
 const schema = {
 	width: null,
@@ -82,6 +74,70 @@ class Board extends Record(schema, "Board") {
 		});
 	}
 
+	getPlayerColors() {
+		return this.filledCells.reduce(
+			(colors, cell) => {
+				return colors.add(cell.get("color"));
+			},
+			OrderedSet()
+		).toList();
+	}
+
+	toString() {
+		const filledSummary = this.filledCells.map(
+			(cell) => `${cell.get("position").get(0)},${cell.get("position").get(1)}:${cell.get("color")}`
+		).join("; ");
+
+		return `Board<${this.width}x${this.height}, filled: ${filledSummary}>`;
+	}
+
+	toGraphicalString({
+		startCell,
+		playerColors = this.getPlayerColors(),
+	} = {}) {
+		const separator = " ";
+
+		playerColors = List(playerColors);
+		startCell = startCell ? fromJS(startCell) : undefined;
+
+		const filledMap = this.filledCells.reduce(
+			(filled, filledCell) => {
+				return filled.set(List(filledCell.get("position")), filledCell.get("color"));
+			},
+			Map()
+		);
+
+		const legend = playerColors.map(
+			(color, index) => `${index}: ${color}`
+		).join("\n");
+
+		const grid = [...new Array(this.height)].map(
+			(nothing, rowIndex) => [...new Array(this.width)].map(
+				(nothing, columnIndex) => {
+					const filledMapCell = filledMap.get(List([columnIndex, rowIndex]));
+
+					if (filledMapCell) {
+						const colorIndex = playerColors.indexOf(filledMapCell);
+
+						if (
+							startCell && startCell.getIn(["position", 0]) === columnIndex &&
+								startCell.getIn(["position", 1]) === rowIndex
+						) {
+							return `^${colorIndex}`;
+						}
+
+						return ` ${colorIndex}`;
+					}
+
+					return " -";
+				}
+			).join(separator)
+		).join("\n");
+
+		return `${legend ? legend + "\n\n" : ""}${grid}
+`;
+	}
+
 	/**
 	 * Returns an instance of {shared-lib.Board} with the specified cells added to the
 	 * `filledCells` property.
@@ -93,7 +149,7 @@ class Board extends Record(schema, "Board") {
 	fillCells(...cells) {
 		return this.updateIn(
 			["filledCells"],
-			(filled) => filled.push(...cells.map(Map))
+			(filled) => filled.push(...cells.map(fromJS))
 		);
 	}
 
@@ -260,7 +316,7 @@ class Board extends Record(schema, "Board") {
 			If the set of cells is long enough now, then we add it to the final set of quintros.
 		*/
 		for (
-			let offset = QUINTRO_LENGTH - 1;
+			let offset = Quintro.QUINTRO_LENGTH - 1;
 			offset >= 0;
 			offset--
 		) {
@@ -282,8 +338,8 @@ class Board extends Record(schema, "Board") {
 			// the offset increases. For negative columnDelta, the frame starts ahead of
 			// the start column, at column + 4, and retreats one cell each time the offset
 			// increases. Similarly for rowDelta are the start row.
-			const frameEndColumn = columnDelta === 0 ? column : i + (columnDelta * (QUINTRO_LENGTH - 1));
-			const frameEndRow = rowDelta === 0 ? row : j + (rowDelta * (QUINTRO_LENGTH - 1));
+			const frameEndColumn = columnDelta === 0 ? column : i + (columnDelta * (Quintro.QUINTRO_LENGTH - 1));
+			const frameEndRow = rowDelta === 0 ? row : j + (rowDelta * (Quintro.QUINTRO_LENGTH - 1));
 
 			if (
 				i < 0 || i >= this.width || j < 0 || j >= this.height ||
@@ -378,7 +434,7 @@ class Board extends Record(schema, "Board") {
 
 				if (
 					// Potential quintro is longer than necessary
-					potentialQuintro.length > QUINTRO_LENGTH &&
+					potentialQuintro.length > Quintro.QUINTRO_LENGTH &&
 					(
 						// There are blank cells on one or both ends; trim if possible
 						firstNonEmptyIndex > 0 ||
@@ -388,10 +444,10 @@ class Board extends Record(schema, "Board") {
 
 					// Take frames starting from each empty cell at the start
 					// We need to make sure to include the last non-empty cell in the quintro,
-					// so start iteration QUINTRO_LENGTH cells from the last non-empty cell
-					for (let i = lastNonEmptyIndex - (QUINTRO_LENGTH - 1); i >= 0 && i < firstNonEmptyIndex; i++) {
+					// so start iteration Quintro.QUINTRO_LENGTH cells from the last non-empty cell
+					for (let i = lastNonEmptyIndex - (Quintro.QUINTRO_LENGTH - 1); i >= 0 && i < firstNonEmptyIndex; i++) {
 						quintro = new Quintro({
-							cells: potentialQuintro.slice(i, i + QUINTRO_LENGTH)
+							cells: potentialQuintro.slice(i, i + Quintro.QUINTRO_LENGTH)
 						});
 					}
 
@@ -401,16 +457,16 @@ class Board extends Record(schema, "Board") {
 						// eslint-disable-next-line no-magic-numbers
 						let i = potentialQuintro.length - 2;
 						i >= lastNonEmptyIndex &&
-						i - (QUINTRO_LENGTH - 1) <= firstNonEmptyIndex && i >= (QUINTRO_LENGTH - 1);
+						i - (Quintro.QUINTRO_LENGTH - 1) <= firstNonEmptyIndex && i >= (Quintro.QUINTRO_LENGTH - 1);
 						i--
 					) {
 						quintro = new Quintro({
-							cells: potentialQuintro.slice(i - (QUINTRO_LENGTH - 1), i + 1)
+							cells: potentialQuintro.slice(i - (Quintro.QUINTRO_LENGTH - 1), i + 1)
 						});
 					}
 				}
 				else if (
-					potentialQuintro.length >= QUINTRO_LENGTH
+					potentialQuintro.length >= Quintro.QUINTRO_LENGTH
 				) {
 					quintro = new Quintro({
 						cells: potentialQuintro
@@ -578,7 +634,7 @@ class Board extends Record(schema, "Board") {
 		);
 
 		const quintrosWithNewCell = this.fillCells(
-				newCell
+			newCell
 		).getPotentialQuintros({
 			startCell: newCell
 		});
@@ -614,23 +670,18 @@ class Board extends Record(schema, "Board") {
 				if (quintroInUpdated) {
 					if (!quintro.equals(quintroInUpdated)) {
 						return quintros.add(Map({
-							cells: Map({
-								range: quintro.cells.map((cell) => cell.get("position")),
-								changes: quintro.cells.map(
-									(cell, index) => {
-										const updatedCell = quintroInUpdated.cells.get(index);
+							quintro: quintroInUpdated,
+							changedCells: quintro.cells.map(
+								(cell, index) => {
+									const updatedCell = quintroInUpdated.cells.get(index);
 
-										if (!is(updatedCell, cell)) {
-											return updatedCell;
-										}
-
-										return undefined;
+									if (!is(updatedCell, cell)) {
+										return updatedCell;
 									}
-								)
-							}),
-							numberOfEmptyCells: quintroInUpdated.numberOfEmptyCells === quintro.numberOfEmptyCells ?
-								undefined :
-								quintroInUpdated.numberOfEmptyCells,
+
+									return undefined;
+								}
+							),
 						}));
 					}
 				}
@@ -648,7 +699,5 @@ class Board extends Record(schema, "Board") {
 		});
 	}
 }
-
-Board.QUINTRO_LENGTH = QUINTRO_LENGTH;
 
 exports = module.exports = Board;
