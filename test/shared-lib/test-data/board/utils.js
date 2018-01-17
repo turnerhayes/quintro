@@ -66,14 +66,10 @@ const rangeRegex = /^(\d+)(?:-(\d+))?$/;
  * If a cell is represented in the filledMap, its color is added to the cell coordinate under
  *		the key "color" (e.g. { position: [1, 2], color: "blue" })
  * @param {shared-lib.Board} [args.board] - the board in which the cells exist
- * @param {boolean} [args.positionsOnly=false] - if true, will return just the positions, rather than objects
- *	with a `position` key (a la {@link Type.Cell})
  *
- * @returns {Array<Types.Cell>|Array<number[]>} list of cells from the specified range, either as
- *	an array of {@link Types.Cell}s containing only a `position` key, or an array of two-element
- *	tuples corresponding to the positions
+ * @returns {Types.Cell[]} list of cells from the specified range
  */
-function quintroCellsFromRange({ range, board, positionsOnly }) {
+function quintroCellsFromRange({ range, board }) {
 	const cells = [];
 
 	let [columnRange, rowRange] = range.split(",");
@@ -134,12 +130,10 @@ function quintroCellsFromRange({ range, board, positionsOnly }) {
 		const cell = board && board.getCell(position);
 
 		cells.push(
-			positionsOnly ?
-				position :
-				{
-					position,
-					color: cell ? cell.get("color") : undefined, 
-				}
+			{
+				position,
+				color: cell ? cell.get("color") : undefined, 
+			}
 		);
 	}
 

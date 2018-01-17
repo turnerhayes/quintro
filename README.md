@@ -48,7 +48,7 @@ In addition to the `SESSION_DB_URL` setting, you must also set the `SESSION_SECR
 
 ## Static content
 
-"Static content" refers to thinks like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the `STATIC_CONTENT_URL` setting empty. Otherwise, set it to the base URL for your static content server.
+"Static content" refers to things like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the `STATIC_CONTENT_URL` setting empty. Otherwise, set it to the base URL for your static content server.
 
 ### Webpack Dev Server
 

@@ -4,7 +4,6 @@ import {
 	createStore,
 	applyMiddleware
 }                              from "redux";
-import { createLogger }        from "redux-logger";
 import thunkMiddleware         from "redux-thunk";
 import promiseMiddleware       from "redux-promise";
 import {
@@ -46,7 +45,6 @@ const enhancers = [];
 
 if (Config.app.isDevelopment) {
 	middlewares.unshift(invariant());
-	middlewares.push(createLogger());
 	
 	enhancers.push(
 		applyMiddleware(...middlewares),

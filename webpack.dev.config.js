@@ -37,7 +37,7 @@ const devServer = {
 	headers: {
 		"Access-Control-Allow-Origin": "*"
 	},
-	setup(app) {
+	before(app) {
 		app.use(
 			"/static/fonts/font-awesome",
 			cors({
@@ -68,12 +68,12 @@ exports = module.exports = webpackMerge.smart(common, {
 		new webpack.NamedModulesPlugin(),
 	],
 
-	// devtool: "source-map",
+	devtool: "source-map",
 	// Note: currently, having webpack watch with devtool set to "source-map"
 	// causes extreme memory leaks over several compilations (possibly due to
 	// ExtractTextWebpackPlugin--see https://github.com/webpack/webpack/issues/2157).
 	// Supposedly, this is not a problem when using cheap-eval-source-map
-	devtool: "cheap-eval-source-map",
+	// devtool: "cheap-eval-source-map",
 
 	devServer
 });

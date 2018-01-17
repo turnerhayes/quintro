@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="client.records.html">client.records</a></li><li><a href="shared-lib.html">shared-lib</a></li><li><a href="test.html">test</a></li><li><a href="test.shared-lib.html">test.shared-lib</a></li><li><a href="test.shared-lib.test-data.html">test.shared-lib.test-data</a></li><li><a href="test.utils.html">test.utils</a></li><li><a href="Types.html">Types</a></li>
+					<li><a href="client.html">client</a></li><li><a href="client.react-components.html">client.react-components</a></li><li><a href="client.records.html">client.records</a></li><li><a href="shared-lib.html">shared-lib</a></li><li><a href="test.html">test</a></li><li><a href="test.shared-lib.html">test.shared-lib</a></li><li><a href="test.shared-lib.test-data.html">test.shared-lib.test-data</a></li><li><a href="test.utils.html">test.utils</a></li><li><a href="Types.html">Types</a></li>
 				</ul>
 			</li>
 			
@@ -47,14 +47,14 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="client.records.GameRecord.html">client.records.GameRecord</a></li><li><a href="client.records.PlayerRecord.html">client.records.PlayerRecord</a></li><li><a href="external-Immutable.Collection.Indexed.html">external:Immutable.Collection.Indexed</a></li><li><a href="external-Immutable.Map.html">external:Immutable.Map</a></li><li><a href="external-Immutable.Record.html">external:Immutable.Record</a></li><li><a href="external-Immutable.Set.html">external:Immutable.Set</a></li><li><a href="shared-lib.Board.html">shared-lib.Board</a></li><li><a href="shared-lib.Quintro.html">shared-lib.Quintro</a></li>
+					<li><a href="client.react-components.AccountDialog.html">client.react-components.AccountDialog</a></li><li><a href="client.react-components.App.html">client.react-components.App</a></li><li><a href="client.react-components.Board.html">client.react-components.Board</a></li><li><a href="client.react-components.CreateGame.html">client.react-components.CreateGame</a></li><li><a href="client.react-components.FindGame.html">client.react-components.FindGame</a></li><li><a href="client.react-components.GameJoinDialog.html">client.react-components.GameJoinDialog</a></li><li><a href="client.react-components.Home.html">client.react-components.Home</a></li><li><a href="client.react-components.HowToPlay.html">client.react-components.HowToPlay</a></li><li><a href="client.react-components.PlayerIndicators.html">client.react-components.PlayerIndicators</a></li><li><a href="client.react-components.PlayerInfoPopup.html">client.react-components.PlayerInfoPopup</a></li><li><a href="client.react-components.PlayGame.html">client.react-components.PlayGame</a></li><li><a href="client.react-components.QuickSettingsDialog.html">client.react-components.QuickSettingsDialog</a></li><li><a href="client.react-components.TopNavigation.html">client.react-components.TopNavigation</a></li><li><a href="client.react-components.UserGamesList.html">client.react-components.UserGamesList</a></li><li><a href="client.records.GameRecord.html">client.records.GameRecord</a></li><li><a href="client.records.PlayerRecord.html">client.records.PlayerRecord</a></li><li><a href="client.records.UserRecord.html">client.records.UserRecord</a></li><li><a href="external-Bluebird.Promise.html">external:Bluebird.Promise</a></li><li><a href="external-Immutable.Collection.Indexed.html">external:Immutable.Collection.Indexed</a></li><li><a href="external-Immutable.List.html">external:Immutable.List</a></li><li><a href="external-Immutable.Map.html">external:Immutable.Map</a></li><li><a href="external-Immutable.Record.html">external:Immutable.Record</a></li><li><a href="external-Immutable.Set.html">external:Immutable.Set</a></li><li><a href="external-React.Component.html">external:React.Component</a></li><li><a href="shared-lib.Board.html">shared-lib.Board</a></li><li><a href="shared-lib.Quintro.html">shared-lib.Quintro</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="external-Immutable.html">Immutable</a></li>
+					<li><a href="external-Bluebird.html">Bluebird</a></li><li><a href="external-Immutable.html">Immutable</a></li><li><a href="external-React.html">React</a></li>
 				</ul>
 			</li>
 			
@@ -130,7 +130,7 @@
 </ul>
 <p>See <a href="https://devcenter.heroku.com/articles/ssl-certificate-self">here</a> for instructions on how to create self-signed SSL keys and certificates--these are fine for development, but not good for production purposes.</p>
 <h2>Sessions</h2><p>In addition to the <code>SESSION_DB_URL</code> setting, you must also set the <code>SESSION_SECRET</code> setting; this is used to encrypt secure cookies.</p>
-<h2>Static content</h2><p>&quot;Static content&quot; refers to thinks like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the <code>STATIC_CONTENT_URL</code> setting empty. Otherwise, set it to the base URL for your static content server.</p>
+<h2>Static content</h2><p>&quot;Static content&quot; refers to things like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the <code>STATIC_CONTENT_URL</code> setting empty. Otherwise, set it to the base URL for your static content server.</p>
 <h3>Webpack Dev Server</h3><p>For the purposes of development, the <a href="https://webpack.js.org/guides/development/#using-webpack-dev-server">Webpack dev server</a> is very useful. You can start it up by running <code>npm run dev-server</code>. This will serve your static content and update it automatically when static content files change, as well as providing neat features like Hot Module Reload. To use it as your static content server, set <code>STATIC_CONTENT_URL=https://localhost:7200/</code> (this is assuming you are and the Webpack Dev Server on localhost, which is the default, and serving the application over SSL).</p>
 <h2>Other Configuration Values</h2><p>There are some other configuration options you can set in your <code>.env</code> file, including options for logging and social login flows like Facebook and Twitter. For descriptions of these options, look at the <a href=".env.example">example .env file</a>.</p></article>
     </section>
@@ -176,9 +176,9 @@
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
 	
-		on 2017-09-29T20:06:29-04:00
+		on 2018-01-16T19:54:31-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

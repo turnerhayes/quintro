@@ -18,6 +18,13 @@
  */
 
 /**
+ * @class List
+ * @memberof external:Immutable
+ *
+ * @see {@link https://facebook.github.io/immutable-js/docs/#/List}
+ */
+
+/**
  * @class Record
  * @memberof external:Immutable
  *
@@ -30,3 +37,29 @@
  *
  * @see {@link https://facebook.github.io/immutable-js/docs/#/Collection.Indexed} 
  */
+
+
+/**
+ * @namespace React
+ * @external
+ */
+
+/**
+ * @class Component
+ * @memberof external:React
+ *
+ * @see {@link https://reactjs.org/docs/react-component.html}
+ */
+
+
+ /**
+  * @namespace Bluebird
+  * @external
+  */
+
+ /**
+  * @class Promise
+  * @memberof external:Bluebird
+  *
+  * @see {@link http://bluebirdjs.com/docs/api-reference.html}
+  */

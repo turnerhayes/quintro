@@ -1,0 +1,39 @@
+@import "~project/styles/_mixins.less";
+
+.qc-player-indicators {
+	margin-bottom: 1em;
+	
+	&__list {
+		list-style-type: none;
+		padding-left: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	&__item {
+		margin: 0 0.6em;
+
+		&.current-player {
+			font-size: 1.3em;
+		}
+
+		&.absent .qc-player-indicators__marble {
+			font-size: 0.7em;
+		}
+
+	}
+
+	&__marble {
+		.m_marble-colors(3em);
+	}
+
+	&.mark-current {
+		.qc-player-indicators__item.active {
+			.qc-player-indicators__marble {
+				box-shadow: #C3C374 0px 0px 20px 6px;
+			}
+		}
+	}
+
+}

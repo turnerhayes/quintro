@@ -156,10 +156,9 @@ class Board extends Record(schema, "Board") {
 	/**
 	 * Gets information about the cell at the specified coordinates.
 	 *
-	 * @param {number[]|external:Immutable.List<number>} position - the position of the cell to get, as a pair
-	 *	of integers representing column index, then row index
+	 * @param {Types.BoardPosition|Types.BoardPositionImmutable} position - the position of the cell to get
 	 *
-	 * @return {external:Immutable.Map<{position: external:Immutable.List<number>, color: string}>} the cell information
+	 * @return {external:Immutable.Map<{position: Types.BoardPositionImmutable, color: string}>} the cell information
 	 */
 	getCell(position) {
 		assert.ok(
@@ -185,7 +184,7 @@ class Board extends Record(schema, "Board") {
 	 *
 	 * @private
 	 *
-	 * @return {external:Immutable.Map<external:Immutable.List<number>, string>} a map from cell positions to colors.
+	 * @return {external:Immutable.Map<Types.BoardPositionImmutable, string>} a map from cell positions to colors.
 	 *	Cells that are empty are not included in the map.
 	 */
 	getFilledMap() {
@@ -210,7 +209,7 @@ class Board extends Record(schema, "Board") {
 	 *	should be `1` and `rowDelta` should be `0`. To check the top-right to bottom-left diagonal axis,
 	 *	`columnDelta` should be `1` and `rowDelta` should be `-1` (or vice versa).
 	 * @param {external:Immutable.Map<Types.Cell>} args.startCell - the cell around which to look for potential quintros
-	 * @param {external:Immutable.Map<external:Immutable.List<number>, string>} args.filledMap - a map from cell position to a
+	 * @param {external:Immutable.Map<Types.BoardPositionImmutable, string>} args.filledMap - a map from cell position to a
 	 *	string representing a color.
 	 * @param {boolean} args.noEmptyCells - if true, any potential quintros that contain an empty
 	 *	cell are ignored.
@@ -491,7 +490,7 @@ class Board extends Record(schema, "Board") {
 	 *
 	 * @param {Object} args - the function arguments
 	 * @param {external:Immutable.Map<Types.Cell>} args.startCell - the cell around which to look for potential quintros
-	 * @param {external:Immutable.Map<external:Immutable.List<number>, string>} [args.filledMap=getFilledMap()] - an object
+	 * @param {external:Immutable.Map<Types.BoardPositionImmutable, string>} [args.filledMap=getFilledMap()] - an object
 	 *	that maps a cell position (in the form of `<column index>,<row index>`) to a string
 	 *	representing a color; this lists all the filled cells on the board in an easily accessed way.
 	 * @param {boolean} [args.noEmptyCells] - if true, any potential quintros that contain an empty

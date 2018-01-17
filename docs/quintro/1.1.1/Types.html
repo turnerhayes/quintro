@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="client.records.html">client.records</a></li><li><a href="shared-lib.html">shared-lib</a></li><li><a href="test.html">test</a></li><li><a href="test.shared-lib.html">test.shared-lib</a></li><li><a href="test.shared-lib.test-data.html">test.shared-lib.test-data</a></li><li><a href="test.utils.html">test.utils</a></li><li><a href="Types.html">Types</a></li>
+					<li><a href="client.html">client</a></li><li><a href="client.react-components.html">client.react-components</a></li><li><a href="client.records.html">client.records</a></li><li><a href="shared-lib.html">shared-lib</a></li><li><a href="test.html">test</a></li><li><a href="test.shared-lib.html">test.shared-lib</a></li><li><a href="test.shared-lib.test-data.html">test.shared-lib.test-data</a></li><li><a href="test.utils.html">test.utils</a></li><li><a href="Types.html">Types</a></li>
 				</ul>
 			</li>
 			
@@ -47,14 +47,14 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="client.records.GameRecord.html">client.records.GameRecord</a></li><li><a href="client.records.PlayerRecord.html">client.records.PlayerRecord</a></li><li><a href="external-Immutable.Collection.Indexed.html">external:Immutable.Collection.Indexed</a></li><li><a href="external-Immutable.Map.html">external:Immutable.Map</a></li><li><a href="external-Immutable.Record.html">external:Immutable.Record</a></li><li><a href="external-Immutable.Set.html">external:Immutable.Set</a></li><li><a href="shared-lib.Board.html">shared-lib.Board</a></li><li><a href="shared-lib.Quintro.html">shared-lib.Quintro</a></li>
+					<li><a href="client.react-components.AccountDialog.html">client.react-components.AccountDialog</a></li><li><a href="client.react-components.App.html">client.react-components.App</a></li><li><a href="client.react-components.Board.html">client.react-components.Board</a></li><li><a href="client.react-components.CreateGame.html">client.react-components.CreateGame</a></li><li><a href="client.react-components.FindGame.html">client.react-components.FindGame</a></li><li><a href="client.react-components.GameJoinDialog.html">client.react-components.GameJoinDialog</a></li><li><a href="client.react-components.Home.html">client.react-components.Home</a></li><li><a href="client.react-components.HowToPlay.html">client.react-components.HowToPlay</a></li><li><a href="client.react-components.PlayerIndicators.html">client.react-components.PlayerIndicators</a></li><li><a href="client.react-components.PlayerInfoPopup.html">client.react-components.PlayerInfoPopup</a></li><li><a href="client.react-components.PlayGame.html">client.react-components.PlayGame</a></li><li><a href="client.react-components.QuickSettingsDialog.html">client.react-components.QuickSettingsDialog</a></li><li><a href="client.react-components.TopNavigation.html">client.react-components.TopNavigation</a></li><li><a href="client.react-components.UserGamesList.html">client.react-components.UserGamesList</a></li><li><a href="client.records.GameRecord.html">client.records.GameRecord</a></li><li><a href="client.records.PlayerRecord.html">client.records.PlayerRecord</a></li><li><a href="client.records.UserRecord.html">client.records.UserRecord</a></li><li><a href="external-Bluebird.Promise.html">external:Bluebird.Promise</a></li><li><a href="external-Immutable.Collection.Indexed.html">external:Immutable.Collection.Indexed</a></li><li><a href="external-Immutable.List.html">external:Immutable.List</a></li><li><a href="external-Immutable.Map.html">external:Immutable.Map</a></li><li><a href="external-Immutable.Record.html">external:Immutable.Record</a></li><li><a href="external-Immutable.Set.html">external:Immutable.Set</a></li><li><a href="external-React.Component.html">external:React.Component</a></li><li><a href="shared-lib.Board.html">shared-lib.Board</a></li><li><a href="shared-lib.Quintro.html">shared-lib.Quintro</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="external-Immutable.html">Immutable</a></li>
+					<li><a href="external-Bluebird.html">Bluebird</a></li><li><a href="external-Immutable.html">Immutable</a></li><li><a href="external-React.html">React</a></li>
 				</ul>
 			</li>
 			
@@ -168,15 +168,20 @@
         <dl>
                 
 <hr>
-<dt class="name" id=".Cell">
-    <h4 id=".Cell">Cell</h4>
+<dt class="name" id=".BoardPosition">
+    <h4 id=".BoardPosition">BoardPosition</h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        <p>Represents a cell on the board</p>
+        <p>Represents a position on a board.</p>
+<p>This is a two-element array of positive integers, where the first integer is
+the column offset of the position (horizontal axis) and the second integer is
+the row offset of the position (vertical axis). Higher values for the column
+offset are closer to the right side of the board. Higher values for the row
+offset are closer to the bottom side of the board.</p>
     </div>
     
 
@@ -185,7 +190,151 @@
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">Array.&lt;number></span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+            
+                
+<hr>
+<dt class="name" id=".BoardPositionImmutable">
+    <h4 id=".BoardPositionImmutable">BoardPositionImmutable</h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>Represents a position on a board. Same as <a href="Types.html#.BoardPosition"><code>Types.BoardPosition</code></a>, but represented
+as a two-element <a href="external-Immutable.Collection.Indexed.html"><code>Immutable indexed collection</code></a>,
+such as a <a href="external-Immutable.List.html"><code>external:Immutable.List</code></a>.</p>
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="external-Immutable.Collection.Indexed.html">external:Immutable.Collection.Indexed</a>.&lt;number></span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+            
+                
+<hr>
+<dt class="name" id=".Cell">
+    <h4 id=".Cell">Cell</h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>Represents a cell on the board.</p>
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">object</span>
 
 
 
@@ -229,7 +378,7 @@
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;Number, Number></span>
+<span class="param-type"><a href="Types.html#.BoardPosition">Types.BoardPosition</a></span>
 
 
 
@@ -240,8 +389,7 @@
 
             
 
-            <td class="description last"><p>the position of the cell on the board,
-    as a pair consisting of [columnIndex, rowIndex]</p></td>
+            <td class="description last"><p>the position of the cell on the board</p></td>
         </tr>
 
     
@@ -329,7 +477,7 @@
 <dd>
     
     <div class="description">
-        <p>Represents a quintro or potential quintro</p>
+        <p>Represents a quintro or potential quintro.</p>
     </div>
     
 
@@ -338,7 +486,7 @@
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -468,6 +616,85 @@
     
 </dd>
 
+            
+                
+<hr>
+<dt class="name" id=".RenderableElement">
+    <h4 id=".RenderableElement">RenderableElement</h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>Any item that React is able to render; number, string, React component, DOM node, etc.</p>
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">*</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+	<dt class="tag-see method-doc-label method-doc-details-label">See:</dt>
+	<dd class="tag-see">
+		<ul>
+			<li><a href="https://reactjs.org/docs/typechecking-with-proptypes.html">https://reactjs.org/docs/typechecking-with-proptypes.html</a> - corresponds to the
+	`element` PropType</li>
+			</ul>
+	</dd>
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
             </dl>
     
 
@@ -514,9 +741,9 @@
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
 	
-		on 2017-09-29T20:06:29-04:00
+		on 2018-01-16T19:54:31-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

@@ -1,0 +1,34 @@
+@import "~project/styles/_mixins.less";
+
+.qc-game-board {
+	@cell-size: 4em;
+
+	border-collapse: collapse;
+	table-layout: fixed;
+
+	&.allow-placement {
+		.qc-game-board__board-cell:not(.filled) {
+			cursor: pointer;
+		}
+	}
+
+	&__board-cell {
+		width: @cell-size;
+		height: @cell-size;
+		min-width: @cell-size;
+		min-height: @cell-size;
+		max-width: @cell-size;
+		max-height: @cell-size;
+		border: 1px solid black;
+		cursor: not-allowed;
+
+		&.quintro-member {
+			background-color: rgba(255, 255, 0, 0.6);
+		}
+
+		.marble {
+			.m_marble-colors(90%);
+			margin: 5%; // (100% - 90% [marble width/height]) / 2 (top/bottom, left/right)
+		}
+	}
+}

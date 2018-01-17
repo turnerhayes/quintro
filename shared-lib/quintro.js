@@ -172,8 +172,8 @@ class Quintro extends Record(schema, "Quintro") {
 	 * Determines whether the specified position exists in this quintro.
 	 *
 	 * @param {object} args - the arguments
-	 * @param {number[]} position - a two-element array specifying the coordinates of the cell
-	 *	to check
+	 * @param {Types.BoardPosition|Types.BoardPositionImmutable} position - the position
+	 *	of the cell to check
 	 *
 	 * @return {boolean} whether or not the cell is in the quintro 
 	 */

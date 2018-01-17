@@ -34,7 +34,9 @@ class PlayerRecord extends Record(schema, "Player") {
 	}
 
 	/**
-	 * @member {string} client.records.PlayerRecord#userID - the ID of the user represented by this player
+	 * The ID of the user represented by this player
+	 *
+	 * @member {string} userID
 	 */
 
 	/**

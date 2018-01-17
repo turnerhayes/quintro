@@ -73,7 +73,7 @@ class GameRecord extends Record(schema, "Game") {
  *
  * @param {object} args - arguments
  * @param {string} args.color - the color with which to fill the cell
- * @param {Array<Number, Number>} args.position - the column and row coordinates
+ * @param {Types.BoardPosition|Types.BoardPositionImmutable} args.position - the position
  *	of the cell to fill
  *
  * @return {client.records.GameRecord} the mutated game record
