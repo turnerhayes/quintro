@@ -4,6 +4,7 @@ const _                  = require("lodash");
 const Promise            = require("bluebird");
 const path               = require("path");
 const assert             = require("assert");
+const util               = require("util");
 const IOServer           = require("socket.io");
 const passport           = require("passport");
 const cookieParser       = require("cookie-parser");
@@ -74,7 +75,7 @@ function addPlayerToGame({ socket, game, color }) {
 		throw err;
 	}
 
-	color = color || getNextColor(_.map(game.players, "color"));
+	color = color || getNextColor(_.map(game.players, "color")).id;
 
 	if (game.players.find((player) => player.color === color)) {
 		const err = new Error(`Color ${color} is already in use by another player`);
@@ -84,7 +85,7 @@ function addPlayerToGame({ socket, game, color }) {
 	}
 
 	if (!Config.game.colors.get(color)) {
-		const err = new Error(`Color ${color} is not a valid color. Must be one of the following: ${VALID_COLOR_IDS.join(", ")}`);
+		const err = new Error(`Color ${util.inspect(color)} is not a valid color. Must be one of the following: ${VALID_COLOR_IDS.join(", ")}`);
 		err.code = ErrorCodes.INVALID_COLOR;
 
 		throw err;

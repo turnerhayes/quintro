@@ -1,10 +1,8 @@
-import _                  from "lodash";
+import debounce           from "lodash/debounce";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import { connect }        from "react-redux";
 import { withRouter }     from "react-router";
-import { push }           from "react-router-redux";
 import TextField          from "material-ui/TextField";
 import Button             from "material-ui/Button";
 import Typography         from "material-ui/Typography";
@@ -14,10 +12,6 @@ import Card, {
 }                         from "material-ui/Card";
 import createHelper       from "project/scripts/components/class-helper";
 import Config             from "project/scripts/config";
-import GameClient         from "project/scripts/utils/game-client";
-import {
-	findOpenGames
-}                         from "project/scripts/redux/actions";
 import                         "./FindGame.less";
 
 const classes = createHelper("find-game");
@@ -38,7 +32,8 @@ class FindGame extends React.Component {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {object} location - route location, as passed by `react-router-dom`
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
+	 * @prop {function} onFindOpenGames - function to trigger searching for open games
+	 * @prop {function} onJoinGame - function to call when trying to join a game
 	 * @prop {object} [findGameError] - error resulting from the game search, if there was one
 	 * @prop {external:Immutable.List} [results] - the results of the search
 	 *
@@ -49,7 +44,8 @@ class FindGame extends React.Component {
 		location: PropTypes.shape({
 			pathname: PropTypes.string,
 		}).isRequired,
-		dispatch: PropTypes.func.isRequired,
+		onFindOpenGames: PropTypes.func.isRequired,
+		onJoinGame: PropTypes.func.isRequired,
 		findGameError: PropTypes.object,
 		results: ImmutablePropTypes.list
 	}
@@ -104,20 +100,7 @@ class FindGame extends React.Component {
 
 		const gameName = this.props.results.get(index).name;
 
-		// Join the game first in order to "save" a spot in the game;
-		// otherwise, there's the possibility of this user going to the
-		// game, but in the time it takes for them to load the game page,
-		// another player enters that same game, and then this user is unable to join.
-		return GameClient.joinGame({
-			gameName
-		}).then(
-			() => {
-				this.props.dispatch(push(`/play/${gameName}`));
-			}
-		).catch(
-			// If we couldn't join a game, try the next one
-			() => this.joinGame(index + 1)
-		);
+		this.props.onJoinGame({ gameName });
 	}
 
 	/**
@@ -129,13 +112,11 @@ class FindGame extends React.Component {
 	 *
 	 * @return {void}
 	 */
-	runSearch = _.debounce(
+	runSearch = debounce(
 		() => {
-			this.props.dispatch(
-				findOpenGames({
-					numberOfPlayers: this.state.numberOfPlayers
-				})
-			);
+			this.props.onFindOpenGames({
+				numberOfPlayers: this.state.numberOfPlayers
+			});
 
 			this.setState({ isSearching: true }); 
 		},
@@ -252,7 +233,7 @@ class FindGame extends React.Component {
 					<label
 						htmlFor={fieldId}
 					>
-						Number of players
+						Number of players: 
 					</label>
 					<TextField
 						type="number"
@@ -282,13 +263,4 @@ class FindGame extends React.Component {
 	}
 }
 
-export default connect(
-	function mapStateToProps(state) {
-		const { findGameError, findResults } = state.get("games") || {};
-
-		return {
-			findGameError,
-			results: findResults
-		};
-	}
-)(withRouter(FindGame));
+export default withRouter(FindGame);

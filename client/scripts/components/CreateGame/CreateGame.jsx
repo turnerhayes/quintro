@@ -6,14 +6,10 @@ import Promise        from "bluebird";
 import React          from "react";
 import PropTypes      from "prop-types";
 import { withRouter } from "react-router";
-import { connect }    from "react-redux";
 import TextField      from "material-ui/TextField";
 import Button         from "material-ui/Button";
 import qs             from "qs";
 import GameUtils      from "project/scripts/utils/game";
-import {
-	createGame
-}                     from "project/scripts/redux/actions";
 import Config         from "project/scripts/config";
 
 const NAME_IN_USE_ERROR_MESSAGE = "That name is already in use. Please use another name.";
@@ -40,6 +36,7 @@ const CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS = 500;
 /**
  * Component for rendering the Create a Game UI.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components
@@ -49,14 +46,13 @@ class CreateGame extends React.Component {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {object} location - route location, as passed by `react-router-dom`
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
 	 *
 	 * @see {@link https://reacttraining.com/react-router/web/api/location|React Router docs}
 	 *	for the shape of the `location` object
 	 */
 	static propTypes = {
 		location: PropTypes.object,
-		dispatch: PropTypes.func.isRequired
+		onCreateGame: PropTypes.func.isRequired,
 	}
 
 	/**
@@ -297,7 +293,7 @@ class CreateGame extends React.Component {
 
 				if (!exists) {
 					// Name is free--take it!
-					this.props.dispatch(createGame(this.state));
+					this.props.onCreateGame(this.state);
 				}
 			}
 		);
@@ -415,7 +411,4 @@ class CreateGame extends React.Component {
 	}
 }
 
-export default withRouter(
-	connect(
-	)(CreateGame)
-);
+export default withRouter(CreateGame);

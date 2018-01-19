@@ -19,6 +19,7 @@ const classes = createHelper("game-board");
  * Represents a game board, a grid of cells, each of which is potentially
  * filled with a marble of a single color.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components

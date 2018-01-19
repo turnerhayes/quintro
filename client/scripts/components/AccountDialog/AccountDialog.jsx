@@ -5,10 +5,6 @@ import createHelper from "project/scripts/components/class-helper";
 import Icon       from "material-ui/Icon";
 import IconButton from "material-ui/IconButton";
 import UserRecord from "project/scripts/records/user";
-import {
-	login,
-	logout
-}                 from "project/scripts/redux/actions";
 import Config     from "project/scripts/config";
 import                 "./AccountDialog.less";
 
@@ -35,18 +31,23 @@ const PROVIDER_INFO = {
 /**
  * Represents the dialog shown to allow users to manage their site account (log in/out, edit profile, etc.).
  *
+ * @class
+ * @extends external:React.Component
+ *
  * @memberof client.react-components
  */
 class AccountDialog extends React.Component {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
+	 * @prop {function} onLogin - function to log in
+	 * @prop {function} onLogout - function to log out
 	 * @prop {client.records.UserRecord} [loggedInUser] - the currently logged in user, if any
 	 * @prop {string} [className] - the class(es) to add to the dialog
 	 */
 	static propTypes = {
-		dispatch: PropTypes.func.isRequired,
+		onLogin: PropTypes.func.isRequired,
+		onLogout: PropTypes.func.isRequired,
 		loggedInUser: PropTypes.instanceOf(UserRecord),
 		className: PropTypes.string
 	}
@@ -59,7 +60,7 @@ class AccountDialog extends React.Component {
 	 * @return {void}
 	 */
 	handleLogoutButtonClicked = () => {
-		this.props.dispatch(logout());
+		this.props.onLogout();
 	}
 
 	/**
@@ -73,7 +74,7 @@ class AccountDialog extends React.Component {
 	 * @return {void}
 	 */
 	handleLoginClicked = ({ provider }) => {
-		this.props.dispatch(login({ provider }));
+		this.props.onLogin({ provider });
 	}
 
 	/**

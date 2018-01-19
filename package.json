@@ -13,7 +13,7 @@
     "build-static:prod": "webpack -p --env=prod",
     "build-sockets-app": "cd ./server/apps/socket && npm install",
     "postinstall": "sh ./build-scripts/postinstall.sh",
-    "lint": "eslint --ext .jsx --ext .js .; exit 0",
+    "lint": "eslint --ext .jsx --ext .js .",
     "test": "mocha --recursive ./test",
     "docs": "rm -rf docs; jsdoc -R README.md -p --package ./package.json -c ./.jsdoc.config.json -t ./node_modules/ink-docstrap/template -r -d docs"
   },
@@ -89,7 +89,6 @@
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
     "react-router-redux": "^5.0.0-alpha.6",
-    "react-toggle": "^4.0.1",
     "react-transition-group": "^1.2.0",
     "redux": "^3.6.0",
     "redux-devtools": "^3.4.0",

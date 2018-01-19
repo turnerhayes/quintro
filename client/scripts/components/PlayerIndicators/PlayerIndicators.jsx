@@ -24,6 +24,7 @@ const classes = createHelper("player-indicators");
  * Component representing a set of indicators for visualizing the state of the
  * players in the game.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components
@@ -64,6 +65,7 @@ class PlayerIndicators extends React.Component {
 	 *
 	 * @prop {string} selectedPlayerColor=null - the color ID of the color that is currently selected (has the
 	 *	player info popover opened)
+	 * @prop {string} selectedIndicatorEl=null - the DOM element corresponding to the selected color's indicator
 	 */
 	state = {
 		selectedPlayerColor: null,
@@ -79,7 +81,7 @@ class PlayerIndicators extends React.Component {
 	 *
 	 * @function
 	 *
-	 * @param {string} color - the color ID of the color to open the popover for
+	 * @param {string} color - the color ID of the color for which to open the popover
 	 *
 	 * @return {void}
 	 */
@@ -98,6 +100,7 @@ class PlayerIndicators extends React.Component {
 	 * @function
 	 *
 	 * @param {client.records.PlayerRecord} selectedPlayer - the player whose indicator was clicked
+	 * @param {DOMElement} element - the DOM element corresponding to the indicator selected
 	 *
 	 * @return {void}
 	 */

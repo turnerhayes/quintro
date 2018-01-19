@@ -11,12 +11,12 @@ import {
 import { history }      from "project/scripts/redux/configure-store";
 import getStore         from "project/scripts/redux/store";
 import App              from "project/scripts/components/App";
-import Home             from "project/scripts/components/Home";
-import CreateGame       from "project/scripts/components/CreateGame";
-import FindGame         from "project/scripts/components/FindGame";
-import PlayGame         from "project/scripts/components/PlayGame";
+import Home             from "project/scripts/containers/Home";
+import CreateGame       from "project/scripts/containers/CreateGame";
+import FindGame         from "project/scripts/containers/FindGame";
+import PlayGame         from "project/scripts/containers/PlayGame";
 import HowToPlay        from "project/scripts/components/HowToPlay";
-import UserGamesList    from "project/scripts/components/UserGamesList";
+import UserGamesList    from "project/scripts/containers/UserGamesList";
 
 
 ReactDOM.render(

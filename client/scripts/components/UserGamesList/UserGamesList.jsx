@@ -1,9 +1,7 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import { connect }        from "react-redux";
 import { Link }           from "react-router-dom";
-import { Map }            from "immutable";
 import Button             from "material-ui/Button";
 import Tabs, { Tab }      from "material-ui/Tabs";
 import List, {
@@ -15,12 +13,6 @@ import Icon               from "material-ui/Icon";
 import createHelper       from "project/scripts/components/class-helper";
 import GameRecord         from "project/scripts/records/game";
 import PlayerRecord       from "project/scripts/records/player";
-import {
-	getUserGames
-}                         from "project/scripts/redux/actions";
-import {
-	playerSelector
-}                         from "project/scripts/redux/selectors";
 import                         "./UserGamesList";
 
 const classes = createHelper("user-games-list");
@@ -37,14 +29,14 @@ class UserGamesList extends React.Component {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
+	 * @prop {function} onGetUserGames - function to be called when user games need to be retrieved
 	 * @prop {external:Immutable.List<client.records.GameRecord>} [userGames] - the games
 	 *	that the user is a player in
 	 * @prop {external:Immutable.Map<string, external:Immutable.List<client.records.PlayerRecord>>} [playersByGame] - a
 	 *	mapping of game players indexed by game name
 	 */
 	static propTypes = {
-		dispatch: PropTypes.func.isRequired,
+		onGetUserGames: PropTypes.func.isRequired,
 		userGames: ImmutablePropTypes.listOf(
 			PropTypes.instanceOf(GameRecord)
 		),
@@ -61,9 +53,7 @@ class UserGamesList extends React.Component {
 	}
 
 	componentWillMount() {
-		this.props.dispatch(
-			getUserGames()
-		);
+		this.props.onGetUserGames();
 	}
 
 	/**
@@ -281,27 +271,4 @@ class UserGamesList extends React.Component {
 	}
 }
 
-export default connect(
-	function mapStateToProps(state) {
-		const games = state.get("games");
-		const userGames = games && games.userGames;
-
-		return {
-			userGames,
-			playersByGame: userGames && Map(
-				userGames.reduce(
-					(gamesToPlayers, game) => {
-						let players = playerSelector(state, { players: game.players });
-
-						if (players) {
-							gamesToPlayers[game.name] = players;
-						}
-
-						return gamesToPlayers;
-					},
-					{}
-				)
-			)
-		};
-	}
-)(UserGamesList);
+export default UserGamesList;

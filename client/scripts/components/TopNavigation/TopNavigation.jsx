@@ -13,8 +13,8 @@ import Button               from "material-ui/Button";
 import IconButton           from "material-ui/IconButton";
 import AccountBoxIcon       from "material-ui-icons/AccountBox";
 import SettingsIcon         from "material-ui-icons/Settings";
-import AccountDialog        from "project/scripts/components/AccountDialog";
-import QuickSettingsDialog  from "project/scripts/components/QuickSettingsDialog";
+import AccountDialog        from "project/scripts/containers/AccountDialog";
+import QuickSettingsDialog  from "project/scripts/containers/QuickSettingsDialog";
 import UserRecord           from "project/scripts/records/user";
 import                           "./TopNavigation.less";
 
@@ -23,6 +23,7 @@ const classes = createHelper("top-navigation");
 /**
  * Component representing the navigation bar on the top of the page.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components
@@ -62,6 +63,9 @@ class TopNavigation extends React.Component {
 	 *
 	 * @function
 	 *
+	 * @param {boolean} [isOpen] - whether to make the dialog open. If not specified, uses
+	 *	the opposite of the current open state
+	 *
 	 * @return {void}
 	 */
 	toggleAccountDialog = (isOpen) => {
@@ -80,6 +84,9 @@ class TopNavigation extends React.Component {
 	 * Toggles whether or not the quick settings dialog is open.
 	 *
 	 * @function
+	 *
+	 * @param {boolean} [isOpen] - whether to make the dialog open. If not specified, uses
+	 *	the opposite of the current open state
 	 *
 	 * @return {void}
 	 */

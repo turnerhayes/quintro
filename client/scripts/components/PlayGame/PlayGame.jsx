@@ -2,8 +2,7 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { withRouter }     from "react-router";
-import { connect }        from "react-redux";
-import { goBack }         from "react-router-redux";
+import createDebugger     from "debug";
 import Button             from "material-ui/Button";
 import PlayArrowIcon      from "material-ui-icons/PlayArrow";
 import createHelper       from "project/scripts/components/class-helper";
@@ -13,20 +12,13 @@ import PlayerIndicators   from "project/scripts/components/PlayerIndicators";
 import GameRecord         from "project/scripts/records/game";
 import PlayerRecord       from "project/scripts/records/player";
 import GameClient         from "project/scripts/utils/game-client";
-import {
-	getGame,
-	getUsers,
-	placeMarble,
-	changeUserProfile
-}                         from "project/scripts/redux/actions";
-import {
-	playerSelector
-}                         from "project/scripts/redux/selectors";
 import Config             from "project/scripts/config";
 import                         "font-awesome/less/font-awesome.less";
 import                         "./PlayGame.less";
 
 const classes = createHelper("play-game");
+
+const debug = createDebugger("quintro:client:play-game");
 
 /**
  * Component for rendering the game UI.
@@ -40,7 +32,6 @@ class PlayGame extends React.Component {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {!string} gameName - the identifier of the game
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
 	 * @prop {client.records.GameRecord} [game] - the game record representing the game
 	 * @prop {external:Immutable.List<client.records.PlayerRecord>} [players] - list of the players in this game
 	 * @prop {object} [getGameError] - an error object desribing why the game could not be retrieved from the
@@ -53,7 +44,11 @@ class PlayGame extends React.Component {
 			PropTypes.instanceOf(PlayerRecord)
 		),
 		getGameError: PropTypes.object,
-		dispatch: PropTypes.func.isRequired
+		onGetGame: PropTypes.func.isRequired,
+		onGetUsers: PropTypes.func.isRequired,
+		onPlaceMarble: PropTypes.func.isRequired,
+		onChangeUserProfile: PropTypes.func.isRequired,
+		onCancelJoin: PropTypes.func.isRequired,
 	}
 
 	/**
@@ -79,18 +74,18 @@ class PlayGame extends React.Component {
 			this.joinIfInGame();
 		}
 		else {
-			this.props.dispatch(getGame({ gameName: this.props.gameName }));
+			this.props.onGetGame({ gameName: this.props.gameName });
 		}
 	}
 
 	componentDidUpdate() {		
 		if (this.props.game) {
 			if (!this.props.players || this.props.players.size !== this.props.game.players.size) {
-				this.props.dispatch(getUsers({
+				this.props.onGetUsers({
 					userIDs: this.props.game.players.map(
 						(player) => player.userID
 					).toArray()
-				}));
+				});
 			}
 			else {
 				this.joinIfInGame();
@@ -153,8 +148,7 @@ class PlayGame extends React.Component {
 			}
 		).catch(
 			(err) => {
-				// eslint-disable-next-line no-console
-				console.error(err);
+				debug("Error joining game: %o", err);
 			}
 		);
 
@@ -178,12 +172,10 @@ class PlayGame extends React.Component {
 			return;
 		}
 
-		this.props.dispatch(
-			placeMarble({
-				gameName: this.props.game.name,
-				position: cell.position
-			})
-		);
+		this.props.onPlaceMarble({
+			gameName: this.props.game.name,
+			position: cell.position,
+		});
 	}
 
 	/**
@@ -211,16 +203,14 @@ class PlayGame extends React.Component {
 	 * @return {void}
 	 */
 	handleDisplayNameChange = ({ player, displayName }) => {
-		this.props.dispatch(
-			changeUserProfile({
-				userID: player.userID,
-				updates: {
-					name: {
-						display: displayName
-					}
+		this.props.onChangeUserProfile({
+			userID: player.userID,
+			updates: {
+				name: {
+					display: displayName
 				}
-			})
-		);
+			}
+		});
 	}
 
 	/**
@@ -245,7 +235,7 @@ class PlayGame extends React.Component {
 	 * @return {void}
 	 */
 	handleJoinCancel = () => {
-		this.props.dispatch(goBack());
+		this.props.onCancelJoin();
 	}
 
 	/**
@@ -403,28 +393,4 @@ class PlayGame extends React.Component {
 	}
 }
 
-export default withRouter(
-	connect(
-		function mapStateToProps(state, ownProps) {
-			const games = state.get("games");
-
-			const game = games && games.items.get(ownProps.gameName);
-
-			const props = {
-				players: playerSelector(state, {
-					...ownProps,
-					players: game && game.players
-				})
-			};
-
-			if (games.getGameError) {
-				props.getGameError = games.getGameError;
-			}
-			else {
-				props.game = game;
-			}
-
-			return props;
-		}
-	)(PlayGame)
-);
+export default withRouter(PlayGame);

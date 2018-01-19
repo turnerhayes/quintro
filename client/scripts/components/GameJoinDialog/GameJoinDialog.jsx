@@ -40,6 +40,7 @@ const classes = createHelper("game-join-dialog");
 /**
  * Component representing a dialog used to join a game.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components
@@ -147,6 +148,7 @@ class GameJoinDialog extends React.Component {
 	 * @function
 	 *
 	 * @param {object} colorDefinition - the color definition object for the color to render
+	 * @param {object} [rootProps] - additional props to add to the wrapper element
 	 *
 	 * @return {external:React.Component} the picker item element to render
 	 */

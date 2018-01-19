@@ -1,7 +1,6 @@
 import React          from "react";
 import PropTypes      from "prop-types";
-import { connect }    from "react-redux";
-import UserGamesList  from "project/scripts/components/UserGamesList";
+import UserGamesList  from "project/scripts/containers/UserGamesList";
 import UserRecord     from "project/scripts/records/user";
 
 /**
@@ -58,12 +57,4 @@ class Home extends React.Component {
 	}
 }
 
-export default connect(
-	function mapStateToProps(state) {
-		const currentUser = state.get("users").currentUser;
-
-		return {
-			currentUser
-		};
-	}
-)(Home);
+export default Home;

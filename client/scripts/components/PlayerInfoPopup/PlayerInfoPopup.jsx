@@ -34,6 +34,7 @@ let uniqueId = 0;
 /**
  * Component representing a popup displaying information about a player.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components

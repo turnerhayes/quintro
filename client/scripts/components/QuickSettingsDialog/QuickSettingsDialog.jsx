@@ -1,14 +1,9 @@
 import Promise      from "bluebird";
 import React        from "react";
 import PropTypes    from "prop-types";
-import Toggle       from "react-toggle";
-import { connect }  from "react-redux";
+import Switch       from "material-ui/Switch";
 import Notify       from "notifyjs";
 import createHelper from "project/scripts/components/class-helper";
-import {
-	changeSetting
-}                   from "project/scripts/redux/actions";
-import                   "react-toggle/style.css";
 
 const classes = createHelper("quick-settings-dialog");
 
@@ -17,6 +12,7 @@ const NOTIFICATIONS_SUPPORTED = !Notify.needsPermission || Notify.isSupported();
 /**
  * Component representing a dialog providing quick access to certain settings.
  *
+ * @class
  * @extends external:React.Component
  *
  * @memberof client.react-components
@@ -25,14 +21,14 @@ class QuickSettingsDialog extends React.Component {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {function} dispatch - function to dispatch actions to the Redux store
+	 * @prop {function} onChangeSetting - function called when settings are changed
 	 * @prop {boolean} [enableSoundEffects] - whether or not sound effects are enabled
 	 * @prop {boolean} [enableNotifications] - whether or not browser notifications are enabled
 	 * @prop {boolean} [isLoadingStoredSettings] - whether or not the component is currently loading
 	 *	settings from a local store
 	 */
 	static propTypes = {
-		dispatch: PropTypes.func.isRequired,
+		onChangeSetting: PropTypes.func.isRequired,
 		enableSoundEffects: PropTypes.bool,
 		enableNotifications: PropTypes.bool,
 		isLoadingStoredSettings: PropTypes.bool
@@ -48,9 +44,9 @@ class QuickSettingsDialog extends React.Component {
 	 * @return {void}
 	 */
 	toggleEnableSoundEffects = (status) => {
-		this.props.dispatch(changeSetting({
+		this.props.onChangeSetting({
 			enableSoundEffects: status
-		}));
+		});
 	}
 
 	/**
@@ -75,9 +71,9 @@ class QuickSettingsDialog extends React.Component {
 				)
 		).then(
 			() => {
-				this.props.dispatch(changeSetting({
+				this.props.onChangeSetting({
 					enableNotifications: status
-				}));
+				});
 			}
 		);
 	}
@@ -103,10 +99,11 @@ class QuickSettingsDialog extends React.Component {
 						<div
 						>
 							<label>
-								<Toggle
+								<Switch
 									checked={this.props.enableNotifications}
 									onChange={(event) => this.toggleEnableNotifications(event.target.checked)}
 									disabled={this.props.isLoadingStoredSettings || !NOTIFICATIONS_SUPPORTED}
+									aria-label="Enable Browser Notifications"
 								/>
 
 								Notifications
@@ -115,10 +112,11 @@ class QuickSettingsDialog extends React.Component {
 						<div
 						>
 							<label>
-								<Toggle
+								<Switch
 									checked={this.props.enableSoundEffects}
 									onChange={(event) => this.toggleEnableSoundEffects(event.target.checked)}
 									disabled={this.props.isLoadingStoredSettings}
+									aria-label="Enable Sound Effects"
 								/>
 
 								Sound Effects
@@ -131,14 +129,4 @@ class QuickSettingsDialog extends React.Component {
 	}
 }
 
-export default connect(
-	function mapStateToProps(state) {
-		const settings = state.get("settings");
-
-		return {
-			enableSoundEffects: settings.enableSoundEffects,
-			enableNotifications: settings.enableNotifications,
-			isLoadingStoredSettings: !settings.wasRehydrated
-		};
-	}
-)(QuickSettingsDialog);
+export default QuickSettingsDialog;
