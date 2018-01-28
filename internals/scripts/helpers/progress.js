@@ -1,6 +1,10 @@
-'use strict';
 
-const readline = require('readline');
+
+const readline = require("readline");
+
+const ANIMATION_INTERVAL = 500;
+
+const DEFAULT_NUMBER_OF_DOTS = 3;
 
 /**
  * Adds an animated progress indicator
@@ -9,17 +13,17 @@ const readline = require('readline');
  * @param  {number} amountOfDots The amount of dots you want to animate
  */
 function animateProgress(message, amountOfDots) {
-  if (typeof amountOfDots !== 'number') {
-    amountOfDots = 3;
-  }
+	if (typeof amountOfDots !== "number") {
+		amountOfDots = DEFAULT_NUMBER_OF_DOTS;
+	}
 
-  let i = 0;
-  return setInterval(function() {
-    readline.cursorTo(process.stdout, 0);
-    i = (i + 1) % (amountOfDots + 1);
-    const dots = new Array(i + 1).join('.');
-    process.stdout.write(message + dots);
-  }, 500);
+	let i = 0;
+	return setInterval(function() {
+		readline.cursorTo(process.stdout, 0);
+		i = (i + 1) % (amountOfDots + 1);
+		const dots = new Array(i + 1).join(".");
+		process.stdout.write(message + dots);
+	}, ANIMATION_INTERVAL);
 }
 
 module.exports = animateProgress;
