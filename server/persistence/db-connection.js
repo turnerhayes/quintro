@@ -1,9 +1,8 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const rfr      = require("rfr");
 const debug    = require("debug")("quintro:db");
-const Config   = rfr("server/lib/config");
+const Config   = require("../server/lib/config");
 
 mongoose.Promise = require("bluebird");
 

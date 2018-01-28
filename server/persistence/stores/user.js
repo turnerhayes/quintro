@@ -2,9 +2,8 @@
 
 const assert     = require("assert");
 const mongoose   = require("mongoose");
-const rfr        = require("rfr");
-const UserModel  = rfr("server/persistence/models/user");
-const GamesStore = rfr("server/persistence/stores/game");
+const GamesStore = require("./game");
+const UserModel  = require("../models/user");
 
 class UserStore {
 	static findByID(id) {

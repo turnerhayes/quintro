@@ -4,10 +4,9 @@ const Promise           = require("bluebird");
 const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
 const bodyParser        = require("body-parser");
-const rfr               = require("rfr");
-const GamesStore        = rfr("server/persistence/stores/game");
-const UsersStore        = rfr("server/persistence/stores/user");
-const NotFoundException = rfr("server/persistence/exceptions/not-found");
+const GamesStore        = require("../../persistence/stores/game");
+const UsersStore        = require("../../persistence/stores/user");
+const NotFoundException = require("../../persistence/exceptions/not-found");
 
 
 function prepareGame(game) {

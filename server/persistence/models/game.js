@@ -2,8 +2,7 @@
 
 const _        = require("lodash");
 const mongoose = require("mongoose");
-const rfr      = require("rfr");
-const Config   = rfr("server/lib/config");
+const Config   = require("../../lib/config");
 
 const GameSchema = new mongoose.Schema({
 	name: {

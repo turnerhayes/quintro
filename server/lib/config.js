@@ -39,7 +39,7 @@ const rfr          = require("rfr");
 const sharedConfig = rfr("shared-lib/config");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
-const CLIENT_PATH = path.join(PROJECT_ROOT, "client");
+const APP_PATH = path.join(PROJECT_ROOT, "app");
 const DIST_PATH = path.join(PROJECT_ROOT, "dist");
 const LOGS_DIRECTORY = path.resolve(PROJECT_ROOT, process.env.LOGS_DIRECTORY || "logs");
 
@@ -107,7 +107,7 @@ const Config = {
 	game: sharedConfig.game,
 	paths: {
 		root: PROJECT_ROOT,
-		client: CLIENT_PATH,
+		app: APP_PATH,
 		dist: DIST_PATH,
 		logs: LOGS_DIRECTORY
 	},

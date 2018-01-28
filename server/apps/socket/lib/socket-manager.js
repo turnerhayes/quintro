@@ -217,7 +217,7 @@ class SocketManager {
 		let origins;
 
 		if (!Config.websockets.inline) {
-			origins = [Config.app.address.origin.replace(/^https?\:\/\//, "")];
+			origins = [Config.app.address.origin.replace(/^http(s)?:\/\//, "")];
 		}
 
 		SocketManager._server = new IOServer(server, {

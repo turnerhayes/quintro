@@ -1,9 +1,13 @@
 "use strict";
 
 const path          = require("path");
+const PROJECT_ROOT  = path.resolve(__dirname, "..", "..", "..");
+const rfrProject    = require("rfr")({
+	root: PROJECT_ROOT,
+});
 
 require("dotenv").config({
-	path: path.resolve(__dirname, "..", "..", "..", ".env")
+	path: path.join(PROJECT_ROOT, ".env")
 });
 
 const fs            = require("fs");
@@ -12,9 +16,6 @@ const express       = require("express");
 const cookieParser  = require("cookie-parser");
 const rfr           = require("rfr")({
 	root: __dirname
-});
-const rfrProject    = require("rfr")({
-	root: path.resolve(__dirname, "..", "..", "..")
 });
 const Config        = rfrProject("server/lib/config");
 const passportAuth  = rfrProject("server/lib/passport");

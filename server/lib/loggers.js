@@ -2,8 +2,7 @@
 
 const winston = require("winston");
 const morgan  = require("morgan");
-const rfr     = require("rfr");
-const Config  = rfr("server/lib/config");
+const Config  = require("./config");
 
 // eslint-disable-next-line no-magic-numbers
 const MAX_LOG_SIZE_BYTES = 10 * 1000 * 1000; // 10MB

@@ -41,6 +41,7 @@
 		],
 		"quote-props": ["warn", "as-needed"],
 		"semi": ["error", "always"],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"no-debugger": "warn"
 	}
 }

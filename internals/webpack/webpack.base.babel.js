@@ -2,8 +2,11 @@
  * COMMON WEBPACK CONFIGURATION
  */
 
-const path = require('path');
-const webpack = require('webpack');
+const path = require("path");
+const webpack = require("webpack");
+const LessListsPlugin = require("less-plugin-lists");
+const rfr = require("rfr");
+const Config = rfr("server/lib/config");
 
 // Remove this line once the following warning goes away (it was meant for webpack loader authors not users):
 // 'DeprecationWarning: loaderUtils.parseQuery() received a non-string value which can be problematic,
@@ -12,106 +15,151 @@ const webpack = require('webpack');
 process.noDeprecation = true;
 
 module.exports = (options) => ({
-  entry: options.entry,
-  output: Object.assign({ // Compile into js/build.js
-    path: path.resolve(process.cwd(), 'build'),
-    publicPath: '/',
-  }, options.output), // Merge with env dependent settings
-  module: {
-    rules: [
-      {
-        test: /\.js$/, // Transform all .js files required somewhere with Babel
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: options.babelQuery,
-        },
-      },
-      {
-        // Preprocess our own .css files
-        // This is the place to add your own loaders (e.g. sass/less etc.)
-        // for a list of loaders, see https://webpack.js.org/loaders/#styling
-        test: /\.css$/,
-        exclude: /node_modules/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        // Preprocess 3rd party .css files located in node_modules
-        test: /\.css$/,
-        include: /node_modules/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.(eot|svg|otf|ttf|woff|woff2)$/,
-        use: 'file-loader',
-      },
-      {
-        test: /\.(jpg|png|gif)$/,
-        use: [
-          'file-loader',
-          {
-            loader: 'image-webpack-loader',
-            options: {
-              progressive: true,
-              optimizationLevel: 7,
-              interlaced: false,
-              pngquant: {
-                quality: '65-90',
-                speed: 4,
-              },
-            },
-          },
-        ],
-      },
-      {
-        test: /\.html$/,
-        use: 'html-loader',
-      },
-      {
-        test: /\.json$/,
-        use: 'json-loader',
-      },
-      {
-        test: /\.(mp4|webm)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-          },
-        },
-      },
-    ],
-  },
-  plugins: options.plugins.concat([
-    new webpack.ProvidePlugin({
-      // make fetch available
-      fetch: 'exports-loader?self.fetch!whatwg-fetch',
-    }),
+	entry: options.entry,
+	output: Object.assign({ // Compile into js/build.js
+		path: path.resolve(process.cwd(), "build"),
+		publicPath: "/",
+	}, options.output), // Merge with env dependent settings
+	module: {
+		rules: [
+			{
+				test: /\.js$/, // Transform all .js files required somewhere with Babel
+				exclude: /node_modules/,
+				use: [
+					{
+						loader: "babel-loader",
+						options: options.babelQuery,
+					},
+					"eslint-loader"
+				],
+			},
+			{
+				// Preprocess our own .css files
+				// This is the place to add your own loaders (e.g. sass/less etc.)
+				// for a list of loaders, see https://webpack.js.org/loaders/#styling
+				test: /\.(le|c)ss$/,
+				exclude: /node_modules/,
+				use: [
+					"style-loader",
+					{
+						loader: "css-loader",
+						options: {
+							sourceMap: true,
+							importLoaders: 2
+						}
+					},
+					{
+						loader: "postcss-loader",
+						options: {
+							sourceMap: true,
+						}
+					},
+					{
+						loader: "less-loader",
+						options: {
+							sourceMap: true,
+							globalVars: {
+								// Converts the list of valid colors into a format that
+								// LESS can iterate over (using the LessListsPlugin)
+								_marbleColors: Config.game.colors.map(
+									(colorInfo) => `${colorInfo.id} ${colorInfo.hex}`
+								).join(", ")
+							},
+							plugins: [
+								new LessListsPlugin()
+							]
+						}
+					},
+				],
+			},
+			{
+				// Preprocess 3rd party .css files located in node_modules
+				test: /\.css$/,
+				include: /node_modules/,
+				use: ["style-loader", "css-loader"],
+			},
+			{
+				test: /\.(eot|svg|otf|ttf|woff|woff2)$/,
+				use: "file-loader",
+			},
+			{
+				test: /\.(jpg|png|gif)$/,
+				use: [
+					"file-loader",
+					{
+						loader: "image-webpack-loader",
+						options: {
+							progressive: true,
+							optimizationLevel: 7,
+							interlaced: false,
+							pngquant: {
+								quality: "65-90",
+								speed: 4,
+							},
+						},
+					},
+				],
+			},
+			{
+				test: /\.html$/,
+				use: "html-loader",
+			},
+			{
+				test: /\.json$/,
+				use: "json-loader",
+			},
+			{
+				test: /\.(mp4|webm)$/,
+				use: {
+					loader: "url-loader",
+					options: {
+						limit: 10000,
+					},
+				},
+			},
+		],
+	},
+	plugins: options.plugins.concat([
+		new webpack.ProvidePlugin({
+			// make fetch available
+			fetch: "exports-loader?self.fetch!whatwg-fetch",
+		}),
 
-    // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
-    // inside your code for any environment checks; UglifyJS will automatically
-    // drop any unreachable code.
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      },
-    }),
-    new webpack.NamedModulesPlugin(),
-  ]),
-  resolve: {
-    modules: ['app', 'node_modules'],
-    extensions: [
-      '.js',
-      '.jsx',
-      '.react.js',
-    ],
-    mainFields: [
-      'browser',
-      'jsnext:main',
-      'main',
-    ],
-  },
-  devtool: options.devtool,
-  target: 'web', // Make web variables accessible to webpack, e.g. window
-  performance: options.performance || {},
+		// Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
+		// inside your code for any environment checks; UglifyJS will automatically
+		// drop any unreachable code.
+		new webpack.EnvironmentPlugin({
+			// Necessary environment variables for shared-lib/config
+			NODE_ENV: Config.app.environment,
+			WEB_SOCKETS_URL: null,
+			STATIC_CONTENT_URL: null,
+			CREDENTIALS_FACEBOOK_IS_ENABLED: Config.auth.facebook.isEnabled || false,
+			CREDENTIALS_GOOGLE_IS_ENABLED: Config.auth.google.isEnabled || false,
+			CREDENTIALS_TWITTER_IS_ENABLED: Config.auth.twitter.isEnabled || false,
+		}),
+
+		new webpack.NamedModulesPlugin(),
+	]),
+	resolve: {
+		modules: ["app", "node_modules"],
+		extensions: [
+			".js",
+			".jsx",
+			".react.js",
+		],
+		mainFields: [
+			"browser",
+			"jsnext:main",
+			"main",
+		],
+		alias: {
+			"project/shared-lib": path.join(Config.paths.root, "shared-lib"),
+			"project/app": path.join(Config.paths.app),
+			"project/images": path.join(Config.paths.app, "images"),
+			"project/sounds": path.join(Config.paths.app, "sounds"),
+		}
+	},
+	devtool: options.devtool,
+	target: "web", // Make web variables accessible to webpack, e.g. window
+	performance: options.performance || {},
 });

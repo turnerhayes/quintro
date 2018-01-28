@@ -4,10 +4,9 @@ const _                 = require("lodash");
 const assert            = require("assert");
 const Promise           = require("bluebird");
 const mongoose          = require("mongoose");
-const rfr               = require("rfr");
-const GameModel         = rfr("server/persistence/models/game");
-const UserModel         = rfr("server/persistence/models/user");
-const NotFoundException = rfr("server/persistence/exceptions/not-found");
+const GameModel         = require("../models/game");
+const UserModel         = require("../models/user");
+const NotFoundException = require("../exceptions/not-found");
 
 function _createGameName() {
 	return Date.now();
