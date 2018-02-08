@@ -1,20 +1,19 @@
 "use strict";
 
-const Promise   = require("bluebird");
 const passport  = require("passport");
-const UserStore = ("../persistence/stores/user");
-const Config    = ("./config");
+const debug     = require("debug")("quintro:server:middleware:passport");
+const rfr       = require("rfr");
+const UserStore = rfr("server/persistence/stores/user");
+const Config    = rfr("server/lib/config");
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
 	done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
-	UserStore.findByID(id).then(function(user) {
+passport.deserializeUser((id, done) => {
+	UserStore.findByID(id).then((user) => {
 		done(null, user);
-	}).catch(err => {
-		done(err);
-	});
+	}).catch(done);
 });
 
 function getUserInfoFromOAuth20Profile(profile) {
@@ -128,7 +127,8 @@ if (Config.auth.twitter.isEnabled) {
 	));
 }
 
-module.exports = exports = function(app) {
+module.exports = exports = function addPassportMiddleware(app) {
+	debug("Adding Passport.js middleware");
 	app.use(passport.initialize());
 	app.use(passport.session());
 };

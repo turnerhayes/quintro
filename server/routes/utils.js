@@ -2,8 +2,9 @@
 
 const HTTPStatusCodes = require("http-status-codes");
 const Promise         = require("bluebird");
-const Config          = require("../lib/config");
-const UserStore       = require("../persistence/stores/user");
+const rfr             = require("rfr");
+const Config          = rfr("server/lib/config");
+const UserStore       = rfr("server/persistence/stores/user");
 
 const USER_ID_HEADER = "X-API-User-ID";
 
@@ -63,5 +64,17 @@ exports = module.exports = {
 
 			next();
 		};
+	},
+
+	prepareUserForFrontend({ user, request }) {
+		if (typeof user.toFrontendObject === "function") {
+			user = user.toFrontendObject();
+		}
+
+		user.isMe = request.user ?
+			request.user.id === user.id :
+			request.sessionID === user.sessionID;
+
+		return user;
 	}
 };

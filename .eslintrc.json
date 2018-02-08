@@ -15,7 +15,6 @@
 		"dot-notation": "error",
 		"no-var": "error",
 		"no-caller": "error",
-		"valid-jsdoc": "warn",
 		"guard-for-in": "warn",
 		"no-eq-null": "error",
 		"no-console": "warn",

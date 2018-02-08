@@ -1,22 +1,27 @@
-import UserGamesList    from "project/app/components/UserGamesList";
+import { compose }      from "redux";
 import { connect }      from "react-redux";
-import { Map }          from "immutable";
-import { getUserGames } from "project/app/actions";
+import { Map, List }    from "immutable";
+import injectSaga       from "@app/utils/injectSaga";
 import {
-	playerSelector
-}                       from "project/app/selectors";
+	users as userSelectors
+}                       from "@app/selectors";
+import {
+	getUserGames
+}                       from "@app/actions";
+import UserGamesList    from "@app/components/UserGamesList";
+import saga             from "./saga";
 
-const UserGamesListContainer = connect(
+const withRedux = connect(
 	function mapStateToProps(state) {
 		const games = state.get("games");
-		const userGames = games && games.userGames;
+		const userGames = games ? games.get("items", Map()).toList() : List();
 
 		return {
 			userGames,
 			playersByGame: userGames && Map(
 				userGames.reduce(
 					(gamesToPlayers, game) => {
-						let players = playerSelector(state, { players: game.players });
+						let players = userSelectors.playerSelector(state, { players: game.players });
 
 						if (players) {
 							gamesToPlayers[game.name] = players;
@@ -37,6 +42,16 @@ const UserGamesListContainer = connect(
 			},
 		};
 	}
+);
+
+const withSaga = injectSaga({
+	key: "UserGamesListContainer",
+	saga,
+});
+
+const UserGamesListContainer = compose(
+	withSaga,
+	withRedux
 )(UserGamesList);
 
 UserGamesListContainer.displayName = "UserGamesListContainer";

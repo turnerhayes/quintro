@@ -3,17 +3,39 @@
 const Promise           = require("bluebird");
 const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
-const bodyParser        = require("body-parser");
-const GamesStore        = require("../../persistence/stores/game");
-const UsersStore        = require("../../persistence/stores/user");
-const NotFoundException = require("../../persistence/exceptions/not-found");
+const bodyParsers       = require("./body-parsers");
+const rfr               = require("rfr");
+const {
+	prepareUserForFrontend
+}                       = rfr("server/routes/utils");
+const GamesStore        = rfr("server/persistence/stores/game");
+const UsersStore        = rfr("server/persistence/stores/user");
+const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 
-function prepareGame(game) {
-	return game.toFrontendObject();
+function prepareGame(game, req) {
+	game = game.toFrontendObject();
+
+	game.players.forEach(
+		(player) => player.user = prepareUserForFrontend({ user: player.user, request: req })
+	);
+
+	return game;
 }
 
 const router = express.Router();
+
+function processError(next, gameName, error) {
+	if (NotFoundException.isThisException(error)) {
+		error = {
+			status: HTTPStatusCodes.NOT_FOUND,
+			message: `No game named ${gameName} found`,
+			error,
+		};
+	}
+
+	next(error);
+}
 
 router.route("/:gameName")
 	.get(
@@ -24,15 +46,11 @@ router.route("/:gameName")
 				name: gameName
 			}).then(
 				(game) => res.json(prepareGame(game, req))
-			).catch(next);
+			).catch(processError.bind(null, next, gameName));
 		}
 	)
 	.post(
-		bodyParser.urlencoded({
-			extended: true,
-			type: "application/x-www-form-urlencoded"
-		}),
-		bodyParser.json({ type: "application/json" }),
+		...bodyParsers,
 		(req, res, next) => {
 			const { width, height, playerLimit } = req.body;
 			const { gameName } = req.params;
@@ -41,7 +59,7 @@ router.route("/:gameName")
 				name: gameName,
 				width,
 				height,
-				player_limit: playerLimit
+				playerLimit
 			}).then(
 				(game) => {
 					res.status(HTTPStatusCodes.CREATED)
@@ -59,24 +77,15 @@ router.route("/:gameName")
 				populate: false
 			}).then(
 				() => res.end()
-			).catch(
-				(err) => {
-					if (NotFoundException.isThisException(err)) {
-						next(); // 404
-						return;
-					}
-
-					next(err);
-				}
-			);
+			).catch(processError.bind(null, next, gameName));
 		}
 	);
 
-router.route("")
+router.route("/")
 	.get(
 		(req, res, next) => {
 			const includeUserGames = !!req.query.includeUserGames;
-			const onlyOpenGames = !! req.query.onlyOpenGames;
+			const onlyOpenGames = !!req.query.onlyOpenGames;
 			let numberOfPlayers = Number(req.query.numberOfPlayers);
 
 			if (numberOfPlayers !== numberOfPlayers) {
@@ -85,7 +94,7 @@ router.route("")
 			}
 
 			Promise.resolve(
-				req.user || UsersStore.findBySessionID(req.session.id)
+				req.user || UsersStore.findBySessionID(req.sessionID)
 			).then(
 				(user) => {
 					if (!user && includeUserGames) {

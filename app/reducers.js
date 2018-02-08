@@ -5,7 +5,10 @@
 import { combineReducers } from "redux-immutable";
 import { fromJS } from "immutable";
 import { LOCATION_CHANGE } from "react-router-redux";
-import usersReducer from "./reducers/users";
+import usersReducer from "@app/reducers/users";
+import gamesReducer from "@app/reducers/games";
+import uiReducer from "@app/reducers/ui";
+import settingsReducer from "@app/reducers/settings";
 
 /*
  * routeReducer
@@ -42,6 +45,9 @@ export default function createReducer(injectedReducers) {
 	return combineReducers({
 		route: routeReducer,
 		users: usersReducer,
+		games: gamesReducer,
+		settings: settingsReducer,
+		ui: uiReducer,
 		...injectedReducers,
 	});
 }

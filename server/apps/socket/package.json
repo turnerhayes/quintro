@@ -2,7 +2,7 @@
   "name": "quintro-apps-socket",
   "version": "1.1.1",
   "description": "",
-  "main": "./bin/www.js",
+  "main": "./index.js",
   "scripts": {
     "start": "cross-env DEBUG=quintro:* node ./bin/www.js",
     "start:dev": "cross-env DEBUG=quintro:* nodemon --verbose ./bin/www.js"
@@ -23,6 +23,9 @@
     "morgan": "^1.6.1",
     "socket.io": "^2.0.2",
     "spdy": "^3.4.7"
+  },
+  "peerDependencies": {
+    "debug": "3.x"
   },
   "bundledDependencies": [
     "rfr"

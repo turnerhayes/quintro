@@ -9,8 +9,10 @@ import List, {
 	ListItemText
 }                         from "material-ui/List";
 import Badge              from "material-ui/Badge";
-import Icon               from "material-ui/Icon";
-import createHelper       from "project/app/components/class-helper";
+import StopIcon           from "material-ui-icons/Stop";
+import WarningIcon        from "material-ui-icons/Warning";
+import AccountCircleIcon  from "material-ui-icons/AccountCircle";
+import createHelper       from "@app/components/class-helper";
 import                         "./UserGamesList.less";
 
 const classes = createHelper("user-games-list");
@@ -23,7 +25,7 @@ const classes = createHelper("user-games-list");
  *
  * @memberof client.react-components
  */
-class UserGamesList extends React.Component {
+class UserGamesList extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
@@ -68,7 +70,7 @@ class UserGamesList extends React.Component {
 
 		const games = this.props.userGames.reduce(
 			(games, game) => {
-				if (game.winner) {
+				if (game.get("winner")) {
 					games.over.push(game);
 				}
 				else {
@@ -118,60 +120,57 @@ class UserGamesList extends React.Component {
 					})}
 				>
 				{
-					games && games.inProgress.sort((a, b) => (b.isStarted - a.isStarted)).map(
+					games && games.inProgress.sort((a, b) => (b.get("isStarted") - a.get("isStarted"))).map(
 						(game) => {
 							const players = this.props.playersByGame &&
-								this.props.playersByGame.get(game.name);
+								this.props.playersByGame.get(game.get("name"));
 
-							const isWaitingForYou = game.isStarted &&
+							const isWaitingForYou = game.get("isStarted") &&
 								players && players.find(
 									(p) => p.user.isMe
-								).color === game.currentPlayerColor;
+								).color === game.get("currentPlayerColor");
 
 							return (
 								<ListItem
-									key={`user-game-${game.name}`}
+									key={`user-game-${game.get("name")}`}
 								>
 									<Button
 										fullWidth
 										component={Link}
-										to={`/play/${game.name}`}
+										to={`/play/${game.get("name")}`}
 										{...classes({
 											element: "games-list-item",
 											extra: [
-												game.isStarted && "is-started",
-												!game.isStarted && "not-started",
+												game.get("isStarted") && "is-started",
+												!game.get("isStarted") && "not-started",
 											],
 										})}
 									>
 										<Badge
-											badgeContent={game.players.size}
+											badgeContent={game.get("players").size}
 											color="primary"
-											title={`Game has ${game.players.size} player${game.players.size === 1 ? "" : "s"}`}
+											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
-											<Icon
-												className="fa fa-2x fa-user-circle"
+											<AccountCircleIcon
 											/>
 										</Badge>
 										<ListItemText
-											primary={game.name}
+											primary={game.get("name")}
 										/>
 
 										{
-											!game.isStarted &&
+											!game.get("isStarted") &&
 												(
-													<Icon
+													<StopIcon
 														title="Game has not started yet"
-														className="fa fa-stop"
 													/>
 												)
 										}
 										{
 											isWaitingForYou &&
 												(
-													<Icon
+													<WarningIcon
 														title="It's your turn!"
-														className="fa fa-exclamation"
 													/>
 												)
 										}
@@ -183,7 +182,7 @@ class UserGamesList extends React.Component {
 				}
 				</List>
 			),
-			selectedTabIndex === 1 || !hasGamesInProgress && (
+			(selectedTabIndex === 1 || !hasGamesInProgress) && (
 				<List
 					key="Finished Games List"
 					{...classes({
@@ -195,24 +194,23 @@ class UserGamesList extends React.Component {
 						(game) => {
 							return (
 								<ListItem
-									key={`user-game-${game.name}`}
+									key={`user-game-${game.get("name")}`}
 								>
 									<Button
 										fullWidth
 										component={Link}
-										to={`/play/${game.name}`}
+										to={`/play/${game.get("name")}`}
 										className="is-over"
 									>
 										<Badge
-											badgeContent={game.players.size}
+											badgeContent={game.get("players").size}
 											color="primary"
-											title={`Game has ${game.players.size} player${game.players.size === 1 ? "" : "s"}`}
+											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
-											<Icon
-												className="fa fa-2x fa-user-circle"
+											<AccountCircleIcon
 											/>
 										</Badge>
-										<ListItemText primary={game.name} />
+										<ListItemText primary={game.get("name")} />
 									</Button>
 								</ListItem>
 							);
@@ -253,16 +251,16 @@ class UserGamesList extends React.Component {
 
 		return (
 			<div
-				className="c_user-games-list"
+				{...classes()}
 			>
 				<header>
 					<h3>My Games</h3>
 				</header>
 
 				{
-					this.props.userGames.size > 0 ?
-						this.renderGameLists() :
-						this.renderEmptyGames()
+					this.props.userGames.isEmpty() ?
+						this.renderEmptyGames() :
+						this.renderGameLists()
 				}
 			</div>
 		);

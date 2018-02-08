@@ -1,27 +1,46 @@
-import React          from "react";
-import PropTypes      from "prop-types";
-import { withRouter } from "react-router";
-import { Switch, Route } from "react-router-dom";
-import { Loadable as NotFoundPage } from "../NotFoundPage";
-import { Loadable as HomePage } from "../HomePage";
-import FindGame from "../../containers/FindGame";
-import TopNavigation  from "../TopNavigation";
-import                     "./App.less";
+import React                        from "react";
+import { Switch, Route }            from "react-router-dom";
+import { Loadable as NotFoundPage } from "@app/components/NotFoundPage";
+import { Loadable as HomePage }     from "@app/components/HomePage";
+import FindGame                     from "@app/containers/FindGame";
+import CreateGame                   from "@app/containers/CreateGame";
+import PlayGame                     from "@app/containers/PlayGame";
+import HowToPlay                    from "@app/components/HowToPlay";
+import UserGamesList                from "@app/containers/UserGamesList";
+import TopNavigation                from "@app/containers/TopNavigation";
+import                                   "./App.less";
 
 /**
  * Root application component.
  *
  * @memberof client.react-components
+ * @extends external:React.Component
  */
-class App extends React.Component {
+class App extends React.Component { // Do not use PureComponent; messes with react-router
 	/**
-	 * @member {object} - Component prop types
+	 * Generates a Route component for the sidebar that renders the specified
+	 * component and is bound to the specified path.
 	 *
-	 * @prop {Types.RenderableElement} [children=[]] - child(ren) of the component
-	 * @prop {external:React.Component} [sidebar] - Component to render in the sidebar
+	 * @function
+	 * @private
+	 *
+	 * @param {React.Component} Component - the component to render in the sidebar
+	 * @param {string} path - the path at which to render the Route
+	 *
+	 * @returns {React.Component} the react-router-dom Route component
 	 */
-	static propTypes = {
-		sidebar: PropTypes.element
+	sidebarRoute = (Component, path) => {
+		return (
+			<Route exact path={path}
+				render={(props) => (
+					<aside
+						className="page-layout__left-panel"
+					>
+						<Component {...props} />
+					</aside>
+				)}
+			/>
+		);
 	}
 
 	/**
@@ -51,20 +70,23 @@ class App extends React.Component {
 						<Switch>
 							<Route exact path="/" component={HomePage} />
 							<Route exact path="/game/find" component={FindGame} />
+							<Route exact path="/game/create" component={CreateGame} />
+							<Route exact path="/play/:gameName" render={(props) => (
+								<PlayGame
+									gameName={props.match.params.gameName}
+								/>
+							)} />
+							<Route exact path="/how-to-play" component={HowToPlay} />
 							<Route component={NotFoundPage} />
 						</Switch>
 					</article>
-					{
-						this.props.sidebar && (
-							<aside
-								className="page-layout__left-panel"
-							>{this.props.sidebar}</aside>
-						)
-					}
+					<Switch>
+						{this.sidebarRoute(UserGamesList, "/")}
+					</Switch>
 				</div>
 			</section>
 		);
 	}
 }
 
-export default withRouter(App);
+export default App;

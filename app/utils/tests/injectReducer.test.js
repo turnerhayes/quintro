@@ -7,9 +7,9 @@ import { shallow } from "enzyme";
 import React from "react";
 import identity from "lodash/identity";
 
-import configureStore from "../../configureStore";
-import injectReducer from "../injectReducer";
-import * as reducerInjectors from "../reducerInjectors";
+import configureStore from "@app/configureStore";
+import injectReducer from "@app/utils/injectReducer";
+import * as reducerInjectors from "@app/utils/reducerInjectors";
 
 // Fixtures
 const Component = () => null;

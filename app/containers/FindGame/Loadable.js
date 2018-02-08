@@ -9,6 +9,6 @@ const loadingMessage = () => <div>Loading FindGame page</div>;
 loadingMessage.displayName = "FindGameLoading";
 
 export default Loadable({
-	loader: () => import("./FindGameContainer"),
+	loader: () => import("./FindGame"),
 	loading: loadingMessage,
 });

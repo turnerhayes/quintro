@@ -1,13 +1,16 @@
 // Important modules this config uses
+const baseWebpackConfig = require("./webpack.base.babel");
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const OfflinePlugin = require("offline-plugin");
+const rfr = require("rfr");
+const Config = rfr("server/lib/config");
 
-module.exports = require("./webpack.base.babel")({
+module.exports = baseWebpackConfig({
 	// In production, we skip all hot-reloading stuff
 	entry: [
-		path.join(process.cwd(), "app/app.js"),
+		path.join(Config.paths.app, "app.js"),
 	],
 
 	// Utilize long-term caching by adding content hashes (not compilation hashes) to compiled assets
@@ -25,9 +28,10 @@ module.exports = require("./webpack.base.babel")({
 			async: true,
 		}),
 
-		// Minify and optimize the index.html
+		// Minify and optimize the indexFile
 		new HtmlWebpackPlugin({
-			template: "app/index.html",
+			filename: Config.paths.indexFile.name,
+			template: Config.paths.indexFile.template,
 			minify: {
 				removeComments: true,
 				collapseWhitespace: true,
