@@ -2,7 +2,8 @@
 
 const winston = require("winston");
 const morgan  = require("morgan");
-const Config  = require("./config");
+const rfr     = require("rfr");
+const Config  = rfr("server/lib/config");
 
 // eslint-disable-next-line no-magic-numbers
 const MAX_LOG_SIZE_BYTES = 10 * 1000 * 1000; // 10MB
@@ -63,6 +64,6 @@ const errorLogger = new winston.Logger({
 exports = module.exports = {
 	http: morgan("dev"),
 	sql: sqlLogger,
-	errors: errorLogger,
+	error: errorLogger.error,
 	websockets: websocketsLogger
 };

@@ -10,8 +10,8 @@ import Card, {
 	CardHeader,
 	CardContent
 }                         from "material-ui/Card";
-import createHelper       from "project/app/components/class-helper";
-import Config             from "project/app/config";
+import createHelper       from "@app/components/class-helper";
+import Config             from "@app/config";
 import                         "./FindGame.less";
 
 const classes = createHelper("find-game");

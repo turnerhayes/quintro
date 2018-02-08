@@ -1,6 +1,7 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
+import Immutable          from "immutable";
 import { Link }           from "react-router-dom";
 import Button             from "material-ui/Button";
 import Tabs, { Tab }      from "material-ui/Tabs";
@@ -10,7 +11,7 @@ import List, {
 }                         from "material-ui/List";
 import Badge              from "material-ui/Badge";
 import Icon               from "material-ui/Icon";
-import createHelper       from "project/app/components/class-helper";
+import createHelper       from "@app/components/class-helper";
 import                         "./UserGamesList.less";
 
 const classes = createHelper("user-games-list");
@@ -46,6 +47,16 @@ class UserGamesList extends React.Component {
 		)
 	}
 
+	/// DEBUG
+	static defaultProps = {
+		onGetUserGames: () => {
+			console.log("onGetUserGames");
+		},
+
+		userGames: Immutable.List(),
+	}
+	/// END DEBUG
+
 	state = {
 		selectedTabIndex: 0,
 	}
@@ -68,7 +79,7 @@ class UserGamesList extends React.Component {
 
 		const games = this.props.userGames.reduce(
 			(games, game) => {
-				if (game.winner) {
+				if (game.get("winner")) {
 					games.over.push(game);
 				}
 				else {
@@ -118,47 +129,47 @@ class UserGamesList extends React.Component {
 					})}
 				>
 				{
-					games && games.inProgress.sort((a, b) => (b.isStarted - a.isStarted)).map(
+					games && games.inProgress.sort((a, b) => (b.get("isStarted") - a.get("isStarted"))).map(
 						(game) => {
 							const players = this.props.playersByGame &&
-								this.props.playersByGame.get(game.name);
+								this.props.playersByGame.get(game.get("name"));
 
-							const isWaitingForYou = game.isStarted &&
+							const isWaitingForYou = game.get("isStarted") &&
 								players && players.find(
 									(p) => p.user.isMe
-								).color === game.currentPlayerColor;
+								).color === game.get("currentPlayerColor");
 
 							return (
 								<ListItem
-									key={`user-game-${game.name}`}
+									key={`user-game-${game.get("name")}`}
 								>
 									<Button
 										fullWidth
 										component={Link}
-										to={`/play/${game.name}`}
+										to={`/play/${game.get("name")}`}
 										{...classes({
 											element: "games-list-item",
 											extra: [
-												game.isStarted && "is-started",
-												!game.isStarted && "not-started",
+												game.get("isStarted") && "is-started",
+												!game.get("isStarted") && "not-started",
 											],
 										})}
 									>
 										<Badge
-											badgeContent={game.players.size}
+											badgeContent={game.get("players").size}
 											color="primary"
-											title={`Game has ${game.players.size} player${game.players.size === 1 ? "" : "s"}`}
+											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
 											<Icon
 												className="fa fa-2x fa-user-circle"
 											/>
 										</Badge>
 										<ListItemText
-											primary={game.name}
+											primary={game.get("name")}
 										/>
 
 										{
-											!game.isStarted &&
+											!game.get("isStarted") &&
 												(
 													<Icon
 														title="Game has not started yet"
@@ -195,24 +206,24 @@ class UserGamesList extends React.Component {
 						(game) => {
 							return (
 								<ListItem
-									key={`user-game-${game.name}`}
+									key={`user-game-${game.get("name")}`}
 								>
 									<Button
 										fullWidth
 										component={Link}
-										to={`/play/${game.name}`}
+										to={`/play/${game.get("name")}`}
 										className="is-over"
 									>
 										<Badge
-											badgeContent={game.players.size}
+											badgeContent={game.get("players").size}
 											color="primary"
-											title={`Game has ${game.players.size} player${game.players.size === 1 ? "" : "s"}`}
+											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
 											<Icon
 												className="fa fa-2x fa-user-circle"
 											/>
 										</Badge>
-										<ListItemText primary={game.name} />
+										<ListItemText primary={game.get("name")} />
 									</Button>
 								</ListItem>
 							);
@@ -253,16 +264,16 @@ class UserGamesList extends React.Component {
 
 		return (
 			<div
-				className="c_user-games-list"
+				{...classes()}
 			>
 				<header>
 					<h3>My Games</h3>
 				</header>
 
 				{
-					this.props.userGames.size > 0 ?
-						this.renderGameLists() :
-						this.renderEmptyGames()
+					this.props.userGames.isEmpty() ?
+						this.renderEmptyGames() :
+						this.renderGameLists()
 				}
 			</div>
 		);
