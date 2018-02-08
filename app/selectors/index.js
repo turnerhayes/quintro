@@ -1,6 +1,7 @@
 import { createSelector } from "reselect";
 import { Map, List }      from "immutable";
-
+import * as uiSelectors   from "./ui";
+import * as userSelectors from "./users";
 
 export const userSelector = createSelector(
 	[
@@ -61,3 +62,7 @@ export const playerSelector = createSelector(
 		return isMissingUsers ? undefined : List(playersWithUsers);
 	}
 );
+
+export const ui = uiSelectors;
+
+export const users = userSelectors;

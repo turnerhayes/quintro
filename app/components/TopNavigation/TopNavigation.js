@@ -2,10 +2,18 @@ import React                from "react";
 import PropTypes            from "prop-types";
 import ImmutablePropTyps    from "react-immutable-proptypes";
 import { Link }             from "react-router-dom";
-import createHelper         from "project/app/components/class-helper";
+import { Map }              from "immutable";
 import AppBar               from "material-ui/AppBar";
 import Toolbar              from "material-ui/Toolbar";
+import Popover              from "material-ui/Popover";
+import Card, {
+	CardContent
+}                           from "material-ui/Card";
 import Button               from "material-ui/Button";
+import IconButton           from "material-ui/IconButton";
+import AccountCircleIcon    from "material-ui-icons/AccountCircle";
+import createHelper         from "@app/components/class-helper";
+import AccountDialog        from "@app/containers/AccountDialog";
 import                           "./TopNavigation.less";
 
 const classes = createHelper("top-navigation");
@@ -27,6 +35,29 @@ class TopNavigation extends React.Component {
 	static propTypes = {
 		currentUser: ImmutablePropTyps.map,
 		className: PropTypes.string,
+		isAccountDialogOpen: PropTypes.bool,
+		onAccountButtonClick: PropTypes.func.isRequired,
+		onAccountDialogClose: PropTypes.func.isRequired,
+	}
+
+	static defaultProps = {
+		isAccountDialogOpen: false,
+	}
+
+	state = {
+		accountButtonEl: null,
+	}
+
+	onAccountButtonClick = (event) => {
+		this.setState({
+			accountButtonEl: event.target,
+		});
+
+		this.props.onAccountButtonClick(event);
+	}
+
+	closeAccountDialog = () => {
+		this.props.onAccountDialogClose();
 	}
 
 	/**
@@ -37,6 +68,8 @@ class TopNavigation extends React.Component {
 	 * @return {external:React.Component} the component to render
 	 */
 	render() {
+		const loggedInUser = Map();
+
 		return (
 			<AppBar
 				{...classes({
@@ -71,6 +104,37 @@ class TopNavigation extends React.Component {
 					>
 						Start a Game
 					</Button>
+
+					<IconButton
+						{...classes({
+							element: "account-button"
+						})}
+						onClick={this.onAccountButtonClick}
+					>
+						<AccountCircleIcon />
+					</IconButton>
+					<Popover
+						open={this.props.isAccountDialogOpen}
+						onClose={() => this.closeAccountDialog()}
+						anchorEl={this.state.accountButtonEl}
+						anchorOrigin={{
+							horizontal: "right",
+							vertical: "bottom",
+						}}
+						transformOrigin={{
+							horizontal: "right",
+							vertical: "top",
+						}}
+					>
+						<Card>
+							<CardContent>
+								<AccountDialog
+									isOpen={this.state.accountDialogIsOpen}
+									loggedInUser={loggedInUser}
+								/>
+							</CardContent>
+						</Card>
+					</Popover>
 				</Toolbar>
 			</AppBar>
 		);

@@ -19,7 +19,7 @@ import createHistory from "history/createBrowserHistory";
 import "sanitize.css/sanitize.css";
 
 // Import root app
-import App from "./components/App";
+import App from "@app/components/App";
 
 // Load the favicon, the manifest.json file and the .htaccess file
 /* eslint-disable import/no-unresolved, import/extensions */
@@ -64,7 +64,7 @@ if (module.hot) {
 	// Hot reloadable React components
 	// modules.hot.accept does not accept dynamic dependencies,
 	// have to be constants at compile-time
-	module.hot.accept(["./components/App"], () => {
+	module.hot.accept(["@app/components/App"], () => {
 		ReactDOM.unmountComponentAtNode(MOUNT_NODE);
 		render();
 	});

@@ -16,8 +16,8 @@ process.noDeprecation = true;
 
 module.exports = (options) => ({
 	entry: options.entry,
-	output: Object.assign({ // Compile into js/build.js
-		path: path.resolve(process.cwd(), "build"),
+	output: Object.assign({ 
+		path: Config.paths.dist,
 		publicPath: "/",
 	}, options.output), // Merge with env dependent settings
 	module: {
@@ -153,6 +153,7 @@ module.exports = (options) => ({
 			"main",
 		],
 		alias: {
+			"@app": Config.paths.app,
 			"project/shared-lib": path.join(Config.paths.root, "shared-lib"),
 			"project/app": path.join(Config.paths.app),
 			"project/images": path.join(Config.paths.app, "images"),

@@ -1,7 +1,7 @@
-import React          from "react";
-import PropTypes      from "prop-types";
+import React              from "react";
+import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import UserGamesList  from "project/app/containers/UserGamesList";
+import UserGamesList      from "@app/containers/UserGamesList";
 
 /**
  * Component representing the home page.
