@@ -1,7 +1,6 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import Immutable          from "immutable";
 import { Link }           from "react-router-dom";
 import Button             from "material-ui/Button";
 import Tabs, { Tab }      from "material-ui/Tabs";
@@ -10,7 +9,9 @@ import List, {
 	ListItemText
 }                         from "material-ui/List";
 import Badge              from "material-ui/Badge";
-import Icon               from "material-ui/Icon";
+import StopIcon           from "material-ui-icons/Stop";
+import WarningIcon        from "material-ui-icons/Warning";
+import AccountCircleIcon  from "material-ui-icons/AccountCircle";
 import createHelper       from "@app/components/class-helper";
 import                         "./UserGamesList.less";
 
@@ -24,7 +25,7 @@ const classes = createHelper("user-games-list");
  *
  * @memberof client.react-components
  */
-class UserGamesList extends React.Component {
+class UserGamesList extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
@@ -46,16 +47,6 @@ class UserGamesList extends React.Component {
 			PropTypes.string
 		)
 	}
-
-	/// DEBUG
-	static defaultProps = {
-		onGetUserGames: () => {
-			console.log("onGetUserGames");
-		},
-
-		userGames: Immutable.List(),
-	}
-	/// END DEBUG
 
 	state = {
 		selectedTabIndex: 0,
@@ -160,8 +151,7 @@ class UserGamesList extends React.Component {
 											color="primary"
 											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
-											<Icon
-												className="fa fa-2x fa-user-circle"
+											<AccountCircleIcon
 											/>
 										</Badge>
 										<ListItemText
@@ -171,18 +161,16 @@ class UserGamesList extends React.Component {
 										{
 											!game.get("isStarted") &&
 												(
-													<Icon
+													<StopIcon
 														title="Game has not started yet"
-														className="fa fa-stop"
 													/>
 												)
 										}
 										{
 											isWaitingForYou &&
 												(
-													<Icon
+													<WarningIcon
 														title="It's your turn!"
-														className="fa fa-exclamation"
 													/>
 												)
 										}
@@ -194,7 +182,7 @@ class UserGamesList extends React.Component {
 				}
 				</List>
 			),
-			selectedTabIndex === 1 || !hasGamesInProgress && (
+			(selectedTabIndex === 1 || !hasGamesInProgress) && (
 				<List
 					key="Finished Games List"
 					{...classes({
@@ -219,8 +207,7 @@ class UserGamesList extends React.Component {
 											color="primary"
 											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
 										>
-											<Icon
-												className="fa fa-2x fa-user-circle"
+											<AccountCircleIcon
 											/>
 										</Badge>
 										<ListItemText primary={game.get("name")} />

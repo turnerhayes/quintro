@@ -1,0 +1,52 @@
+.qc-play-game {
+	margin: 1em;
+
+	&__board-container {
+		position: relative;
+	}
+
+	&__start-game-overlay {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background-color: rgba(180, 180, 180, 0.6);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&-dialog {
+			font-size: 5em;
+
+			button {
+				background-color: #FFFFFF;
+
+				&[disabled] {
+					opacity: 1;
+					color: fade(#333333, 65%);
+				}
+			}
+		}
+	}
+
+	&__winner-banner {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&-win-message {
+			font-size: 5em;
+			background-color: white;
+			border-radius: 0.3em;
+			border: 1px solid black;
+			padding: 0.2em 1em;
+		}
+	}
+
+}

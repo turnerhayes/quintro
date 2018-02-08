@@ -208,6 +208,10 @@ class FindGame extends React.PureComponent {
 		);
 	}
 
+	handleNumberOfPlayersChanged = (event) => {
+		this.setState({numberOfPlayers: event.target.valueAsNumber || null});
+	}
+
 	/**
 	 * Renders the search form.
 	 *
@@ -241,7 +245,7 @@ class FindGame extends React.PureComponent {
 						id={fieldId}
 						min={Config.game.players.min}
 						max={Config.game.players.max}
-						onChange={(event) => this.setState({numberOfPlayers: event.target.valueAsNumber || null})}
+						onChange={this.handleNumberOfPlayersChanged}
 					/>
 					<Typography
 						type="caption"
@@ -253,10 +257,6 @@ class FindGame extends React.PureComponent {
 				<div
 					className="form-group"
 				>
-					<Button
-						type="submit"
-						color="primary"
-					>Find</Button>
 					<Button
 						type="submit"
 						color="primary"

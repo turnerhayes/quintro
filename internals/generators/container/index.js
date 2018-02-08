@@ -55,13 +55,13 @@ module.exports = {
 		var componentTemplate; // eslint-disable-line no-var
 
 		switch (data.type) {
-		case "Stateless Function": {
-			componentTemplate = "./container/stateless.js.hbs";
-			break;
-		}
-		default: {
-			componentTemplate = "./container/class.js.hbs";
-		}
+			case "Stateless Function": {
+				componentTemplate = "./container/stateless.js.hbs";
+				break;
+			}
+			default: {
+				componentTemplate = "./container/class.js.hbs";
+			}
 		}
 
 		const actions = [{

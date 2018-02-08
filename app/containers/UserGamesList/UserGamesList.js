@@ -3,7 +3,7 @@ import { connect }      from "react-redux";
 import { Map, List }    from "immutable";
 import injectSaga       from "@app/utils/injectSaga";
 import {
-	playerSelector
+	users as userSelectors
 }                       from "@app/selectors";
 import {
 	getUserGames
@@ -21,7 +21,7 @@ const withRedux = connect(
 			playersByGame: userGames && Map(
 				userGames.reduce(
 					(gamesToPlayers, game) => {
-						let players = playerSelector(state, { players: game.players });
+						let players = userSelectors.playerSelector(state, { players: game.players });
 
 						if (players) {
 							gamesToPlayers[game.name] = players;

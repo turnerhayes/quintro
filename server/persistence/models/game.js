@@ -14,7 +14,7 @@ const GameSchema = new mongoose.Schema({
 		type: String,
 		validate: {
 			validator: function(val) {
-				return _.isNull(val) || !_.isUndefined(_.find(this.players, {color: val}));
+				return val === null || _.find(this.players, {color: val}) !== undefined;
 			},
 			message: "\"{VALUE}\" is not one of this game's players' colors."
 		}
@@ -44,13 +44,13 @@ const GameSchema = new mongoose.Schema({
 			}
 		]
 	},
-	player_limit: {
+	playerLimit: {
 		type: Number,
 		required: true,
 		min: Config.game.players.min,
 		max: Config.game.players.max
 	},
-	is_started: {
+	isStarted: {
 		type: Boolean,
 		required: true,
 		default: false
@@ -72,31 +72,31 @@ const GameSchema = new mongoose.Schema({
 			_id: false
 		}
 	],
-	current_player_color: {
+	currentPlayerColor: {
 		type: String,
 	},
 });
 
-GameSchema.virtual("current_player").get(
+GameSchema.virtual("currentPlayer").get(
 	function() {
 		return _.find(
 			this.players,
 			{
-				color: this.current_player_color
+				color: this.currentPlayerColor
 			}
 		);
 	}
 ).set(
 	function(player) {
-		if (_.isUndefined(player)) {
+		if (player === undefined) {
 			return;
 		}
 
-		this.current_player_color = player.color;
+		this.currentPlayerColor = player.color;
 	}
 );
 
-GameSchema.virtual("is_over").get(
+GameSchema.virtual("isOver").get(
 	function() {
 		return !!this.winner;
 	}
@@ -104,13 +104,13 @@ GameSchema.virtual("is_over").get(
 
 GameSchema.virtual("isFull").get(
 	function() {
-		return this.players.length === this.player_limit;
+		return this.players.length === this.playerLimit;
 	}
 );
 
 GameSchema.pre("validate", function(next) {
-	if (_.size(this.players) > this.player_limit) {
-		next(new Error(`Too many players in this game; only up to ${this.player_limit} allowed`));
+	if (_.size(this.players) > this.playerLimit) {
+		next(new Error(`Too many players in this game; only up to ${this.playerLimit} allowed`));
 		return;
 	}
 
@@ -137,8 +137,8 @@ GameSchema.pre("validate", function(next) {
 });
 
 GameSchema.pre("save", function(next) {
-	if (!this.current_player_color && this.players.length === 1) {
-		this.current_player_color = this.players[0].color;
+	if (!this.currentPlayerColor && this.players.length === 1) {
+		this.currentPlayerColor = this.players[0].color;
 	}
 
 	next();
@@ -149,19 +149,18 @@ GameSchema.pre("save", function(next) {
 
 class Game {
 	start() {
-		this.is_started = true;
-		this.current_player = this.players[0];
+		this.isStarted = true;
+		this.currentPlayer = this.players[0];
 		return this.save();
 	}
 
 	nextPlayer() {
-		this.current_player = this.players[
+		this.currentPlayer = this.players[
 			(
-				_.indexOf(
-					this.players,
-					this.current_player
+				this.players.indexOf(
+					this.currentPlayer
 				) + 1
-			) % _.size(this.players)
+			) % this.players.length
 		];
 	}
 
@@ -173,16 +172,14 @@ class Game {
 	}
 
 	cellIsFilled([column, row]) {
-		return !_.isUndefined(
-			this.getCell([column, row])
-		);
+		return this.getCell([column, row]) !== undefined;
 	}
 
 	getCell([column, row]) {
-		return _.find(this.board.filled, (filledCell) => {
-			return filledCell.position[0] === column &&
-				filledCell.position[1] === row;
-		});
+		return this.board.filled.find(
+			(filledCell) => filledCell.position[0] === column &&
+				filledCell.position[1] === row
+		);
 	}
 
 	toFrontendObject() {
@@ -191,10 +188,9 @@ class Game {
 		});
 
 		delete obj._id;
-		delete obj.current_player;
+		delete obj.currentPlayer;
 
-		obj.players = _.map(
-			this.players,
+		obj.players = this.players.map(
 			(player) => {
 				const user = player.user.toFrontendObject();
 

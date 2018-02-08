@@ -70,4 +70,4 @@ exports = module.exports = function getAuthenticationRouter(mountPrefix) {
 		);
 
 	return router;
-}
+};

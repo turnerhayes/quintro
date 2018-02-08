@@ -10,14 +10,14 @@ const websocketsPath = webSocketsInline ?
 	undefined;
 
 const websocketsUrl = webSocketsInline ?
-	global.document.origin :
+	"/" :
 	process.env.WEB_SOCKETS_URL;
 
 let staticContentURL = process.env.STATIC_CONTENT_URL;
 const staticContentInline = !staticContentURL;
 
 if (staticContentInline) {
-	staticContentURL = global.document.origin;
+	staticContentURL = "/";
 }
 else {
 	staticContentURL = staticContentURL.replace(/\/$/, "");

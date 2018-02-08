@@ -1,11 +1,14 @@
-import FindGame    from "project/scripts/components/FindGame";
+import FindGame    from "@app/components/FindGame";
+import { compose } from "redux";
 import { connect } from "react-redux";
 import { push }    from "react-router-redux";
+import injectSaga  from "@app/utils/injectSaga";
+import saga        from "./saga";
 import {
 	findOpenGames
-}                  from "project/scripts/redux/actions";
+}                  from "@app/actions";
 
-const FindGameContainer = connect(
+const withConnect = connect(
 	function mapStateToProps(state) {
 		const { findGameError, findResults } = state.get("games") || {};
 
@@ -26,6 +29,13 @@ const FindGameContainer = connect(
 			},
 		};
 	}
+);
+
+const withSaga = injectSaga({ key: "FindGame", saga });
+
+const FindGameContainer = compose(
+	withConnect,
+	withSaga
 )(FindGame);
 
 FindGameContainer.displayName = "FindGameContainer";

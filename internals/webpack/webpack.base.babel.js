@@ -2,6 +2,7 @@
  * COMMON WEBPACK CONFIGURATION
  */
 
+require("dotenv").config();
 const path = require("path");
 const webpack = require("webpack");
 const LessListsPlugin = require("less-plugin-lists");

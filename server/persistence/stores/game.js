@@ -48,13 +48,13 @@ class GamesStore {
 		);
 	}
 
-	static createGame({ name, current_player, player_limit, width, height } = {}) {
+	static createGame({ name, currentPlayer, playerLimit, width, height } = {}) {
 		name = name || _createGameName();
 
 		let newGameModel = new GameModel({
 			name,
-			current_player,
-			player_limit,
+			currentPlayer,
+			playerLimit,
 			board: {
 				width,
 				height,
@@ -98,7 +98,7 @@ class GamesStore {
 		let filters = {};
 
 		if (numberOfPlayers > 0) {
-			filters.player_limit = numberOfPlayers;
+			filters.playerLimit = numberOfPlayers;
 		}
 
 		if (excludeUserID) {
@@ -125,7 +125,7 @@ class GamesStore {
 		let query = GameModel.find(filters, {__v: false});
 
 		if (onlyOpenGames) {
-			query = query.$where("this.players.length < this.player_limit");
+			query = query.$where("this.players.length < this.playerLimit");
 		}
 
 		return Promise.resolve(query.populate("players.user"));

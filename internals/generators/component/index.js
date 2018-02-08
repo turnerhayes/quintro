@@ -44,13 +44,13 @@ module.exports = {
 		let componentTemplate;
 
 		switch (data.type) {
-		case "Stateless Function": {
-			componentTemplate = "./component/stateless.js.hbs";
-			break;
-		}
-		default: {
-			componentTemplate = "./component/class.js.hbs";
-		}
+			case "Stateless Function": {
+				componentTemplate = "./component/stateless.js.hbs";
+				break;
+			}
+			default: {
+				componentTemplate = "./component/class.js.hbs";
+			}
 		}
 
 		const actions = [{

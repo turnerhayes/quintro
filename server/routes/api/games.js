@@ -5,13 +5,22 @@ const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
 const bodyParsers       = require("./body-parsers");
 const rfr               = require("rfr");
+const {
+	prepareUserForFrontend
+}                       = rfr("server/routes/utils");
 const GamesStore        = rfr("server/persistence/stores/game");
 const UsersStore        = rfr("server/persistence/stores/user");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 
-function prepareGame(game) {
-	return game.toFrontendObject();
+function prepareGame(game, req) {
+	game = game.toFrontendObject();
+
+	game.players.forEach(
+		(player) => player.user = prepareUserForFrontend({ user: player.user, request: req })
+	);
+
+	return game;
 }
 
 const router = express.Router();
@@ -36,7 +45,7 @@ router.route("/:gameName")
 			GamesStore.getGame({
 				name: gameName
 			}).then(
-				(game) => res.json(prepareGame(game))
+				(game) => res.json(prepareGame(game, req))
 			).catch(processError.bind(null, next, gameName));
 		}
 	)
@@ -50,12 +59,12 @@ router.route("/:gameName")
 				name: gameName,
 				width,
 				height,
-				player_limit: playerLimit
+				playerLimit
 			}).then(
 				(game) => {
 					res.status(HTTPStatusCodes.CREATED)
 						.set("Location", `${req.baseUrl}/${game.name}`)
-						.json(prepareGame(game));
+						.json(prepareGame(game, req));
 				}
 			).catch(next);
 		}
@@ -101,7 +110,7 @@ router.route("/")
 					});
 				}
 			).then(
-				(games) => res.json(games.map(prepareGame))
+				(games) => res.json(games.map((game) => prepareGame(game, req)))
 			).catch(next);
 		}
 	);

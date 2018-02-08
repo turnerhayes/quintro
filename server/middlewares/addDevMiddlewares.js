@@ -1,38 +1,48 @@
 "use strict";
 
 const path = require("path");
-const { NOT_FOUND } = require("http-status-codes");
 const webpack = require("webpack");
 const webpackDevMiddleware = require("webpack-dev-middleware");
 const webpackHotMiddleware = require("webpack-hot-middleware");
-
-function createWebpackMiddleware(compiler, publicPath) {
-	return webpackDevMiddleware(compiler, {
-		noInfo: true,
-		publicPath,
-		silent: true,
-		stats: "errors-only",
-	});
-}
+const rfr = require("rfr");
+const Config = rfr("server/lib/config");
+const {
+	prepareUserForFrontend
+} = rfr("server/routes/utils");
+const { getIndex, handleGetIndexError } = require("./utils");
 
 module.exports = function addDevMiddlewares(app, webpackConfig) {
 	const compiler = webpack(webpackConfig);
-	const middleware = createWebpackMiddleware(compiler, webpackConfig.output.publicPath);
+	
+	const middleware = webpackDevMiddleware(compiler, {
+		noInfo: true,
+		publicPath: webpackConfig.output.publicPath,
+		silent: true,
+		stats: "errors-only",
+	});
 
-	app.use(middleware);
+	function handleRequest(req, res, next) {
+		getIndex({
+			indexPath: path.join(compiler.outputPath, Config.paths.indexFile.name),
+			context: {
+				user: req.user && prepareUserForFrontend({
+					user: req.user,
+					request: req,
+				}),
+			},
+			// Since webpackDevMiddleware uses memory-fs internally to store build
+			// artifacts, we use it instead
+			fs: middleware.fileSystem,
+		})
+		.catch((error) => handleGetIndexError({ error, req, res, next }))
+		.then(
+			(content) => res.send(content)
+		);
+	}
+
+
+	app.use(webpackConfig.output.publicPath, middleware);
 	app.use(webpackHotMiddleware(compiler));
 
-	// Since webpackDevMiddleware uses memory-fs internally to store build
-	// artifacts, we use it instead
-	const fs = middleware.fileSystem;
-
-	app.get("*", (req, res) => {
-		fs.readFile(path.join(compiler.outputPath, "index.html"), (err, file) => {
-			if (err) {
-				res.sendStatus(NOT_FOUND);
-			} else {
-				res.send(file.toString());
-			}
-		});
-	});
+	app.get("*", handleRequest);
 };

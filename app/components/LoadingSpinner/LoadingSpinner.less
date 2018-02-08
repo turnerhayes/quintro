@@ -1,0 +1,18 @@
+.qc-loading-spinner {
+	@keyframes _qc-loading-spinner--spin {
+		from {
+			transform: rotateZ(0deg);
+		}
+
+		to {
+			transform: rotateZ(-359deg);
+		}
+	}
+
+	display: inline-block;
+	animation: _qc-loading-spinner--spin 1s infinite linear;
+
+	&--large {
+		font-size: 2em;
+	}
+}

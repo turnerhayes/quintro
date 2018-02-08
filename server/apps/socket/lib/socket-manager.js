@@ -1,7 +1,6 @@
 "use strict";
 
 const _                  = require("lodash");
-const Promise            = require("bluebird");
 const path               = require("path");
 const assert             = require("assert");
 const util               = require("util");
@@ -11,13 +10,16 @@ const cookieParser       = require("cookie-parser");
 const rfrProject         = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..", "..")
 });
+const {
+	prepareUserForFrontend
+}                        = rfrProject("server/routes/utils");
 const GameStore          = rfrProject("server/persistence/stores/game");
 const UserStore          = rfrProject("server/persistence/stores/user");
 const ErrorCodes         = rfrProject("shared-lib/error-codes");
 const Board              = rfrProject("shared-lib/board");
 const Config             = rfrProject("server/lib/config");
 const Loggers            = rfrProject("server/lib/loggers");
-const session            = rfrProject("server/session");
+const session            = rfrProject("server/lib/session");
 const {
 	getNextColor
 }                        = rfrProject("shared-lib/players");
@@ -29,6 +31,8 @@ const LOG_LEVELS   = {
 };
 
 const VALID_COLOR_IDS = Config.game.colors.map((color) => color.id);
+
+const WATCHERS = {};
 
 function _log({ message, level = LOG_LEVELS.INFO }) {
 	assert(_.includes(LOG_LEVELS, level), `"${level}" is not a valid log level`);
@@ -207,7 +211,7 @@ function ensureGame(gameName, req) {
 let _managerInitialized = false;
 
 class SocketManager {
-	static initialize({ server } = {}) {
+	static initialize({ server }) {
 		if (_managerInitialized) {
 			return;
 		}
@@ -226,12 +230,9 @@ class SocketManager {
 			cookie: false,
 		});
 
-
-		const cParser = cookieParser(Config.session.secret);
-
 		SocketManager._server.use(
 			(socket, next) => {
-				cParser(socket.request, socket.request.res, next);
+				cookieParser(Config.session.secret)(socket.request, socket.request.res, next);
 			}
 		);
 
@@ -283,6 +284,11 @@ class SocketManager {
 			SocketManager._onWatchGame(this, gameName, fn);
 		});
 
+		socket.on("game:watchers", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._getWatchers(this, gameName, fn);
+		});
+
 		socket.on("game:players:presence", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onGetPlayerPresence(this, gameName, fn);
@@ -311,11 +317,11 @@ class SocketManager {
 			}).then(
 				(user) => {
 					this.broadcast.emit("users:profile-changed", {
-						user: user.toFrontendObject()
+						user: prepareUserForFrontend({ user, request: this.request })
 					});
 
 					this.emit("users:profile-changed", {
-						user: user.toFrontendObject()
+						user: prepareUserForFrontend({ user, request: this.request })
 					});
 				}
 			).catch(
@@ -349,8 +355,51 @@ class SocketManager {
 		}
 
 		socket.join(gameName);
+		if (!WATCHERS[gameName]) {
+			WATCHERS[gameName] = [];
+		}
+		WATCHERS[gameName].push({
+			user: socket.request.user,
+			sessionID: socket.request.user ?
+				undefined :
+				socket.request.sessionID,
+		});
+
+		this._server.sockets.in(gameName).emit(
+			"game:watchers:added",
+			{
+				gameName,
+				user: socket.request.user &&
+					prepareUserForFrontend({
+						user: socket.request.user,
+						request: socket.request
+					}) ||
+					{
+						sessionID: socket.request.sessionID,
+					},
+			}
+		);
 
 		fn && fn({});
+	}
+
+	static _getWatchers(socket, gameName, fn) {
+		if (!gameName) {
+			const error = new Error("No gameName specified");
+			_logError({
+				error
+			});
+
+			fn && fn({
+				error
+			});
+			return;
+		}
+
+		fn && fn({
+			gameName,
+			watchers: WATCHERS[gameName] || [],
+		});
 	}
 
 	static _onJoinGame(socket, gameName, color, fn) {
@@ -393,7 +442,7 @@ class SocketManager {
 				const playerData = {
 					color: data.player.color,
 					user: data.player.user ?
-						data.player.user.toFrontendObject() :
+						prepareUserForFrontend({ user: data.player.user, request: socket.request }) :
 						undefined,
 					isAnonymous: data.player.user.isAnonymous,
 					order: data.order
@@ -404,7 +453,7 @@ class SocketManager {
 				const joinResults = {
 					gameName,
 					player: playerData,
-					current_player_color: data.game.current_player && data.game.current_player.color
+					currentPlayerColor: data.game.currentPlayer && data.game.currentPlayer.color
 				};
 
 				socket.broadcast.to(gameName).emit(
@@ -438,13 +487,13 @@ class SocketManager {
 			name: gameName,
 		}).then(
 			(game) =>  {
-				assert(!game.is_over, "Game is over");
+				assert(!game.isOver, "Game is over");
 				assert(gameName, 'Property "gameName" is required');
 				assert(position, 'Property "position" is required');
 
 				const [column, row] = position;
 
-				if (color !== game.current_player.color) {
+				if (color !== game.currentPlayer.color) {
 					const err = new Error(`Not ${color}'s turn`);
 					err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
@@ -509,17 +558,17 @@ class SocketManager {
 					color: data.color
 				});
 
-				if (data.game.is_over) {
+				if (data.game.isOver) {
 					SocketManager._server.to(data.game.name).emit("game:over", {
 						gameName: data.game.name,
-						winner: data.game.current_player,
+						winner: data.game.currentPlayer,
 						quintros: data.quintros
 					});
 				}
 				else {
-					SocketManager._server.to(data.game.name).emit("game:current_player:changed", {
+					SocketManager._server.to(data.game.name).emit("game:currentPlayer:changed", {
 						gameName: data.game.name,
-						color: data.game.current_player.color
+						color: data.game.currentPlayer.color
 					});
 				}
 			}
@@ -551,9 +600,42 @@ class SocketManager {
 	}
 
 	static _onDisconnect(socket) {
-		_.each(
-			_games[socket.id],
+		_games[socket.id] && _games[socket.id].forEach(
 			(gameName) => {
+				if (WATCHERS[gameName]) {
+					let watcherIndex;
+
+					if (socket.request.user) {
+						watcherIndex = WATCHERS[gameName].findIndex(
+							(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
+						);
+					}
+					else {
+						watcherIndex = WATCHERS[gameName].findIndex(
+							(watcher) => watcher.sessionID === socket.request.sessionID
+						);
+					}
+
+					if (watcherIndex >= 0) {
+						// Remove from watchers
+						WATCHERS[gameName].splice(watcherIndex, 1);
+						socket.broadcast.to(gameName).emit(
+							"game:watchers:removed",
+							{
+								gameName,
+								user: socket.request.user &&
+									prepareUserForFrontend({
+										user: socket.request.user,
+										request: socket.request
+									}) ||
+									{
+										sessionID: socket.request.sessionID,
+									},
+							}
+						);
+					}
+				}
+
 				GameStore.getGame({
 					name: gameName,
 				}).then(
@@ -573,7 +655,7 @@ class SocketManager {
 								player: Object.assign(
 									player.toObject(),
 									{
-										user: player.user.toFrontendObject()
+										user: prepareUserForFrontend({ user: player.user, request: socket.request })
 									}
 								)
 							}
@@ -623,10 +705,10 @@ class SocketManager {
 				);
 
 				SocketManager._server.to(gameName).emit(
-					"game:current_player:changed",
+					"game:currentPlayer:changed",
 					{
 						gameName,
-						color: game.current_player.color
+						color: game.currentPlayer.color
 					}
 				);
 			}

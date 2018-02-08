@@ -5,14 +5,15 @@
  */
 
 import { createStore, applyMiddleware, compose } from "redux";
-import { fromJS } from "immutable";
+import { Map, fromJS } from "immutable";
 import { routerMiddleware } from "react-router-redux";
 import createSagaMiddleware from "redux-saga";
-import createReducer from "./reducers";
+import createReducer from "@app/reducers";
+import globalSagas from "@app/sagas";
 
 const sagaMiddleware = createSagaMiddleware();
 
-export default function configureStore(initialState = {}, history) {
+export default function configureStore(initialState = Map(), history) {
 	// Create the store with two middlewares
 	// 1. sagaMiddleware: Makes redux-sagas work
 	// 2. routerMiddleware: Syncs the location/URL path to the state
@@ -37,7 +38,7 @@ export default function configureStore(initialState = {}, history) {
 			shouldHotReload: false,
 		})
 		: compose;
-	/* eslint-enable */
+	/* eslint-enable no-underscore-dangle */
 
 	const store = createStore(
 		createReducer(),
@@ -57,6 +58,11 @@ export default function configureStore(initialState = {}, history) {
 			store.replaceReducer(createReducer(store.injectedReducers));
 		});
 	}
+
+
+	(globalSagas || []).forEach(
+		(saga) => sagaMiddleware.run(saga)
+	);
 
 	return store;
 }

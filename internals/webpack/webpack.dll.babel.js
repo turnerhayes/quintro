@@ -7,19 +7,24 @@
  * to warrant building them from scratch every time we use
  * the webpack process.
  */
+const rfr = require("rfr");
+const pkg = rfr("package.json");
+
+if (!pkg.dllPlugin) { process.exit(0); }
+
+const dllPlugin = rfr("internals/config").dllPlugin;
 
 const { join } = require("path");
 const defaults = require("lodash/defaultsDeep");
 const webpack = require("webpack");
-const pkg = require(join(process.cwd(), "package.json"));
-const dllPlugin = require("../config").dllPlugin;
+const baseWebpackConfig = require("./webpack.base.babel");
+const Config = rfr("server/lib/config");
 
-if (!pkg.dllPlugin) { process.exit(0); }
 
 const dllConfig = defaults(pkg.dllPlugin, dllPlugin.defaults);
-const outputPath = join(process.cwd(), dllConfig.path);
+const outputPath = join(Config.paths.root, dllConfig.path);
 
-module.exports = require("./webpack.base.babel")({
+module.exports = baseWebpackConfig({
 	context: process.cwd(),
 	entry: dllConfig.dlls ? dllConfig.dlls : dllPlugin.entry(pkg),
 	devtool: "eval",

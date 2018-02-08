@@ -29,6 +29,8 @@ const ORIGIN = (function() {
 	return baseURL;
 }());
 
+const indexFileTemplateName = "index.html.template";
+
 // "fake" document object so that shared-config can access it when not run from the
 // client (as it's doing here)
 global.document = {
@@ -109,7 +111,11 @@ const Config = {
 		root: PROJECT_ROOT,
 		app: APP_PATH,
 		dist: DIST_PATH,
-		logs: LOGS_DIRECTORY
+		logs: LOGS_DIRECTORY,
+		indexFile: {
+			name: "index.html",
+			template: path.join(APP_PATH, indexFileTemplateName),
+		},
 	},
 	auth: {
 		facebook: {

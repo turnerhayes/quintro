@@ -1,5 +1,9 @@
 "use strict";
 
-const argv = require("./argv");
+const rfr = require("rfr");
+const Config = rfr("server/lib/config");
+const argv = rfr("server/argv");
 
-module.exports = parseInt(argv.port || process.env.PORT || "3000", 10);
+module.exports = argv.port ?
+	parseInt(argv.port, 10) :
+	Config.app.address.port;
