@@ -19,6 +19,8 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
 		publicPath: webpackConfig.output.publicPath,
 		silent: true,
 		stats: "errors-only",
+		// Don't serve index route--we do that in the catch-all handler below
+		index: false,
 	});
 
 	function handleRequest(req, res, next) {
@@ -35,13 +37,11 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
 			fs: middleware.fileSystem,
 		})
 		.catch((error) => handleGetIndexError({ error, req, res, next }))
-		.then(
-			(content) => res.send(content)
-		);
+		.then((content) => res.send(content));
 	}
 
 
-	app.use(webpackConfig.output.publicPath, middleware);
+	app.use(middleware);
 	app.use(webpackHotMiddleware(compiler));
 
 	app.get("*", handleRequest);
