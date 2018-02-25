@@ -1,18 +1,7 @@
-# SSL keys/certs
-/*.crt
-/*.csr
-/*.key
-/*.pem
-
-# Logs
-logs
-
-# Environment variable settings
-.env
-
 # Don't check auto-generated stuff into git
 coverage
 /dist
+logs
 node_modules
 stats.json
 
