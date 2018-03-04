@@ -179,11 +179,11 @@ class FindGame extends React.PureComponent {
 					title="Find a Game"
 				/>
 				<CardContent>
-				{
-					this.state.isSearching ?
-						this.renderSearching() :
-						this.renderForm()
-				}
+					{
+						this.state.isSearching ?
+							this.renderSearching() :
+							this.renderForm()
+					}
 				</CardContent>
 			</Card>
 		);

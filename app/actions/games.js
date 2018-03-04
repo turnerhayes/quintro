@@ -89,6 +89,27 @@ export function fetchedGame({ game }) {
 	};
 }
 
+export const UPDATE_GAME = "@@QUINTRO/GAMES/UPDATE";
+
+export function updateGame({ gameName }) {
+	return {
+		type: UPDATE_GAME,
+		payload: { gameName },
+	};
+}
+
+export const GAME_UPDATED = "@@QUINTRO/GAMES/UPDATED";
+
+export function gameUpdated({ gameName, update }) {
+	return {
+		type: GAME_UPDATED,
+		payload: {
+			gameName,
+			update,
+		},
+	};
+}
+
 export const CHECK_GAME_NAME = "@@QUINTRO/GAMES/CHECK_GAME_NAME";
 
 export function checkGameName({ name }) {
@@ -116,6 +137,15 @@ export function joinGame({ gameName }) {
 	};
 }
 
+export const LEAVE_GAME = "@@QUINTRO/GAMES/LEAVE";
+
+export function leaveGame({ gameName }) {
+	return {
+		type: LEAVE_GAME,
+		payload: { gameName },
+	};
+}
+
 export const WATCH_GAME = "@@QUINTRO/GAMES/WATCH";
 
 export function watchGame({ gameName }) {
@@ -130,6 +160,15 @@ export const START_GAME = "@@QUINTRO/GAMES/START";
 export function startGame({ gameName }) {
 	return {
 		type: START_GAME,
+		payload: { gameName },
+	};
+}
+
+export const GAME_STARTED = "@@QUINTRO/GAMES/STARTED";
+
+export function gameStarted({ gameName }) {
+	return {
+		type: GAME_STARTED,
 		payload: { gameName },
 	};
 }
@@ -170,11 +209,11 @@ export function addPlayer({ gameName, player }) {
 	};
 }
 
-export const SET_PLAYER = "@@QUINTRO/GAME/PLAYERS/SET_CURRENT";
+export const SET_CURRENT_PLAYER = "@@QUINTRO/GAME/PLAYERS/SET_CURRENT";
 
-export function setPlayer({ gameName, color }) {
+export function setCurrentPlayer({ gameName, color }) {
 	return {
-		type: SET_PLAYER,
+		type: SET_CURRENT_PLAYER,
 		payload: {
 			gameName,
 			color
@@ -184,13 +223,23 @@ export function setPlayer({ gameName, color }) {
 
 export const SET_PLAYER_PRESENCE = "@@QUINTRO/GAME/PLAYERS/SET_PRESENCE";
 
-export function setPlayerPresence({ gameName, presenceMap }) {
+export function setPlayerPresence({ gameName, presenceMap, setMissingPlayersTo }) {
 	return {
 		type: SET_PLAYER_PRESENCE,
 		payload: {
 			gameName,
 			presenceMap,
+			setMissingPlayersTo,
 		}
+	};
+}
+
+export const PLACE_MARBLE = "@@QUINTRO/GAME/PLACE_MARBLE";
+
+export function placeMarble({ gameName, position }) {
+	return {
+		type: PLACE_MARBLE,
+		payload: { gameName, position },
 	};
 }
 

@@ -1,6 +1,7 @@
 {
 	"plugins": [
-		"styled-components"
+		"styled-components",
+		"transform-undefined-to-void"
 	],
 	"presets": [
 		[

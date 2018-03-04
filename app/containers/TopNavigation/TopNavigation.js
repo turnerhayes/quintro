@@ -7,7 +7,7 @@ import TopNavigation    from "@app/components/TopNavigation";
 const withRedux = connect(
 	function mapStateToProps(state) {
 		return {
-			currentUser: userSelectors.getCurrentUser(state), 
+			loggedInUser: userSelectors.getLoggedInUser(state), 
 		};
 	}
 );

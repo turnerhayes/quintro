@@ -6,9 +6,8 @@ import Button             from "material-ui/Button";
 import PlayArrowIcon      from "material-ui-icons/PlayArrow";
 import createHelper       from "@app/components/class-helper";
 import GameJoinDialog     from "@app/components/GameJoinDialog";
-import Board              from "@app/components/Board";
+import Board              from "@app/containers/Board";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
-// import GameClient         from "@app/utils/game-client";
 import Config             from "@app/config";
 import                         "./PlayGame.less";
 
@@ -29,19 +28,24 @@ class PlayGame extends React.PureComponent {
 	 *
 	 * @prop {!string} gameName - the identifier of the game
 	 * @prop {client.records.GameRecord} [game] - the game record representing the game
-	 * @prop {external:Immutable.List<client.records.PlayerRecord>} [players] - list of the players in this game
+	 * @prop {external:Immutable.List<external:Immutable.Map>} [playerUsers] - list of users
+	 *	corresponding to the players in this game
+	 * @prop {string} [currentUserPlayerColor] - if the player currently viewing the game is a player
+	 *	in the game, this is the color corresponding to that player. Otherwise, undefined.
 	 * @prop {object} [getGameError] - an error object desribing why the game could not be retrieved from the
 	 *	server, if applicable
 	 */
 	static propTypes = {
 		gameName: PropTypes.string.isRequired,
 		game: ImmutablePropTypes.map,
-		players: ImmutablePropTypes.listOf(
+		playerUsers: ImmutablePropTypes.listOf(
 			ImmutablePropTypes.map
 		),
+		currentUserPlayerColor: PropTypes.string,
 		getGameError: PropTypes.object,
 		isInGame: PropTypes.bool,
 		isWatchingGame: PropTypes.bool,
+		hasJoinedGame: PropTypes.bool,
 		onJoinGame: PropTypes.func.isRequired,
 		onWatchGame: PropTypes.func.isRequired,
 		onStartGame: PropTypes.func.isRequired,
@@ -53,6 +57,10 @@ class PlayGame extends React.PureComponent {
 	}
 
 	componentWillMount() {
+		if (!this.props.isInGame) {
+			this.props.onWatchGame();
+		}
+
 		if (this.props.game) {
 			this.joinIfInGame();
 		}
@@ -63,7 +71,7 @@ class PlayGame extends React.PureComponent {
 
 	componentDidUpdate() {		
 		if (this.props.game) {
-			if (!this.props.players || this.props.players.size !== this.props.game.get("players").size) {
+			if (!this.props.playerUsers || this.props.playerUsers.size !== this.props.game.get("players").size) {
 				this.props.onGetUsers({
 					userIDs: this.props.game.get("players").map(
 						(player) => player.get("userID")
@@ -77,26 +85,13 @@ class PlayGame extends React.PureComponent {
 	}
 
 	/**
-	 * Returns the player from the `players` prop that represents the current user, if it exists.
-	 *
-	 * @function
-	 * @return {?external:Immutable.Map} map representing the current user, or
-	 *	undefined if such a player does not exist (or the `players` prop has not yet been populated)
-	 */
-	getMePlayer = () => {
-		return this.props.players && this.props.players.find((player) => player.getIn(["isMe"]));
-	}
-
-	/**
 	 * Joins the game if the current user is already a player in the game.
 	 *
 	 * @function
 	 * @return {void}
 	 */
 	joinIfInGame = () => {
-		const mePlayer = this.getMePlayer();
-
-		if (mePlayer) {
+		if (this.props.isInGame) {
 			this.joinGame();
 		}
 	}
@@ -116,14 +111,13 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	joinGame = ({ color } = {}) => {
-		if (!this.props.game || this.props.isInGame) {
+		if (!this.props.game || this.props.hasJoinedGame) {
 			return;
 		}
 
 		debug("Joining game with color", color);
 
 		this.props.onJoinGame({ color });
-
 	}
 
 	/**
@@ -139,7 +133,7 @@ class PlayGame extends React.PureComponent {
 	handleCellClick = ({ cell }) => {
 		if (
 			this.props.game.get("winner") || cell.color ||
-			!this.state.gameJoined
+			!this.props.hasJoinedGame
 		) {
 			return;
 		}
@@ -158,7 +152,6 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	handleStartGameButtonClick = () => {
-		debug("Start game");
 		this.props.onStartGame();
 	}
 
@@ -168,7 +161,7 @@ class PlayGame extends React.PureComponent {
 	 * @function
 	 *
 	 * @param {object} args - the function arguments
-	 * @param {client.records.PlayerRecord} args.player - the player being changed
+	 * @param {external:Immutable.Map} args.player - the player being changed
 	 * @param {string} args.displayName - the name to set the player's display name to
 	 *
 	 * @return {void}
@@ -199,7 +192,7 @@ class PlayGame extends React.PureComponent {
 	}
 
 	/**
-	 * Handles cancelling game joinining.
+	 * Handles cancelling game joining.
 	 *
 	 * @function
 	 *
@@ -230,13 +223,11 @@ class PlayGame extends React.PureComponent {
 	renderBoard = () => {
 		const {
 			game,
-			players,
 			isInGame,
 			isWatchingGame,
 		} = this.props;
 
-		const mePlayer = this.getMePlayer();
-		const myTurn = mePlayer && mePlayer.get("color") === game.get("currentPlayerColor");
+		const myTurn = this.props.currentUserPlayerColor === game.get("currentPlayerColor");
 		const gameIsOver = !!game.get("winner");
 		const gameIsStarted = game.get("isStarted") && !gameIsOver;
 
@@ -271,9 +262,7 @@ class PlayGame extends React.PureComponent {
 					)
 				}
 				<PlayerIndicators
-					players={players}
-					currentPlayerColor={game.get("currentPlayerColor")}
-					playerLimit={game.get("playerLimit")}
+					game={game}
 					markCurrent={gameIsStarted}
 					onDisplayNameChange={this.handleDisplayNameChange}
 				/>
@@ -324,9 +313,8 @@ class PlayGame extends React.PureComponent {
 						)
 					}
 					<Board
-						board={game.get("board")}
+						gameName={this.props.game.get("name")}
 						allowPlacement={myTurn && gameIsStarted}
-						gameIsOver={gameIsOver}
 						onCellClick={this.handleCellClick}
 					/>
 				</div>

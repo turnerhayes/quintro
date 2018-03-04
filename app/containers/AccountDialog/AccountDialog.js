@@ -10,7 +10,7 @@ import {
 
 const AccountDialogContainer = connect(
 	function mapStateToProps(state) {
-		const loggedInUser = userSelectors.getCurrentUser(state);
+		const loggedInUser = userSelectors.getLoggedInUser(state);
 
 		return {
 			loggedInUser

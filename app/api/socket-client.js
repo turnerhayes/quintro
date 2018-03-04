@@ -5,21 +5,13 @@ import Config         from "@app/config";
 
 let debug = dbg("quintro:socket-client");
 
-let _instance;
-
 let _client;
+
+// window.addEventListener("beforeunload", () => { _client && _client.close(); });
 
 class SocketClient {
 	get isConnectionOpen() {
-		return this._ioClient.connected;
-	}
-
-	static get instance() {
-		if (!_instance) {
-			_instance = new SocketClient();
-		}
-
-		return _instance;
+		return _client.connected;
 	}
 
 	constructor() {
@@ -33,56 +25,35 @@ class SocketClient {
 			);
 		}
 
-		this._ioClient = _client;
+		const handlers = {
+			connect_error: (...args) => this._handleConnectError("connect_error", ...args),
+			connect_timeout: (...args) => this._handleConnectError("connect_timeout", ...args),
+			reconnect_error: (...args) => this._handleConnectError(...args),
+			reconnect_failed: (...args) => this._handleConnectError(...args),
+			reconnect: (...args) => this._handleReconnect(...args),
+		};
 
-		this._attachListeners();
-	}
-
-	_attachListeners = () => {
-		if (this._listenersAttached) {
-			return;
+		for (let eventName in handlers) {
+			if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
+				_client.on(eventName, handlers[eventName]);
+			}
 		}
 
-		this._ioClient.on(
-			"connect_error",
-			this._handleConnectError.bind(
-				this,
-				"connect_error"
-			)
-		);
+		this.dispose = () => {
+			for (let eventName in handlers) {
+				if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
+					_client.off(eventName, handlers[eventName]);
+				}
+			}
 
-		this._ioClient.on(
-			"connect_timeout",
-			this._handleConnectError.bind(
-				this,
-				"connect_timeout"
-			)
-		);
-
-		this._ioClient.on(
-			"reconnect_error",
-			this._handleConnectError
-		);
-
-		this._ioClient.on(
-			"reconnect_failed",
-			this._handleConnectError
-		);
-
-		this._ioClient.on(
-			"reconnect",
-			this._handleReconnect
-		);
-
-		window.addEventListener("beforeunload", () => { this._ioClient.close(); });
-
-		this._listenersAttached = true;
+			_client = undefined;
+		};
 	}
 
 	emit(eventName, eventData) {
 		return new Promise(
 			(resolve, reject) => {
-				this._ioClient.emit(eventName, eventData, (result) => {
+				_client.emit(eventName, eventData, (result) => {
 					if (result.error) {
 						reject(new Error(`Socket error: ${result.message}`));
 					}
@@ -95,17 +66,17 @@ class SocketClient {
 	}
 
 	on(...args) {
-		return this._ioClient.on(...args);
+		return _client.on(...args);
 	}
 
 	off(...args) {
-		return this._ioClient.off(...args);
+		return _client.off(...args);
 	}
 
 	_handleConnectError = (reason, error) => {
-		debug("Socket connection failure (" + reason + ")");
+		debug(`Socket connection failure (${reason})`);
 
-		if (this._connectionOpen) {
+		if (this.isConnectionOpen) {
 			this.emit("connection:closed", {
 				reason: reason,
 				error: error
@@ -116,7 +87,7 @@ class SocketClient {
 	_handleReconnect = () => {
 		debug("Reconnected to socket server");
 
-		if (!this._connectionOpen) {
+		if (!this.isConnectionOpen) {
 			this.emit("connection:restored");
 		}
 	}

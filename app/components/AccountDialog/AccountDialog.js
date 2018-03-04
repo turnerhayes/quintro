@@ -44,7 +44,7 @@ class AccountDialog extends React.PureComponent {
 	 *
 	 * @prop {function} onLogin - function to log in
 	 * @prop {function} onLogout - function to log out
-	 * @prop {client.records.UserRecord} [loggedInUser] - the currently logged in user, if any
+	 * @prop {external:Immutable.Map} [loggedInUser] - the currently logged in user, if any
 	 * @prop {string} [className] - the class(es) to add to the dialog
 	 */
 	static propTypes = {
@@ -92,7 +92,7 @@ class AccountDialog extends React.PureComponent {
 			>
 				<div>
 					<Link
-						to={`/profile/${this.props.loggedInUser.username}`}
+						to={`/profile/${this.props.loggedInUser.get("username")}`}
 					>
 					Profile
 					</Link>
@@ -162,20 +162,20 @@ class AccountDialog extends React.PureComponent {
 							align="center"
 							type="title"
 						>
-						{title}
+							{title}
 						</Typography>
 					)
 				}
 				{
 					this.props.loggedInUser &&
-					PROVIDER_INFO[this.props.loggedInUser.provider] && (
+					PROVIDER_INFO[this.props.loggedInUser.get("provider")] && (
 						<Icon>
-							{PROVIDER_INFO[this.props.loggedInUser.provider].ligature}
+							{PROVIDER_INFO[this.props.loggedInUser.get("provider")].ligature}
 						</Icon>
 					)
 				}
 				{
-					this.props.loggedInUser && this.props.loggedInUser.name.get("display")
+					this.props.loggedInUser && this.props.loggedInUser.getIn(["name", "display"])
 				}
 				{
 					this.props.loggedInUser && (

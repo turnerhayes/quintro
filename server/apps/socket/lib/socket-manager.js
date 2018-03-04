@@ -11,7 +11,7 @@ const rfrProject         = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..", "..")
 });
 const {
-	prepareUserForFrontend
+	prepareUserForFrontend,
 }                        = rfrProject("server/routes/utils");
 const GameStore          = rfrProject("server/persistence/stores/game");
 const UserStore          = rfrProject("server/persistence/stores/user");
@@ -52,14 +52,12 @@ function _logGameEvent({ gameName, message, level, stack }) {
 }
 
 
-function _findPlayer(user, player) {
-	return player.user.id === user.id;
-}
-
-function _getPlayer({game, user}) {
+function _getPlayer({game, user, sessionID}) {
 	return _.find(
 		game.players,
-		_.bind(_findPlayer, undefined, user)
+		(player) => user ?
+			player.user.id === user.id :
+			player.user.sessionID === sessionID
 	);
 }
 
@@ -279,6 +277,11 @@ class SocketManager {
 			SocketManager._onJoinGame(this, gameName, color, fn);
 		});
 
+		socket.on("game:leave", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onLeaveGame(this, gameName, fn);
+		});
+
 		socket.on("game:watch", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onWatchGame(this, gameName, fn);
@@ -287,6 +290,11 @@ class SocketManager {
 		socket.on("game:watchers", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._getWatchers(this, gameName, fn);
+		});
+
+		socket.on("game:update", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onUpdateGame(this, gameName, fn);
 		});
 
 		socket.on("game:players:presence", function({ gameName }, fn) {
@@ -343,6 +351,31 @@ class SocketManager {
 		});
 	}
 
+	static _onUpdateGame(socket, gameName, fn) {
+		const update = {
+			watchers: WATCHERS[gameName] || [],
+			playerPresence: SocketManager.getPresentPlayers({ socket, gameName }),
+		};
+
+		fn && fn({ update });
+	}
+
+	static getPresentPlayers({ gameName }) {
+		return _.map(
+			SocketManager._server.to(gameName).connected,
+			"player"
+		).reduce(
+			(presenceMap, player) => {
+				if (player) {
+					presenceMap[player.color] = true;
+				}
+
+				return presenceMap;
+			},
+			{}
+		);
+	}
+
 	static _onWatchGame(socket, gameName, fn) {
 		if (!gameName) {
 			const error = new Error("No gameName specified");
@@ -355,32 +388,52 @@ class SocketManager {
 		}
 
 		socket.join(gameName);
-		if (!WATCHERS[gameName]) {
-			WATCHERS[gameName] = [];
-		}
-		WATCHERS[gameName].push({
-			user: socket.request.user,
-			sessionID: socket.request.user ?
-				undefined :
-				socket.request.sessionID,
-		});
+		
+		GameStore.getGame({
+			name: gameName,
+		}).then(
+			(game) => {
+				// Don't add player as a watcher if they're already a player;
+				// just add their socket to the game's room
+				if (!getSocketPlayer({ socket, game })) {
+					if (!WATCHERS[gameName]) {
+						WATCHERS[gameName] = [];
+					}
 
-		this._server.sockets.in(gameName).emit(
-			"game:watchers:added",
-			{
-				gameName,
-				user: socket.request.user &&
-					prepareUserForFrontend({
+					WATCHERS[gameName].push({
 						user: socket.request.user,
-						request: socket.request
-					}) ||
-					{
-						sessionID: socket.request.sessionID,
-					},
+						sessionID: socket.request.user ?
+							undefined :
+							socket.request.sessionID,
+					});
+
+					this._server.sockets.in(gameName).emit(
+						"game:watchers:added",
+						{
+							gameName,
+							user: socket.request.user &&
+								prepareUserForFrontend({
+									user: socket.request.user,
+									request: socket.request
+								}) ||
+								{
+									sessionID: socket.request.sessionID,
+								},
+						}
+					);
+				}
+
+				fn && fn({});
+			}
+		).catch(
+			(error) => {
+				fn && fn({
+					error: true,
+					message: error.message,
+					code: error.code,
+				});
 			}
 		);
-
-		fn && fn({});
 	}
 
 	static _getWatchers(socket, gameName, fn) {
@@ -436,7 +489,7 @@ class SocketManager {
 
 				_logGameEvent({
 					gameName,
-					message: `Player ${data.player.color} joined`
+					message: `Player ${data.player.color} joined`,
 				});
 
 				const playerData = {
@@ -475,6 +528,85 @@ class SocketManager {
 					error: true,
 					message: err.message,
 					code: err.code,
+				});
+			}
+		);
+	}
+
+	static _onLeaveGame(socket, gameName, fn) {
+		if (WATCHERS[gameName]) {
+			let watcherIndex;
+
+			if (socket.request.user) {
+				watcherIndex = WATCHERS[gameName].findIndex(
+					(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
+				);
+			}
+			else {
+				watcherIndex = WATCHERS[gameName].findIndex(
+					(watcher) => watcher.sessionID === socket.request.sessionID
+				);
+			}
+
+			if (watcherIndex >= 0) {
+				// Remove from watchers
+				WATCHERS[gameName].splice(watcherIndex, 1);
+				socket.broadcast.to(gameName).emit(
+					"game:watchers:removed",
+					{
+						gameName,
+						user: socket.request.user &&
+							prepareUserForFrontend({
+								user: socket.request.user,
+								request: socket.request
+							}) ||
+							{
+								sessionID: socket.request.sessionID,
+							},
+					}
+				);
+			}
+		}
+
+		GameStore.getGame({
+			name: gameName,
+		}).then(
+			(game) => {
+				const player = _getPlayer({
+					game,
+					user: socket.request.user,
+					sessionID: socket.request.sessionID
+				});
+
+				_logGameEvent({gameName, message: `Player ${player.color} left`});
+
+				socket.broadcast.to(gameName).emit(
+					"game:player:left",
+					{
+						gameName,
+						player: Object.assign(
+							player.toObject(),
+							{
+								user: prepareUserForFrontend({ user: player.user, request: socket.request })
+							}
+						)
+					}
+				);
+
+				fn && fn();
+			}
+		).catch(
+			(err) => {
+				_logGameEvent({
+					gameName,
+					message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
+					stack: err.stack,
+					level: LOG_LEVELS.ERROR
+				});
+
+				fn && fn({
+					error: true,
+					message: err.message,
 				});
 			}
 		);
@@ -601,90 +733,13 @@ class SocketManager {
 
 	static _onDisconnect(socket) {
 		_games[socket.id] && _games[socket.id].forEach(
-			(gameName) => {
-				if (WATCHERS[gameName]) {
-					let watcherIndex;
-
-					if (socket.request.user) {
-						watcherIndex = WATCHERS[gameName].findIndex(
-							(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
-						);
-					}
-					else {
-						watcherIndex = WATCHERS[gameName].findIndex(
-							(watcher) => watcher.sessionID === socket.request.sessionID
-						);
-					}
-
-					if (watcherIndex >= 0) {
-						// Remove from watchers
-						WATCHERS[gameName].splice(watcherIndex, 1);
-						socket.broadcast.to(gameName).emit(
-							"game:watchers:removed",
-							{
-								gameName,
-								user: socket.request.user &&
-									prepareUserForFrontend({
-										user: socket.request.user,
-										request: socket.request
-									}) ||
-									{
-										sessionID: socket.request.sessionID,
-									},
-							}
-						);
-					}
-				}
-
-				GameStore.getGame({
-					name: gameName,
-				}).then(
-					(game) => {
-						const player = _getPlayer({
-							game,
-							user: socket.request.user,
-							sessionID: socket.request.session.id
-						});
-
-						_logGameEvent({gameName, message: `Player ${player.color} left`});
-
-						socket.broadcast.to(gameName).emit(
-							"game:player:left",
-							{
-								gameName,
-								player: Object.assign(
-									player.toObject(),
-									{
-										user: prepareUserForFrontend({ user: player.user, request: socket.request })
-									}
-								)
-							}
-						);
-					}
-				).catch(
-					(err) => {
-						_logGameEvent({
-							gameName,
-							message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
-							stack: err.stack,
-							level: LOG_LEVELS.ERROR
-						});
-					}
-				);
-			}
+			(gameName) => SocketManager._onLeaveGame(socket, gameName)
 		);
 	}
 
 	static _onGetPlayerPresence(socket, { gameName }, fn) {
-		const players = _.compact(
-			_.map(
-				SocketManager._server.to(gameName).connected,
-				"player"
-			)
-		);
-
 		fn && fn({
-			presentPlayers: players
+			presentPlayers: SocketManager.getPresentPlayers({ socket, gameName }),
 		});
 	}
 

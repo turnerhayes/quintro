@@ -8,29 +8,34 @@ import {
 	joinGame,
 	watchGame,
 	startGame,
+	placeMarble,
 	// getUsers,
-	// placeMarble,
 	// changeUserProfile
 }                  from "@app/actions";
 import {
-	users as userSelectors,
 	games as gameSelectors
 }                  from "@app/selectors";
 import saga        from "./saga";
 
+const displayName = "PlayGameContainer";
+
 const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
-		const game = state.getIn([ "games", "items", ownProps.gameName ]);
+		const selectorProps = { gameName: ownProps.gameName };
+		const game = gameSelectors.getGame(state, selectorProps);
+		const gameIsLoaded = gameSelectors.isLoaded(state, selectorProps);
+		const currentUserPlayer = gameSelectors.getCurrentUserPlayer(state, selectorProps);
 
 		const props = {
-			players: userSelectors.playerSelector(state, {
-				...ownProps,
-				players: game && game.get("players")
-			}),
+			playerUsers: gameSelectors.getPlayerUsers(state, selectorProps),
 
-			isInGame: gameSelectors.isInGame(state, { gameName: ownProps.gameName }),
+			isInGame: gameSelectors.isInGame(state, selectorProps),
 
-			isWatchingGame: gameSelectors.isWatchingGame(state, { gameName: ownProps.gameName }),
+			isWatchingGame: gameSelectors.isWatchingGame(state, selectorProps),
+
+			hasJoinedGame: gameSelectors.hasJoinedGame(state, selectorProps),
+
+			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
 		};
 
 		const getGameError = state.getIn([ "games", "getGameError" ]);
@@ -38,7 +43,7 @@ const withRedux = connect(
 		if (getGameError) {
 			props.getGameError = getGameError;
 		}
-		else {
+		else if (gameIsLoaded) {
 			props.game = game;
 		}
 
@@ -67,14 +72,14 @@ const withRedux = connect(
 				// dispatch(getUsers({ userIDs }));
 			},
 
-			onPlaceMarble(/*{
+			onPlaceMarble({
 				gameName,
 				position,
-			}*/) {
-				// dispatch(placeMarble({
-				// 	gameName,
-				// 	position,
-				// }));
+			}) {
+				dispatch(placeMarble({
+					gameName,
+					position,
+				}));
 			},
 
 			onChangeUserProfile(/*{
@@ -94,13 +99,13 @@ const withRedux = connect(
 	}
 );
 
-const withSaga = injectSaga({ key: "PlayGameContainer", saga });
+const withSaga = injectSaga({ key: displayName, saga });
 
 const PlayGameContainer = compose(
 	withRedux,
-	withSaga
+	withSaga,
 )(PlayGame);
 
-PlayGameContainer.displayName = "PlayGameContainer";
+PlayGameContainer.displayName = displayName;
 
 export default PlayGameContainer;
