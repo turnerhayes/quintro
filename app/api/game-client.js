@@ -1,35 +1,37 @@
+import { fromJS }   from "immutable";
 import SocketClient from "@app/api/socket-client";
 import {
 	setMarble,
-	setPlayer,
+	setCurrentPlayer,
 	addPlayer,
 	addWatcher,
 	removeWatcher,
 	setPlayerPresence,
 	setWinner,
-	startGame,
-	setGamePlayError
+	gameStarted,
+	setGamePlayError,
+	gameUpdated,
 }                   from "@app/actions";
 
 class GameClient extends SocketClient {
-	constructor({ store }) {
+	constructor({ dispatch }) {
 		super();
 
-		if (!store) {
-			throw new Error("Cannot construct a GameClient without a store");
+		if (!dispatch) {
+			throw new Error("Cannot construct a GameClient without a dispatch function");
 		}
 
-		this.store = store;
+		this.dispatch = dispatch;
 
 		const handlers = {
-			"board:marble:placed": this.onMarblePlaced,
-			"game:currentPlayer:changed": this.onCurrentPlayerChanged,
-			"game:player:joined": this.onPlayerJoined,
-			"game:player:left": this.onPlayerLeft,
-			"game:watchers:added": this.onWatcherAdded,
-			"game:watchers:removed": this.onWatcherRemoved,
-			"game:started": this.onGameStarted,
-			"game:over": this.onGameOver,
+			"board:marble:placed": (...args) => this.onMarblePlaced(...args),
+			"game:currentPlayer:changed": (...args) => this.onCurrentPlayerChanged(...args),
+			"game:player:joined": (...args) => this.onPlayerJoined(...args),
+			"game:player:left": (...args) => this.onPlayerLeft(...args),
+			"game:watchers:added": (...args) => this.onWatcherAdded(...args),
+			"game:watchers:removed": (...args) => this.onWatcherRemoved(...args),
+			"game:started": (...args) => this.onGameStarted(...args),
+			"game:over": (...args) => this.onGameOver(...args),
 		};
 
 		for (let eventName in handlers) {
@@ -44,33 +46,35 @@ class GameClient extends SocketClient {
 					this.off(eventName, handlers[eventName]);
 				}
 			}
+
+			super.dispose();
 		};
 	}
 
-	onWatcherAdded = ({ gameName, user }) => this.store.dispatch(
+	onWatcherAdded = ({ gameName, user }) => this.dispatch(
 		addWatcher({
 			gameName,
 			user,
 		})
 	)
 
-	onWatcherRemoved = ({ gameName, user }) => this.store.dispatch(
+	onWatcherRemoved = ({ gameName, user }) => this.dispatch(
 		removeWatcher({
 			gameName,
 			user,
 		})
 	)
 
-	onGameStarted = ({ gameName }) => this.store.dispatch(
-		startGame({ gameName })
+	onGameStarted = ({ gameName }) => this.dispatch(
+		gameStarted({ gameName })
 	)
 
-	onGameOver = ({ gameName, winner }) => this.store.dispatch(
+	onGameOver = ({ gameName, winner }) => this.dispatch(
 		setWinner({ gameName, color: winner.color })
 	)
 
 	onMarblePlaced = ({ gameName, position, color }) => {
-		this.store.dispatch(
+		this.dispatch(
 			setMarble({
 				gameName,
 				position,
@@ -79,28 +83,42 @@ class GameClient extends SocketClient {
 		);
 	}
 
-	onPlayerJoined = ({ gameName, player }) => this.store.dispatch(
-		addPlayer({
-			gameName,
-			player
-		})
-	)
+	onPlayerJoined = ({ gameName, player }) => {
+		this.dispatch(
+			addPlayer({
+				gameName,
+				player: fromJS(player),
+			})
+		);
+		this.dispatch(
+			setPlayerPresence({
+				gameName,
+				presenceMap: {
+					[player.color]: true,
+				},
+			})
+		);
+	}
 
-	onPlayerLeft = ({ gameName, player }) => this.store.dispatch(
-		setPlayerPresence({
-			gameName,
-			presenceMap: {
-				[player.color]: false
-			}
-		})
-	)
+	onPlayerLeft = ({ gameName, player }) => {
+		this.dispatch(
+			setPlayerPresence({
+				gameName,
+				presenceMap: {
+					[player.color]: false
+				}
+			})
+		);
+	}
 
-	onCurrentPlayerChanged = ({ gameName, color }) => this.store.dispatch(
-		setPlayer({
-			gameName,
-			color
-		})
-	)
+	onCurrentPlayerChanged = ({ gameName, color }) => {
+		this.dispatch(
+			setCurrentPlayer({
+				gameName,
+				color
+			})
+		);
+	}
 
 	joinGame = ({ gameName, color }) => {
 		return this.emit(
@@ -114,10 +132,21 @@ class GameClient extends SocketClient {
 				this.onPlayerJoined({ gameName, player });
 				this.onCurrentPlayerChanged({ gameName, color: currentPlayerColor });
 			}
+		).then(
+			() => this.updateGame({ gameName })
 		);
 	}
 
-	setGamePlayError = ({ gameName, error }) => this.store.dispatch(setGamePlayError({ gameName, error }))
+	leaveGame = ({ gameName }) => {
+		return this.emit(
+			"game:leave",
+			{
+				gameName,
+			}
+		);
+	}
+
+	setGamePlayError = ({ gameName, error }) => this.dispatch(setGamePlayError({ gameName, error }))
 
 	getWatchers = ({ gameName }) => {
 		return this.emit(
@@ -134,6 +163,8 @@ class GameClient extends SocketClient {
 			{
 				gameName
 			}
+		).then(
+			() => this.updateGame({ gameName })
 		);
 	}
 
@@ -146,13 +177,29 @@ class GameClient extends SocketClient {
 		);
 	}
 
+	updateGame = ({ gameName }) => {
+		return this.emit(
+			"game:update",
+			{ gameName }
+		).then(
+			({ update }) => {
+				this.dispatch(
+					gameUpdated({
+						gameName,
+						update: fromJS(update),
+					})
+				);
+			}
+		);
+	}
+
 	placeMarble = ({ gameName, position }) => {
 		this.setGamePlayError({ gameName, error: null });
 		return this.emit(
 			"board:place-marble",
 			{
 				gameName,
-				position
+				position,
 			}
 		).catch(
 			(error) => this.setGamePlayError({ gameName, error })
@@ -163,11 +210,11 @@ class GameClient extends SocketClient {
 		return this.emit(
 			"game:players:presence",
 			{
-				gameName
+				gameName,
 			}
 		).then(
 			({ presentPlayers }) => {
-				this.store.dispatch(
+				this.dispatch(
 					setPlayerPresence({
 						gameName,
 						presenceMap: presentPlayers.reduce(
@@ -185,9 +232,5 @@ class GameClient extends SocketClient {
 		);
 	}
 }
-
-/// DEBUG
-window.__GameClient = GameClient;
-/// END DEBUG
 
 export default GameClient;

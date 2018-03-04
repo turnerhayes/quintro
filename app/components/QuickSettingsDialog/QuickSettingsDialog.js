@@ -71,10 +71,10 @@ class QuickSettingsDialog extends React.PureComponent {
 			// Turning on notifications
 			!this.props.enableNotifications && status &&
 				Notify.needsPermission && new Promise(
-					(resolve, reject) => {
-						Notify.requestPermission(resolve, reject);
-					}
-				)
+				(resolve, reject) => {
+					Notify.requestPermission(resolve, reject);
+				}
+			)
 		).then(
 			() => {
 				this.props.onChangeSetting({

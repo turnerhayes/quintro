@@ -7,7 +7,6 @@
 import { Map }               from "immutable";
 import createHistory         from "history/createBrowserHistory";
 import configureStore        from "@app/configure-store";
-import { initializeClients } from "@app/api/clients";
 
 export const history = createHistory();
 
@@ -31,8 +30,6 @@ let store;
 export default function getStore() {
 	if (!store) {
 		store = configureStore(initialState, history);
-
-		initializeClients({ store });
 
 		/// DEBUG
 		window.__store = store;

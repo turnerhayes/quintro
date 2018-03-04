@@ -5,20 +5,20 @@ import {
 
 
 class UserClient extends SocketClient {
-	constructor({ store }) {
-		if (!store) {
-			throw new Error("Cannot create a UserClient without a store");
+	constructor({ dispatch }) {
+		if (!dispatch) {
+			throw new Error("Cannot create a UserClient without a dispatch function");
 		}
 
 		super();
 
-		this.store = store;
+		this.dispatch = dispatch;
 
 		this.on("users:profile-changed", this.onUserProfileChanged);
 	}
 
 	onUserProfileChanged = ({ user }) => {
-		this.store.dispatch(
+		this.dispatch(
 			updateUserProfile({
 				user
 			})

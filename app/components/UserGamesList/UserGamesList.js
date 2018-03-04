@@ -119,67 +119,67 @@ class UserGamesList extends React.PureComponent {
 						element: "games-list",
 					})}
 				>
-				{
-					games && games.inProgress.sort((a, b) => (b.get("isStarted") - a.get("isStarted"))).map(
-						(game) => {
-							const players = this.props.playersByGame &&
+					{
+						games && games.inProgress.sort((a, b) => (b.get("isStarted") - a.get("isStarted"))).map(
+							(game) => {
+								const players = this.props.playersByGame &&
 								this.props.playersByGame.get(game.get("name"));
 
-							const isWaitingForYou = game.get("isStarted") &&
+								const isWaitingForYou = game.get("isStarted") &&
 								players && players.find(
-									(p) => p.user.isMe
-								).color === game.get("currentPlayerColor");
+										(p) => p.user.isMe
+									).color === game.get("currentPlayerColor");
 
-							return (
-								<ListItem
-									key={`user-game-${game.get("name")}`}
-								>
-									<Button
-										fullWidth
-										component={Link}
-										to={`/play/${game.get("name")}`}
-										{...classes({
-											element: "games-list-item",
-											extra: [
-												game.get("isStarted") && "is-started",
-												!game.get("isStarted") && "not-started",
-											],
-										})}
+								return (
+									<ListItem
+										key={`user-game-${game.get("name")}`}
 									>
-										<Badge
-											badgeContent={game.get("players").size}
-											color="primary"
-											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+										<Button
+											fullWidth
+											component={Link}
+											to={`/play/${game.get("name")}`}
+											{...classes({
+												element: "games-list-item",
+												extra: [
+													game.get("isStarted") && "is-started",
+													!game.get("isStarted") && "not-started",
+												],
+											})}
 										>
-											<AccountCircleIcon
+											<Badge
+												badgeContent={game.get("players").size}
+												color="primary"
+												title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+											>
+												<AccountCircleIcon
+												/>
+											</Badge>
+											<ListItemText
+												primary={game.get("name")}
 											/>
-										</Badge>
-										<ListItemText
-											primary={game.get("name")}
-										/>
 
-										{
-											!game.get("isStarted") &&
+											{
+												!game.get("isStarted") &&
 												(
 													<StopIcon
 														title="Game has not started yet"
 													/>
 												)
-										}
-										{
-											isWaitingForYou &&
+											}
+											{
+												isWaitingForYou &&
 												(
 													<WarningIcon
 														title="It's your turn!"
 													/>
 												)
-										}
-									</Button>
-								</ListItem>
-							);
-						}
-					)
-				}
+											}
+										</Button>
+									</ListItem>
+								);
+							}
+						)
+					}
 				</List>
 			),
 			(selectedTabIndex === 1 || !hasGamesInProgress) && (
@@ -189,34 +189,34 @@ class UserGamesList extends React.PureComponent {
 						element: "games-list",
 					})}
 				>
-				{
-					games.over.map(
-						(game) => {
-							return (
-								<ListItem
-									key={`user-game-${game.get("name")}`}
-								>
-									<Button
-										fullWidth
-										component={Link}
-										to={`/play/${game.get("name")}`}
-										className="is-over"
+					{
+						games.over.map(
+							(game) => {
+								return (
+									<ListItem
+										key={`user-game-${game.get("name")}`}
 									>
-										<Badge
-											badgeContent={game.get("players").size}
-											color="primary"
-											title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+										<Button
+											fullWidth
+											component={Link}
+											to={`/play/${game.get("name")}`}
+											className="is-over"
 										>
-											<AccountCircleIcon
-											/>
-										</Badge>
-										<ListItemText primary={game.get("name")} />
-									</Button>
-								</ListItem>
-							);
-						}
-					)
-				}
+											<Badge
+												badgeContent={game.get("players").size}
+												color="primary"
+												title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+											>
+												<AccountCircleIcon
+												/>
+											</Badge>
+											<ListItemText primary={game.get("name")} />
+										</Button>
+									</ListItem>
+								);
+							}
+						)
+					}
 				</List>
 			),
 		];

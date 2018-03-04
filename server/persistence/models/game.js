@@ -65,10 +65,6 @@ const GameSchema = new mongoose.Schema({
 				ref: "User",
 				default: null
 			},
-			sessionID: {
-				type: String,
-				default: null
-			},
 			_id: false
 		}
 	],

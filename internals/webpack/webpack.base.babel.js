@@ -3,9 +3,9 @@
  */
 
 require("dotenv").config();
-const path = require("path");
 const webpack = require("webpack");
 const LessListsPlugin = require("less-plugin-lists");
+const aliases = require("./aliases");
 const rfr = require("rfr");
 const Config = rfr("server/lib/config");
 
@@ -19,7 +19,7 @@ module.exports = (options) => ({
 	entry: options.entry,
 	output: Object.assign({ 
 		path: Config.paths.dist,
-		publicPath: "/",
+		publicPath: "/static/",
 	}, options.output), // Merge with env dependent settings
 	module: {
 		rules: [
@@ -153,13 +153,7 @@ module.exports = (options) => ({
 			"jsnext:main",
 			"main",
 		],
-		alias: {
-			"@app": Config.paths.app,
-			"project/shared-lib": path.join(Config.paths.root, "shared-lib"),
-			"project/app": path.join(Config.paths.app),
-			"project/images": path.join(Config.paths.app, "images"),
-			"project/sounds": path.join(Config.paths.app, "sounds"),
-		}
+		alias: aliases,
 	},
 	devtool: options.devtool,
 	target: "web", // Make web variables accessible to webpack, e.g. window

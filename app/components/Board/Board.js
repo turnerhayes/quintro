@@ -1,9 +1,9 @@
-import { range }    from "lodash";
-import React        from "react";
-import PropTypes    from "prop-types";
+import range              from "lodash/range";
+import React              from "react";
+import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import createHelper from "@app/components/class-helper";
-import                   "./Board.less";
+import createHelper       from "@app/components/class-helper";
+import                         "./Board.less";
 
 const classes = createHelper("game-board");
 
@@ -34,6 +34,7 @@ class Board extends React.Component {
 	 */
 	static propTypes = {
 		board: ImmutablePropTypes.map.isRequired,
+		quintros: ImmutablePropTypes.set,
 		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
 		onCellClick: PropTypes.func,
@@ -69,20 +70,16 @@ class Board extends React.Component {
 		let quintros;
 
 		if (gameIsOver) {
-			quintros = board.getQuintros();
+			quintros = this.props.quintros.reduce(
+				(cells, quintro) => {
+					quintro.forEach(
+						cell => cells[JSON.stringify(cell.get("position"))] = true
+					);
 
-			if (quintros) {
-				quintros = quintros.reduce(
-					(cells, quintro) => {
-						quintro.cells.forEach(
-							cell => cells[JSON.stringify(cell.get("position"))] = true
-						);
-
-						return cells;
-					},
-					{}
-				);
-			}
+					return cells;
+				},
+				{}
+			);
 		}
 
 		const filledMap = board.get("filled").reduce(
@@ -108,51 +105,51 @@ class Board extends React.Component {
 				})}
 			>
 				<tbody>
-				{
-					range(board.get("height")).map(
-						(rowIndex) => (
-							<tr
-								key={rowIndex}
-								{...classes({
-									element: "board-row",
-								})}
-							>
-							{
-								range(this.props.board.get("width")).map(
-									(columnIndex) => {
-										const position = [columnIndex, rowIndex];
-										const filled = filledMap[JSON.stringify(position)];
+					{
+						range(board.get("height")).map(
+							(rowIndex) => (
+								<tr
+									key={rowIndex}
+									{...classes({
+										element: "board-row",
+									})}
+								>
+									{
+										range(this.props.board.get("width")).map(
+											(columnIndex) => {
+												const position = [columnIndex, rowIndex];
+												const filled = filledMap[JSON.stringify(position)];
 
-										return (
-											<td
-												key={`${columnIndex}-${rowIndex}`}
-												{...classes({
-													element: "board-cell",
-													extra: [
-														filled && "filled",
-														filled && filled.isQuintroMember && "quintro-member",
-													],
-												})}
-												onClick={() => this.handleCellClick({
-													cell: filled || {
-														position
-													},
-												})}
-											>
-												{
-													filled ? (
-														<div className={`marble ${filled.color}`}></div>
-													) : null
-												}
-											</td>
-										);
-									}
-								)
-							}	
-							</tr>
+												return (
+													<td
+														key={`${columnIndex}-${rowIndex}`}
+														{...classes({
+															element: "board-cell",
+															extra: [
+																filled && "filled",
+																filled && filled.isQuintroMember && "quintro-member",
+															],
+														})}
+														onClick={() => this.handleCellClick({
+															cell: filled || {
+																position
+															},
+														})}
+													>
+														{
+															filled ? (
+																<div className={`marble ${filled.color}`}></div>
+															) : null
+														}
+													</td>
+												);
+											}
+										)
+									}	
+								</tr>
+							)
 						)
-					)
-				}
+					}
 				</tbody>
 			</table>
 		);

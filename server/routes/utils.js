@@ -8,6 +8,19 @@ const UserStore       = rfr("server/persistence/stores/user");
 
 const USER_ID_HEADER = "X-API-User-ID";
 
+function prepareUserForFrontend({ user, request }) {
+	if (typeof user.toFrontendObject === "function") {
+		user = user.toFrontendObject();
+	}
+
+	user.isMe = request.user ?
+		request.user.id === user.id :
+		request.sessionID === user.sessionID;
+
+	return user;
+}
+
+
 exports = module.exports = {
 	mustAuthenticate(message) {
 		message = message || "You must be logged in to perform this action";
@@ -66,15 +79,15 @@ exports = module.exports = {
 		};
 	},
 
-	prepareUserForFrontend({ user, request }) {
-		if (typeof user.toFrontendObject === "function") {
-			user = user.toFrontendObject();
-		}
+	prepareUserForFrontend,
 
-		user.isMe = request.user ?
-			request.user.id === user.id :
-			request.sessionID === user.sessionID;
+	prepareGameForFrontend({ game, request }) {
+		game = game.toFrontendObject();
 
-		return user;
+		game.players.forEach(
+			(player) => player.user = prepareUserForFrontend({ user: player.user, request })
+		);
+
+		return game;
 	}
 };

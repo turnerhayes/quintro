@@ -2,10 +2,11 @@
 
 require("dotenv").config();
 const Promise         = require("bluebird");
-const debug           = require("debug")("quintro:update-db");
 const { MongoClient } = require("mongodb");
 const rfr             = require("rfr");
 const Config          = rfr("server/lib/config");
+
+// const connection = require("./server/persistence/db-connection");
 
 let client;
 
@@ -58,8 +59,6 @@ function updateCollection(items, collection) {
 		[]
 	);
 
-	debug(modifiedItems);
-
 	return modifiedItems.length > 0 ?
 		Promise.all(
 			modifiedItems.map(
@@ -106,7 +105,6 @@ new Promise(
 	}
 ).then(
 	(db) => {
-		// const collection = db.collection("games");
 		const collection = db.collection("users");
 
 		return getAll(collection).then(

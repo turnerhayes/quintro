@@ -26,7 +26,6 @@ const setup = require("./middlewares/frontendMiddleware");
 const passportMiddleware = require("./middlewares/passport");
 const Config = require("./lib/config");
 const ngrok = (Config.app.isDevelopment && process.env.ENABLE_TUNNEL) || argv.tunnel ? require("ngrok") : false;
-const { resolve } = require("path");
 const { router, raise404 } = require("./routes");
 
 
@@ -57,8 +56,8 @@ if (Config.websockets.inline) {
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
-	outputPath: resolve(__dirname, "..", "build"),
-	publicPath: "/",
+	outputPath: Config.paths.dist,
+	publicPath: "/static/",
 });
 
 // get the intended host and port number, use localhost and port 3000 if not provided
@@ -94,7 +93,8 @@ app.use(function(err, req, res, next) {
 
 	res.format({
 		json: () => res.json(errData),
-		default: () => res.render("error", errData)
+		// TODO: Provide error page
+		default: () => res.json(errData)
 	});
 });
 

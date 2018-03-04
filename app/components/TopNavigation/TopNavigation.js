@@ -32,10 +32,10 @@ class TopNavigation extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {client.records.UserRecord} currentUser - the logged in user, if any
+	 * @prop {!external:Immutable.Map} loggedInUser - the logged in user, if any
 	 */
 	static propTypes = {
-		currentUser: ImmutablePropTyps.map,
+		loggedInUser: ImmutablePropTyps.map,
 		className: PropTypes.string,
 	}
 
@@ -96,10 +96,6 @@ class TopNavigation extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	render() {
-		const loggedInUser = this.props.currentUser && !this.props.currentUser.get("isAnonymous") ?
-			this.props.currentUser :
-			null;
-
 		return (
 			<AppBar
 				{...classes({
@@ -161,7 +157,7 @@ class TopNavigation extends React.PureComponent {
 						<Card>
 							<CardContent>
 								<AccountDialog
-									loggedInUser={loggedInUser}
+									loggedInUser={this.props.loggedInUser}
 								/>
 							</CardContent>
 						</Card>

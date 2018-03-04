@@ -22,7 +22,7 @@ router.route("/:userID")
 				next(new AccessForbiddenException("You do not have permissions to edit this user's information"));
 			}
 
-			UsersStore.findByID(userID).then(
+			return UsersStore.findByID(userID).then(
 				(user) => {
 					if (user.isAnonymous && req.session.id !== user.sessionID) {
 						next(new AccessForbiddenException("You do not have permissions to edit this user's information"));
@@ -42,7 +42,7 @@ router.route("")
 		(req, res, next) => {
 			const ids = (req.query.ids || "").split(",");
 
-			UsersStore.findByIDs({
+			return UsersStore.findByIDs({
 				ids
 			}).then(
 				(users) => res.json(users.map((user) => prepareUserForFrontend({ user, request: this.req })))

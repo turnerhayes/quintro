@@ -43,13 +43,7 @@ class PlayerIndicators extends React.Component {
 	 *	for when an indicator is clicked
 	 */
 	static propTypes = {
-		players: ImmutablePropTypes.listOf(
-			ImmutablePropTypes.map
-		),
-
-		playerLimit: PropTypes.number.isRequired,
-
-		currentPlayerColor: PropTypes.string,
+		game: ImmutablePropTypes.map,
 
 		markCurrent: PropTypes.bool,
 
@@ -126,18 +120,16 @@ class PlayerIndicators extends React.Component {
 		} = this.state;
 
 		const {
-			players,
-			playerLimit,
-			currentPlayerColor,
+			game,
 			markCurrent,
 			onDisplayNameChange,
 		} = this.props;
 
-		if (!players) {
+		if (game.get("players").isEmpty()) {
 			return (<LoadingSpinner />);
 		}
 
-		const playerMap = players.reduce(
+		const playerMap = game.get("players").reduce(
 			(playerMap, player) => playerMap.set(player.get("color"), player),
 			Map()
 		);
@@ -156,15 +148,16 @@ class PlayerIndicators extends React.Component {
 					})}
 				>
 					{
-						players.toList().sortBy((player) => player.get("order")).map(
+						game.get("players").toList().sortBy((player) => player.get("order")).map(
 							(player) => {
-								const active = player.get("color") === currentPlayerColor;
+								const active = player.get("color") === game.get("currentPlayerColor");
+								const isPresent = !!game.getIn(["playerPresence", player.get("color")]);
 
 								const label = player.getIn(["user", "isMe"]) ?
 									"This is you" :
 									(
 										(player.getIn(["user", "name", "display" ]) || `Player ${player.get("color")}`)  +
-										(player.get("isPresent") ? "" : " is absent")
+										(isPresent ? "" : " is absent")
 									);
 
 								return (
@@ -175,7 +168,7 @@ class PlayerIndicators extends React.Component {
 											extra: [
 												active && "active",
 												player.getIn(["user", "isMe"]) && "current-player",
-												!player.get("isPresent") && "absent",
+												!isPresent && "absent",
 											],
 										})}
 										title={label}
@@ -223,7 +216,7 @@ class PlayerIndicators extends React.Component {
 						[
 							...Array(
 								Math.max(
-									playerLimit - players.size,
+									game.get("playerLimit") - game.get("players").size,
 									0
 								)
 							)

@@ -230,17 +230,17 @@ class GameJoinDialog extends React.Component {
 						Color:
 						{
 							<Button>
-							{
-								this.renderColorOptionContent(
-									Config.game.colors.get(selectedColor || defaultColor),
-									{
-										onClick: ({ target }) => this.setState({
-											colorDisplayEl: target,
-											colorPickerIsOpen: true,
-										}),
-									}
-								)
-							}
+								{
+									this.renderColorOptionContent(
+										Config.game.colors.get(selectedColor || defaultColor),
+										{
+											onClick: ({ target }) => this.setState({
+												colorDisplayEl: target,
+												colorPickerIsOpen: true,
+											}),
+										}
+									)
+								}
 							</Button>
 						}
 						<Menu
@@ -331,7 +331,7 @@ class GameJoinDialog extends React.Component {
 						/>
 					) }
 					<CardContent>
-					{ body }
+						{ body }
 					</CardContent>
 				</Card>
 			</Dialog>

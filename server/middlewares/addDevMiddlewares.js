@@ -36,13 +36,15 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
 			// artifacts, we use it instead
 			fs: middleware.fileSystem,
 		})
-		.catch((error) => handleGetIndexError({ error, req, res, next }))
-		.then((content) => res.send(content));
+			.catch((error) => handleGetIndexError({ error, req, res, next }))
+			.then((content) => res.send(content));
 	}
 
 
 	app.use(middleware);
-	app.use(webpackHotMiddleware(compiler));
+	app.use(webpackHotMiddleware(compiler, {
+		overlay: true,
+	}));
 
 	app.get("*", handleRequest);
 };
