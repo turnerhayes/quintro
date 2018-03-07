@@ -40,6 +40,10 @@ global.document = {
 const rfr          = require("rfr");
 const sharedConfig = rfr("shared-lib/config");
 
+
+const ENVIRONMENT = process.env.NODE_ENV || "development";
+const IS_DEVELOPMENT = ENVIRONMENT === "development";
+
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 const APP_PATH = path.join(PROJECT_ROOT, "app");
 const DIST_PATH = path.join(PROJECT_ROOT, "dist");
@@ -91,8 +95,8 @@ const enabledAuths = Object.keys(credentialEnvsByProvider).reduce(
 
 const Config = {
 	app: {
-		environment: sharedConfig.app.environment,
-		isDevelopment: sharedConfig.app.isDevelopment,
+		environment: ENVIRONMENT,
+		isDevelopment: IS_DEVELOPMENT,
 		address: {
 			host: HOST,
 			insecurePort: Number(process.env.APP_ADDRESS_INSECURE_PORT),

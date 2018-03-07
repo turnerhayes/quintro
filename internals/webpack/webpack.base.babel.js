@@ -134,6 +134,8 @@ module.exports = (options) => ({
 			NODE_ENV: Config.app.environment,
 			WEB_SOCKETS_URL: null,
 			STATIC_CONTENT_URL: null,
+
+			// Necessary environment variables for social media login integration
 			CREDENTIALS_FACEBOOK_IS_ENABLED: Config.auth.facebook.isEnabled || false,
 			CREDENTIALS_GOOGLE_IS_ENABLED: Config.auth.google.isEnabled || false,
 			CREDENTIALS_TWITTER_IS_ENABLED: Config.auth.twitter.isEnabled || false,

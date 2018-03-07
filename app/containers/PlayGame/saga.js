@@ -1,4 +1,4 @@
-import { all, put, call, select, /*take,*/ takeEvery } from "redux-saga/effects";
+import { all, put, call, select, takeEvery } from "redux-saga/effects";
 import { LOCATION_CHANGE } from "react-router-redux";
 import { getGame } from "@app/api/games";
 import {
