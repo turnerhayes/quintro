@@ -3,6 +3,7 @@ import {
 	FETCHED_USER_GAMES,
 	FETCHED_GAME,
 	ADD_PLAYER,
+	UPDATE_USER_PROFILE,
 }              from "@app/actions";
 
 function getUsersFromPlayers(game) {
@@ -47,6 +48,15 @@ export default function usersReducer(state = Map(), action) {
 			return state.setIn(
 				["items", player.getIn(["user", "id"])],
 				player.get("user")
+			);
+		}
+
+		case UPDATE_USER_PROFILE: {
+			const { user } = action.payload;
+
+			return state.mergeDeepIn(
+				["items", user.get("id")],
+				user
 			);
 		}
 

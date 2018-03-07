@@ -338,7 +338,6 @@ class CreateGame extends React.PureComponent {
 					})}
 					encType="application/www-form-urlencoded"
 					method="post"
-					action="/game/create"
 					onSubmit={this.handleFormSubmit}
 				>
 					<div

@@ -44,6 +44,12 @@ export const getPlayerUsers = (state, props) => {
 	}).toList();
 };
 
+export const getPlayerUser = createSelector(
+	getPlayerUsers,
+	(state, props) => props.player,
+	(playerUsers, player) => playerUsers.find((user) => user.get("id") === player.get("userID"))
+);
+
 export const getWatchers = createSelector(
 	[
 		getGame

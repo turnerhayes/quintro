@@ -98,10 +98,3 @@ export function createGame({
 		}
 	).then(processGamesResponse);
 }
-
-/// DEBUG
-window.API = window.API || {};
-window.API.findOpenGames = findOpenGames;
-window.API.getUserGames = getUserGames;
-window.API.checkName = checkName;
-/// END DEBUG

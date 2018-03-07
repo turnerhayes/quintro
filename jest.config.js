@@ -23,6 +23,11 @@ module.exports = exports = {
 		".*\\.(css|less|styl|scss|sass)$": "<rootDir>/internals/mocks/cssModule.js",
 		".*\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/image.js"
 	},
+	setupFiles: [
+		"<rootDir>/internals/testing/shim.js",
+		"<rootDir>/internals/testing/setup.js",
+	],
 	setupTestFrameworkScriptFile: "<rootDir>/internals/testing/test-bundler.js",
 	testRegex: ".*\\.test\\.js$",
+	resolver: "./internals/jest-resolver",
 };

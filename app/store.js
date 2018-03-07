@@ -30,10 +30,6 @@ let store;
 export default function getStore() {
 	if (!store) {
 		store = configureStore(initialState, history);
-
-		/// DEBUG
-		window.__store = store;
-		/// END DEBUG
 	}
 
 	return store;

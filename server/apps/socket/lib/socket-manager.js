@@ -324,12 +324,12 @@ class SocketManager {
 				updates
 			}).then(
 				(user) => {
-					this.broadcast.emit("users:profile-changed", {
-						user: prepareUserForFrontend({ user, request: this.request })
-					});
+					user = prepareUserForFrontend({ user, request: this.request });
 
-					this.emit("users:profile-changed", {
-						user: prepareUserForFrontend({ user, request: this.request })
+					delete user.isMe;
+
+					SocketManager._server.emit("users:profile-changed", {
+						user
 					});
 				}
 			).catch(
@@ -509,10 +509,17 @@ class SocketManager {
 					currentPlayerColor: data.game.currentPlayer && data.game.currentPlayer.color
 				};
 
+				// Remove isMe for the broadcast to other players, so they don't think this
+				// player is them
+				delete joinResults.player.user.isMe;
+
 				socket.broadcast.to(gameName).emit(
 					"game:player:joined",
 					joinResults
 				);
+
+				// Add it back for the callback so that the socket client knows this is them
+				joinResults.player.user.isMe = true;
 
 				fn && fn(joinResults);
 			}

@@ -5,7 +5,7 @@ import { Map }            from "immutable";
 import Popover            from "material-ui/Popover";
 import Config             from "@app/config";
 import createHelper       from "@app/components/class-helper";
-import PlayerInfoPopup    from "@app/components/PlayerInfoPopup";
+import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import                         "./PlayerIndicators.less";
 
@@ -15,7 +15,7 @@ const classes = createHelper("player-indicators");
  * @callback client.react-components.PlayerIndicators~onIndicatorClicked
  *
  * @param {object} args - the function arguments
- * @param {client.records.PlayerRecord} args.selectedPlayer - the player whose indicator was clicked
+ * @param {external:Immutable.Map} args.selectedPlayer - the player whose indicator was clicked
  *
  * @return {void}
  */
@@ -33,12 +33,8 @@ class PlayerIndicators extends React.Component {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {external:Immutable.List<client.records.PlayerRecord>} [players] - list of players in the game
-	 * @prop {number} playerLimit - maximum number of players in the game
-	 * @prop {string} [currentPlayerColor] - the id of the color whose turn it currently is
+	 * @prop {external:Immutable.Map} game - the game the players are in
 	 * @prop {boolean} [markCurrent] - whether or not to distinguish which player is the current player
-	 * @prop {client.react-components.PlayerInfoPopup~onDisplayNameChange} [onDisplayNameChange] - handler
-	 *	for when an anonymous user wants changes their display name
 	 * @prop {client.react-components.PlayerIndicators~onIndicatorClicked} [onPlayerIndicatorClicked] - handler
 	 *	for when an indicator is clicked
 	 */
@@ -46,8 +42,6 @@ class PlayerIndicators extends React.Component {
 		game: ImmutablePropTypes.map,
 
 		markCurrent: PropTypes.bool,
-
-		onDisplayNameChange: PropTypes.func,
 
 		onIndicatorClicked: PropTypes.func
 	}
@@ -102,7 +96,7 @@ class PlayerIndicators extends React.Component {
 		this.setState({
 			selectedIndicatorEl: element,
 		});
-		this.togglePopoverOpened((selectedPlayer && selectedPlayer.color) || null);
+		this.togglePopoverOpened((selectedPlayer && selectedPlayer.get("color")) || null);
 		this.props.onIndicatorClicked && this.props.onIndicatorClicked({ selectedPlayer });
 	}
 
@@ -122,7 +116,6 @@ class PlayerIndicators extends React.Component {
 		const {
 			game,
 			markCurrent,
-			onDisplayNameChange,
 		} = this.props;
 
 		if (game.get("players").isEmpty()) {
@@ -206,8 +199,8 @@ class PlayerIndicators extends React.Component {
 						{
 							selectedPlayerColor && (
 								<PlayerInfoPopup
+									game={game}
 									player={playerMap.get(selectedPlayerColor)}
-									onDisplayNameChange={onDisplayNameChange}
 								/>
 							)
 						}
