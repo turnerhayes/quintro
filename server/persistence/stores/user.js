@@ -55,19 +55,27 @@ class UserStore {
 	static updateUser({ userID, sessionID, updates }) {
 		assert(userID || sessionID, "Must pass either a `userID` or a `sessionID` to `UserStore.updateUser()`");
 
+		if ("displayName" in updates) {
+			updates.name = updates.name || {};
+			updates.name.display = updates.displayName;
+			delete updates.displayName;
+		}
+
 		return (
 			userID ?
 				UserStore.findByID(userID) :
 				UserStore.findBySessionID(sessionID)
 		).then(
-			(user) => UserModel.findByIdAndUpdate(
-				user.id,
-				updates,
-				{
-					new: true,
-					runValidators: true
-				}
-			)
+			(user) => {
+				return UserModel.findByIdAndUpdate(
+					user.id,
+					updates,
+					{
+						new: true,
+						runValidators: true
+					}
+				);
+			}
 		);
 	}
 

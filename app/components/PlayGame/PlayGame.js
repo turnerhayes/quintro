@@ -264,7 +264,6 @@ class PlayGame extends React.PureComponent {
 				<PlayerIndicators
 					game={game}
 					markCurrent={gameIsStarted}
-					onDisplayNameChange={this.handleDisplayNameChange}
 				/>
 				<div
 					{...classes({

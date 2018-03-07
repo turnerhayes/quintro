@@ -2,7 +2,6 @@ import debounce           from "lodash/debounce";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import { withRouter }     from "react-router";
 import TextField          from "material-ui/TextField";
 import Button             from "material-ui/Button";
 import Typography         from "material-ui/Typography";
@@ -31,19 +30,12 @@ class FindGame extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {object} location - route location, as passed by `react-router-dom`
 	 * @prop {function} onFindOpenGames - function to trigger searching for open games
 	 * @prop {function} onJoinGame - function to call when trying to join a game
 	 * @prop {object} [findGameError] - error resulting from the game search, if there was one
 	 * @prop {external:Immutable.List} [results] - the results of the search
-	 *
-	 * @see {@link https://reacttraining.com/react-router/web/api/location|React Router docs}
-	 *	for the shape of the `location` object
 	 */
 	static propTypes = {
-		location: PropTypes.shape({
-			pathname: PropTypes.string,
-		}).isRequired,
 		onFindOpenGames: PropTypes.func.isRequired,
 		onJoinGame: PropTypes.func.isRequired,
 		findGameError: PropTypes.object,
@@ -227,7 +219,6 @@ class FindGame extends React.PureComponent {
 
 		return (
 			<form
-				action={this.props.location.pathname}
 				method="GET"
 				encType="application/x-www-form-urlencoded"
 				onSubmit={this.handleSearchFormSubmit}
@@ -267,4 +258,4 @@ class FindGame extends React.PureComponent {
 	}
 }
 
-export default withRouter(FindGame);
+export default FindGame;

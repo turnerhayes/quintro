@@ -1,70 +1,40 @@
-import $          from "jquery";
-import Promise    from "bluebird";
 import {
 	fromJS
-}                 from "immutable";
-import UserRecord from "project/scripts/records/user";
+}            from "immutable";
+import fetch from "./fetch";
 
-
-// TODO: factor out of individual utils
-function getErrorMessageFromXHR(jqXHR) {
-	return jqXHR.responseJSON &&
-	jqXHR.responseJSON.error &&
-	jqXHR.responseJSON.error.message ?
-		jqXHR.responseJSON.error.message :
-		jqXHR.responseText;
+function throwError(err, status) {
+	const error = new Error(err.message);
+	error.error = err;
+	error.status = status;
+	throw error;
 }
 
-class UserUtils {
-	static getUser({ userID }) {
-		return Promise.resolve(
-			$.ajax({
-				url: `/api/users/${userID}`,
-				type: "GET",
-				dataType: "json"
-			}).then(
-				user => new UserRecord(fromJS(user))
-			).catch(
-				jqXHR => {
-					throw new Error(getErrorMessageFromXHR(jqXHR));
-				}
-			)
-		);
-	}
+function processResponse(response) {
+	return response.json().then(
+		(json) => {
+			if (!response.ok) {
+				throwError(json.error, response.status);
+				return;
+			}
 
-	static getUsers({ userIDs }) {
-		return Promise.resolve(
-			$.ajax({
-				url: `/api/users`,
-				type: "GET",
-				dataType: "json",
-				data: {
-					ids: userIDs.join(",")
-				}
-			}).catch(
-				jqXHR => {
-					throw new Error(getErrorMessageFromXHR(jqXHR));
-				}
-			)
-		);
-	}
-
-	static updateProfile({ userID, updates }) {
-		return Promise.resolve(
-			$.ajax({
-				url: `/api/users/${userID}`,
-				type: "PATCH",
-				dataType: "json",
-				data: updates
-			}).catch(
-				jqXHR => {
-					throw new Error(getErrorMessageFromXHR(jqXHR));
-				}
-			).then(
-				updatedUser => new UserRecord(fromJS(updatedUser))
-			)
-		);
-	}
+			return fromJS(json);
+		}
+	);
 }
 
-export default UserUtils;
+export function getUser({ userID }) {
+	return fetch(`/api/users/${userID}`)
+		.then(processResponse);
+}
+
+export function getUsers({ userIDs }) {
+	return fetch(
+		"/api/users",
+		{
+			query: {
+				ids: userIDs.join(","),
+			}
+		}
+	).then(processResponse);
+}

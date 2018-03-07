@@ -19,25 +19,19 @@ import {
 }                     from "@app/actions";
 import GameClient     from "@app/api/game-client";
 
-
-/// DEBUG
-import * as actions from "@app/actions";
-window.__actions = actions;
-/// END DEBUG
-
 const debug = createDebug("quintro:client:sagas:games-socket");
 
 let client;
 
 const gamesSocketChannel = eventChannel(
 	(emitter) => {
-		debug("Creating an event channel");
+		debug("Creating a games socket event channel");
 		client = new GameClient({
 			dispatch: (action) => emitter(action)
 		});
 
 		return () => {
-			debug("Closing event channel");
+			debug("Closing games socket event channel");
 			client.dispose();
 			client = null;
 		};

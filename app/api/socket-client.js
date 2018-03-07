@@ -93,8 +93,4 @@ class SocketClient {
 	}
 }
 
-/// DEBUG
-window._SocketClient = SocketClient;
-/// END DEBUG
-
 export default SocketClient;

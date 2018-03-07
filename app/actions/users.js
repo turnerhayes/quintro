@@ -6,3 +6,16 @@ export function updateUserProfile({ user }) {
 		payload: { user },
 	};
 }
+
+
+export const CHANGE_USER_PROFILE = "@@QUINTRO/USERS/CHANGE";
+
+export function changeUserProfile({ userID, updates }) {
+	return {
+		type: CHANGE_USER_PROFILE,
+		payload: {
+			userID,
+			updates,
+		},
+	};
+}
