@@ -3,6 +3,7 @@ const baseWebpackConfig = require("./webpack.base.babel");
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 const OfflinePlugin = require("offline-plugin");
 const rfr = require("rfr");
 const Config = rfr("server/lib/config");
@@ -71,6 +72,8 @@ module.exports = baseWebpackConfig({
 
 			AppCache: false,
 		}),
+
+		new MinifyPlugin(),
 	],
 
 	performance: {

@@ -17,9 +17,8 @@ const myResolver = ResolverFactory.createResolver({
 	alias,
 });
 
-// resolve a file with the new resolver
-const resolveContext = {};
 
 exports = module.exports = function jestResolver(moduleName, info) {
+	const resolveContext = {};
 	return myResolver.resolveSync({}, info.basedir, moduleName, resolveContext);
 };
