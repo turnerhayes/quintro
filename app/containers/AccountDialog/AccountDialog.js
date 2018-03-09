@@ -4,13 +4,11 @@ import {
 	login,
 	logout
 }                    from "@app/actions";
-import {
-	users as userSelectors
-}                    from "@app/selectors";
+import selectors     from "@app/selectors";
 
 const AccountDialogContainer = connect(
 	function mapStateToProps(state) {
-		const loggedInUser = userSelectors.getLoggedInUser(state);
+		const loggedInUser = selectors.users.getLoggedInUser(state);
 
 		return {
 			loggedInUser

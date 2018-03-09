@@ -1,9 +1,9 @@
 import { Map } from "immutable";
 import { createSelector } from "reselect";
 
-const getCurrentUserID = (state) => state.getIn(["users", "currentID"]);
+const getCurrentUserID = (state) => state.get("currentID");
 
-export const getUsers = (state) => state.getIn(["users", "items"]);
+const getUsers = (state) => state.get("items");
 
 /**
  * This selector gets the user playing games, if any.
@@ -14,10 +14,8 @@ export const getUsers = (state) => state.getIn(["users", "items"]);
  *
  * @returns {!external:Immutable.Map} the logged in user, if any
  */
-export const getCurrentUser = createSelector(
-	[
-		getUsers,
-	],
+const getCurrentUser = createSelector(
+	getUsers,
 	(users) => users.find((user) => user.get("isMe"))
 );
 
@@ -36,11 +34,9 @@ export const getCurrentUser = createSelector(
  *
  * @returns {!external:Immutable.Map} the logged in user, if any
  */
-export const getLoggedInUser = createSelector(
-	[
-		getUsers,
-		getCurrentUserID,
-	],
+const getLoggedInUser = createSelector(
+	getUsers,
+	getCurrentUserID,
 	(users, currentID) => {
 		if (!currentID) {
 			return undefined;
@@ -50,19 +46,29 @@ export const getLoggedInUser = createSelector(
 	}
 );
 
-export const filterUsers = (state, props) => {
-	const users = state.getIn([ "users", "items" ]);
-	const { userIDs } = props;
+const filterUsers = createSelector(
+	getUsers,
+	(state, props) => props,
+	(users, props) => {
+		const { userIDs } = props;
 
-	if (userIDs === undefined) {
-		return users;
+		if (userIDs === undefined) {
+			return users;
+		}
+
+		if (userIDs.length === 0) {
+			return Map();
+		}
+
+		return users.filter(
+			(user, id) => userIDs.includes(id)
+		);
 	}
+);
 
-	if (userIDs.length === 0) {
-		return Map();
-	}
-
-	return users.filter(
-		(user, id) => userIDs.includes(id)
-	);
+export default {
+	getUsers,
+	getCurrentUser,
+	getLoggedInUser,
+	filterUsers
 };

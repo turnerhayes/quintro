@@ -1,9 +1,7 @@
 import PlayerInfoPopup from "@app/components/PlayerInfoPopup";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import {
-	games as gameSelectors,
-}                  from "@app/selectors";
+import selectors   from "@app/selectors";
 import {
 	changeUserProfile,
 }                  from "@app/actions";
@@ -14,7 +12,7 @@ const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
 		const { game, player } = ownProps;
 
-		const playerUser = game && gameSelectors.getPlayerUser(
+		const playerUser = game && selectors.games.getPlayerUser(
 			state,
 			{
 				player,

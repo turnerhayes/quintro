@@ -2,7 +2,7 @@
 
 import { List, Map, Set, fromJS } from "immutable";
 import * as immutableMatchers from "jest-immutable-matchers";
-import * as quintroSelectors from "./quintros";
+import quintroSelectors from "./quintros";
 
 expect.extend({
 	toBeASubsetOf(received, expected) {

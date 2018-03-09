@@ -9,12 +9,8 @@ import {
 	watchGame,
 	startGame,
 	placeMarble,
-	// getUsers,
-	// changeUserProfile
 }                  from "@app/actions";
-import {
-	games as gameSelectors
-}                  from "@app/selectors";
+import selectors from "@app/selectors";
 import saga        from "./saga";
 
 const displayName = "PlayGameContainer";
@@ -22,18 +18,18 @@ const displayName = "PlayGameContainer";
 const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
 		const selectorProps = { gameName: ownProps.gameName };
-		const game = gameSelectors.getGame(state, selectorProps);
-		const gameIsLoaded = gameSelectors.isLoaded(state, selectorProps);
-		const currentUserPlayer = gameSelectors.getCurrentUserPlayer(state, selectorProps);
+		const game = selectors.games.getGame(state, selectorProps);
+		const gameIsLoaded = selectors.games.isLoaded(state, selectorProps);
+		const currentUserPlayer = selectors.games.getCurrentUserPlayer(state, selectorProps);
 
 		const props = {
-			playerUsers: gameSelectors.getPlayerUsers(state, selectorProps),
+			playerUsers: selectors.games.getPlayerUsers(state, selectorProps),
 
-			isInGame: gameSelectors.isInGame(state, selectorProps),
+			isInGame: selectors.games.isInGame(state, selectorProps),
 
-			isWatchingGame: gameSelectors.isWatchingGame(state, selectorProps),
+			isWatchingGame: selectors.games.isWatchingGame(state, selectorProps),
 
-			hasJoinedGame: gameSelectors.hasJoinedGame(state, selectorProps),
+			hasJoinedGame: selectors.games.hasJoinedGame(state, selectorProps),
 
 			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
 		};
@@ -68,10 +64,6 @@ const withRedux = connect(
 				dispatch(joinGame({ gameName: ownProps.gameName, color }));
 			},
 
-			onGetUsers(/*{ userIDs }*/) {
-				// dispatch(getUsers({ userIDs }));
-			},
-
 			onPlaceMarble({
 				gameName,
 				position,
@@ -80,16 +72,6 @@ const withRedux = connect(
 					gameName,
 					position,
 				}));
-			},
-
-			onChangeUserProfile(/*{
-				userID,
-				updates,
-			}*/) {
-			// 	dispatch(changeUserProfile({
-			// 		userID,
-			// 		updates,
-			// 	}));
 			},
 
 			onCancelJoin() {
