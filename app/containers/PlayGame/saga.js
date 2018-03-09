@@ -6,9 +6,7 @@ import {
 	leaveGame,
 	GET_GAME,
 } from "@app/actions";
-import {
-	games as gameSelectors
-} from "@app/selectors";
+import selectors from "@app/selectors";
 
 function* getGameSaga({ payload }) {
 	const game = yield call(getGame, { name: payload.name });
@@ -20,7 +18,7 @@ function* watchGetGame() {
 }
 
 function* locationChangeSaga() {
-	const joinedGames = yield select(gameSelectors.getJoinedGames);
+	const joinedGames = yield select(selectors.games.getJoinedGames);
 	yield all(
 		joinedGames.map(
 			(gameName) => put(leaveGame({ gameName }))

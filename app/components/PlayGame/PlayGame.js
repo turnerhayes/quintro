@@ -27,7 +27,7 @@ class PlayGame extends React.PureComponent {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {!string} gameName - the identifier of the game
-	 * @prop {client.records.GameRecord} [game] - the game record representing the game
+	 * @prop {external:Immutable.Map} [game] - the game record representing the game
 	 * @prop {external:Immutable.List<external:Immutable.Map>} [playerUsers] - list of users
 	 *	corresponding to the players in this game
 	 * @prop {string} [currentUserPlayerColor] - if the player currently viewing the game is a player
@@ -50,9 +50,7 @@ class PlayGame extends React.PureComponent {
 		onWatchGame: PropTypes.func.isRequired,
 		onStartGame: PropTypes.func.isRequired,
 		onGetGame: PropTypes.func.isRequired,
-		onGetUsers: PropTypes.func.isRequired,
 		onPlaceMarble: PropTypes.func.isRequired,
-		onChangeUserProfile: PropTypes.func.isRequired,
 		onCancelJoin: PropTypes.func.isRequired,
 	}
 
@@ -71,14 +69,7 @@ class PlayGame extends React.PureComponent {
 
 	componentDidUpdate() {		
 		if (this.props.game) {
-			if (!this.props.playerUsers || this.props.playerUsers.size !== this.props.game.get("players").size) {
-				this.props.onGetUsers({
-					userIDs: this.props.game.get("players").map(
-						(player) => player.get("userID")
-					).toArray()
-				});
-			}
-			else {
+			if (this.props.playerUsers && this.props.playerUsers.size === this.props.game.get("players").size) {
 				this.joinIfInGame();
 			}
 		}
@@ -153,28 +144,6 @@ class PlayGame extends React.PureComponent {
 	 */
 	handleStartGameButtonClick = () => {
 		this.props.onStartGame();
-	}
-
-	/**
-	 * Handles the change of the display name field for an anonymous player.
-	 *
-	 * @function
-	 *
-	 * @param {object} args - the function arguments
-	 * @param {external:Immutable.Map} args.player - the player being changed
-	 * @param {string} args.displayName - the name to set the player's display name to
-	 *
-	 * @return {void}
-	 */
-	handleDisplayNameChange = ({ player, displayName }) => {
-		this.props.onChangeUserProfile({
-			userID: player.userID,
-			updates: {
-				name: {
-					display: displayName
-				}
-			}
-		});
 	}
 
 	/**

@@ -362,7 +362,13 @@ const getFilledMap = (state) => {
 	);
 };
 
-export const getQuintrosForCell = createSelector(
+const getLastPlacedCellPosition = (state) => {
+	const lastFilled = state.getIn(["board", "filled"], List()).last();
+
+	return lastFilled && lastFilled.get("position");
+};
+
+const getQuintrosForCell = createSelector(
 	[
 		getFilledMap,
 		(state) => state.get("board"),
@@ -389,3 +395,14 @@ export const getQuintrosForCell = createSelector(
 		return quintros;
 	}
 );
+const getQuintros = (state) => getQuintrosForCell(
+	state,
+	{
+		position: getLastPlacedCellPosition(state),
+	}
+);
+
+export default {
+	getQuintrosForCell,
+	getQuintros,
+};

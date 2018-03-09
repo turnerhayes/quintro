@@ -1,10 +1,8 @@
 import { compose }      from "redux";
 import { connect }      from "react-redux";
-import { Map, List }    from "immutable";
+import { Map, Set, List }    from "immutable";
 import injectSaga       from "@app/utils/injectSaga";
-import {
-	games as gameSelectors
-}                       from "@app/selectors";
+import selectors        from "@app/selectors";
 import {
 	getUserGames
 }                       from "@app/actions";
@@ -16,22 +14,26 @@ const withRedux = connect(
 		const games = state.get("games");
 		const userGames = games ? games.get("items", Map()).toList() : List();
 
+		const userIDs = [];
+
+		const gamesToPlayers = {};
+
+		userGames && userGames.forEach(
+			(game) => {
+				let players = selectors.games.getPlayers(state, { gameName: game.get("name") });
+
+				if (players) {
+					gamesToPlayers[game.get("name")] = players;
+				}
+
+				userIDs.push(...players.map((player) => player.get("userID")).toArray());
+			},
+		);
+
 		return {
 			userGames,
-			playersByGame: userGames && Map(
-				userGames.reduce(
-					(gamesToPlayers, game) => {
-						let players = gameSelectors.getPlayers(state, { gameName: game.get("name") });
-
-						if (players) {
-							gamesToPlayers[game.get("name")] = players;
-						}
-
-						return gamesToPlayers;
-					},
-					{}
-				)
-			)
+			playersByGame: userGames && Map(gamesToPlayers),
+			usersById: selectors.users.filterUsers(state, { userIDs: Set(userIDs) })
 		};
 	},
 

@@ -54,7 +54,7 @@ class SocketClient {
 		return new Promise(
 			(resolve, reject) => {
 				_client.emit(eventName, eventData, (result) => {
-					if (result.error) {
+					if (result && result.error) {
 						reject(new Error(`Socket error: ${result.message}`));
 					}
 					else {

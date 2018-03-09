@@ -1,3 +1,4 @@
+import { Map }            from "immutable";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
@@ -13,6 +14,7 @@ import StopIcon           from "material-ui-icons/Stop";
 import WarningIcon        from "material-ui-icons/Warning";
 import AccountCircleIcon  from "material-ui-icons/AccountCircle";
 import createHelper       from "@app/components/class-helper";
+import gameSelectors      from "@app/selectors/games/game";
 import                         "./UserGamesList.less";
 
 const classes = createHelper("user-games-list");
@@ -30,9 +32,9 @@ class UserGamesList extends React.PureComponent {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {function} onGetUserGames - function to be called when user games need to be retrieved
-	 * @prop {external:Immutable.List<client.records.GameRecord>} [userGames] - the games
+	 * @prop {external:Immutable.List<external:Immutable.Map>} [userGames] - the games
 	 *	that the user is a player in
-	 * @prop {external:Immutable.Map<string, external:Immutable.List<client.records.PlayerRecord>>} [playersByGame] - a
+	 * @prop {external:Immutable.Map<string, external:Immutable.List<external:Immutable.Map>>} [playersByGame] - a
 	 *	mapping of game players indexed by game name
 	 */
 	static propTypes = {
@@ -45,7 +47,11 @@ class UserGamesList extends React.PureComponent {
 				ImmutablePropTypes.map
 			),
 			PropTypes.string
-		)
+		),
+		usersById: ImmutablePropTypes.mapOf(
+			ImmutablePropTypes.map,
+			PropTypes.string
+		),
 	}
 
 	state = {
@@ -70,7 +76,7 @@ class UserGamesList extends React.PureComponent {
 
 		const games = this.props.userGames.reduce(
 			(games, game) => {
-				if (game.get("winner")) {
+				if (gameSelectors.isOver(game)) {
 					games.over.push(game);
 				}
 				else {
@@ -126,8 +132,8 @@ class UserGamesList extends React.PureComponent {
 								this.props.playersByGame.get(game.get("name"));
 
 								const isWaitingForYou = game.get("isStarted") &&
-								players && players.find(
-										(p) => p.user.isMe
+									players && players.find(
+										(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
 									).color === game.get("currentPlayerColor");
 
 								return (

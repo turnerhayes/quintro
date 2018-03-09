@@ -2,7 +2,7 @@
 
 import { Set, fromJS } from "immutable";
 import * as immutableMatchers from "jest-immutable-matchers";
-import * as selectors from "./games";
+import selectors from "./games";
 
 beforeAll(
 	() => jest.addMatchers(immutableMatchers)
