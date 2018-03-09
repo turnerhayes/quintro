@@ -1,4 +1,5 @@
-export const getSetting = (state, settingName) => state.getIn([
-	"settings",
-	settingName
-]);
+const getSetting = (state, settingName) => state.get(settingName);
+
+export default {
+	getSetting,
+};
