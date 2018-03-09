@@ -1,16 +1,19 @@
 import assert from "assert";
 
-export const getSetting = (state, options) => {
-	assert(options.section, "`section` is required");
-	assert(options.settingName, "`settingName` is required");
+const getSetting = (state, props) => {
+	assert(props.section, "`section` is required");
+	assert(props.settingName, "`settingName` is required");
 
 	return state.getIn([
-		"ui",
-		options.section,
+		props.section,
 		...(
-			Array.isArray(options.settingName) ?
-				options.settingName :
-				[options.settingName]
+			Array.isArray(props.settingName) ?
+				props.settingName :
+				[props.settingName]
 		)
 	]);
+};
+
+export default {
+	getSetting,
 };

@@ -1,11 +1,11 @@
-import { createSelector }     from "reselect";
-import { Map }                from "immutable";
+import { createSelector } from "reselect";
+import { Map }            from "immutable";
 
-import { wrapSelectors }      from "./utils";
-import * as uiSelectors       from "./ui";
-import userSelectors     from "./users";
-import gameSelectors     from "./games";
-import * as settingsSelectors from "./settings";
+import { wrapSelectors }  from "./utils";
+import uiSelectors        from "./ui";
+import userSelectors      from "./users";
+import gameSelectors      from "./games";
+import settingsSelectors  from "./settings";
 
 const wrappedGames = wrapSelectors({
 	selectors: gameSelectors,
@@ -16,6 +16,18 @@ const wrappedGames = wrapSelectors({
 const wrappedUsers = wrapSelectors({
 	selectors: userSelectors,
 	sliceSelector: ["users"],
+	defaultValue: Map(),
+});
+
+const wrappedUI = wrapSelectors({
+	selectors: uiSelectors,
+	sliceSelector: ["ui"],
+	defaultValue: Map(),
+});
+
+const wrappedSettings = wrapSelectors({
+	selectors: settingsSelectors,
+	sliceSelector: ["settings"],
 	defaultValue: Map(),
 });
 
@@ -71,9 +83,9 @@ const isWatchingGame = createSelector(
 
 
 export default {
-	ui: uiSelectors,
+	ui: wrappedUI,
 	users: wrappedUsers,
-	settings: settingsSelectors,
+	settings: wrappedSettings,
 	games: {
 		...wrappedGames,
 		getPlayerUsers,
