@@ -1,16 +1,16 @@
 {
-  "name": "react-boilerplate",
-  "version": "3.5.0",
-  "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
+  "name": "quintro",
+  "version": "1.1.2",
+  "description": "Classic marble game in HTML",
   "repository": {
     "type": "git",
-    "url": "git://github.com/react-boilerplate/react-boilerplate.git"
+    "url": "git://github.com/turnerhayes/quintro"
   },
   "engines": {
     "npm": ">=5",
     "node": ">=8"
   },
-  "author": "Max Stoiber",
+  "author": "Turner Hayes <dev@turnerhayes.com>",
   "license": "MIT",
   "scripts": {
     "analyze:clean": "rimraf stats.json",
@@ -37,6 +37,7 @@
     "pretest": "npm run test:clean && npm run lint",
     "test:clean": "rimraf ./coverage",
     "test": "cross-env NODE_ENV=test jest",
+    "coverage": "cross-env NODE_ENV=test jest --coverage",
     "test:watch": "cross-env NODE_ENV=test jest --watchAll",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "heroku-postbuild": "npm run build"
