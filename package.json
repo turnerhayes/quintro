@@ -16,7 +16,6 @@
     "analyze:clean": "rimraf stats.json",
     "preanalyze": "npm run analyze:clean",
     "analyze": "node ./internals/scripts/analyze.js",
-    "extract-intl": "babel-node --presets env,stage-0 -- ./internals/scripts/extract-intl.js",
     "npmcheckversion": "node ./internals/scripts/npmcheckversion.js",
     "preinstall": "npm run npmcheckversion",
     "postinstall": "npm run build:dll",
@@ -33,10 +32,7 @@
     "postsetup": "npm run build:dll",
     "clean": "shjs ./internals/scripts/clean.js",
     "clean:all": "npm run analyze:clean && npm run test:clean && npm run build:clean",
-    "generate": "plop --plopfile internals/generators/index.js",
-    "lint": "npm run lint:js",
-    "lint:eslint": "eslint --ignore-pattern internals/scripts",
-    "lint:js": "npm run lint:eslint -- . ",
+    "lint": "eslint .",
     "lint:staged": "lint-staged",
     "pretest": "npm run test:clean && npm run lint",
     "test:clean": "rimraf ./coverage",
@@ -46,42 +42,9 @@
     "heroku-postbuild": "npm run build"
   },
   "lint-staged": {
-    "*.js": "lint:eslint"
+    "*.js": "eslint"
   },
   "pre-commit": "lint:staged",
-  "dllPlugin": {
-    "path": "node_modules/react-boilerplate-dlls",
-    "exclude": [
-      "chalk",
-      "compression",
-      "cross-env",
-      "express",
-      "ip",
-      "minimist",
-      "sanitize.css",
-      "rfr",
-      "mongoose",
-      "mongodb",
-      "mkdirp",
-      "nodemon",
-      "dotenv",
-      "morgan",
-      "winston",
-      "cors",
-      "passport",
-      "passport-facebook",
-      "passport-twitter",
-      "passport-google-oauth20",
-      "express-session",
-      "connect-mongo",
-      "cookie-parser"
-    ],
-    "include": [
-      "core-js",
-      "lodash",
-      "eventsource-polyfill"
-    ]
-  },
   "dependencies": {
     "babel-plugin-transform-undefined-to-void": "^6.9.0",
     "babel-polyfill": "6.23.0",
@@ -181,6 +144,7 @@
     "html-webpack-plugin": "2.29.0",
     "image-webpack-loader": "2.0.0",
     "imports-loader": "0.7.1",
+    "jest": "^22.4.2",
     "jest-cli": "20.0.4",
     "jest-immutable-matchers": "^2.0.1",
     "less": "^2.7.3",
@@ -188,11 +152,9 @@
     "less-plugin-lists": "^1.1.1",
     "lint-staged": "3.5.1",
     "ngrok": "2.2.9",
-    "node-plop": "0.7.0",
     "nodemon": "^1.14.12",
     "null-loader": "0.1.1",
     "offline-plugin": "4.8.1",
-    "plop": "1.8.0",
     "postcss-loader": "^2.0.10",
     "pre-commit": "1.2.2",
     "react-test-renderer": "^16.2.0",
