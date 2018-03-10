@@ -11,24 +11,22 @@ beforeAll(
 describe("games selectors", () => {
 	describe("getQuintros", () => {
 		const initialState = fromJS({
-			games: {
-				items: {
-					test: {
-						board: {
-							filled: [],
-							width: 10,
-							height: 10,
-						},
-						name: "test",
-						playerLimit: 3,
-						currentPlayerColor: "blue",
+			items: {
+				test: {
+					board: {
+						filled: [],
+						width: 10,
+						height: 10,
 					},
+					name: "test",
+					playerLimit: 3,
+					currentPlayerColor: "blue",
 				},
 			},
 		});
 
 		it("should return a quintro when the last marble placed makes a quintro", () => {
-			const currentPlayerColor = initialState.getIn(["games", "items", "test", "currentPlayerColor"]);
+			const currentPlayerColor = initialState.getIn(["items", "test", "currentPlayerColor"]);
 			const player2color = "red";
 			const player3color = "green";
 
@@ -94,7 +92,7 @@ describe("games selectors", () => {
 			]);
 
 			const modifiedState = initialState.setIn(
-				["games", "items", "test", "board", "filled"],
+				["items", "test", "board", "filled"],
 				filled
 			);
 
@@ -108,7 +106,7 @@ describe("games selectors", () => {
 		});
 
 		it("should not return a quintro when the last marble placed does not make a quintro", () => {
-			const currentPlayerColor = initialState.getIn(["games", "items", "test", "currentPlayerColor"]);
+			const currentPlayerColor = initialState.getIn(["items", "test", "currentPlayerColor"]);
 			const player2color = "red";
 			const player3color = "green";
 
@@ -167,7 +165,7 @@ describe("games selectors", () => {
 			]);
 
 			const modifiedState = initialState.setIn(
-				["games", "items", "test", "board", "filled"],
+				["items", "test", "board", "filled"],
 				filled
 			);
 

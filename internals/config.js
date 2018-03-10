@@ -40,10 +40,9 @@ const ReactBoilerplate = {
 			path: resolve("../node_modules/react-boilerplate-dlls"),
 		},
 
-		entry(pkg) {
-			const dependencyNames = Object.keys(pkg.dependencies);
-			const exclude = pkg.dllPlugin.exclude || ReactBoilerplate.dllPlugin.defaults.exclude;
-			const include = pkg.dllPlugin.include || ReactBoilerplate.dllPlugin.defaults.include;
+		entry(dependencyNames, pluginConfig) {
+			const exclude = pluginConfig.exclude || ReactBoilerplate.dllPlugin.defaults.exclude;
+			const include = pluginConfig.include || ReactBoilerplate.dllPlugin.defaults.include;
 			const includeDependencies = uniq(dependencyNames.concat(include));
 
 			return {
