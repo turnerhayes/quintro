@@ -85,6 +85,7 @@
     "passport-twitter": "^1.0.4",
     "prop-types": "15.5.10",
     "proper-url-join": "^1.2.0",
+    "qs": "^6.5.1",
     "react": "^16.2.0",
     "react-bem-helper": "^1.4.1",
     "react-dom": "^16.2.0",

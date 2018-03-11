@@ -1,11 +1,9 @@
 import debounce          from "lodash/debounce";
-// import Promise           from "bluebird";
 import React             from "react";
 import PropTypes         from "prop-types";
 import TextField         from "material-ui/TextField";
 import Button            from "material-ui/Button";
 import qs                from "qs";
-// import GameUtils         from "@app/utils/game";
 import Config            from "@app/config";
 import createClassHelper from "@app/components/class-helper";
 import                        "./CreateGame.less";
@@ -256,18 +254,6 @@ class CreateGame extends React.PureComponent {
 	 */
 	checkName = () => {
 		this.props.onCheckName({ name: this.state.name });
-		// return Promise.resolve();
-		// if (!this.state.name) {
-		// 	return Promise.resolve(undefined);
-		// }
-
-		// return GameUtils.checkIfGameExists({ gameName: this.state.name }).then(
-		// 	(exists) => {
-		// 		this.setState({ nameError: exists ? NAME_IN_USE_ERROR_MESSAGE : "" });
-
-		// 		return exists;
-		// 	}
-		// );
 	}
 
 	debouncedCheckName = debounce(this.checkName, CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS)
@@ -293,26 +279,6 @@ class CreateGame extends React.PureComponent {
 			height: this.state.height,
 			playerLimit: this.state.playerLimit,
 		});
-
-		// if (!this.state.name) {
-		// 	this.setState({ nameError: "You must provide a game name" });
-		// 	return;
-		// }
-
-		// this.checkName().then(
-		// 	(exists) => {
-		// 		if (exists === undefined) {
-		// 			// Name is empty (or otherwise invalid--don't process it)
-		// 			this.setState({ nameError: "" });
-		// 			return;
-		// 		}
-
-		// 		if (!exists) {
-		// 			// Name is free--take it!
-		// 			this.props.onCreateGame(this.state);
-		// 		}
-		// 	}
-		// );
 	}
 
 	handleNumberOfPlayersChanged = (event) => {
@@ -336,8 +302,6 @@ class CreateGame extends React.PureComponent {
 					{...classes({
 						element: "form",
 					})}
-					encType="application/www-form-urlencoded"
-					method="post"
 					onSubmit={this.handleFormSubmit}
 				>
 					<div
