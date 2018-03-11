@@ -1,9 +1,15 @@
-import { Map } from "immutable";
+import { Map, Set } from "immutable";
 import { createSelector } from "reselect";
 
 const getCurrentUserID = (state) => state.get("currentID");
 
 const getUsers = (state) => state.get("items");
+
+const getUserByID = createSelector(
+	getUsers,
+	(state, props) => props.userID,
+	(users, userID) => users.get(userID)
+);
 
 /**
  * This selector gets the user playing games, if any.
@@ -50,7 +56,7 @@ const filterUsers = createSelector(
 	getUsers,
 	(state, props) => props,
 	(users, props) => {
-		const { userIDs } = props;
+		let { userIDs } = props;
 
 		if (userIDs === undefined) {
 			return users;
@@ -60,6 +66,8 @@ const filterUsers = createSelector(
 			return Map();
 		}
 
+		userIDs = Set(userIDs);
+
 		return users.filter(
 			(user, id) => userIDs.includes(id)
 		);
@@ -68,7 +76,8 @@ const filterUsers = createSelector(
 
 export default {
 	getUsers,
+	getUserByID,
 	getCurrentUser,
 	getLoggedInUser,
-	filterUsers
+	filterUsers,
 };

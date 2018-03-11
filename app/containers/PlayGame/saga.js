@@ -1,6 +1,9 @@
+/* global Promise */
+
 import { all, put, call, select, takeEvery } from "redux-saga/effects";
 import { LOCATION_CHANGE } from "react-router-redux";
 import { Howl } from "howler";
+import Notify from "notifyjs";
 import urlJoin from "proper-url-join";
 import { getGame } from "@app/api/games";
 import {
@@ -8,6 +11,7 @@ import {
 	leaveGame,
 	GET_GAME,
 	SET_MARBLE,
+	SET_CURRENT_PLAYER,
 } from "@app/actions";
 import selectors from "@app/selectors";
 import Config from "@app/config";
@@ -29,6 +33,24 @@ function playSound() {
 	marbleSound.play();
 
 	marbleSound.fade(1, 0, MARBLE_SOUND_FADE_DURATION_IN_MILLISECONDS);
+}
+
+function showNotification() {
+	return Promise.resolve(
+		!Notify.needsPermission || new Promise(Notify.requestPermission)
+	).then(
+		() => {
+			const notification = new Notify("Quintro", {
+				body: "It's your turn!",
+				notifyClick: () => {
+					window.focus();
+					notification.close();
+				}
+			});
+
+			notification.show();
+		}
+	);
 }
 
 function* getGameSaga({ payload }) {
@@ -57,6 +79,18 @@ function* setMarbleSaga() {
 	}
 }
 
+function* setCurrentPlayerSaga({ payload }) {
+	const notificationsEnabled = !!(yield select(selectors.settings.getSetting, { settingName: "enableNotifications" }));
+	if (notificationsEnabled) {
+		const newCurrentPlayer = yield select(selectors.games.getCurrentPlayer, { gameName: payload.gameName });
+		const currentPlayerUser = yield select(selectors.users.getUserByID, { userID: newCurrentPlayer.get("userID") });
+
+		if (currentPlayerUser.get("isMe")) {
+			yield showNotification();
+		}
+	}
+}
+
 function* watchLocationChange() {
 	yield takeEvery(LOCATION_CHANGE, locationChangeSaga);
 }
@@ -65,10 +99,15 @@ function* watchSetMarble() {
 	yield takeEvery(SET_MARBLE, setMarbleSaga);
 }
 
+function* watchSetCurrentPlayer() {
+	yield takeEvery(SET_CURRENT_PLAYER, setCurrentPlayerSaga);
+}
+
 export default function* playGameRootSaga() {
 	yield all([
 		watchGetGame(),
 		watchLocationChange(),
 		watchSetMarble(),
+		watchSetCurrentPlayer(),
 	]);
 }
