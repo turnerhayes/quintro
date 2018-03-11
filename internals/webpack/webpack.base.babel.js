@@ -34,6 +34,7 @@ module.exports = (options) => ({
 					"eslint-loader"
 				],
 			},
+			
 			{
 				// Preprocess our own .css files
 				// This is the place to add your own loaders (e.g. sass/less etc.)
@@ -73,16 +74,19 @@ module.exports = (options) => ({
 					},
 				],
 			},
+
 			{
 				// Preprocess 3rd party .css files located in node_modules
 				test: /\.css$/,
 				include: /node_modules/,
 				use: ["style-loader", "css-loader"],
 			},
+
 			{
 				test: /\.(eot|svg|otf|ttf|woff|woff2)$/,
 				use: "file-loader",
 			},
+
 			{
 				test: /\.(jpg|png|gif)$/,
 				use: [
@@ -101,14 +105,22 @@ module.exports = (options) => ({
 					},
 				],
 			},
+
 			{
 				test: /\.html$/,
 				use: "html-loader",
 			},
+
 			{
 				test: /\.json$/,
 				use: "json-loader",
 			},
+
+			{
+				test: /\.wav(\?.*)?$/,
+				use: "file-loader"
+			},
+
 			{
 				test: /\.(mp4|webm)$/,
 				use: {

@@ -8,8 +8,8 @@ import selectors    from "@app/selectors";
 const QuickSettingsDialogContainer = connect(
 	function mapStateToProps(state) {
 		return {
-			enableSoundEffects: selectors.settings.getSetting(state, "enableSoundEffects"),
-			enableNotifications: selectors.settings.getSetting(state, "enableNotifications"),
+			enableSoundEffects: selectors.settings.getSetting(state, { settingName: "enableSoundEffects" }),
+			enableNotifications: selectors.settings.getSetting(state, { settingName: "enableNotifications" }),
 			// isLoadingStoredSettings: !settings.wasRehydrated,
 			isLoadingStoredSettings: false,
 		};

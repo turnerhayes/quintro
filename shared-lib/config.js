@@ -15,11 +15,11 @@ let staticContentURL = process.env.STATIC_CONTENT_URL;
 const staticContentInline = !staticContentURL;
 
 if (staticContentInline) {
-	staticContentURL = "/";
+	staticContentURL = "";
 }
-else {
-	staticContentURL = staticContentURL.replace(/\/$/, "");
-}
+
+// Normalize URL to not end with a slash
+staticContentURL = staticContentURL.replace(/\/$/, "");
 
 
 const colors = [
