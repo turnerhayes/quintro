@@ -1,5 +1,9 @@
 {
-	"general.form.isRequired": "This field is required",
+	"quintro.general.form.isRequired": "This field is required",
+	"quintro.components.TopNavigation.links.home": "Home",
+	"quintro.components.TopNavigation.links.findGame": "Find a Game",
+	"quintro.components.TopNavigation.links.howToPlay": "How to Play",
+	"quintro.components.TopNavigation.links.startGame": "Start a Game",
 	"quintro.components.CreateGame.header": "Create a Game",
 	"quintro.components.CreateGame.form.dimensions.label": "Dimensions",
 	"quintro.components.CreateGame.form.name.label": "Name",
