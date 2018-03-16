@@ -16,6 +16,26 @@ export default defineMessages({
 				id: "quintro.components.CreateGame.form.name.label",
 			},
 		},
+		width: {
+			label: {
+				id: "quintro.components.CreateGame.form.width.label",
+			},
+		},
+		height: {
+			label: {
+				id: "quintro.components.CreateGame.form.height.label",
+			},
+		},
+		playerLimit: {
+			label: {
+				id: "quintro.components.CreateGame.form.playerLimit.label",
+			},
+		},
+		submitButton: {
+			label: {
+				id: "quintro.components.CreateGame.form.submitButton.label",
+			},
+		},
 		errors: {
 			general: {
 				isRequired: {
