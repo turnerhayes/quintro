@@ -2,6 +2,10 @@ import React                from "react";
 import PropTypes            from "prop-types";
 import ImmutablePropTyps    from "react-immutable-proptypes";
 import { Link }             from "react-router-dom";
+import {
+	injectIntl,
+	intlShape
+}                           from "react-intl";
 import AppBar               from "material-ui/AppBar";
 import Toolbar              from "material-ui/Toolbar";
 import Popover              from "material-ui/Popover";
@@ -16,6 +20,7 @@ import SettingsIcon         from "material-ui-icons/Settings";
 import createHelper         from "@app/components/class-helper";
 import AccountDialog        from "@app/containers/AccountDialog";
 import QuickSettingsDialog  from "@app/containers/QuickSettingsDialog";
+import messages             from "./messages";
 import                           "./TopNavigation.less";
 
 const classes = createHelper("top-navigation");
@@ -32,16 +37,23 @@ class TopNavigation extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {!external:Immutable.Map} loggedInUser - the logged in user, if any
+	 * @prop {!external:Immutable.Map} [loggedInUser] - the logged in user, if any
+	 * @prop {string} [className] - any extra class names to add to the root element
+	 * @prop {object} intl - an Intl object from the react-intl package
 	 */
 	static propTypes = {
 		loggedInUser: ImmutablePropTyps.map,
 		className: PropTypes.string,
+		intl: intlShape.isRequired,
 	}
 
 	state = {
 		accountButtonEl: null,
 		quickSettingsButtonEl: null,
+	}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	/**
@@ -106,31 +118,30 @@ class TopNavigation extends React.PureComponent {
 				<Toolbar>
 					<Link
 						to="/"
+						title={this.formatMessage(messages.links.home)}
 					>
-						<HomeIcon
-							title="Home"
-						/>
+						<HomeIcon/>
 					</Link>
 					<Button
 						component={Link}
 						to="/game/find"
 						className="nav-link"
 					>
-						Find a Game
+						{this.formatMessage(messages.links.findGame)}
 					</Button>
 					<Button
 						component={Link}
 						to="/how-to-play"
 						className="nav-link"
 					>
-						How to Play
+						{this.formatMessage(messages.links.howToPlay)}
 					</Button>
 					<Button
 						component={Link}
 						to="/game/create"
 						className="nav-link"
 					>
-						Start a Game
+						{this.formatMessage(messages.links.startGame)}
 					</Button>
 
 					<IconButton
@@ -193,4 +204,4 @@ class TopNavigation extends React.PureComponent {
 	}
 }
 
-export default TopNavigation;
+export default injectIntl(TopNavigation);

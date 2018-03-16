@@ -19,7 +19,7 @@ export default defineMessages({
 		errors: {
 			general: {
 				isRequired: {
-					id: "general.form.isRequired",
+					id: "quintro.general.form.isRequired",
 				},
 			},
 			nameInUse: {
