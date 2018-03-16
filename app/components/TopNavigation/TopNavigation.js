@@ -125,21 +125,18 @@ class TopNavigation extends React.PureComponent {
 					<Button
 						component={Link}
 						to="/game/find"
-						className="nav-link"
 					>
 						{this.formatMessage(messages.links.findGame)}
 					</Button>
 					<Button
 						component={Link}
 						to="/how-to-play"
-						className="nav-link"
 					>
 						{this.formatMessage(messages.links.howToPlay)}
 					</Button>
 					<Button
 						component={Link}
 						to="/game/create"
-						className="nav-link"
 					>
 						{this.formatMessage(messages.links.startGame)}
 					</Button>

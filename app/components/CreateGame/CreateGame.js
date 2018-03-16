@@ -341,7 +341,7 @@ class CreateGame extends React.PureComponent {
 						/>
 						<TextField
 							type="number"
-							label="Width"
+							label={this.formatMessage(messages.form.width.label)}
 							required
 							error={!!this.state.widthError}
 							helperText={this.state.widthError}
@@ -367,7 +367,7 @@ class CreateGame extends React.PureComponent {
 
 						<TextField
 							type="number"
-							label="Height"
+							label={this.formatMessage(messages.form.height.label)}
 							required
 							error={!!this.state.heightError}
 							helperText={this.state.heightError}
@@ -388,7 +388,7 @@ class CreateGame extends React.PureComponent {
 					<div>
 						<TextField
 							type="number"
-							label="Number of players"
+							label={this.formatMessage(messages.form.playerLimit.label)}
 							required
 							error={!!this.state.playerLimitError}
 							helperText={this.state.playerLimitError}
@@ -415,7 +415,7 @@ class CreateGame extends React.PureComponent {
 							!!this.state.playerLimitError
 						}
 					>
-						Create
+						{this.formatMessage(messages.form.submitButton.label)}
 					</Button>
 				</form>
 			</div>
