@@ -1,4 +1,4 @@
-/* global module, process, require */
+/* global module, process, require, Promise */
 
 /**
  * app.js
@@ -15,6 +15,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { ConnectedRouter } from "react-router-redux";
+import { IntlProvider } from "react-intl";
 import "sanitize.css/sanitize.css";
 
 // Import root app
@@ -44,18 +45,35 @@ import "./global-styles";
 const store = getStore();
 const MOUNT_NODE = document.getElementById("app");
 
-const render = () => {
+// Import i18n messages
+import { translationMessages } from "./i18n";
+
+const render = (messages) => {
+	const locale = navigator.language;
+	const localeMessages = Object.assign(
+		{},
+		messages[locale],
+		// Augment locale-specific messages (e.g. "en-US") with
+		// language-specific messages (e.g. "en")
+		locale.indexOf("-") >= 0 && messages[locale.split("-")[0]],
+	);
+
 	ReactDOM.render(
-		<Provider store={store}>
-			<ConnectedRouter history={history}>
-				<App />
-			</ConnectedRouter>
-		</Provider>,
+		(
+			<Provider store={store}>
+				<IntlProvider
+					locale={locale}
+					messages={localeMessages}
+				>
+					<ConnectedRouter history={history}>
+						<App />
+					</ConnectedRouter>
+				</IntlProvider>
+			</Provider>
+		),
 		MOUNT_NODE
 	);
 };
-
-render();
 
 if (module.hot) {
 	// Hot reloadable React components
@@ -63,8 +81,25 @@ if (module.hot) {
 	// have to be constants at compile-time
 	module.hot.accept(["@app/components/App"], () => {
 		ReactDOM.unmountComponentAtNode(MOUNT_NODE);
-		render();
+		render(translationMessages);
 	});
+}
+
+// Chunked polyfill for browsers without Intl support
+if (!window.Intl) {
+	(new Promise((resolve) => {
+		resolve(import("intl"));
+	}))
+	.then(() => Promise.all([
+		import("intl/locale-data/jsonp/en.js"),
+		import("intl/locale-data/jsonp/de.js"),
+	]))
+	.then(() => render(translationMessages))
+	.catch((err) => {
+		throw err;
+	});
+} else {
+	render(translationMessages);
 }
 
 // Install ServiceWorker and AppCache in the end since
