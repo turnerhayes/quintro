@@ -4,7 +4,7 @@
  * client-side modules can get a reference to the store if needed.
  */
 
-import { Map }               from "immutable";
+import { Map, fromJS }       from "immutable";
 import createHistory         from "history/createBrowserHistory";
 import configureStore        from "@app/configure-store";
 
@@ -12,7 +12,7 @@ export const history = createHistory();
 
 const context = JSON.parse(document.body.dataset.context || "{}");
 
-const currentUser = context && context.user ? Map(context.user) : null;
+const currentUser = context && context.user ? fromJS(context.user) : null;
 
 const initialState = Map(
 	{

@@ -162,13 +162,9 @@ class TopNavigation extends React.PureComponent {
 							vertical: "top",
 						}}
 					>
-						<Card>
-							<CardContent>
-								<AccountDialog
-									loggedInUser={this.props.loggedInUser}
-								/>
-							</CardContent>
-						</Card>
+						<AccountDialog
+							loggedInUser={this.props.loggedInUser}
+						/>
 					</Popover>
 					<IconButton
 						onClick={this.onQuickSettingsButtonClick}

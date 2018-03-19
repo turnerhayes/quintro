@@ -2,6 +2,10 @@ import debounce           from "lodash/debounce";
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
+import {
+	injectIntl,
+	intlShape,
+}                         from "react-intl";
 import TextField          from "material-ui/TextField";
 import Button             from "material-ui/Button";
 import Typography         from "material-ui/Typography";
@@ -10,14 +14,14 @@ import Card, {
 	CardContent
 }                         from "material-ui/Card";
 import createHelper       from "@app/components/class-helper";
+import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Config             from "@app/config";
+import messages           from "./messages";
 import                         "./FindGame.less";
 
 const classes = createHelper("find-game");
 
 const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
-
-let uniqueId = 0;
 
 /**
  * Component representing a form for searching for open games to join.
@@ -39,7 +43,8 @@ class FindGame extends React.PureComponent {
 		onFindOpenGames: PropTypes.func.isRequired,
 		onJoinGame: PropTypes.func.isRequired,
 		findGameError: PropTypes.object,
-		results: ImmutablePropTypes.list
+		results: ImmutablePropTypes.list,
+		intl: intlShape.isRequired,
 	}
 
 	/**
@@ -54,6 +59,10 @@ class FindGame extends React.PureComponent {
 	state = {
 		numberOfPlayers: null,
 		isSearching: false
+	}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	componentDidUpdate() {
@@ -159,16 +168,10 @@ class FindGame extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	render() {
-		if (!this._uniqueId) {
-			this._uniqueId = ++uniqueId;
-		}
-
 		return (
-			<Card
-				{...classes()}
-			>
+			<Card>
 				<CardHeader
-					title="Find a Game"
+					title={this.formatMessage(messages.header)}
 				/>
 				<CardContent>
 					{
@@ -190,12 +193,8 @@ class FindGame extends React.PureComponent {
 	 */
 	renderSearching() {
 		return (
-			<h3
-				{...classes({
-					element: "loading-message",
-				})}
-			>
-				<span className="fa fa-spinner fa-spin fa-2x fa-fw" /> Searching for open games, please wait
+			<h3>
+				<LoadingSpinner /> Searching for open games, please wait
 			</h3>
 		);
 	}
@@ -212,50 +211,46 @@ class FindGame extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	renderForm() {
-		const fieldClass = classes({
-			element: "find-game-form-num-players"
-		}).className;
-		const fieldId = fieldClass + this._uniqueId;
-
 		return (
 			<form
-				method="GET"
-				encType="application/x-www-form-urlencoded"
 				onSubmit={this.handleSearchFormSubmit}
 			>
-				<div
-				>
-					<label
-						htmlFor={fieldId}
-					>
-						Number of players: 
-					</label>
+				<div>
 					<TextField
 						type="number"
-						className={fieldClass}
-						id={fieldId}
-						min={Config.game.players.min}
-						max={Config.game.players.max}
+						label={this.formatMessage(messages.form.playerLimit.label)}
+						inputProps={{
+							min: Config.game.players.min,
+							max: Config.game.players.max,
+							...classes({
+								element: "player-limit-input",
+							}),
+						}}
+						InputLabelProps={{
+							...classes({
+								element: "player-limit-label",
+							}),
+						}}
 						onChange={this.handleNumberOfPlayersChanged}
 					/>
 					<Typography
 						type="caption"
 					>
-						Leave blank if you don&#39;t care how many players the game has
+						{this.formatMessage(messages.form.playerLimit.details)}
 					</Typography>
 				</div>
 
-				<div
-					className="form-group"
-				>
+				<div>
 					<Button
 						type="submit"
 						color="primary"
-					>Find</Button>
+					>
+						{this.formatMessage(messages.form.submitButton.label)}
+					</Button>
 				</div>
 			</form>
 		);
 	}
 }
 
-export default FindGame;
+export default injectIntl(FindGame);

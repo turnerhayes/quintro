@@ -2,15 +2,23 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { Link }           from "react-router-dom";
-import createHelper       from "@app/components/class-helper";
+import {
+	injectIntl,
+	intlShape,
+}                         from "react-intl";
+import classnames         from "classnames";
+import Button             from "material-ui/Button";
 import Icon               from "material-ui/Icon";
 import IconButton         from "material-ui/IconButton";
-import Typography         from "material-ui/Typography";
+import Card, {
+	CardContent,
+	CardHeader,
+	CardActions,
+}                         from "material-ui/Card";
+import { withStyles }     from "material-ui/styles";
 import Config             from "@app/config";
-import                         "./AccountDialog.less";
+import messages           from "./messages";
 import                         "@app/fonts/icomoon/style.css";
-
-const classes = createHelper("account-dialog");
 
 const PROVIDER_INFO = {
 	facebook: {
@@ -27,6 +35,21 @@ const PROVIDER_INFO = {
 		id: "twitter",
 		name: "Twitter",
 		ligature: "twitter",
+	},
+};
+
+const styles = {
+	loginLink: {
+		fontSize: "2em",
+	},
+
+	providerIcon: {
+		marginRight: "0.5em",
+	},
+
+	buttonIcon: {
+		marginRight: "1em",
+		fontSize: "2em",
 	},
 };
 
@@ -51,7 +74,15 @@ class AccountDialog extends React.PureComponent {
 		onLogin: PropTypes.func.isRequired,
 		onLogout: PropTypes.func.isRequired,
 		loggedInUser: ImmutablePropTypes.map,
-		className: PropTypes.string
+		className: PropTypes.string,
+		classes: PropTypes.object.isRequired,
+		intl: intlShape.isRequired,
+	}
+
+	loginMethods = {}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	/**
@@ -80,28 +111,6 @@ class AccountDialog extends React.PureComponent {
 	}
 
 	/**
-	 * Generates a React component representing the view of the dialog when the user is logged in.
-	 *
-	 * @function
-	 *
-	 * @return {external:React.Component} the component to render
-	 */
-	renderLoggedIn = () => {
-		return (
-			<div
-			>
-				<div>
-					<Link
-						to={`/profile/${this.props.loggedInUser.get("username")}`}
-					>
-					Profile
-					</Link>
-				</div>
-			</div>
-		);
-	}
-
-	/**
 	 * Generates a React component representing the view of the dialog when the user is not logged in.
 	 *
 	 * @function
@@ -109,6 +118,8 @@ class AccountDialog extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	renderNotLoggedIn = () => {
+		const { classes } = this.props;
+
 		return (
 			<div>
 				{
@@ -118,13 +129,21 @@ class AccountDialog extends React.PureComponent {
 								return null;
 							}
 
+							if (!this.loginMethods[provider]) {
+								this.loginMethods[provider] = this.handleLoginClicked.bind(this, { provider });
+							}
+
+							const logInWithMessage = this.formatMessage(messages.actions.logInWith, {
+								provider: PROVIDER_INFO[provider].name
+							});
+
 							return (
 								<IconButton
 									key={provider}
-									className="login-link"
-									title={`Log in with ${PROVIDER_INFO[provider].name}`}
-									aria-label={`Log in with ${PROVIDER_INFO[provider].name}`}
-									onClick={() => this.handleLoginClicked({ provider })}
+									className={classes.loginLink}
+									title={logInWithMessage}
+									aria-label={logInWithMessage}
+									onClick={this.loginMethods[provider]}
 								>
 									<Icon
 										className="icon"
@@ -148,56 +167,66 @@ class AccountDialog extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	render() {
-		const title = this.props.loggedInUser ?
-			"" :
-			"Log in";
+		const {
+			classes
+		} = this.props;
+
+		const title = this.props.loggedInUser ? (
+			<div>
+				<Icon
+					className={classnames(
+						"icon",
+						classes.providerIcon,
+					)}
+				>
+					{PROVIDER_INFO[this.props.loggedInUser.get("provider")].ligature}
+				</Icon>
+				<Link
+					to={`/profile/${this.props.loggedInUser.get("username")}`}
+				>
+					{this.props.loggedInUser.getIn(["name", "display"])}
+				</Link>
+			</div>
+		) :
+		this.formatMessage(messages.actions.logIn);
 
 		return (
-			<div
-				{...classes()}
-			>
-				{
-					title && (
-						<Typography
-							align="center"
-							type="title"
-						>
-							{title}
-						</Typography>
-					)
-				}
-				{
-					this.props.loggedInUser &&
-					PROVIDER_INFO[this.props.loggedInUser.get("provider")] && (
-						<Icon>
-							{PROVIDER_INFO[this.props.loggedInUser.get("provider")].ligature}
-						</Icon>
-					)
-				}
-				{
-					this.props.loggedInUser && this.props.loggedInUser.getIn(["name", "display"])
-				}
+			<Card>
+				<CardHeader
+					title={title}
+				>
+				</CardHeader>
+				<CardContent>
+					{
+						this.props.loggedInUser ?
+							null :
+							this.renderNotLoggedIn()
+					}
+				</CardContent>
 				{
 					this.props.loggedInUser && (
-						<IconButton
-							aria-label="Log out"
-							title="Log out"
-							onClick={this.handleLogoutButtonClicked}
-						>
-							<Icon
-								className="fa fa-sign-out"
-							/>
-						</IconButton>
+						<CardActions>
+							<Button
+								onClick={this.handleLogoutButtonClicked}
+							>
+								<Icon
+									className={classnames(
+										"icon",
+										classes.buttonIcon
+									)}
+								>
+									log out
+								</Icon>
+								{this.formatMessage(messages.actions.logOut)}
+							</Button>
+						</CardActions>
 					)
 				}
-				{
-					this.props.loggedInUser ?
-						this.renderLoggedIn() :
-						this.renderNotLoggedIn()
-				}
-			</div>
+			</Card>
 		);
 	}
 }
 
-export default AccountDialog;
+export default injectIntl(
+	withStyles(styles)(AccountDialog)
+);
