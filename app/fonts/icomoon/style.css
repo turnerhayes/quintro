@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'quintro-icomoon';
   src:
-    url('fonts/quintro-icomoon.ttf?36kr4f') format('truetype'),
-    url('fonts/quintro-icomoon.woff?36kr4f') format('woff'),
-    url('fonts/quintro-icomoon.svg?36kr4f#quintro-icomoon') format('svg');
+    url('fonts/quintro-icomoon.ttf?a8obhm') format('truetype'),
+    url('fonts/quintro-icomoon.woff?a8obhm') format('woff'),
+    url('fonts/quintro-icomoon.svg?a8obhm#quintro-icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -33,6 +33,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-exit:before {
+  content: "\e904";
+}
+.icon-signout:before {
+  content: "\e904";
+}
+.icon-logout:before {
+  content: "\e904";
+}
+.icon-quit:before {
+  content: "\e904";
+}
+.icon-close:before {
+  content: "\e904";
+}
 .icon-spinner:before {
   content: "\e903";
 }

@@ -25,6 +25,7 @@
     var icons;
     if (!supportsProperty('fontFeatureSettings')) {
         icons = {
+            'log out': '&#xe904;',
             'loading': '&#xe903;',
             'twitter': '&#xe901;',
             'google plus': '&#xe900;',

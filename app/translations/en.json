@@ -1,9 +1,12 @@
 {
+	"quintro.general.actions.logIn": "Log in",
+	"quintro.general.actions.logOut": "Log out",
 	"quintro.general.form.isRequired": "This field is required",
 	"quintro.components.TopNavigation.links.home": "Home",
 	"quintro.components.TopNavigation.links.findGame": "Find a Game",
 	"quintro.components.TopNavigation.links.howToPlay": "How to Play",
 	"quintro.components.TopNavigation.links.startGame": "Start a Game",
+	"quintro.components.AccountDialog.actions.logInWith": "Log in with {provider}",
 	"quintro.components.CreateGame.header": "Create a Game",
 	"quintro.components.CreateGame.form.dimensions.label": "Dimensions",
 	"quintro.components.CreateGame.form.name.label": "Name",
@@ -17,5 +20,9 @@
 	"quintro.components.CreateGame.form.errors.dimensions.tooLarge": "{value} is greater than the maximum {dimension} of ({max})",
 	"quintro.components.CreateGame.form.errors.playerLimit.invalid": "{value} is not a valid value for the player limit",
 	"quintro.components.CreateGame.form.errors.playerLimit.tooSmall": "{value} is less than the minimum number of players ({min})",
-	"quintro.components.CreateGame.form.errors.playerLimit.tooLarge": "{value} is greater than the maximum number of players ({max})"
+	"quintro.components.CreateGame.form.errors.playerLimit.tooLarge": "{value} is greater than the maximum number of players ({max})",
+	"quintro.components.FindGame.header": "Find a Game",
+	"quintro.components.FindGame.form.playerLimit.label": "Number of players",
+	"quintro.components.FindGame.form.playerLimit.details": "Leave blank if you don't care how many players the game has",
+	"quintro.components.FindGame.form.submitButton.label": "Find"
 }

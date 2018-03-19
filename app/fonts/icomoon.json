@@ -9,11 +9,20 @@
       "selection": [
         {
           "order": 1,
+          "id": 4,
+          "name": "exit, signout, logout, quit, close",
+          "prevSize": 32,
+          "code": 59652,
+          "tempChar": "",
+          "ligatures": "log out"
+        },
+        {
+          "order": 1,
           "id": 3,
           "prevSize": 32,
           "code": 59651,
           "name": "spinner",
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "loading"
         },
         {
@@ -22,7 +31,7 @@
           "name": "twitter, brand2, tweet, social2",
           "prevSize": 32,
           "code": 59649,
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "twitter"
         },
         {
@@ -31,7 +40,7 @@
           "name": "google-plus, brand, social",
           "prevSize": 32,
           "code": 59648,
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "google plus"
         },
         {
@@ -40,7 +49,7 @@
           "prevSize": 32,
           "code": 59650,
           "name": "facebook",
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "facebook"
         }
       ],
@@ -61,6 +70,25 @@
       "height": 1024,
       "prevSize": 32,
       "icons": [
+        {
+          "id": 4,
+          "paths": [
+            "M768 640v-128h-320v-128h320v-128l192 192zM704 576v256h-320v192l-384-192v-832h704v320h-64v-256h-512l256 128v576h256v-192z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "exit",
+            "signout",
+            "logout",
+            "quit",
+            "close"
+          ],
+          "grid": 16
+        },
         {
           "id": 3,
           "paths": [

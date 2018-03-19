@@ -28,7 +28,7 @@ export const LOGOUT = "@@QUINTRO/AUTH/LOGOUT";
 export function logout() {
 	const currentPage = getCurrentPagePath();
 
-	document.location.href = `/logout?redirectTo=${encodeURIComponent(currentPage)}`;
+	document.location.href = `/auth/logout?redirectTo=${encodeURIComponent(currentPage)}`;
 
 	return {
 		type: LOGOUT,
