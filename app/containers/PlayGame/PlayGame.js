@@ -29,6 +29,8 @@ const withRedux = connect(
 
 			isWatchingGame: selectors.games.isWatchingGame(state, selectorProps),
 
+			watcherCount: selectors.games.getWatcherCount(state, selectorProps),
+
 			hasJoinedGame: selectors.games.hasJoinedGame(state, selectorProps),
 
 			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),

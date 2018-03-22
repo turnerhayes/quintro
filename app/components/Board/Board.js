@@ -115,7 +115,7 @@ class Board extends React.Component {
 									})}
 								>
 									{
-										range(this.props.board.get("width")).map(
+										range(board.get("width")).map(
 											(columnIndex) => {
 												const position = [columnIndex, rowIndex];
 												const filled = filledMap[JSON.stringify(position)];

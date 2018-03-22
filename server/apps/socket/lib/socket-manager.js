@@ -51,6 +51,57 @@ function _logGameEvent({ gameName, message, level, stack }) {
 	_log({ message: `<${gameName}>: ${message}${stack ? "\n" + stack : ""}`, level });
 }
 
+function getWatchers({ gameName, socket }) {
+	return {
+		count: WATCHERS[gameName] ?
+			WATCHERS[gameName].length :
+			0,
+
+		includesMe: !!(
+			WATCHERS[gameName] &&
+			WATCHERS[gameName].some(
+				({ user, sessionID }) => socket.request.user ?
+					// Is there a logged in user? Check against user
+					socket.request.user.id === (user && user.id) :
+					// No logged in user? Check against session ID
+					socket.request.sessionID === sessionID
+			)
+		)
+	};
+}
+
+/**
+ * Removes a watcher from the list of watchers for the specified game.
+ *
+ * @param {object} args - the function arguments
+ * @param {string} args.gameName - the name of the game
+ * @param {socket} args.socket - the socket corresponding to the user to remove
+ *
+ * @returns {boolean} whether or not the watchers were actually changed
+ */
+function removeWatcher({ gameName, socket }) {
+	let watcherIndex;
+
+	if (socket.request.user) {
+		watcherIndex = WATCHERS[gameName].findIndex(
+			(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
+		);
+	}
+	else {
+		watcherIndex = WATCHERS[gameName].findIndex(
+			(watcher) => watcher.sessionID === socket.request.sessionID
+		);
+	}
+
+	if (watcherIndex >= 0) {
+		// Remove from watchers
+		WATCHERS[gameName].splice(watcherIndex, 1);
+
+		return true;
+	}
+
+	return false;
+}
 
 function _getPlayer({game, user, sessionID}) {
 	return _.find(
@@ -353,7 +404,7 @@ class SocketManager {
 
 	static _onUpdateGame(socket, gameName, fn) {
 		const update = {
-			watchers: WATCHERS[gameName] || [],
+			watchers: getWatchers({ gameName, socket }),
 			playerPresence: SocketManager.getPresentPlayers({ socket, gameName }),
 		};
 
@@ -383,7 +434,10 @@ class SocketManager {
 				error
 			});
 
-			fn && fn(error);
+			fn && fn({
+				error: true,
+				message: error.message
+			});
 			return;
 		}
 
@@ -407,20 +461,27 @@ class SocketManager {
 							socket.request.sessionID,
 					});
 
-					this._server.sockets.in(gameName).emit(
-						"game:watchers:added",
+					const watchers = {
+						count: WATCHERS[gameName].length,
+						includesMe: true,
+					};
+
+					const args = [
+						"game:watchers:updated",
 						{
 							gameName,
-							user: socket.request.user &&
-								prepareUserForFrontend({
-									user: socket.request.user,
-									request: socket.request
-								}) ||
-								{
-									sessionID: socket.request.sessionID,
-								},
-						}
-					);
+							watchers,
+						},
+					];
+
+					socket.emit(...args);
+
+					// For other connected sockets, don't change the includesMe value,
+					// because this user being included won't change whether those other users
+					// are included
+					delete watchers.includesMe;
+
+					socket.broadcast.to(gameName).emit(...args);
 				}
 
 				fn && fn({});
@@ -451,7 +512,7 @@ class SocketManager {
 
 		fn && fn({
 			gameName,
-			watchers: WATCHERS[gameName] || [],
+			watchers: getWatchers({ gameName, socket }),
 		});
 	}
 
@@ -503,6 +564,9 @@ class SocketManager {
 
 				socket.player = playerData;
 
+				// A player is not a watcher
+				SocketManager.stopWatching({ gameName, socket });
+
 				const joinResults = {
 					gameName,
 					player: playerData,
@@ -540,42 +604,42 @@ class SocketManager {
 		);
 	}
 
-	static _onLeaveGame(socket, gameName, fn) {
-		if (WATCHERS[gameName]) {
-			let watcherIndex;
-
-			if (socket.request.user) {
-				watcherIndex = WATCHERS[gameName].findIndex(
-					(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
-				);
-			}
-			else {
-				watcherIndex = WATCHERS[gameName].findIndex(
-					(watcher) => watcher.sessionID === socket.request.sessionID
-				);
-			}
-
-			if (watcherIndex >= 0) {
-				// Remove from watchers
-				WATCHERS[gameName].splice(watcherIndex, 1);
-				socket.broadcast.to(gameName).emit(
-					"game:watchers:removed",
-					{
-						gameName,
-						user: socket.request.user &&
-							prepareUserForFrontend({
-								user: socket.request.user,
-								request: socket.request
-							}) ||
-							{
-								sessionID: socket.request.sessionID,
-							},
-					}
-				);
-			}
+	static stopWatching({ socket, gameName, }) {
+		if (!WATCHERS[gameName]) {
+			return;
 		}
 
-		GameStore.getGame({
+		if (removeWatcher({ gameName, socket })) {
+			const watchers = {
+				count: WATCHERS[gameName].length,
+				includesMe: true,
+			};
+
+			const args = [
+				"game:watchers:updated",
+				{
+					gameName,
+					watchers,
+				},
+			];
+
+			// Notify socket
+			socket.emit(...args);
+
+			// For other connected socket users, don't set includesMe either way,
+			// since some other user stopping watching doesn't change whether or
+			// not *that* user is watching
+			delete watchers.includesMe;
+
+			// Notify others
+			socket.broadcast.to(gameName).emit(...args);
+		}
+	}
+
+	static leaveGame({ socket, gameName }) {
+		SocketManager.stopWatching({ socket, gameName });
+
+		return GameStore.getGame({
 			name: gameName,
 		}).then(
 			(game) => {
@@ -599,24 +663,15 @@ class SocketManager {
 						)
 					}
 				);
-
-				fn && fn();
-			}
-		).catch(
-			(err) => {
-				_logGameEvent({
-					gameName,
-					message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
-					stack: err.stack,
-					level: LOG_LEVELS.ERROR
-				});
-
-				fn && fn({
-					error: true,
-					message: err.message,
-				});
 			}
 		);
+	}
+
+	static _onLeaveGame(socket, gameName, fn) {
+		SocketManager.leaveGame({ socket, gameName });
+		SocketManager.stopWatching({ socket, gameName });
+
+		fn && fn();
 	}
 
 	static _onPlaceMarble(socket, { gameName, position }, fn) {
@@ -739,9 +794,26 @@ class SocketManager {
 	}
 
 	static _onDisconnect(socket) {
+		// Leave games that the user is a player in
 		_games[socket.id] && _games[socket.id].forEach(
-			(gameName) => SocketManager._onLeaveGame(socket, gameName)
+			(gameName) => SocketManager.leaveGame({ socket, gameName }).catch(
+				(err) => {
+					_logGameEvent({
+						gameName,
+						message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
+						stack: err.stack,
+						level: LOG_LEVELS.ERROR
+					});
+				}
+			)
 		);
+
+		// Leave games that the user is watching
+		for(let gameName in WATCHERS) {
+			if (Object.prototype.hasOwnProperty.call(WATCHERS, gameName)) {
+				SocketManager.stopWatching({ gameName, socket });
+			}
+		}
 	}
 
 	static _onGetPlayerPresence(socket, { gameName }, fn) {

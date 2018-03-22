@@ -25,6 +25,8 @@
     var icons;
     if (!supportsProperty('fontFeatureSettings')) {
         icons = {
+            'eye': '&#xe905;',
+            'watcher': '&#xe905;',
             'log out': '&#xe904;',
             'loading': '&#xe903;',
             'twitter': '&#xe901;',

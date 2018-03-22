@@ -59,7 +59,7 @@ function getOrCreateUser({ req, provider, profile }) {
 }
 
 if (Config.auth.facebook.isEnabled) {
-	const FacebookStrategy = require("passport-facebook");
+	const FacebookStrategy = require("passport-facebook-rwky");
 
 	passport.use(new FacebookStrategy(
 		{

@@ -71,17 +71,6 @@ const isInGame = createSelector(
 	(currentUserPlayer) => !!currentUserPlayer
 );
 
-const isWatchingGame = createSelector(
-	wrappedUsers.getCurrentUser,
-	wrappedGames.getWatchers,
-	(currentUser, watchers) => !!(
-		currentUser && watchers && !!watchers.find(
-			(watcher) => watcher.get("userID") === currentUser.get("id")
-		)
-	)
-);
-
-
 export default {
 	ui: wrappedUI,
 	users: wrappedUsers,
@@ -92,6 +81,5 @@ export default {
 		getPlayerUser,
 		getCurrentUserPlayer,
 		isInGame,
-		isWatchingGame,
 	},
 };

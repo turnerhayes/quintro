@@ -11,8 +11,13 @@ import Menu, {
 	MenuItem
 }                    from "material-ui/Menu";
 import Button        from "material-ui/Button";
+import {
+	injectIntl,
+	intlShape,
+}                    from "react-intl";
 import createHelper  from "@app/components/class-helper";
 import Config        from "@app/config";
+import messages      from "./messages";
 import                    "./GameJoinDialog.less";
 
 const classes = createHelper("game-join-dialog");
@@ -61,7 +66,8 @@ class GameJoinDialog extends React.Component {
 		game: ImmutablePropTypes.map.isRequired,
 		onSubmit: PropTypes.func.isRequired,
 		onCancel: PropTypes.func.isRequired,
-		onWatchGame: PropTypes.func
+		onWatchGame: PropTypes.func,
+		intl: intlShape.isRequired,
 	}
 
 	/**
@@ -78,6 +84,10 @@ class GameJoinDialog extends React.Component {
 		selectedColor: null
 	}
 
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
+	}
+
 	/**
 	 * Closes the player color dropdown.
 	 *
@@ -87,6 +97,15 @@ class GameJoinDialog extends React.Component {
 	 */
 	closeColorPicker = () => {
 		this.setState({ colorPickerIsOpen: false });
+	}
+
+	getDefaultColor = () => {
+		const playerColors = this.props.game.get("players").map((player) => player.get("color"));
+		const colors = Config.game.colors.filter(
+			(colorDefinition) => playerColors.indexOf(colorDefinition.id) < 0
+		);
+
+		return colors[0].id;
 	}
 
 	/**
@@ -134,11 +153,11 @@ class GameJoinDialog extends React.Component {
 	 *
 	 * @return {void}
 	 */
-	handleSubmit = ({ event, defaultColor }) => {
+	handleSubmit = (event) => {
 		event.preventDefault();
 
 		this.props.onSubmit({
-			color: this.state.selectedColor || defaultColor
+			color: this.state.selectedColor || this.getDefaultColor(),
 		});
 	}
 
@@ -182,14 +201,16 @@ class GameJoinDialog extends React.Component {
 	renderCannotJoinGame = ({ reason }) => {
 		return (
 			<div>
-				Sorry, { reason }
+				{reason}.
 				<div>
 					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
 				</div>
 				<Button
 					color="secondary"
 					onClick={this.handleWatchGameButtonClicked}
-				>I want to watch this game</Button>
+				>
+					{this.formatMessage(messages.buttons.watchGame.label)}
+				</Button>
 			</div>
 		);
 	}
@@ -217,17 +238,16 @@ class GameJoinDialog extends React.Component {
 			(colorDefinition) => playerColors.indexOf(colorDefinition.id) < 0
 		);
 
-		const defaultColor = colors[0].id;
+		const defaultColor = this.getDefaultColor();
 
 		return (
 			<form
-				method="POST"
-				onSubmit={(event) => this.handleSubmit({ event, defaultColor })}
+				onSubmit={this.handleSubmit}
 			>
 				<div>
 					<label
 					>
-						Color:
+						{this.formatMessage(messages.color)}:
 						{
 							<Button>
 								{
@@ -274,13 +294,13 @@ class GameJoinDialog extends React.Component {
 						type="submit"
 						color="primary"
 					>
-						Join
+						{this.formatMessage(messages.buttons.join.label)}
 					</Button>
 					<Button
 						type="button"
 						onClick={this.handleCancelButtonClicked}
 					>
-						Cancel
+						{this.formatMessage(messages.buttons.cancel.label)}
 					</Button>
 				</div>
 			</form>
@@ -306,12 +326,12 @@ class GameJoinDialog extends React.Component {
 
 		if (isFull) {
 			body = this.renderCannotJoinGame({
-				reason: "this game is full."
+				reason: this.formatMessage(messages.cannotJoinReasons.gameIsFull),
 			});
 		}
 		else if (this.props.game.get("isStarted")) {
 			body = this.renderCannotJoinGame({
-				reason: "this game is already in progress."
+				reason: this.formatMessage(messages.cannotJoinReasons.gameIsInProgress),
 			});
 		}
 		else {
@@ -322,12 +342,12 @@ class GameJoinDialog extends React.Component {
 		return (
 			<Dialog
 				{...classes()}
-				open={true}
+				open
 			>
 				<Card>
 					{ canJoin && (
 						<CardHeader
-							title="Join this game"
+							title={this.formatMessage(messages.joinThisGamePrompt)}
 						/>
 					) }
 					<CardContent>
@@ -339,4 +359,4 @@ class GameJoinDialog extends React.Component {
 	}
 }
 
-export default GameJoinDialog;
+export default injectIntl(GameJoinDialog);

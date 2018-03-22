@@ -1,19 +1,39 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
+import {
+	injectIntl,
+	intlShape,
+}                         from "react-intl";
 import createDebugger     from "debug";
+import classnames         from "classnames";
 import Button             from "material-ui/Button";
+import Icon               from "material-ui/Icon";
+import Badge              from "material-ui/Badge";
+import { withStyles }     from "material-ui/styles";
 import PlayArrowIcon      from "material-ui-icons/PlayArrow";
 import createHelper       from "@app/components/class-helper";
 import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
 import Config             from "@app/config";
+import messages           from "./messages";
 import                         "./PlayGame.less";
 
 const classes = createHelper("play-game");
 
 const debug = createDebugger("quintro:client:play-game");
+
+const styles = {
+	watcherIcon: {
+		fontSize: "1.7em",
+	},
+
+
+	watcherBadge: {
+		marginRight: "1em",
+	},
+};
 
 /**
  * Component for rendering the game UI.
@@ -43,22 +63,25 @@ class PlayGame extends React.PureComponent {
 		),
 		currentUserPlayerColor: PropTypes.string,
 		getGameError: PropTypes.object,
+		classes: PropTypes.object,
 		isInGame: PropTypes.bool,
 		isWatchingGame: PropTypes.bool,
 		hasJoinedGame: PropTypes.bool,
+		watcherCount: PropTypes.number,
 		onJoinGame: PropTypes.func.isRequired,
 		onWatchGame: PropTypes.func.isRequired,
 		onStartGame: PropTypes.func.isRequired,
 		onGetGame: PropTypes.func.isRequired,
 		onPlaceMarble: PropTypes.func.isRequired,
 		onCancelJoin: PropTypes.func.isRequired,
+		intl: intlShape.isRequired,
+	}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	componentWillMount() {
-		if (!this.props.isInGame) {
-			this.props.onWatchGame();
-		}
-
 		if (this.props.game) {
 			this.joinIfInGame();
 		}
@@ -194,11 +217,26 @@ class PlayGame extends React.PureComponent {
 			game,
 			isInGame,
 			isWatchingGame,
+			watcherCount,
 		} = this.props;
 
 		const myTurn = this.props.currentUserPlayerColor === game.get("currentPlayerColor");
 		const gameIsOver = !!game.get("winner");
 		const gameIsStarted = game.get("isStarted") && !gameIsOver;
+
+		const watcherSummary = watcherCount > 0 ?
+			this.formatMessage(
+				messages.watchers.summary[isWatchingGame ? "withYou" : "withoutYou"],
+				{
+					// If user is watching the game, they are included in the watcherCount.
+					// The message says something to the effect of "You and X others", so we
+					// need to decrement it if the current user is watching
+					watcherCount: isWatchingGame ?
+						watcherCount - 1 :
+						watcherCount,
+				}
+			) :
+			null;
 
 		return (
 			<div
@@ -210,13 +248,24 @@ class PlayGame extends React.PureComponent {
 				})}
 			>
 				{
-					isWatchingGame && (
+					watcherSummary && (
 						<div
 							{...classes({
 								element: "watching-game-notification",
 							})}
 						>
-						You are watching this game.
+							<Badge
+								badgeContent={watcherCount}
+								color="primary"
+								className={this.props.classes.watcherBadge}
+							>
+								<Icon
+									className={classnames(
+										"icon",
+										this.props.classes.watcherIcon
+									)}
+								>watcher</Icon>
+							</Badge> {watcherSummary}
 						</div>
 					)
 				}
@@ -247,20 +296,24 @@ class PlayGame extends React.PureComponent {
 										element: "start-game-overlay",
 									})}
 								>
-									<div
-										{...classes({
-											element: "start-game-overlay-dialog",
-										})}
-									>
-										<Button
-											disabled={game.get("players").size < Config.game.players.min}
-											onClick={this.handleStartGameButtonClick}
-										>
-											<PlayArrowIcon
-											/>
-											Start Game
-										</Button>
-									</div>
+									{
+										!isWatchingGame && (
+											<div
+												{...classes({
+													element: "start-game-overlay-dialog",
+												})}
+											>
+												<Button
+													disabled={game.get("players").size < Config.game.players.min}
+													onClick={this.handleStartGameButtonClick}
+												>
+													<PlayArrowIcon
+													/>
+													Start Game
+												</Button>
+											</div>
+										)
+									}
 								</div>
 							) :
 							null
@@ -312,4 +365,4 @@ class PlayGame extends React.PureComponent {
 	}
 }
 
-export default PlayGame;
+export default injectIntl(withStyles(styles)(PlayGame));
