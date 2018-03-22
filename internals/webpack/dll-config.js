@@ -18,7 +18,7 @@ exports = module.exports = {
 		"winston",
 		"cors",
 		"passport",
-		"passport-facebook",
+		"passport-facebook-rwky",
 		"passport-twitter",
 		"passport-google-oauth20",
 		"express-session",

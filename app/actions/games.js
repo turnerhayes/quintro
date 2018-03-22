@@ -85,7 +85,10 @@ export const FETCHED_GAME = "@@QUINTRO/GAMES/FETCHED";
 export function fetchedGame({ game }) {
 	return {
 		type: FETCHED_GAME,
-		payload: { game },
+		payload: {
+			game,
+			gameName: game.get("name"),
+		},
 	};
 }
 
@@ -182,21 +185,12 @@ export function setWinner({ gameName, color }) {
 	};
 }
 
-export const ADD_WATCHER = "@@QUINTRO/GAME/WATCHERS/ADD";
+export const UPDATE_WATCHERS = "@@QUINTRO/GAME/WATCHERS/UPDATE";
 
-export function addWatcher({ gameName, user }) {
+export function updateWatchers({ gameName, watchers }) {
 	return {
-		type: ADD_WATCHER,
-		payload: { gameName, user },
-	};
-}
-
-export const REMOVE_WATCHER = "@@QUINTRO/GAME/WATCHERS/REMOVE";
-
-export function removeWatcher({ gameName, user }) {
-	return {
-		type: REMOVE_WATCHER,
-		payload: { gameName, user },
+		type: UPDATE_WATCHERS,
+		payload: { gameName, watchers },
 	};
 }
 

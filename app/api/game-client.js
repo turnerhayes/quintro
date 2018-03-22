@@ -4,8 +4,7 @@ import {
 	setMarble,
 	setCurrentPlayer,
 	addPlayer,
-	addWatcher,
-	removeWatcher,
+	updateWatchers,
 	setPlayerPresence,
 	setWinner,
 	gameStarted,
@@ -28,8 +27,7 @@ class GameClient extends SocketClient {
 			"game:currentPlayer:changed": (...args) => this.onCurrentPlayerChanged(...args),
 			"game:player:joined": (...args) => this.onPlayerJoined(...args),
 			"game:player:left": (...args) => this.onPlayerLeft(...args),
-			"game:watchers:added": (...args) => this.onWatcherAdded(...args),
-			"game:watchers:removed": (...args) => this.onWatcherRemoved(...args),
+			"game:watchers:updated": (...args) => this.onWatchersUpdated(...args),
 			"game:started": (...args) => this.onGameStarted(...args),
 			"game:over": (...args) => this.onGameOver(...args),
 		};
@@ -51,17 +49,10 @@ class GameClient extends SocketClient {
 		};
 	}
 
-	onWatcherAdded = ({ gameName, user }) => this.dispatch(
-		addWatcher({
+	onWatchersUpdated = ({ gameName, watchers }) => this.dispatch(
+		updateWatchers({
 			gameName,
-			user,
-		})
-	)
-
-	onWatcherRemoved = ({ gameName, user }) => this.dispatch(
-		removeWatcher({
-			gameName,
-			user,
+			watchers,
 		})
 	)
 
@@ -163,8 +154,6 @@ class GameClient extends SocketClient {
 			{
 				gameName
 			}
-		).then(
-			() => this.updateGame({ gameName })
 		);
 	}
 

@@ -5,8 +5,7 @@ import {
 	GAME_UPDATED,
 	GAME_STARTED,
 	ADD_PLAYER,
-	ADD_WATCHER,
-	REMOVE_WATCHER,
+	UPDATE_WATCHERS,
 	SET_PLAYER_PRESENCE,
 	LEAVE_GAME,
 	SET_MARBLE,
@@ -68,29 +67,12 @@ export default function gamesReducer(state = Map(), action) {
 			return state;
 		}
 
-		case ADD_WATCHER: {
-			const { gameName, user } = action.payload;
+		case UPDATE_WATCHERS: {
+			const { gameName, watchers } = action.payload;
 
-			const userId = "id" in user ?
-				user.id :
-				user.sessionID;
-
-			return state.updateIn(
+			return state.mergeDeepIn(
 				["items", gameName, "watchers"],
-				(watchers) => (watchers || Map()).set(userId, fromJS(user))
-			);
-		}
-
-		case REMOVE_WATCHER: {
-			const { gameName, user } = action.payload;
-
-			const userId = "id" in user ?
-				user.id :
-				user.sessionID;
-
-			return state.updateIn(
-				["items", gameName, "watchers"],
-				(watchers) => (watchers || Map()).delete(userId)
+				fromJS(watchers)
 			);
 		}
 

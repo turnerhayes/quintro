@@ -10,6 +10,7 @@ import {
 	eventChannel,
 }                     from "redux-saga";
 import {
+	FETCHED_GAME,
 	JOIN_GAME,
 	LEAVE_GAME,
 	WATCH_GAME,
@@ -40,6 +41,10 @@ const gamesSocketChannel = eventChannel(
 
 function* clientSaga(clientMethod, action) {
 	yield call(client[clientMethod], action.payload);
+}
+
+function* watchForGameFetched() {
+	yield takeEvery(FETCHED_GAME, clientSaga, "updateGame");
 }
 
 function* watchForWatchGame() {
@@ -76,6 +81,7 @@ function* watchGameSocket() {
 export default function* rootGamesSocketSaga() {
 	yield all([
 		watchGameSocket(),
+		watchForGameFetched(),
 		watchForJoinGame(),
 		watchForLeaveGame(),
 		watchForWatchGame(),
