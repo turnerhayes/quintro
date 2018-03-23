@@ -3,6 +3,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const webpackDevMiddleware = require("webpack-dev-middleware");
+const { ready } = require("webpack-dev-middleware/lib/util");
 const webpackHotMiddleware = require("webpack-hot-middleware");
 const rfr = require("rfr");
 const Config = rfr("server/lib/config");
@@ -24,20 +25,27 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
 	});
 
 	function handleRequest(req, res, next) {
-		getIndex({
-			indexPath: path.join(compiler.outputPath, Config.paths.indexFile.name),
-			context: {
-				user: req.user && prepareUserForFrontend({
-					user: req.user,
-					request: req,
-				}),
+		// Make sure the bundle is built before attempting to render the index file
+		ready(
+			middleware.context,
+			() => {
+				getIndex({
+					indexPath: path.join(compiler.outputPath, Config.paths.indexFile.name),
+					context: {
+						user: req.user && prepareUserForFrontend({
+							user: req.user,
+							request: req,
+						}),
+					},
+					// Since webpackDevMiddleware uses memory-fs internally to store build
+					// artifacts, we use it instead
+					fs: middleware.fileSystem,
+				})
+					.catch((error) => handleGetIndexError({ error, req, res, next }))
+					.then((content) => res.send(content));
 			},
-			// Since webpackDevMiddleware uses memory-fs internally to store build
-			// artifacts, we use it instead
-			fs: middleware.fileSystem,
-		})
-			.catch((error) => handleGetIndexError({ error, req, res, next }))
-			.then((content) => res.send(content));
+			req
+		);
 	}
 
 
