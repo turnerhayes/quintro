@@ -29,6 +29,8 @@ const ORIGIN = (function() {
 	return baseURL;
 }());
 
+const indexFileTemplateName = "index.html.template";
+
 // "fake" document object so that shared-config can access it when not run from the
 // client (as it's doing here)
 global.document = {
@@ -38,8 +40,12 @@ global.document = {
 const rfr          = require("rfr");
 const sharedConfig = rfr("shared-lib/config");
 
+
+const ENVIRONMENT = process.env.NODE_ENV || "development";
+const IS_DEVELOPMENT = ENVIRONMENT === "development";
+
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
-const CLIENT_PATH = path.join(PROJECT_ROOT, "client");
+const APP_PATH = path.join(PROJECT_ROOT, "app");
 const DIST_PATH = path.join(PROJECT_ROOT, "dist");
 const LOGS_DIRECTORY = path.resolve(PROJECT_ROOT, process.env.LOGS_DIRECTORY || "logs");
 
@@ -89,8 +95,8 @@ const enabledAuths = Object.keys(credentialEnvsByProvider).reduce(
 
 const Config = {
 	app: {
-		environment: sharedConfig.app.environment,
-		isDevelopment: sharedConfig.app.isDevelopment,
+		environment: ENVIRONMENT,
+		isDevelopment: IS_DEVELOPMENT,
 		address: {
 			host: HOST,
 			insecurePort: Number(process.env.APP_ADDRESS_INSECURE_PORT),
@@ -107,9 +113,13 @@ const Config = {
 	game: sharedConfig.game,
 	paths: {
 		root: PROJECT_ROOT,
-		client: CLIENT_PATH,
+		app: APP_PATH,
 		dist: DIST_PATH,
-		logs: LOGS_DIRECTORY
+		logs: LOGS_DIRECTORY,
+		indexFile: {
+			name: "index.html",
+			template: path.join(APP_PATH, indexFileTemplateName),
+		},
 	},
 	auth: {
 		facebook: {

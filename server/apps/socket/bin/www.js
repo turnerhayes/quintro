@@ -5,8 +5,7 @@
 require("dotenv").config();
 
 const debug            = require("debug")("quintro:socket:server");
-const rfr              = require("rfr");
-const createSocketsApp = rfr("app");
+const createSocketsApp = require("../app");
 
 const { server, app } = createSocketsApp();
 

@@ -1,7 +1,6 @@
 "use strict";
 
 const _                  = require("lodash");
-const Promise            = require("bluebird");
 const path               = require("path");
 const assert             = require("assert");
 const util               = require("util");
@@ -11,13 +10,16 @@ const cookieParser       = require("cookie-parser");
 const rfrProject         = require("rfr")({
 	root: path.resolve(__dirname, "..", "..", "..", "..")
 });
+const {
+	prepareUserForFrontend,
+}                        = rfrProject("server/routes/utils");
 const GameStore          = rfrProject("server/persistence/stores/game");
 const UserStore          = rfrProject("server/persistence/stores/user");
 const ErrorCodes         = rfrProject("shared-lib/error-codes");
 const Board              = rfrProject("shared-lib/board");
 const Config             = rfrProject("server/lib/config");
 const Loggers            = rfrProject("server/lib/loggers");
-const session            = rfrProject("server/session");
+const session            = rfrProject("server/lib/session");
 const {
 	getNextColor
 }                        = rfrProject("shared-lib/players");
@@ -29,6 +31,8 @@ const LOG_LEVELS   = {
 };
 
 const VALID_COLOR_IDS = Config.game.colors.map((color) => color.id);
+
+const WATCHERS = {};
 
 function _log({ message, level = LOG_LEVELS.INFO }) {
 	assert(_.includes(LOG_LEVELS, level), `"${level}" is not a valid log level`);
@@ -47,15 +51,64 @@ function _logGameEvent({ gameName, message, level, stack }) {
 	_log({ message: `<${gameName}>: ${message}${stack ? "\n" + stack : ""}`, level });
 }
 
+function getWatchers({ gameName, socket }) {
+	return {
+		count: WATCHERS[gameName] ?
+			WATCHERS[gameName].length :
+			0,
 
-function _findPlayer(user, player) {
-	return player.user.id === user.id;
+		includesMe: !!(
+			WATCHERS[gameName] &&
+			WATCHERS[gameName].some(
+				({ user, sessionID }) => socket.request.user ?
+					// Is there a logged in user? Check against user
+					socket.request.user.id === (user && user.id) :
+					// No logged in user? Check against session ID
+					socket.request.sessionID === sessionID
+			)
+		)
+	};
 }
 
-function _getPlayer({game, user}) {
+/**
+ * Removes a watcher from the list of watchers for the specified game.
+ *
+ * @param {object} args - the function arguments
+ * @param {string} args.gameName - the name of the game
+ * @param {socket} args.socket - the socket corresponding to the user to remove
+ *
+ * @returns {boolean} whether or not the watchers were actually changed
+ */
+function removeWatcher({ gameName, socket }) {
+	let watcherIndex;
+
+	if (socket.request.user) {
+		watcherIndex = WATCHERS[gameName].findIndex(
+			(watcher) => watcher.user && (watcher.user._id === socket.request.user._id)
+		);
+	}
+	else {
+		watcherIndex = WATCHERS[gameName].findIndex(
+			(watcher) => watcher.sessionID === socket.request.sessionID
+		);
+	}
+
+	if (watcherIndex >= 0) {
+		// Remove from watchers
+		WATCHERS[gameName].splice(watcherIndex, 1);
+
+		return true;
+	}
+
+	return false;
+}
+
+function _getPlayer({game, user, sessionID}) {
 	return _.find(
 		game.players,
-		_.bind(_findPlayer, undefined, user)
+		(player) => user ?
+			player.user.id === user.id :
+			player.user.sessionID === sessionID
 	);
 }
 
@@ -207,7 +260,7 @@ function ensureGame(gameName, req) {
 let _managerInitialized = false;
 
 class SocketManager {
-	static initialize({ server } = {}) {
+	static initialize({ server }) {
 		if (_managerInitialized) {
 			return;
 		}
@@ -217,7 +270,7 @@ class SocketManager {
 		let origins;
 
 		if (!Config.websockets.inline) {
-			origins = [Config.app.address.origin.replace(/^https?\:\/\//, "")];
+			origins = [Config.app.address.origin.replace(/^http(s)?:\/\//, "")];
 		}
 
 		SocketManager._server = new IOServer(server, {
@@ -226,12 +279,9 @@ class SocketManager {
 			cookie: false,
 		});
 
-
-		const cParser = cookieParser(Config.session.secret);
-
 		SocketManager._server.use(
 			(socket, next) => {
-				cParser(socket.request, socket.request.res, next);
+				cookieParser(Config.session.secret)(socket.request, socket.request.res, next);
 			}
 		);
 
@@ -278,9 +328,24 @@ class SocketManager {
 			SocketManager._onJoinGame(this, gameName, color, fn);
 		});
 
+		socket.on("game:leave", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onLeaveGame(this, gameName, fn);
+		});
+
 		socket.on("game:watch", function({ gameName }, fn) {
 			ensureGame(gameName, this.request);
 			SocketManager._onWatchGame(this, gameName, fn);
+		});
+
+		socket.on("game:watchers", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._getWatchers(this, gameName, fn);
+		});
+
+		socket.on("game:update", function({ gameName }, fn) {
+			ensureGame(gameName, this.request);
+			SocketManager._onUpdateGame(this, gameName, fn);
 		});
 
 		socket.on("game:players:presence", function({ gameName }, fn) {
@@ -310,12 +375,12 @@ class SocketManager {
 				updates
 			}).then(
 				(user) => {
-					this.broadcast.emit("users:profile-changed", {
-						user: user.toFrontendObject()
-					});
+					user = prepareUserForFrontend({ user, request: this.request });
 
-					this.emit("users:profile-changed", {
-						user: user.toFrontendObject()
+					delete user.isMe;
+
+					SocketManager._server.emit("users:profile-changed", {
+						user
 					});
 				}
 			).catch(
@@ -337,6 +402,31 @@ class SocketManager {
 		});
 	}
 
+	static _onUpdateGame(socket, gameName, fn) {
+		const update = {
+			watchers: getWatchers({ gameName, socket }),
+			playerPresence: SocketManager.getPresentPlayers({ socket, gameName }),
+		};
+
+		fn && fn({ update });
+	}
+
+	static getPresentPlayers({ gameName }) {
+		return _.map(
+			SocketManager._server.to(gameName).connected,
+			"player"
+		).reduce(
+			(presenceMap, player) => {
+				if (player) {
+					presenceMap[player.color] = true;
+				}
+
+				return presenceMap;
+			},
+			{}
+		);
+	}
+
 	static _onWatchGame(socket, gameName, fn) {
 		if (!gameName) {
 			const error = new Error("No gameName specified");
@@ -344,13 +434,86 @@ class SocketManager {
 				error
 			});
 
-			fn && fn(error);
+			fn && fn({
+				error: true,
+				message: error.message
+			});
 			return;
 		}
 
 		socket.join(gameName);
+		
+		GameStore.getGame({
+			name: gameName,
+		}).then(
+			(game) => {
+				// Don't add player as a watcher if they're already a player;
+				// just add their socket to the game's room
+				if (!getSocketPlayer({ socket, game })) {
+					if (!WATCHERS[gameName]) {
+						WATCHERS[gameName] = [];
+					}
 
-		fn && fn({});
+					WATCHERS[gameName].push({
+						user: socket.request.user,
+						sessionID: socket.request.user ?
+							undefined :
+							socket.request.sessionID,
+					});
+
+					const watchers = {
+						count: WATCHERS[gameName].length,
+						includesMe: true,
+					};
+
+					const args = [
+						"game:watchers:updated",
+						{
+							gameName,
+							watchers,
+						},
+					];
+
+					socket.emit(...args);
+
+					// For other connected sockets, don't change the includesMe value,
+					// because this user being included won't change whether those other users
+					// are included
+					delete watchers.includesMe;
+
+					socket.broadcast.to(gameName).emit(...args);
+				}
+
+				fn && fn({});
+			}
+		).catch(
+			(error) => {
+				fn && fn({
+					error: true,
+					message: error.message,
+					code: error.code,
+				});
+			}
+		);
+	}
+
+	static _getWatchers(socket, gameName, fn) {
+		if (!gameName) {
+			const error = new Error("No gameName specified");
+			_logError({
+				error
+			});
+
+			fn && fn({
+				error
+			});
+			return;
+		}
+
+		fn && fn({
+			gameName,
+			watchers: getWatchers({ gameName, socket }),
+		});
 	}
 
 	static _onJoinGame(socket, gameName, color, fn) {
@@ -387,13 +550,13 @@ class SocketManager {
 
 				_logGameEvent({
 					gameName,
-					message: `Player ${data.player.color} joined`
+					message: `Player ${data.player.color} joined`,
 				});
 
 				const playerData = {
 					color: data.player.color,
 					user: data.player.user ?
-						data.player.user.toFrontendObject() :
+						prepareUserForFrontend({ user: data.player.user, request: socket.request }) :
 						undefined,
 					isAnonymous: data.player.user.isAnonymous,
 					order: data.order
@@ -401,16 +564,26 @@ class SocketManager {
 
 				socket.player = playerData;
 
+				// A player is not a watcher
+				SocketManager.stopWatching({ gameName, socket });
+
 				const joinResults = {
 					gameName,
 					player: playerData,
-					current_player_color: data.game.current_player && data.game.current_player.color
+					currentPlayerColor: data.game.currentPlayer && data.game.currentPlayer.color
 				};
+
+				// Remove isMe for the broadcast to other players, so they don't think this
+				// player is them
+				delete joinResults.player.user.isMe;
 
 				socket.broadcast.to(gameName).emit(
 					"game:player:joined",
 					joinResults
 				);
+
+				// Add it back for the callback so that the socket client knows this is them
+				joinResults.player.user.isMe = true;
 
 				fn && fn(joinResults);
 			}
@@ -431,6 +604,76 @@ class SocketManager {
 		);
 	}
 
+	static stopWatching({ socket, gameName, }) {
+		if (!WATCHERS[gameName]) {
+			return;
+		}
+
+		if (removeWatcher({ gameName, socket })) {
+			const watchers = {
+				count: WATCHERS[gameName].length,
+				includesMe: true,
+			};
+
+			const args = [
+				"game:watchers:updated",
+				{
+					gameName,
+					watchers,
+				},
+			];
+
+			// Notify socket
+			socket.emit(...args);
+
+			// For other connected socket users, don't set includesMe either way,
+			// since some other user stopping watching doesn't change whether or
+			// not *that* user is watching
+			delete watchers.includesMe;
+
+			// Notify others
+			socket.broadcast.to(gameName).emit(...args);
+		}
+	}
+
+	static leaveGame({ socket, gameName }) {
+		SocketManager.stopWatching({ socket, gameName });
+
+		return GameStore.getGame({
+			name: gameName,
+		}).then(
+			(game) => {
+				const player = _getPlayer({
+					game,
+					user: socket.request.user,
+					sessionID: socket.request.sessionID
+				});
+
+				_logGameEvent({gameName, message: `Player ${player.color} left`});
+
+				socket.broadcast.to(gameName).emit(
+					"game:player:left",
+					{
+						gameName,
+						player: Object.assign(
+							player.toObject(),
+							{
+								user: prepareUserForFrontend({ user: player.user, request: socket.request })
+							}
+						)
+					}
+				);
+			}
+		);
+	}
+
+	static _onLeaveGame(socket, gameName, fn) {
+		SocketManager.leaveGame({ socket, gameName });
+		SocketManager.stopWatching({ socket, gameName });
+
+		fn && fn();
+	}
+
 	static _onPlaceMarble(socket, { gameName, position }, fn) {
 		const color = socket.request.session.games[gameName].color;
 
@@ -438,13 +681,13 @@ class SocketManager {
 			name: gameName,
 		}).then(
 			(game) =>  {
-				assert(!game.is_over, "Game is over");
+				assert(!game.isOver, "Game is over");
 				assert(gameName, 'Property "gameName" is required');
 				assert(position, 'Property "position" is required');
 
 				const [column, row] = position;
 
-				if (color !== game.current_player.color) {
+				if (color !== game.currentPlayer.color) {
 					const err = new Error(`Not ${color}'s turn`);
 					err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
@@ -509,17 +752,17 @@ class SocketManager {
 					color: data.color
 				});
 
-				if (data.game.is_over) {
+				if (data.game.isOver) {
 					SocketManager._server.to(data.game.name).emit("game:over", {
 						gameName: data.game.name,
-						winner: data.game.current_player,
+						winner: data.game.currentPlayer,
 						quintros: data.quintros
 					});
 				}
 				else {
-					SocketManager._server.to(data.game.name).emit("game:current_player:changed", {
+					SocketManager._server.to(data.game.name).emit("game:currentPlayer:changed", {
 						gameName: data.game.name,
-						color: data.game.current_player.color
+						color: data.game.currentPlayer.color
 					});
 				}
 			}
@@ -551,58 +794,31 @@ class SocketManager {
 	}
 
 	static _onDisconnect(socket) {
-		_.each(
-			_games[socket.id],
-			(gameName) => {
-				GameStore.getGame({
-					name: gameName,
-				}).then(
-					(game) => {
-						const player = _getPlayer({
-							game,
-							user: socket.request.user,
-							sessionID: socket.request.session.id
-						});
-
-						_logGameEvent({gameName, message: `Player ${player.color} left`});
-
-						socket.broadcast.to(gameName).emit(
-							"game:player:left",
-							{
-								gameName,
-								player: Object.assign(
-									player.toObject(),
-									{
-										user: player.user.toFrontendObject()
-									}
-								)
-							}
-						);
-					}
-				).catch(
-					(err) => {
-						_logGameEvent({
-							gameName,
-							message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
-							stack: err.stack,
-							level: LOG_LEVELS.ERROR
-						});
-					}
-				);
-			}
-		);
-	}
-
-	static _onGetPlayerPresence(socket, { gameName }, fn) {
-		const players = _.compact(
-			_.map(
-				SocketManager._server.to(gameName).connected,
-				"player"
+		// Leave games that the user is a player in
+		_games[socket.id] && _games[socket.id].forEach(
+			(gameName) => SocketManager.leaveGame({ socket, gameName }).catch(
+				(err) => {
+					_logGameEvent({
+						gameName,
+						message: `Error responding to socket disconnect for game ${gameName}: ${err.message}`,
+						stack: err.stack,
+						level: LOG_LEVELS.ERROR
+					});
+				}
 			)
 		);
 
+		// Leave games that the user is watching
+		for(let gameName in WATCHERS) {
+			if (Object.prototype.hasOwnProperty.call(WATCHERS, gameName)) {
+				SocketManager.stopWatching({ gameName, socket });
+			}
+		}
+	}
+
+	static _onGetPlayerPresence(socket, { gameName }, fn) {
 		fn && fn({
-			presentPlayers: players
+			presentPlayers: SocketManager.getPresentPlayers({ socket, gameName }),
 		});
 	}
 
@@ -623,10 +839,10 @@ class SocketManager {
 				);
 
 				SocketManager._server.to(gameName).emit(
-					"game:current_player:changed",
+					"game:currentPlayer:changed",
 					{
 						gameName,
-						color: game.current_player.color
+						color: game.currentPlayer.color
 					}
 				);
 			}
