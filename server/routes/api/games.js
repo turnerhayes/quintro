@@ -3,46 +3,57 @@
 const Promise           = require("bluebird");
 const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
-const bodyParser        = require("body-parser");
+const bodyParsers       = require("./body-parsers");
 const rfr               = require("rfr");
+const {
+	prepareGameForFrontend,
+}                       = rfr("server/routes/utils");
 const GamesStore        = rfr("server/persistence/stores/game");
 const UsersStore        = rfr("server/persistence/stores/user");
 const NotFoundException = rfr("server/persistence/exceptions/not-found");
 
 
-function prepareGame(game) {
-	return game.toFrontendObject();
+function prepareGame(game, req) {
+	return prepareGameForFrontend({ game, request: req });
 }
 
 const router = express.Router();
+
+function processError(next, gameName, error) {
+	if (NotFoundException.isThisException(error)) {
+		error = {
+			status: HTTPStatusCodes.NOT_FOUND,
+			message: `No game named ${gameName} found`,
+			error,
+		};
+	}
+
+	next(error);
+}
 
 router.route("/:gameName")
 	.get(
 		(req, res, next) => {
 			const { gameName } = req.params;
 
-			GamesStore.getGame({
+			return GamesStore.getGame({
 				name: gameName
 			}).then(
 				(game) => res.json(prepareGame(game, req))
-			).catch(next);
+			).catch(processError.bind(null, next, gameName));
 		}
 	)
 	.post(
-		bodyParser.urlencoded({
-			extended: true,
-			type: "application/x-www-form-urlencoded"
-		}),
-		bodyParser.json({ type: "application/json" }),
+		...bodyParsers,
 		(req, res, next) => {
 			const { width, height, playerLimit } = req.body;
 			const { gameName } = req.params;
 
-			GamesStore.createGame({
+			return GamesStore.createGame({
 				name: gameName,
 				width,
 				height,
-				player_limit: playerLimit
+				playerLimit
 			}).then(
 				(game) => {
 					res.status(HTTPStatusCodes.CREATED)
@@ -55,29 +66,20 @@ router.route("/:gameName")
 		(req, res, next) => {
 			const { gameName } = req.params;
 
-			GamesStore.getGame({
+			return GamesStore.getGame({
 				name: gameName,
 				populate: false
 			}).then(
 				() => res.end()
-			).catch(
-				(err) => {
-					if (NotFoundException.isThisException(err)) {
-						next(); // 404
-						return;
-					}
-
-					next(err);
-				}
-			);
+			).catch(processError.bind(null, next, gameName));
 		}
 	);
 
-router.route("")
+router.route("/")
 	.get(
 		(req, res, next) => {
 			const includeUserGames = !!req.query.includeUserGames;
-			const onlyOpenGames = !! req.query.onlyOpenGames;
+			const onlyOpenGames = !!req.query.onlyOpenGames;
 			let numberOfPlayers = Number(req.query.numberOfPlayers);
 
 			if (numberOfPlayers !== numberOfPlayers) {
@@ -85,8 +87,8 @@ router.route("")
 				numberOfPlayers = undefined;
 			}
 
-			Promise.resolve(
-				req.user || UsersStore.findBySessionID(req.session.id)
+			return Promise.resolve(
+				req.user || UsersStore.findBySessionID(req.sessionID)
 			).then(
 				(user) => {
 					if (!user && includeUserGames) {

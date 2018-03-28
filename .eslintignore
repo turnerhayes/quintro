@@ -1,3 +1,6 @@
+coverage
 dist
 docs
 node_modules
+app/fonts
+internals/scripts

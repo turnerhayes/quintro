@@ -1,0 +1,14 @@
+{
+	"extends": [
+		"../../../.eslintrc.json"
+	],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"sourceType": "module"
+	},
+	"env": {
+		"jest": true
+	}
+}

@@ -15,7 +15,6 @@
 		"dot-notation": "error",
 		"no-var": "error",
 		"no-caller": "error",
-		"valid-jsdoc": "warn",
 		"guard-for-in": "warn",
 		"no-eq-null": "error",
 		"no-console": "warn",
@@ -41,6 +40,7 @@
 		],
 		"quote-props": ["warn", "as-needed"],
 		"semi": ["error", "always"],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"no-debugger": "warn"
 	}
 }

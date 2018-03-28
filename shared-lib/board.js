@@ -356,7 +356,7 @@ class Board extends Record(schema, "Board") {
 						columnDelta > 0 ?
 							i <= frameEndColumn :
 							i >= frameEndColumn
-						)
+					)
 					)
 				) &&
 				(
@@ -388,7 +388,7 @@ class Board extends Record(schema, "Board") {
 
 				for (
 					let i = firstCellColumn - columnDelta,
-					j = firstCellRow - rowDelta;
+						j = firstCellRow - rowDelta;
 					i >= 0 && j >= 0 && filledMap.get(List([i, j])) === color;
 					i -= columnDelta, j -= rowDelta
 				) {
@@ -402,7 +402,7 @@ class Board extends Record(schema, "Board") {
 
 				for (
 					let i = lastCellColumn + columnDelta,
-					j = lastCellRow + rowDelta;
+						j = lastCellRow + rowDelta;
 					i >= 0 && j >= 0 && i < this.width && j < this.height &&
 						filledMap.get(List([i, j])) === color;
 					i += columnDelta, j += rowDelta

@@ -4,10 +4,9 @@ const _                 = require("lodash");
 const assert            = require("assert");
 const Promise           = require("bluebird");
 const mongoose          = require("mongoose");
-const rfr               = require("rfr");
-const GameModel         = rfr("server/persistence/models/game");
-const UserModel         = rfr("server/persistence/models/user");
-const NotFoundException = rfr("server/persistence/exceptions/not-found");
+const GameModel         = require("../models/game");
+const UserModel         = require("../models/user");
+const NotFoundException = require("../exceptions/not-found");
 
 function _createGameName() {
 	return Date.now();
@@ -49,13 +48,13 @@ class GamesStore {
 		);
 	}
 
-	static createGame({ name, current_player, player_limit, width, height } = {}) {
+	static createGame({ name, currentPlayer, playerLimit, width, height } = {}) {
 		name = name || _createGameName();
 
 		let newGameModel = new GameModel({
 			name,
-			current_player,
-			player_limit,
+			currentPlayer,
+			playerLimit,
 			board: {
 				width,
 				height,
@@ -99,7 +98,7 @@ class GamesStore {
 		let filters = {};
 
 		if (numberOfPlayers > 0) {
-			filters.player_limit = numberOfPlayers;
+			filters.playerLimit = numberOfPlayers;
 		}
 
 		if (excludeUserID) {
@@ -126,7 +125,7 @@ class GamesStore {
 		let query = GameModel.find(filters, {__v: false});
 
 		if (onlyOpenGames) {
-			query = query.$where("this.players.length < this.player_limit");
+			query = query.$where("this.players.length < this.playerLimit");
 		}
 
 		return Promise.resolve(query.populate("players.user"));

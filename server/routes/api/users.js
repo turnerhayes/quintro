@@ -1,8 +1,11 @@
 "use strict";
 
 const express                  = require("express");
-const bodyParser               = require("body-parser");
+const bodyParsers              = require("./body-parsers");
 const rfr                      = require("rfr");
+const {
+	prepareUserForFrontend
+}                              = rfr("server/routes/utils");
 const UsersStore               = rfr("server/persistence/stores/user");
 const AccessForbiddenException = rfr("server/persistence/exceptions/access-forbidden");
 
@@ -10,11 +13,7 @@ const router = express.Router();
 
 router.route("/:userID")
 	.patch(
-		bodyParser.urlencoded({
-			extended: true,
-			type: "application/x-www-form-urlencoded"
-		}),
-		bodyParser.json({ type: "application/json" }),
+		...bodyParsers,
 		(req, res, next) => {
 			const userID = req.params.userID;
 			const updates = req.body;
@@ -23,7 +22,7 @@ router.route("/:userID")
 				next(new AccessForbiddenException("You do not have permissions to edit this user's information"));
 			}
 
-			UsersStore.findByID(userID).then(
+			return UsersStore.findByID(userID).then(
 				(user) => {
 					if (user.isAnonymous && req.session.id !== user.sessionID) {
 						next(new AccessForbiddenException("You do not have permissions to edit this user's information"));
@@ -31,7 +30,7 @@ router.route("/:userID")
 					}
 
 					return UsersStore.updateUser({ userID, updates }).then(
-						(user) => res.json(user.toFrontendObject())
+						(user) => res.json(prepareUserForFrontend({ user, request: this.req }))
 					);
 				}
 			).catch(next);
@@ -43,10 +42,10 @@ router.route("")
 		(req, res, next) => {
 			const ids = (req.query.ids || "").split(",");
 
-			UsersStore.findByIDs({
+			return UsersStore.findByIDs({
 				ids
 			}).then(
-				(users) => res.json(users.map((user) => user.toFrontendObject()))
+				(users) => res.json(users.map((user) => prepareUserForFrontend({ user, request: this.req })))
 			).catch(next);
 		}
 	);
