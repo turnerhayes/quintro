@@ -20,7 +20,7 @@ const outputPath = path.join(process.cwd(), dllConfig.path);
 const dllManifestPath = path.join(outputPath, "package.json");
 
 /**
- * I use node_modules/react-boilerplate-dlls by default just because
+ * I use node_modules/quintro-dlls by default just because
  * it isn't going to be version controlled and babel wont try to parse it.
  */
 new Promise(

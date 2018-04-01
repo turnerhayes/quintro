@@ -15,6 +15,7 @@ const dllPlugin = rfr("internals/config").dllPlugin;
 const path = require("path");
 const defaults = require("lodash/defaultsDeep");
 const webpack = require("webpack");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const baseWebpackConfig = require("./webpack.base.babel");
 const Config = rfr("server/lib/config");
 
@@ -34,6 +35,13 @@ module.exports = baseWebpackConfig({
 		new webpack.DllPlugin({
 			name: "[name]",
 			path: path.join(outputPath, "[name].json"),
+		}),
+
+		new BundleAnalyzerPlugin({
+			analyzerMode: "static",
+			openAnalyzer: false,
+			reportFilename: "stats.html",
+			generateStatsFile: true,
 		}),
 	],
 	performance: {
