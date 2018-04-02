@@ -43,7 +43,7 @@ exports = module.exports = {
 		}
 
 		return indexPartsPromise.then(
-			(parts) => parts.join(JSON.stringify(context))
+			(parts) => parts.join(JSON.stringify(context).replace(/"/g, "&quot;"))
 		);
 	},
 
