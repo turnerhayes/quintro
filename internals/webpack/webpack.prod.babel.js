@@ -54,6 +54,10 @@ module.exports = baseWebpackConfig({
 			relativePaths: false,
 			publicPath: "/",
 
+			ServiceWorker: {
+				output: "service-worker/sw.js",
+			},
+
 			// No need to cache .htaccess. See http://mxs.is/googmp,
 			// this is applied before any match in `caches` section
 			excludes: [".htaccess"],
