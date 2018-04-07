@@ -281,7 +281,7 @@ class PlayGame extends React.PureComponent {
 				}
 				<PlayerIndicators
 					game={game}
-					markCurrent={gameIsStarted}
+					markActive={gameIsStarted}
 				/>
 				<div
 					{...classes({

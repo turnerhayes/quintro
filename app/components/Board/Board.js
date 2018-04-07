@@ -1,13 +1,18 @@
 import React              from "react";
 import PropTypes          from "prop-types";
+import ImmutablePropTypes from "react-immutable-proptypes";
 import { fromJS }         from "immutable";
 import range              from "lodash/range";
-import ImmutablePropTypes from "react-immutable-proptypes";
-import createHelper       from "@app/components/class-helper";
+import { withStyles }     from "material-ui/styles";
+import classnames         from "classnames";
 import Cell               from "./Cell";
-import                         "./Board.less";
 
-const classes = createHelper("game-board");
+const styles = {
+	root: {
+		borderCollapse: "collapse",
+		tableLayout: "fixed",
+	},
+};
 
 /**
  * @callback client.react-components.Board~onCellClickCallback
@@ -40,6 +45,7 @@ class Board extends React.Component {
 		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
 		onCellClick: PropTypes.func,
+		classes: PropTypes.object,
 	}
 
 	/**
@@ -97,11 +103,12 @@ class Board extends React.Component {
 
 		return (
 			<table
-				{...classes({
-					extra: [
-						allowPlacement && "allow-placement",
-					],
-				})}
+				className={classnames([
+					this.props.classes.root,
+					{
+						"allow-placement": allowPlacement,
+					},
+				])}
 			>
 				<tbody>
 					{
@@ -109,9 +116,6 @@ class Board extends React.Component {
 							(rowIndex) => (
 								<tr
 									key={rowIndex}
-									{...classes({
-										element: "board-row",
-									})}
 								>
 									{
 										range(board.get("width")).map(
@@ -142,4 +146,4 @@ class Board extends React.Component {
 	}
 }
 
-export default Board;
+export default withStyles(styles)(Board);

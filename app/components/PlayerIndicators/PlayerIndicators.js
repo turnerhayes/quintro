@@ -4,17 +4,37 @@ import PropTypes          from "prop-types";
 import { Map }            from "immutable";
 import Popover            from "material-ui/Popover";
 import { withStyles }     from "material-ui/styles";
-import createHelper       from "@app/components/class-helper";
+import classnames         from "classnames";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Marble             from "@app/components/Marble";
-import                         "./PlayerIndicators.less";
 
-const classes = createHelper("player-indicators");
-
-const MARBLE_SIZE = "3em";
+const MARBLE_SIZE = {
+	absent: "2.4em",
+	normal: "3em",
+};
 
 const styles = {
+	root: {
+		marginBottom: "1em",
+	},
+
+	list: {
+		listStyleType: "none",
+		paddingLeft: 0,
+		display: "flex",
+		flexDirection: "row",
+		alignItems: "center",
+	},
+
+	item: {
+		margin: "0 0.6em",
+	},
+
+	currentPlayerItem: {
+		fontSize: "1.3em",
+	},
+
 	activeMarble: {
 		boxShadow: "#C3C374 0px 0px 20px 6px",
 	},
@@ -43,14 +63,14 @@ class PlayerIndicators extends React.Component {
 	 * @member {object} - Component prop types
 	 *
 	 * @prop {external:Immutable.Map} game - the game the players are in
-	 * @prop {boolean} [markCurrent] - whether or not to distinguish which player is the current player
+	 * @prop {boolean} [markActive] - whether or not to distinguish which player is the current player
 	 * @prop {client.react-components.PlayerIndicators~onIndicatorClicked} [onPlayerIndicatorClicked] - handler
 	 *	for when an indicator is clicked
 	 */
 	static propTypes = {
 		game: ImmutablePropTypes.map,
 
-		markCurrent: PropTypes.bool,
+		markActive: PropTypes.bool,
 
 		onIndicatorClicked: PropTypes.func,
 
@@ -126,7 +146,8 @@ class PlayerIndicators extends React.Component {
 
 		const {
 			game,
-			markCurrent,
+			markActive,
+			classes,
 		} = this.props;
 
 		if (game.get("players").isEmpty()) {
@@ -140,16 +161,10 @@ class PlayerIndicators extends React.Component {
 
 		return (
 			<div
-				{...classes({
-					extra: [
-						markCurrent && "mark-current",
-					],
-				})}
+				className={classes.root}
 			>
 				<ul
-					{...classes({
-						element: "list",
-					})}
+					className={classes.list}
 				>
 					{
 						game.get("players").map(
@@ -167,25 +182,25 @@ class PlayerIndicators extends React.Component {
 								return (
 									<li
 										key={player.get("color")}
-										{...classes({
-											element: "item",
-											extra: [
-												active && "active",
-												player.getIn(["user", "isMe"]) && "current-player",
-												!isPresent && "absent",
-											],
-										})}
+										className={classnames([
+											classes.item,
+											{
+												[classes.currentPlayerItem]: player.getIn(["user", "isMe"]),
+											}
+										])}
 										title={label}
 										onClick={(event) => this.handlePlayerIndicatorClicked(player, event.target)}
 									>
 										<Marble
 											color={player.get("color")}
-											size={MARBLE_SIZE}
-											className={
-												active ?
-													this.props.classes.activeMarble :
-													undefined
+											size={
+												!isPresent ?
+													MARBLE_SIZE.absent :
+													MARBLE_SIZE.normal
 											}
+											className={markActive && classnames({
+												[classes.activeMarble]: active,
+											})}
 										/>
 									</li>
 								);
@@ -229,13 +244,11 @@ class PlayerIndicators extends React.Component {
 							(val, index) => (
 								<li
 									key={`not-filled-player-${index}`}
-									{...classes({
-										element: "item",
-									})}
+									className={classes.item}
 									title="This spot is open for another player"
 								>
 									<Marble
-										size={MARBLE_SIZE}
+										size={MARBLE_SIZE.normal}
 										color={null}
 									/>
 								</li>
