@@ -54,8 +54,8 @@ function Cell({ cell, onClick, allowPlacement, classes }) {
 			className={classnames([
 				classes.cell,
 				{
-					quintroMember: isQuintroMember,
-					noPlacement: !allowPlacement,
+					[classes.quintroMember]: isQuintroMember,
+					[classes.noPlacement]: !allowPlacement,
 				},
 			])}
 			onClick={() => onClick && onClick({
