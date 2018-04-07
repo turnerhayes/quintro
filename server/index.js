@@ -80,11 +80,11 @@ app.use(function(err, req, res, next) {
 	const errData = {
 		message: err.message,
 		error: Config.app.isDevelopment ?
-		{
-			message: err.message,
-			stack: err.stack
-		} :
-		{}
+			{
+				message: err.message,
+				stack: err.stack
+			} :
+			{}
 	};
 
 	if (err.status !== HTTPStatusCodes.NOT_FOUND) {

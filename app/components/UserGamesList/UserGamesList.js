@@ -96,27 +96,27 @@ class UserGamesList extends React.PureComponent {
 
 		return [
 			(
-			<Tabs
-				key="tabs"
-				value={selectedTabIndex}
-				fullWidth
-				onChange={(event, selectedTabIndex) => this.setState({ selectedTabIndex })}
-			>
-				{
-					hasGamesInProgress && (
-						<Tab
-							label="In Progress"
-						/>
-					)
-				}
-				{
-					hasFinishedGames && (
-						<Tab
-							label="Finished Games"
-						/>
-					)
-				}
-			</Tabs>
+				<Tabs
+					key="tabs"
+					value={selectedTabIndex}
+					fullWidth
+					onChange={(event, selectedTabIndex) => this.setState({ selectedTabIndex })}
+				>
+					{
+						hasGamesInProgress && (
+							<Tab
+								label="In Progress"
+							/>
+						)
+					}
+					{
+						hasFinishedGames && (
+							<Tab
+								label="Finished Games"
+							/>
+						)
+					}
+				</Tabs>
 			),
 			(selectedTabIndex === 0 || !hasFinishedGames) && (
 				<List
@@ -133,8 +133,8 @@ class UserGamesList extends React.PureComponent {
 
 								const isWaitingForYou = game.get("isStarted") &&
 									players && players.find(
-										(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
-									).color === game.get("currentPlayerColor");
+									(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
+								).color === game.get("currentPlayerColor");
 
 								return (
 									<ListItem

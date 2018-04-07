@@ -19,6 +19,7 @@ function prepareGame(game) {
 		(players) => players.map(
 			(player) => player.set("userID", player.getIn(["user", "id"]))
 				.delete("user")
+				.delete("order")
 		)
 	).set("isLoaded", true);
 }
@@ -54,7 +55,9 @@ export default function gamesReducer(state = Map(), action) {
 
 			state = state.setIn(
 				["items", gameName, "players", player.get("order")],
-				player.set("userID", player.getIn(["user", "id"])).delete("user")
+				player.set("userID", player.getIn(["user", "id"]))
+					.delete("user")
+					.delete("order")
 			);
 
 			if (player.getIn(["user", "isMe"])) {

@@ -42,5 +42,13 @@
 		"semi": ["error", "always"],
 		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"no-debugger": "warn"
-	}
+	},
+	"overrides": [
+		{
+			"files": "**/*.test.js",
+			"env": {
+				"jest": true
+			}
+		}
+	]
 }
