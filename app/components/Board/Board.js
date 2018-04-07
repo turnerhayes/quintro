@@ -1,8 +1,10 @@
-import range              from "lodash/range";
 import React              from "react";
 import PropTypes          from "prop-types";
+import { fromJS }         from "immutable";
+import range              from "lodash/range";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import createHelper       from "@app/components/class-helper";
+import Cell               from "./Cell";
 import                         "./Board.less";
 
 const classes = createHelper("game-board");
@@ -28,7 +30,7 @@ class Board extends React.Component {
 	/**
 	 * @member {object} - Component prop types
 	 *
-	 * @prop {shared-lib.Board} board - the board object backing this component
+	 * @prop {external:Immutable.Map} board - the map representing the board object backing this component
 	 * @prop {boolean} [allowPlacement] - whether to permit placing a marble on the board
 	 * @prop {client.react-components.Board~onCellClickCallback} [onCellClick] - handler called when a cell is clicked
 	 */
@@ -85,11 +87,8 @@ class Board extends React.Component {
 		const filledMap = board.get("filled").reduce(
 			(filled, cell) => {
 				const stringPosition = JSON.stringify(cell.get("position"));
-				cell = cell.toJS();
 
-				cell.isQuintroMember = quintros && !!quintros[stringPosition];
-
-				filled[stringPosition] = cell;
+				filled[stringPosition] = cell.set("isQuintroMember", quintros && !!quintros[stringPosition]);
 
 				return filled;
 			},
@@ -121,27 +120,14 @@ class Board extends React.Component {
 												const filled = filledMap[JSON.stringify(position)];
 
 												return (
-													<td
+													<Cell
 														key={`${columnIndex}-${rowIndex}`}
-														{...classes({
-															element: "board-cell",
-															extra: [
-																filled && "filled",
-																filled && filled.isQuintroMember && "quintro-member",
-															],
+														cell={filled || fromJS({
+															position,
 														})}
-														onClick={() => this.handleCellClick({
-															cell: filled || {
-																position
-															},
-														})}
-													>
-														{
-															filled ? (
-																<div className={`marble ${filled.color}`}></div>
-															) : null
-														}
-													</td>
+														allowPlacement={allowPlacement}
+														onClick={this.handleCellClick}
+													/>
 												);
 											}
 										)

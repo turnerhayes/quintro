@@ -188,7 +188,7 @@ class AccountDialog extends React.PureComponent {
 				</Link>
 			</div>
 		) :
-		this.formatMessage(messages.actions.logIn);
+			this.formatMessage(messages.actions.logIn);
 
 		return (
 			<Card>

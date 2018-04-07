@@ -3,13 +3,22 @@ import ImmutablePropTypes from "react-immutable-proptypes";
 import PropTypes          from "prop-types";
 import { Map }            from "immutable";
 import Popover            from "material-ui/Popover";
-import Config             from "@app/config";
+import { withStyles }     from "material-ui/styles";
 import createHelper       from "@app/components/class-helper";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
+import Marble             from "@app/components/Marble";
 import                         "./PlayerIndicators.less";
 
 const classes = createHelper("player-indicators");
+
+const MARBLE_SIZE = "3em";
+
+const styles = {
+	activeMarble: {
+		boxShadow: "#C3C374 0px 0px 20px 6px",
+	},
+};
 
 /**
  * @callback client.react-components.PlayerIndicators~onIndicatorClicked
@@ -43,7 +52,9 @@ class PlayerIndicators extends React.Component {
 
 		markCurrent: PropTypes.bool,
 
-		onIndicatorClicked: PropTypes.func
+		onIndicatorClicked: PropTypes.func,
+
+		classes: PropTypes.object,
 	}
 
 	/**
@@ -141,7 +152,7 @@ class PlayerIndicators extends React.Component {
 					})}
 				>
 					{
-						game.get("players").toList().sortBy((player) => player.get("order")).map(
+						game.get("players").map(
 							(player) => {
 								const active = player.get("color") === game.get("currentPlayerColor");
 								const isPresent = !!game.getIn(["playerPresence", player.get("color")]);
@@ -167,13 +178,14 @@ class PlayerIndicators extends React.Component {
 										title={label}
 										onClick={(event) => this.handlePlayerIndicatorClicked(player, event.target)}
 									>
-										<div
-											{...classes({
-												element: "marble",
-												extra: [
-													Config.game.colors.get(player.get("color")).id,
-												],
-											})}
+										<Marble
+											color={player.get("color")}
+											size={MARBLE_SIZE}
+											className={
+												active ?
+													this.props.classes.activeMarble :
+													undefined
+											}
 										/>
 									</li>
 								);
@@ -222,13 +234,9 @@ class PlayerIndicators extends React.Component {
 									})}
 									title="This spot is open for another player"
 								>
-									<div
-										{...classes({
-											element: "marble",
-											extra: [
-												"not-filled"
-											],
-										})}
+									<Marble
+										size={MARBLE_SIZE}
+										color={null}
 									/>
 								</li>
 							)
@@ -240,4 +248,4 @@ class PlayerIndicators extends React.Component {
 	}
 }
 
-export default PlayerIndicators;
+export default withStyles(styles)(PlayerIndicators);

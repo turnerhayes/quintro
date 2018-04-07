@@ -90,13 +90,13 @@ if (!window.Intl) {
 	(new Promise((resolve) => {
 		resolve(import("intl"));
 	}))
-	.then(() => Promise.all([
+		.then(() => Promise.all([
 		import("intl/locale-data/jsonp/en.js"),
-	]))
-	.then(() => render(translationMessages))
-	.catch((err) => {
-		throw err;
-	});
+		]))
+		.then(() => render(translationMessages))
+		.catch((err) => {
+			throw err;
+		});
 } else {
 	render(translationMessages);
 }
