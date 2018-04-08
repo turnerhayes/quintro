@@ -7,24 +7,29 @@ import {
 }                         from "react-intl";
 import createDebugger     from "debug";
 import classnames         from "classnames";
-import Button             from "material-ui/Button";
 import Icon               from "material-ui/Icon";
 import Badge              from "material-ui/Badge";
 import { withStyles }     from "material-ui/styles";
-import PlayArrowIcon      from "material-ui-icons/PlayArrow";
-import createHelper       from "@app/components/class-helper";
 import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
 import Config             from "@app/config";
 import messages           from "./messages";
-import                         "./PlayGame.less";
+import StartGameOverlay   from "./StartGameOverlay";
+import WinnerBanner       from "./WinnerBanner";
 
-const classes = createHelper("play-game");
 
 const debug = createDebugger("quintro:client:play-game");
 
 const styles = {
+	root: {
+		margin: "1em",
+	},
+
+	boardContainer: {
+		position: "relative",
+	},
+
 	watcherIcon: {
 		fontSize: "1.7em",
 	},
@@ -240,20 +245,17 @@ class PlayGame extends React.PureComponent {
 
 		return (
 			<div
-				{...classes({
-					extra: [
-						gameIsOver && "game-over",
-						gameIsStarted && "game-started",
-					],
-				})}
+				className={classnames(
+					this.props.classes.root,
+					{
+						"game-over": gameIsOver,
+						"game-started": gameIsStarted,
+					}
+				)}
 			>
 				{
 					watcherSummary && (
-						<div
-							{...classes({
-								element: "watching-game-notification",
-							})}
-						>
+						<div>
 							<Badge
 								badgeContent={watcherCount}
 								color="primary"
@@ -284,53 +286,21 @@ class PlayGame extends React.PureComponent {
 					markActive={gameIsStarted}
 				/>
 				<div
-					{...classes({
-						element: "board-container",
-					})}
+					className={this.props.classes.boardContainer}
 				>
 					{
-						!gameIsStarted && !gameIsOver ?
-							(
-								<div
-									{...classes({
-										element: "start-game-overlay",
-									})}
-								>
-									{
-										!isWatchingGame && (
-											<div
-												{...classes({
-													element: "start-game-overlay-dialog",
-												})}
-											>
-												<Button
-													disabled={game.get("players").size < Config.game.players.min}
-													onClick={this.handleStartGameButtonClick}
-												>
-													<PlayArrowIcon
-													/>
-													Start Game
-												</Button>
-											</div>
-										)
-									}
-								</div>
-							) :
-							null
+						!gameIsStarted && !gameIsOver && !isWatchingGame && (
+							<StartGameOverlay
+								canStart={game.get("players").size >= Config.game.players.min}
+								onStartClick={this.handleStartGameButtonClick}
+							/>
+						)
 					}
 					{
 						gameIsOver && (
-							<div
-								{...classes({
-									element: "winner-banner",
-								})}
-							>
-								<div
-									{...classes({
-										element: "winner-banner-win-message",
-									})}
-								>{Config.game.colors.get(game.get("winner")).name} wins!</div>
-							</div>
+							<WinnerBanner
+								winnerColor={game.get("winner")}
+							/>
 						)
 					}
 					<Board

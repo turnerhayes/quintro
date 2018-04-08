@@ -175,7 +175,7 @@ class PlayerIndicators extends React.Component {
 								const label = player.getIn(["user", "isMe"]) ?
 									"This is you" :
 									(
-										(player.getIn(["user", "name", "display" ]) || `Player ${player.get("color")}`)  +
+										(player.getIn(["user", "name", "display"]) || `Player ${player.get("color")}`)  +
 										(isPresent ? "" : " is absent")
 									);
 
@@ -198,8 +198,8 @@ class PlayerIndicators extends React.Component {
 													MARBLE_SIZE.absent :
 													MARBLE_SIZE.normal
 											}
-											className={markActive && classnames({
-												[classes.activeMarble]: active,
+											className={classnames({
+												[classes.activeMarble]: active && markActive,
 											})}
 										/>
 									</li>
