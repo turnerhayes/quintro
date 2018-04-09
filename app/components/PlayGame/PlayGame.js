@@ -2,10 +2,10 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import {
+	FormattedMessage,
 	injectIntl,
 	intlShape,
 }                         from "react-intl";
-import createDebugger     from "debug";
 import classnames         from "classnames";
 import Icon               from "material-ui/Icon";
 import Badge              from "material-ui/Badge";
@@ -18,8 +18,6 @@ import messages           from "./messages";
 import StartGameOverlay   from "./StartGameOverlay";
 import WinnerBanner       from "./WinnerBanner";
 
-
-const debug = createDebugger("quintro:client:play-game");
 
 const styles = {
 	root: {
@@ -133,8 +131,6 @@ class PlayGame extends React.PureComponent {
 		if (!this.props.game || this.props.hasJoinedGame) {
 			return;
 		}
-
-		debug("Joining game with color", color);
 
 		this.props.onJoinGame({ color });
 	}
@@ -316,14 +312,14 @@ class PlayGame extends React.PureComponent {
 	/**
 	 * Renders the component.
 	 *
-	 * @return {!external:React.Component} the component as a React component tree
+	 * @return {external:React.Component} the component as a React component tree
 	 */
 	render() {
 		if (this.props.getGameError) {
 			return (
-				<div>
-				Error loading the game
-				</div>
+				<FormattedMessage
+					{...messages.loadingErrorMessage}
+				/>
 			);
 		}
 
