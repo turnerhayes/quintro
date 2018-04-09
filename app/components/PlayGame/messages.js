@@ -1,6 +1,9 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
+	loadingErrorMessage: {
+		id: "quintro.components.PlayGame.loadingErrorMessage",
+	},
 	watchers: {
 		summary: {
 			withYou: {

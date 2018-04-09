@@ -30,6 +30,7 @@
 	"quintro.components.CreateGame.form.errors.playerLimit.tooLarge": "{value} is greater than the maximum number of players ({max})",
 	"quintro.components.PlayGame.watchers.summary.withYou": "You {watcherCount, plural, =0 {} one {and 1 other person} other {and {watcherCount} other people}} are watching this game.",
 	"quintro.components.PlayGame.watchers.summary.withoutYou": "{watcherCount, plural, one {1 person is} other {{watcherCount} people are}} watching this game.",
+	"quintro.components.PlayGame.loadingErrorMessage": "Error loading the game",
 	"quintro.components.FindGame.header": "Find a Game",
 	"quintro.components.FindGame.form.playerLimit.label": "Number of players",
 	"quintro.components.FindGame.form.playerLimit.details": "Leave blank if you don't care how many players the game has",
