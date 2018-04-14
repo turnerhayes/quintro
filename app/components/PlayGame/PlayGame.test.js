@@ -2,12 +2,13 @@ import React from "react";
 import { fromJS } from "immutable";
 import { mount } from "enzyme";
 import { Provider } from "react-redux";
-import { IntlProvider } from "react-intl";
 import configureStore from "redux-mock-store";
-import PlayGame from "./PlayGame";
+import _PlayGame from "./PlayGame";
 import StartGameOverlay from "./StartGameOverlay";
 import WinnerBanner from "./WinnerBanner";
-import { translationMessages } from "@app/i18n";
+import { wrapWithIntlProvider } from "@app/utils/test-utils";
+
+const PlayGame = wrapWithIntlProvider(_PlayGame);
 
 const mockStore = configureStore();
 
@@ -35,6 +36,8 @@ describe("PlayGame component", () => {
 		},
 	});
 
+	const playerUsers = fromJS({});
+
 	it("should have a start button overlay if the game is not started", () => {
 		const store = mockStore(state);
 
@@ -42,21 +45,17 @@ describe("PlayGame component", () => {
 			<Provider
 				store={store}
 			>
-				<IntlProvider
-					locale="en"
-					messages={translationMessages.en}
-				>
-					<PlayGame
-						game={game}
-						gameName={name}
-						onWatchGame={NO_OP}
-						onJoinGame={NO_OP}
-						onStartGame={NO_OP}
-						onPlaceMarble={NO_OP}
-						onGetGame={NO_OP}
-						onCancelJoin={NO_OP}
-					/>
-				</IntlProvider>
+				<PlayGame
+					game={game}
+					gameName={name}
+					onWatchGame={NO_OP}
+					onJoinGame={NO_OP}
+					onStartGame={NO_OP}
+					onPlaceMarble={NO_OP}
+					onGetGame={NO_OP}
+					onCancelJoin={NO_OP}
+					playerUsers={playerUsers}
+				/>
 			</Provider>
 		);
 
@@ -84,21 +83,17 @@ describe("PlayGame component", () => {
 			<Provider
 				store={store}
 			>
-				<IntlProvider
-					locale="en"
-					messages={translationMessages.en}
-				>
-					<PlayGame
-						game={finishedGame}
-						gameName={name}
-						onWatchGame={NO_OP}
-						onJoinGame={NO_OP}
-						onStartGame={NO_OP}
-						onPlaceMarble={NO_OP}
-						onGetGame={NO_OP}
-						onCancelJoin={NO_OP}
-					/>
-				</IntlProvider>
+				<PlayGame
+					game={finishedGame}
+					gameName={name}
+					onWatchGame={NO_OP}
+					onJoinGame={NO_OP}
+					onStartGame={NO_OP}
+					onPlaceMarble={NO_OP}
+					onGetGame={NO_OP}
+					onCancelJoin={NO_OP}
+					playerUsers={playerUsers}
+				/>
 			</Provider>
 		);
 

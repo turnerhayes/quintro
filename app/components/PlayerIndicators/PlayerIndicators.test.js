@@ -1,8 +1,11 @@
 import React from "react";
 import { fromJS } from "immutable";
-import PlayerIndicators from "./PlayerIndicators";
-import Marble from "@app/components/Marble";
 import { mount } from "enzyme";
+import { wrapWithIntlProvider } from "@app/utils/test-utils";
+import _PlayerIndicators from "./PlayerIndicators";
+import Marble from "@app/components/Marble";
+
+const PlayerIndicators = wrapWithIntlProvider(_PlayerIndicators);
 
 describe("PlayerIndicators component", () => {
 	it("should have a marble for each player", () => {
@@ -10,22 +13,32 @@ describe("PlayerIndicators component", () => {
 			players: [
 				{
 					color: "blue",
+					userID: "1",
 				},
 
 				{
 					color: "red",
+					userID: "2",
 				},
 
 				{
 					color: "green",
+					userID: "3",
 				},
 			],
 			playerLimit: 3,
 		});
 
+		const playerUsers = fromJS({
+			1: {},
+			2: {},
+			3: {},
+		});
+
 		const wrapper = mount(
 			<PlayerIndicators
 				game={game}
+				playerUsers={playerUsers}
 			/>
 		);
 
@@ -41,14 +54,20 @@ describe("PlayerIndicators component", () => {
 			players: [
 				{
 					color: "blue",
+					userID: "1",
 				},
 			],
 			playerLimit: 3,
 		});
 
+		const playerUsers = fromJS({
+			1: {},
+		});
+
 		const wrapper = mount(
 			<PlayerIndicators
 				game={game}
+				playerUsers={playerUsers}
 			/>
 		);
 

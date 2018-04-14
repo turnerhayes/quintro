@@ -74,9 +74,18 @@ class AccountDialog extends React.PureComponent {
 		onLogin: PropTypes.func.isRequired,
 		onLogout: PropTypes.func.isRequired,
 		loggedInUser: ImmutablePropTypes.map,
+		enabledProviders: PropTypes.arrayOf(
+			PropTypes.oneOf(Object.keys(PROVIDER_INFO))
+		).isRequired,
 		className: PropTypes.string,
 		classes: PropTypes.object.isRequired,
 		intl: intlShape.isRequired,
+	}
+
+	static defaultProps = {
+		enabledProviders: Object.keys(PROVIDER_INFO).filter(
+			(provider) => Config.auth[provider] && Config.auth[provider].isEnabled
+		),
 	}
 
 	loginMethods = {}
@@ -125,7 +134,7 @@ class AccountDialog extends React.PureComponent {
 				{
 					Object.keys(PROVIDER_INFO).map(
 						(provider) => {
-							if (!Config.auth[provider].isEnabled) {
+							if (!this.props.enabledProviders.includes(provider)) {
 								return null;
 							}
 

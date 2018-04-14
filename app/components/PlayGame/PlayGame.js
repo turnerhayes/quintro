@@ -51,8 +51,8 @@ class PlayGame extends React.PureComponent {
 	 *
 	 * @prop {!string} gameName - the identifier of the game
 	 * @prop {external:Immutable.Map} [game] - the game record representing the game
-	 * @prop {external:Immutable.List<external:Immutable.Map>} [playerUsers] - list of users
-	 *	corresponding to the players in this game
+	 * @prop {external:Immutable.Map<external:Immutable.Map>} [playerUsers] - map of users
+	 *	corresponding to the players in this game, keyed by user ID
 	 * @prop {string} [currentUserPlayerColor] - if the player currently viewing the game is a player
 	 *	in the game, this is the color corresponding to that player. Otherwise, undefined.
 	 * @prop {object} [getGameError] - an error object desribing why the game could not be retrieved from the
@@ -61,8 +61,9 @@ class PlayGame extends React.PureComponent {
 	static propTypes = {
 		gameName: PropTypes.string.isRequired,
 		game: ImmutablePropTypes.map,
-		playerUsers: ImmutablePropTypes.listOf(
-			ImmutablePropTypes.map
+		playerUsers: ImmutablePropTypes.mapOf(
+			ImmutablePropTypes.map,
+			PropTypes.string,
 		),
 		currentUserPlayerColor: PropTypes.string,
 		getGameError: PropTypes.object,
@@ -219,6 +220,7 @@ class PlayGame extends React.PureComponent {
 			isInGame,
 			isWatchingGame,
 			watcherCount,
+			playerUsers
 		} = this.props;
 
 		const myTurn = this.props.currentUserPlayerColor === game.get("currentPlayerColor");
@@ -280,6 +282,7 @@ class PlayGame extends React.PureComponent {
 				<PlayerIndicators
 					game={game}
 					markActive={gameIsStarted}
+					playerUsers={playerUsers}
 				/>
 				<div
 					className={this.props.classes.boardContainer}

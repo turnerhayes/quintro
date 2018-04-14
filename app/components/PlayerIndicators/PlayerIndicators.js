@@ -2,12 +2,17 @@ import React              from "react";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import PropTypes          from "prop-types";
 import { Map }            from "immutable";
+import {
+	injectIntl,
+	intlShape,
+}                         from "react-intl";
 import Popover            from "material-ui/Popover";
 import { withStyles }     from "material-ui/styles";
 import classnames         from "classnames";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Marble             from "@app/components/Marble";
+import messages           from "./messages";
 
 const MARBLE_SIZE = {
 	absent: "2.4em",
@@ -70,9 +75,16 @@ class PlayerIndicators extends React.Component {
 	static propTypes = {
 		game: ImmutablePropTypes.map,
 
+		playerUsers: ImmutablePropTypes.mapOf(
+			ImmutablePropTypes.map,
+			PropTypes.string
+		).isRequired,
+
 		markActive: PropTypes.bool,
 
 		onIndicatorClicked: PropTypes.func,
+
+		intl: intlShape.isRequired,
 
 		classes: PropTypes.object,
 	}
@@ -89,6 +101,10 @@ class PlayerIndicators extends React.Component {
 	state = {
 		selectedPlayerColor: null,
 		selectedIndicatorEl: null,
+	}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	/**
@@ -169,15 +185,36 @@ class PlayerIndicators extends React.Component {
 					{
 						game.get("players").map(
 							(player) => {
+								const playerUser = this.props.playerUsers.get(player.get("userID"));
+
 								const active = player.get("color") === game.get("currentPlayerColor");
 								const isPresent = !!game.getIn(["playerPresence", player.get("color")]);
 
-								const label = player.getIn(["user", "isMe"]) ?
-									"This is you" :
-									(
-										(player.getIn(["user", "name", "display"]) || `Player ${player.get("color")}`)  +
-										(isPresent ? "" : " is absent")
-									);
+								let message;
+								const messageArgs = {};
+
+								if (playerUser.get("isMe")) {
+									message = messages.indicatorMessages.you;
+								}
+								else {
+									if (playerUser.getIn(["name", "display"])) {
+										message = messages.indicatorMessages.namedPlayer;
+										messageArgs.playerName = playerUser.getIn(["name", "display"]);
+									}
+									else {
+										message = messages.indicatorMessages.anonymousPlayer;
+										messageArgs.playerColor = player.get("color");
+									}
+
+									if (isPresent) {
+										message = message.present;
+									}
+									else {
+										message = message.absent;
+									}
+								}
+
+								const label = this.formatMessage(message, messageArgs);
 
 								return (
 									<li
@@ -245,7 +282,7 @@ class PlayerIndicators extends React.Component {
 								<li
 									key={`not-filled-player-${index}`}
 									className={classes.item}
-									title="This spot is open for another player"
+									title={this.formatMessage(messages.indicatorMessages.availableSlot)}
 								>
 									<Marble
 										size={MARBLE_SIZE.normal}
@@ -261,4 +298,4 @@ class PlayerIndicators extends React.Component {
 	}
 }
 
-export default withStyles(styles)(PlayerIndicators);
+export default injectIntl(withStyles(styles)(PlayerIndicators));
