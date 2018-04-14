@@ -1,7 +1,7 @@
 import { Map, Set } from "immutable";
 import { createSelector } from "reselect";
 
-const getCurrentUserID = (state) => state.get("currentID");
+const getLoggedInUserID = (state) => state.get("currentID");
 
 const getUsers = (state) => state.get("items");
 
@@ -42,22 +42,20 @@ const getCurrentUser = createSelector(
  */
 const getLoggedInUser = createSelector(
 	getUsers,
-	getCurrentUserID,
-	(users, currentID) => {
-		if (!currentID) {
+	getLoggedInUserID,
+	(users, loggedInID) => {
+		if (!loggedInID) {
 			return undefined;
 		}
 
-		return users.find((user) => user.get("id") === currentID);
+		return users.find((user) => user.get("id") === loggedInID);
 	}
 );
 
 const filterUsers = createSelector(
 	getUsers,
-	(state, props) => props,
-	(users, props) => {
-		let { userIDs } = props;
-
+	(state, props) => props.userIDs,
+	(users, userIDs) => {
 		if (userIDs === undefined) {
 			return users;
 		}
