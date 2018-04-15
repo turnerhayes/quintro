@@ -1,11 +1,11 @@
 module.exports = exports = {
 	collectCoverageFrom: [
-		"app/**/*.{js,jsx}",
-		"!app/**/*.test.{js,jsx}",
-		"!app/*/RbGenerated*/*.{js,jsx}",
+		"app/**/*.js",
+		"!app/**/*.test.js",
+		"!app/*/RbGenerated*/*.js",
 		"!app/app.js",
 		"!app/global-styles.js",
-		"!app/*/*/Loadable.{js,jsx}"
+		"!app/*/*/Loadable.js"
 	],
 	coverageThreshold: {
 		global: {
@@ -30,4 +30,5 @@ module.exports = exports = {
 	setupTestFrameworkScriptFile: "<rootDir>/internals/testing/test-bundler.js",
 	testRegex: ".*\\.test\\.js$",
 	resolver: "./internals/jest-resolver",
+	testEnvironment: "jsdom",
 };
