@@ -1,7 +1,7 @@
 import React from "react";
 import { fromJS } from "immutable";
 import { mount } from "enzyme";
-import Board from "./Board";
+import Board from "./index";
 import Cell from "./Cell";
 
 describe("Board component", () => {

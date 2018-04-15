@@ -4,7 +4,7 @@ import { mount } from "enzyme";
 import { MemoryRouter } from "react-router";
 import { Link } from "react-router-dom";
 import IconButton from "material-ui/IconButton";
-import _AccountDialog from "./AccountDialog";
+import _AccountDialog from "./index";
 import { wrapWithIntlProvider, unwrapComponent } from "@app/utils/test-utils";
 
 const NO_OP = () => {};

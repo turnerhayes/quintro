@@ -3,7 +3,7 @@ import { fromJS } from "immutable";
 import { mount } from "enzyme";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
-import _PlayGame from "./PlayGame";
+import _PlayGame from "./index";
 import StartGameOverlay from "./StartGameOverlay";
 import WinnerBanner from "./WinnerBanner";
 import { wrapWithIntlProvider } from "@app/utils/test-utils";

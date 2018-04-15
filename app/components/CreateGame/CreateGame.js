@@ -58,10 +58,12 @@ class CreateGame extends React.PureComponent {
 	 * @type object
 	 *
 	 * @prop {string} name="" - the name to give the game
-	 * @prop {number} playerLimit=3 - the maximum number of players that will be able to play the
-	 *	game
-	 * @prop {number} width=minimum - the width of the game board. Defaults to the app-wide configured minimum.
-	 * @prop {number} height=minimum - the height of the game board. Defaults to the app-wide configured minimum.
+	 * @prop {string} playerLimit=configuration minimum - the maximum number of players that will
+	 *	be able to play the	game
+	 * @prop {string} width=configuration minimum - the width of the game board. Defaults to the
+	 *	app-wide configured minimum.
+	 * @prop {string} height=configuration minimum - the height of the game board. Defaults to the
+	 *	app-wide configured minimum.
 	 * @prop {string} nameError="" - the error message to show for the entered name (if applicable)
 	 * @prop {string} widthError="" - the error message to show for the entered width (if applicable)
 	 * @prop {string} heightError="" - the error message to show for the entered height (if applicable)
@@ -93,16 +95,16 @@ class CreateGame extends React.PureComponent {
 		const query = qs.parse(this.props.location.search.replace(/^\?/, ""));
 
 		// if any are NaN, let it use the defaults
-		if (!isNaN(Number(query.width))) {
-			query.width = query.width || undefined;
+		if (Number.isNaN(Number(query.width))) {
+			query.width = undefined;
 		}
 
-		if (!isNaN(Number(query.height))) {
-			query.height = query.height || undefined;
+		if (Number.isNaN(Number(query.height))) {
+			query.height = undefined;
 		}
 
-		if (!isNaN(Number(query.playerLimit))) {
-			query.playerLimit = query.playerLimit || undefined;
+		if (Number.isNaN(Number(query.playerLimit))) {
+			query.playerLimit = undefined;
 		}
 		
 		this.setState(query);
@@ -154,8 +156,7 @@ class CreateGame extends React.PureComponent {
 			return this.formatMessage(messages.form.errors.general.isRequired);
 		}
 
-		// Is NaN?
-		if (value !== value) {
+		if (Number.isNaN(value)) {
 			return this.formatMessage(messages.form.errors.dimensions.invalid, {
 				dimension,
 				value,
@@ -201,7 +202,7 @@ class CreateGame extends React.PureComponent {
 
 		let error;
 
-		if (isNaN(playerLimitAsNumber)) {
+		if (Number.isNaN(playerLimitAsNumber)) {
 			error = this.formatMessage(messages.form.errors.playerLimit.invalid, {
 				value: playerLimit,
 			});
@@ -255,10 +256,6 @@ class CreateGame extends React.PureComponent {
 	 * Checks to see whether the name value in the current state is already being used.
 	 *
 	 * @function
-	 * @async
-	 *
-	 * @return {external:Bluebird.Promise} a promise that resolves with a boolean value indicating
-	 *	whether the name is currently in use.
 	 */
 	checkName = () => {
 		this.props.onCheckName({ name: this.state.name });
