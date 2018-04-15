@@ -3,6 +3,8 @@ import { fromJS } from "immutable";
 import { mount } from "enzyme";
 import { MemoryRouter } from "react-router";
 import { Link } from "react-router-dom";
+import Icon from "material-ui/Icon";
+import Button from "material-ui/Button";
 import IconButton from "material-ui/IconButton";
 import _AccountDialog from "./index";
 import { wrapWithIntlProvider, unwrapComponent } from "@app/utils/test-utils";
@@ -64,6 +66,29 @@ describe("AccountDialog component", () => {
 		).not.toExist();
 	});
 
+	it("should call login callback with the appropriate provider when login button is clicked", () => {
+		const onLogin = jest.fn();
+
+		const selectedProvider = "facebook";
+
+		const wrapper = mountDialog({
+			enabledProviders: [ selectedProvider, "twitter" ],
+			onLogin,
+		});
+
+		const instance = wrapper.find(UnwrappedComponent).instance();
+
+		const loginButton = wrapper.find(IconButton).filterWhere(
+			(el) => el.hasClass(instance.props.classes.loginLink) && el.key() === selectedProvider
+		);
+
+		expect(loginButton).toExist();
+
+		loginButton.simulate("click");
+
+		expect(onLogin).toHaveBeenCalledWith({ provider: selectedProvider });
+	});
+
 	it("should show user display name if a user is logged in", () => {
 		const displayName = "Test Tester";
 
@@ -79,5 +104,35 @@ describe("AccountDialog component", () => {
 		});
 
 		expect(wrapper.find(Link).filterWhere((el) => el.text() === displayName)).toExist();
+	});
+
+	it("should call logout callback when logout button clicked", () => {
+		const displayName = "Test Tester";
+
+		const loggedInUser = fromJS({
+			name: {
+				display: displayName,
+			},
+			provider: "facebook",
+		});
+
+		const onLogout = jest.fn();
+
+		const wrapper = mountDialog({
+			loggedInUser,
+			onLogout,
+		});
+
+		const logoutButton = wrapper.find(Button).filterWhere(
+			(button) => button.findWhere(
+				(el) => el.is(Icon) && el.text() === "log out"
+			)
+		);
+
+		expect(logoutButton).toExist();
+
+		logoutButton.simulate("click");
+
+		expect(onLogout).toHaveBeenCalled();
 	});
 });
