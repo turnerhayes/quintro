@@ -2,7 +2,7 @@ import React from "react";
 import { fromJS } from "immutable";
 import { mount } from "enzyme";
 import { wrapWithIntlProvider } from "@app/utils/test-utils";
-import _PlayerIndicators from "./PlayerIndicators";
+import _PlayerIndicators from "./index";
 import Marble from "@app/components/Marble";
 
 const PlayerIndicators = wrapWithIntlProvider(_PlayerIndicators);
