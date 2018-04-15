@@ -138,6 +138,7 @@ class AccountDialog extends React.PureComponent {
 								return null;
 							}
 
+							/* istanbul ignore else */
 							if (!this.loginMethods[provider]) {
 								this.loginMethods[provider] = this.handleLoginClicked.bind(this, { provider });
 							}
