@@ -1,4 +1,4 @@
-import React              from "react";
+import React from "react";
 
 /**
  * Component representing the home page.
@@ -7,7 +7,7 @@ import React              from "react";
  *
  * @memberof client.react-components
  */
-class Home extends React.PureComponent {
+class HomePage extends React.PureComponent {
 	/**
 	 * Renders the component.
 	 *
@@ -25,4 +25,4 @@ class Home extends React.PureComponent {
 	}
 }
 
-export default Home;
+export default HomePage;
