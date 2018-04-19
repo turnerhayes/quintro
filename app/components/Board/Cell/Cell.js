@@ -45,6 +45,7 @@ const styles = {
 };
 
 function Cell({ cell, onClick, allowPlacement, classes }) {
+	cell = cell && cell.set("isQuintroMember", !!cell.get("isQuintroMember"));
 	const color = cell && cell.get("color");
 	const isFilled = !!color;
 	const isQuintroMember = isFilled && cell.get("isQuintroMember");
