@@ -17,7 +17,7 @@ import                        "./CreateGame.less";
 
 const classes = createClassHelper("create-game");
 
-const CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS = 500;
+export const CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS = 500;
 
 /**
  * Component for rendering the Create a Game UI.
@@ -87,27 +87,39 @@ class CreateGame extends React.PureComponent {
 	 *
 	 * @return {void}
 	 */
-	setStateFromQuery = () => {
-		if (!this.props.location.search) {
+	setStateFromQuery = (props = this.props) => {
+		if (!props.location.search) {
 			return;
 		}
 
-		const query = qs.parse(this.props.location.search.replace(/^\?/, ""));
+		const state = qs.parse(props.location.search.replace(/^\?/, ""));
 
 		// if any are NaN, let it use the defaults
-		if (Number.isNaN(Number(query.width))) {
-			query.width = undefined;
+		if (Number.isNaN(Number(state.width))) {
+			delete state.width;
 		}
 
-		if (Number.isNaN(Number(query.height))) {
-			query.height = undefined;
+		if (Number.isNaN(Number(state.height))) {
+			delete state.height;
 		}
 
-		if (Number.isNaN(Number(query.playerLimit))) {
-			query.playerLimit = undefined;
+		if (Number.isNaN(Number(state.playerLimit))) {
+			delete state.playerLimit;
 		}
-		
-		this.setState(query);
+
+		if (state.width) {
+			state.widthError = this.validateDimension("width", state.width) || "";
+		}
+
+		if (state.height) {
+			state.heightError = this.validateDimension("height", state.height) || "";
+		}
+
+		if (state.playerLimit) {
+			state.playerLimitError = this.validatePlayerLimit(state.playerLimit) || "";
+		}
+
+		this.setState(state);
 	}
 
 	componentWillMount() {
@@ -115,8 +127,9 @@ class CreateGame extends React.PureComponent {
 	}
 
 	componentWillReceiveProps(nextProps) {
+		/* istanbul ignore else */
 		if (nextProps.location.search && nextProps.location.search !== this.props.location.search) {
-			this.setStateFromQuery();
+			this.setStateFromQuery(nextProps);
 		}
 	}
 
@@ -144,17 +157,16 @@ class CreateGame extends React.PureComponent {
 	 * @function
 	 *
 	 * @param {"width"|"height"} dimension - the dimension to check
+	 * @param {string} value - the value for the dimension
 	 *
 	 * @return {?string} the error message, or undefined if the dimension is valid.
 	 */
 	validateDimension = (dimension, value) => {
-		if (value === undefined) {
-			value = this.state[dimension];
-		}
-
 		if (value === "") {
 			return this.formatMessage(messages.form.errors.general.isRequired);
 		}
+
+		value = Number(value);
 
 		if (Number.isNaN(value)) {
 			return this.formatMessage(messages.form.errors.dimensions.invalid, {
@@ -187,13 +199,11 @@ class CreateGame extends React.PureComponent {
 	 *
 	 * @function
 	 *
+	 * @param {string} playerLimit - the player limit input value
+	 *
 	 * @return {?string} the error message, or undefined if the player limit is valid.
 	 */
 	validatePlayerLimit = (playerLimit) => {
-		if (playerLimit === undefined) {
-			playerLimit = this.state.playerLimit;
-		}
-
 		if (playerLimit === "") {
 			return this.formatMessage(messages.form.errors.general.isRequired);
 		}
@@ -231,7 +241,7 @@ class CreateGame extends React.PureComponent {
 	 * @function
 	 *
 	 * @param {"width"|"height"} dimension - the name of the dimension being changed
-	 * @param {number|NaN} value - the value to change the dimension to
+	 * @param {string} value - the value to change the dimension to
 	 *
 	 * @return {void}
 	 */
