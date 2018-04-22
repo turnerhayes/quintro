@@ -163,6 +163,7 @@
     "jest-enzyme": "^6.0.0",
     "jest-immutable-matchers": "^2.0.1",
     "jsdoc": "^3.5.5",
+    "jsdom": "^11.8.0",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "less-plugin-lists": "^1.1.1",
