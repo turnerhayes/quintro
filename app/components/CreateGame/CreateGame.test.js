@@ -1,5 +1,3 @@
-/* global Promise */
-
 import React from "react";
 import { mount } from "enzyme";
 import { URLSearchParams } from "url";
