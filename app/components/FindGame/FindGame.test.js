@@ -125,6 +125,7 @@ describe("FindGame component", () => {
 
 		expect(onJoinGame).not.toHaveBeenCalled();
 
+		// eslint-disable-next-line no-magic-numbers
 		expect(onFindOpenGames).toHaveBeenCalledTimes(2);
 
 		clock.restore();
