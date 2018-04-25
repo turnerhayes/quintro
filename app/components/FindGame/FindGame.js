@@ -13,15 +13,19 @@ import Card, {
 	CardHeader,
 	CardContent
 }                         from "material-ui/Card";
-import createHelper       from "@app/components/class-helper";
+import { withStyles }     from "material-ui/styles";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Config             from "@app/config";
 import messages           from "./messages";
-import                         "./FindGame.less";
 
-const classes = createHelper("find-game");
 
-const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
+export const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
+
+const styles = {
+	playerLimitLabel: {
+		position: "static",
+	},
+};
 
 /**
  * Component representing a form for searching for open games to join.
@@ -45,6 +49,7 @@ class FindGame extends React.PureComponent {
 		findGameError: PropTypes.object,
 		results: ImmutablePropTypes.list,
 		intl: intlShape.isRequired,
+		classes: PropTypes.object.isRequired,
 	}
 
 	/**
@@ -52,12 +57,12 @@ class FindGame extends React.PureComponent {
 	 *
 	 * @type object
 	 *
-	 * @prop {?number} numberOfPlayers=null - the player limit that the found games should have (if null,
+	 * @prop {string} numberOfPlayers - the player limit that the found games should have (if empty,
 	 *	there will be no restriction on the player limit)
 	 * @prop {boolean} isSearching=false - true if the component is currently in the middle of a search
 	 */
 	state = {
-		numberOfPlayers: null,
+		numberOfPlayers: "",
 		isSearching: false
 	}
 
@@ -78,28 +83,14 @@ class FindGame extends React.PureComponent {
 	}
 
 	/**
-	 * Attempts to join the game at the specified index in the results.
-	 *
-	 * If it fails to join the game for any reason, it will automatically retry with the next
-	 * result. If it has reached the end of the results list, it will kick off another search
-	 * and repeat from the start of those results, until it successfully joins a game or the
-	 * user navigates away from the page.
+	 * Joins the first game in the results.
 	 *
 	 * @function
-	 * @async
 	 *
-	 * @param {number} index - the index of the game to try and join
-	 *
-	 * @return {external:Bluebird.Promise} a promise that will resolve when the game is joined
+	 * @return {void}
 	 */
-	joinGame = (index) => {
-		if (!this.props.results.get(index)) {
-			// ran out of results; keep trying until we have success
-			this.runSearch();
-			return;
-		}
-
-		const gameName = this.props.results.get(index).name;
+	joinGame = () => {
+		const gameName = this.props.results.getIn([ 0, "name" ]);
 
 		this.props.onJoinGame({ gameName });
 	}
@@ -116,7 +107,7 @@ class FindGame extends React.PureComponent {
 	runSearch = debounce(
 		() => {
 			this.props.onFindOpenGames({
-				numberOfPlayers: this.state.numberOfPlayers
+				numberOfPlayers: Number(this.state.numberOfPlayers) || null,
 			});
 
 			this.setState({ isSearching: true }); 
@@ -133,15 +124,14 @@ class FindGame extends React.PureComponent {
 	 * @function
 	 * @async
 	 *
-	 * @return {?external:Bluebird.Promise} a promise that resolves when a game is joined,
-	 *	or undefined if the search results are empty
+	 * @return {void}
 	 */
 	handleGamesFound = () => {
 		if (this.props.results.isEmpty()) {
 			// Found nothing; try until we do
 			this.runSearch();
 		} else {
-			return this.joinGame(0);
+			this.joinGame(0);
 		}
 	}
 
@@ -200,7 +190,7 @@ class FindGame extends React.PureComponent {
 	}
 
 	handleNumberOfPlayersChanged = (event) => {
-		this.setState({numberOfPlayers: event.target.valueAsNumber || null});
+		this.setState({ numberOfPlayers: event.target.value });
 	}
 
 	/**
@@ -218,20 +208,17 @@ class FindGame extends React.PureComponent {
 				<div>
 					<TextField
 						type="number"
+						name="playerLimit"
 						label={this.formatMessage(messages.form.playerLimit.label)}
 						inputProps={{
 							min: Config.game.players.min,
 							max: Config.game.players.max,
-							...classes({
-								element: "player-limit-input",
-							}),
 						}}
 						InputLabelProps={{
-							...classes({
-								element: "player-limit-label",
-							}),
+							className: this.props.classes.playerLimitLabel,
 						}}
 						onChange={this.handleNumberOfPlayersChanged}
+						value={this.state.numberOfPlayers}
 					/>
 					<Typography
 						type="caption"
@@ -244,6 +231,7 @@ class FindGame extends React.PureComponent {
 					<Button
 						type="submit"
 						color="primary"
+						disabled={!!this.state.numberOfPlayers && Number.isNaN(Number(this.state.numberOfPlayers))}
 					>
 						{this.formatMessage(messages.form.submitButton.label)}
 					</Button>
@@ -253,4 +241,4 @@ class FindGame extends React.PureComponent {
 	}
 }
 
-export default injectIntl(FindGame);
+export default withStyles(styles)(injectIntl(FindGame));

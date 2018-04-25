@@ -3,6 +3,7 @@
 import React from "react";
 import { mount } from "enzyme";
 import { URLSearchParams } from "url";
+import sinon from "sinon";
 import { wrapWithIntlProvider } from "@app/utils/test-utils";
 import Config from "@app/config";
 import _CreateGame from "./index";
@@ -361,8 +362,7 @@ describe("CreateGame component", () => {
 	});
 
 	it("should call onCheckName handler debounced", () => {
-		// eslint-disable-next-line no-magic-numbers
-		expect.assertions(2);
+		const clock = sinon.useFakeTimers();
 
 		const onCheckName = jest.fn();
 
@@ -389,18 +389,12 @@ describe("CreateGame component", () => {
 			);
 		}
 
-		return new Promise(
-			(resolve) => setTimeout(
-				resolve,
-				// Wait for the debounce
-				CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS
-			)
-		).then(
-			() => {
-				expect(onCheckName).toHaveBeenCalledTimes(1);
-				expect(onCheckName).toHaveBeenCalledWith({ name: "aaaaa" });
-			}
-		);
+		clock.tick(CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS);
+
+		expect(onCheckName).toHaveBeenCalledTimes(1);
+		expect(onCheckName).toHaveBeenCalledWith({ name: "aaaaa" });
+
+		clock.restore();
 	});
 
 	it("should call onCreateGame handler when submitted", () => {
