@@ -12,15 +12,24 @@ import Menu, {
 }                    from "material-ui/Menu";
 import Button        from "material-ui/Button";
 import {
+	withStyles
+}                    from "material-ui/styles";
+import {
 	injectIntl,
 	intlShape,
 }                    from "react-intl";
-import createHelper  from "@app/components/class-helper";
 import Config        from "@app/config";
 import messages      from "./messages";
-import                    "./GameJoinDialog.less";
 
-const classes = createHelper("game-join-dialog");
+const styles = {
+	colorSwatch: {
+		display: "inline-block",
+		width: "1.5em",
+		height: "1.5em",
+		borderRadius: "100%",
+		marginRight: "0.5em",
+	},
+};
 
 /**
  * @callback client.react-components.GameJoinDialog~onSubmitCallback
@@ -68,6 +77,7 @@ class GameJoinDialog extends React.Component {
 		onCancel: PropTypes.func.isRequired,
 		onWatchGame: PropTypes.func,
 		intl: intlShape.isRequired,
+		classes: PropTypes.object.isRequired,
 	}
 
 	/**
@@ -161,6 +171,13 @@ class GameJoinDialog extends React.Component {
 		});
 	}
 
+	handleCurrentColorClicked = (event) => {
+		this.setState({
+			colorDisplayEl: event.target,
+			colorPickerIsOpen: true,
+		});
+	}
+
 	/**
 	 * Renders an option for the color picker dropdown.
 	 *
@@ -177,9 +194,7 @@ class GameJoinDialog extends React.Component {
 				{...rootProps}
 			>
 				<span
-					{...classes({
-						element: "color-swatch",
-					})}
+					className={this.props.classes.colorSwatch}
 					style={{backgroundColor: colorDefinition.hex}}
 				/>
 				{colorDefinition.name}
@@ -206,6 +221,7 @@ class GameJoinDialog extends React.Component {
 					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
 				</div>
 				<Button
+					key="watch-game-button"
 					color="secondary"
 					onClick={this.handleWatchGameButtonClicked}
 				>
@@ -249,16 +265,13 @@ class GameJoinDialog extends React.Component {
 					>
 						{this.formatMessage(messages.color)}:
 						{
-							<Button>
+							<Button
+								key="color-change-button"
+								onClick={this.handleCurrentColorClicked}
+							>
 								{
 									this.renderColorOptionContent(
 										Config.game.colors.get(selectedColor || defaultColor),
-										{
-											onClick: ({ target }) => this.setState({
-												colorDisplayEl: target,
-												colorPickerIsOpen: true,
-											}),
-										}
 									)
 								}
 							</Button>
@@ -274,6 +287,7 @@ class GameJoinDialog extends React.Component {
 										return (
 											<MenuItem
 												key={colorDefinition.id}
+												data-color={colorDefinition.id}
 												selected={colorDefinition.id === (selectedColor || defaultColor)}
 												onClick={() => this.handleColorClicked({
 													colorDefinition
@@ -297,6 +311,7 @@ class GameJoinDialog extends React.Component {
 						{this.formatMessage(messages.buttons.join.label)}
 					</Button>
 					<Button
+						key="cancel-button"
 						type="button"
 						onClick={this.handleCancelButtonClicked}
 					>
@@ -341,7 +356,6 @@ class GameJoinDialog extends React.Component {
 
 		return (
 			<Dialog
-				{...classes()}
 				open
 			>
 				<Card>
@@ -359,4 +373,4 @@ class GameJoinDialog extends React.Component {
 	}
 }
 
-export default injectIntl(GameJoinDialog);
+export default injectIntl(withStyles(styles)(GameJoinDialog));
