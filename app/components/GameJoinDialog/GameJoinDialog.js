@@ -221,7 +221,7 @@ class GameJoinDialog extends React.Component {
 					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
 				</div>
 				<Button
-					key="watch-game-button"
+					className="watch-game-button"
 					color="secondary"
 					onClick={this.handleWatchGameButtonClicked}
 				>
@@ -305,13 +305,14 @@ class GameJoinDialog extends React.Component {
 				<div
 				>
 					<Button
+						className="submit-button"
 						type="submit"
 						color="primary"
 					>
 						{this.formatMessage(messages.buttons.join.label)}
 					</Button>
 					<Button
-						key="cancel-button"
+						className="cancel-button"
 						type="button"
 						onClick={this.handleCancelButtonClicked}
 					>
