@@ -222,11 +222,7 @@ describe("GameJoinDialog component", () => {
 			</Provider>
 		);
 
-		expect(
-			wrapper.find(Button).filterWhere(
-				(button) => button.key() === "watch-game-button"
-			)
-		).toExist();
+		expect(wrapper.find("Button.watch-game-button")).toExist();
 	});
 
 	it("should not show color picker if the game is started", () => {
@@ -312,11 +308,7 @@ describe("GameJoinDialog component", () => {
 			</Provider>
 		);
 
-		expect(
-			wrapper.find(Button).filterWhere(
-				(button) => button.key() === "watch-game-button"
-			)
-		).toExist();
+		expect(wrapper.find("Button.watch-game-button")).toExist();
 	});
 
 	it("should call the onWatchGame callback", () => {
@@ -363,9 +355,7 @@ describe("GameJoinDialog component", () => {
 			</Provider>
 		);
 
-		wrapper.find(Button).filterWhere(
-			(button) => button.key() === "watch-game-button"
-		).simulate("click");
+		wrapper.find("Button.watch-game-button").simulate("click");
 
 		expect(onWatchGame).toHaveBeenCalledWith();
 	});
@@ -403,7 +393,7 @@ describe("GameJoinDialog component", () => {
 			</Provider>
 		);
 
-		wrapper.find(Button).filterWhere((button) => button.key() === "cancel-button").simulate("click");
+		wrapper.find("Button.cancel-button").simulate("click");
 
 		expect(onCancel).toHaveBeenCalledWith();
 	});

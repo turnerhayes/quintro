@@ -94,7 +94,7 @@ class PlayGame extends React.PureComponent {
 		}
 	}
 
-	componentDidUpdate() {		
+	componentDidUpdate() {
 		if (this.props.game) {
 			if (this.props.playerUsers && this.props.playerUsers.size === this.props.game.get("players").size) {
 				this.joinIfInGame();
@@ -148,7 +148,7 @@ class PlayGame extends React.PureComponent {
 	 */
 	handleCellClick = ({ cell }) => {
 		if (
-			this.props.game.get("winner") || cell.color ||
+			this.props.game.get("winner") || cell.get("color") ||
 			!this.props.hasJoinedGame
 		) {
 			return;
@@ -156,7 +156,7 @@ class PlayGame extends React.PureComponent {
 
 		this.props.onPlaceMarble({
 			gameName: this.props.game.get("name"),
-			position: cell.position,
+			position: cell.get("position"),
 		});
 	}
 
@@ -194,17 +194,6 @@ class PlayGame extends React.PureComponent {
 	 */
 	handleJoinCancel = () => {
 		this.props.onCancelJoin();
-	}
-
-	/**
-	 * Handles the user interaction to start watching the game.
-	 *
-	 * @function
-	 *
-	 * @return {void}
-	 */
-	handleWatchGame = () => {
-		this.setState({ isWatching: true });
 	}
 
 	/**
