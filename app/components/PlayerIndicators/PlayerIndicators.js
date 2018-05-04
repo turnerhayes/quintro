@@ -110,10 +110,6 @@ class PlayerIndicators extends React.Component {
 	/**
 	 * Toggles the player info popover open or closed for the specified color.
 	 *
-	 * If no popover is currently open, or if the popover is open for another color, it will open the popover for the
-	 * specified color (and close it for the other color, if it is currently open). Otherwise, it will close the
-	 * popover.
-	 *
 	 * @function
 	 *
 	 * @param {string} color - the color ID of the color for which to open the popover
@@ -121,12 +117,7 @@ class PlayerIndicators extends React.Component {
 	 * @return {void}
 	 */
 	togglePopoverOpened = (color) => {
-		if (this.state.selectedPlayerColor && this.state.selectedPlayerColor === color) {
-			this.setState({ selectedPlayerColor: null });
-		}
-		else {
-			this.setState({ selectedPlayerColor: color });
-		}
+		this.setState({ selectedPlayerColor: color });
 	}
 
 	/**
@@ -143,7 +134,7 @@ class PlayerIndicators extends React.Component {
 		this.setState({
 			selectedIndicatorEl: element,
 		});
-		this.togglePopoverOpened((selectedPlayer && selectedPlayer.get("color")) || null);
+		this.togglePopoverOpened(selectedPlayer.get("color"));
 		this.props.onIndicatorClicked && this.props.onIndicatorClicked({ selectedPlayer });
 	}
 
