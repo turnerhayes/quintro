@@ -116,6 +116,7 @@ class PlayerInfoPopup extends React.PureComponent {
 			>
 				<TextField
 					label="My name"
+					name="name"
 					inputRef={this.textFieldRef}
 					value={this.state.displayNameValue}
 					onChange={this.handleDisplayNameChange}
@@ -123,8 +124,8 @@ class PlayerInfoPopup extends React.PureComponent {
 						endAdornment: (
 							<InputAdornment position="end">
 								<IconButton
-									title="Cancel"
-									aria-label="Cancel"
+									title="Change"
+									aria-label="Change"
 									type="submit"
 								>
 									<CheckIcon />
@@ -156,13 +157,14 @@ class PlayerInfoPopup extends React.PureComponent {
 			isFormVisible,
 		} = this.state;
 
-		const content = this.props.playerUser.get("isAnonymous") ?
-			(
-				this.props.playerUser.get("isMe") && isFormVisible ?
-					this.renderDisplayNameForm() :
-					null
-			) :
-			(
+		let content = null;
+		if (this.props.playerUser.get("isAnonymous")) {
+			if (this.props.playerUser.get("isMe") && isFormVisible) {
+				content = this.renderDisplayNameForm();
+			}
+		}
+		else {
+			content = (
 				<Link
 					to={`/profile/${this.props.playerUser.get("username")}`}
 					target="_blank"
@@ -170,6 +172,7 @@ class PlayerInfoPopup extends React.PureComponent {
 					Profile
 				</Link>
 			);
+		}
 
 		return (
 			<Card>
@@ -180,6 +183,7 @@ class PlayerInfoPopup extends React.PureComponent {
 								{this.props.playerUser.getIn(["name", "display"]) || "Anonymous User"}
 							</span>
 							{
+								!this.state.isFormVisible &&
 								this.props.playerUser.get("isAnonymous") &&
 								this.props.playerUser.get("isMe") && (
 									<IconButton

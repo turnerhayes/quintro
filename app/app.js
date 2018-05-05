@@ -38,9 +38,6 @@ import "file-loader?name=[name].[ext]!./.htaccess";
 
 import getStore, { history } from "@app/store";
 
-// Import CSS reset and Global Styles
-import "./global-styles";
-
 // Create redux store with history
 const store = getStore();
 const MOUNT_NODE = document.getElementById("app");

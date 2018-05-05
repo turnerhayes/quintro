@@ -4,8 +4,8 @@ module.exports = exports = {
 		"!app/**/*.test.js",
 		"!app/*/RbGenerated*/*.js",
 		"!app/app.js",
-		"!app/global-styles.js",
-		"!app/*/*/Loadable.js"
+		"!app/*/*/Loadable.js",
+		"!app/fonts/**",
 	],
 	coverageThreshold: {
 		global: {
