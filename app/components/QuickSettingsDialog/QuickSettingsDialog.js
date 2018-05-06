@@ -67,14 +67,15 @@ class QuickSettingsDialog extends React.PureComponent {
 	toggleEnableNotifications = (status) => {
 		// If we don't need to actually get permission, this will
 		// resolve immediately with `false`
-		Promise.resolve(
+		return Promise.resolve(
 			// Turning on notifications
 			!this.props.enableNotifications && status &&
-				Notify.needsPermission && new Promise(
-				(resolve, reject) => {
-					Notify.requestPermission(resolve, reject);
-				}
-			)
+				Notify.needsPermission &&
+				new Promise(
+					(resolve, reject) => {
+						Notify.requestPermission(resolve, reject);
+					}
+				)
 		).then(
 			() => {
 				this.props.onChangeSetting({
@@ -82,6 +83,14 @@ class QuickSettingsDialog extends React.PureComponent {
 				});
 			}
 		);
+	}
+
+	handleChangeNotifications = (event) => {
+		return this.toggleEnableNotifications(event.target.checked);
+	}
+
+	handleChangeSoundEffects = (event) => {
+		this.toggleEnableSoundEffects(event.target.checked);
 	}
 
 	/**
@@ -106,8 +115,9 @@ class QuickSettingsDialog extends React.PureComponent {
 						>
 							<label>
 								<Switch
+									className="notifications-switch"
 									checked={this.props.enableNotifications}
-									onChange={(event) => this.toggleEnableNotifications(event.target.checked)}
+									onChange={this.handleChangeNotifications}
 									disabled={this.props.isLoadingStoredSettings || !NOTIFICATIONS_SUPPORTED}
 									aria-label="Enable Browser Notifications"
 								/>
@@ -119,8 +129,9 @@ class QuickSettingsDialog extends React.PureComponent {
 						>
 							<label>
 								<Switch
+									className="sound-effects-switch"
 									checked={this.props.enableSoundEffects}
-									onChange={(event) => this.toggleEnableSoundEffects(event.target.checked)}
+									onChange={this.handleChangeSoundEffects}
 									disabled={this.props.isLoadingStoredSettings}
 									aria-label="Enable Sound Effects"
 								/>
