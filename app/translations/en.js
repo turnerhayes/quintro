@@ -1,4 +1,4 @@
-{
+export default {
 	"quintro.general.actions.logIn": "Log in",
 	"quintro.general.actions.logOut": "Log out",
 	"quintro.general.form.isRequired": "This field is required",
@@ -28,8 +28,15 @@
 	"quintro.components.CreateGame.form.errors.playerLimit.invalid": "{value} is not a valid value for the player limit",
 	"quintro.components.CreateGame.form.errors.playerLimit.tooSmall": "{value} is less than the minimum number of players ({min})",
 	"quintro.components.CreateGame.form.errors.playerLimit.tooLarge": "{value} is greater than the maximum number of players ({max})",
-	"quintro.components.PlayGame.watchers.summary.withYou": "You {watcherCount, plural, =0 {} one {and 1 other person} other {and {watcherCount} other people}} are watching this game.",
-	"quintro.components.PlayGame.watchers.summary.withoutYou": "{watcherCount, plural, one {1 person is} other {{watcherCount} people are}} watching this game.",
+	"quintro.components.PlayGame.watchers.summary.withYou": `You {watcherCount, plural,
+		=0 {}
+		one {and 1 other person}
+		other {and {watcherCount} other people}
+	} are watching this game.`,
+	"quintro.components.PlayGame.watchers.summary.withoutYou": `{watcherCount, plural,
+		one {1 person is}
+		other {{watcherCount} people are}
+	} watching this game.`,
 	"quintro.components.PlayGame.loadingErrorMessage": "Error loading the game",
 	"quintro.components.PlayerIndicators.indicatorMessages.you": "This is you",
 	"quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.present": "{playerName}",
@@ -40,5 +47,14 @@
 	"quintro.components.FindGame.header": "Find a Game",
 	"quintro.components.FindGame.form.playerLimit.label": "Number of players",
 	"quintro.components.FindGame.form.playerLimit.details": "Leave blank if you don't care how many players the game has",
-	"quintro.components.FindGame.form.submitButton.label": "Find"
-}
+	"quintro.components.FindGame.form.submitButton.label": "Find",
+	"quintro.components.UserGamesList.title": "My Games",
+	"quintro.components.UserGamesList.badge.tooltip": `Game has {playerCount} {playerCount, plural,
+		one {player}
+		other {players}
+	}`,
+	"quintro.components.UserGamesList.tabs.inProgress": "In Progress",
+	"quintro.components.UserGamesList.tabs.finished": "Finished Games",
+	"quintro.components.UserGamesList.list.item.notStarted": "Game has not started yet",
+	"quintro.components.UserGamesList.list.item.waitingForYou": "It's your turn!",
+};
