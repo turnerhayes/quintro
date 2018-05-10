@@ -16,15 +16,9 @@ const withRedux = connect(
 
 		const userIDs = [];
 
-		const gamesToPlayers = {};
-
 		userGames && userGames.forEach(
 			(game) => {
 				let players = selectors.games.getPlayers(state, { gameName: game.get("name") });
-
-				if (players) {
-					gamesToPlayers[game.get("name")] = players;
-				}
 
 				userIDs.push(...players.map((player) => player.get("userID")).toArray());
 			},
@@ -32,7 +26,6 @@ const withRedux = connect(
 
 		return {
 			userGames,
-			playersByGame: userGames && Map(gamesToPlayers),
 			usersById: selectors.users.filterUsers(state, { userIDs: Set(userIDs) })
 		};
 	},

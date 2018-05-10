@@ -8,7 +8,7 @@ import enLocaleData from "react-intl/locale-data/en";
 
 export const DEFAULT_LOCALE = "en";
 
-import enTranslationMessages from "@app/translations/en.json";
+import enTranslationMessages from "@app/translations/en";
 
 addLocaleData(enLocaleData);
 

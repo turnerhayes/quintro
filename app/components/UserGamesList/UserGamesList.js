@@ -3,9 +3,10 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { Link }           from "react-router-dom";
+import { withStyles }     from "material-ui/styles";
 import Button             from "material-ui/Button";
 import Tabs, { Tab }      from "material-ui/Tabs";
-import List, {
+import ListComponent, {
 	ListItem,
 	ListItemText
 }                         from "material-ui/List";
@@ -13,11 +14,28 @@ import Badge              from "material-ui/Badge";
 import StopIcon           from "material-ui-icons/Stop";
 import WarningIcon        from "material-ui-icons/Warning";
 import AccountCircleIcon  from "material-ui-icons/AccountCircle";
-import createHelper       from "@app/components/class-helper";
-import gameSelectors      from "@app/selectors/games/game";
-import                         "./UserGamesList.less";
+import {
+	FormattedMessage,
+	injectIntl,
+	intlShape
+}                         from "react-intl";
 
-const classes = createHelper("user-games-list");
+import gameSelectors      from "@app/selectors/games/game";
+import messages           from "./messages";
+
+
+const styles = {
+	root: {
+		height: "100%",
+		display: "flex",
+		flexDirection: "column",
+	},
+
+	gamesList: {
+		flex: 1,
+		overflowY: "auto",
+	},
+};
 
 
 /**
@@ -34,24 +52,21 @@ class UserGamesList extends React.PureComponent {
 	 * @prop {function} onGetUserGames - function to be called when user games need to be retrieved
 	 * @prop {external:Immutable.List<external:Immutable.Map>} [userGames] - the games
 	 *	that the user is a player in
-	 * @prop {external:Immutable.Map<string, external:Immutable.List<external:Immutable.Map>>} [playersByGame] - a
-	 *	mapping of game players indexed by game name
 	 */
 	static propTypes = {
 		onGetUserGames: PropTypes.func.isRequired,
-		userGames: ImmutablePropTypes.listOf(
-			ImmutablePropTypes.map
-		),
-		playersByGame: ImmutablePropTypes.mapOf(
+		userGames: PropTypes.oneOfType([
 			ImmutablePropTypes.listOf(
 				ImmutablePropTypes.map
-			),
-			PropTypes.string
-		),
+			).isRequired,
+			PropTypes.oneOf([ null ]),
+		]),
 		usersById: ImmutablePropTypes.mapOf(
 			ImmutablePropTypes.map,
 			PropTypes.string
-		),
+		).isRequired,
+		classes: PropTypes.object.isRequired,
+		intl: intlShape.isRequired,
 	}
 
 	state = {
@@ -60,6 +75,16 @@ class UserGamesList extends React.PureComponent {
 
 	componentWillMount() {
 		this.props.onGetUserGames();
+	}
+
+	formatMessage = (messageDescriptor, values) => {
+		return this.props.intl.formatMessage(messageDescriptor, values);
+	}
+
+	getGameBadgeTooltip = (game) => {
+		return this.formatMessage(messages.badge.tooltip, {
+			playerCount: game.get("players").size,
+		});
 	}
 
 	/**
@@ -105,57 +130,50 @@ class UserGamesList extends React.PureComponent {
 					{
 						hasGamesInProgress && (
 							<Tab
-								label="In Progress"
+								key="in-progress-tab"
+								label={this.formatMessage(messages.tabs.inProgress)}
 							/>
 						)
 					}
 					{
 						hasFinishedGames && (
 							<Tab
-								label="Finished Games"
+								key="finished-tab"
+								label={this.formatMessage(messages.tabs.finished)}
 							/>
 						)
 					}
 				</Tabs>
 			),
 			(selectedTabIndex === 0 || !hasFinishedGames) && (
-				<List
+				<ListComponent
 					key="In Progress List"
-					{...classes({
-						element: "games-list",
-					})}
+					className={this.props.classes.gamesList}
 				>
 					{
 						games && games.inProgress.sort((a, b) => (b.get("isStarted") - a.get("isStarted"))).map(
 							(game) => {
-								const players = this.props.playersByGame &&
-								this.props.playersByGame.get(game.get("name"));
+								const players = game.get("players");
 
 								const isWaitingForYou = game.get("isStarted") &&
-									players && players.find(
-									(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
-								).color === game.get("currentPlayerColor");
+									players &&
+									players.find(
+										(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
+									).get("color") === game.get("currentPlayerColor");
 
 								return (
 									<ListItem
-										key={`user-game-${game.get("name")}`}
+										key={game.get("name")}
 									>
 										<Button
 											fullWidth
 											component={Link}
 											to={`/play/${game.get("name")}`}
-											{...classes({
-												element: "games-list-item",
-												extra: [
-													game.get("isStarted") && "is-started",
-													!game.get("isStarted") && "not-started",
-												],
-											})}
 										>
 											<Badge
 												badgeContent={game.get("players").size}
 												color="primary"
-												title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+												title={this.getGameBadgeTooltip(game)}
 											>
 												<AccountCircleIcon
 												/>
@@ -167,17 +185,21 @@ class UserGamesList extends React.PureComponent {
 											{
 												!game.get("isStarted") &&
 												(
-													<StopIcon
-														title="Game has not started yet"
-													/>
+													<div
+														title={this.formatMessage(messages.list.item.notStarted)}
+													>
+														<StopIcon />
+													</div>
 												)
 											}
 											{
 												isWaitingForYou &&
 												(
-													<WarningIcon
-														title="It's your turn!"
-													/>
+													<div
+														title={this.formatMessage(messages.list.item.waitingForYou)}
+													>
+														<WarningIcon />
+													</div>
 												)
 											}
 										</Button>
@@ -186,14 +208,12 @@ class UserGamesList extends React.PureComponent {
 							}
 						)
 					}
-				</List>
+				</ListComponent>
 			),
 			(selectedTabIndex === 1 || !hasGamesInProgress) && (
-				<List
+				<ListComponent
 					key="Finished Games List"
-					{...classes({
-						element: "games-list",
-					})}
+					className={this.props.classes.gamesList}
 				>
 					{
 						games.over.map(
@@ -211,7 +231,7 @@ class UserGamesList extends React.PureComponent {
 											<Badge
 												badgeContent={game.get("players").size}
 												color="primary"
-												title={`Game has ${game.get("players").size} player${game.get("players").size === 1 ? "" : "s"}`}
+												title={this.getGameBadgeTooltip(game)}
 											>
 												<AccountCircleIcon
 												/>
@@ -223,7 +243,7 @@ class UserGamesList extends React.PureComponent {
 							}
 						)
 					}
-				</List>
+				</ListComponent>
 			),
 		];
 	}
@@ -257,10 +277,13 @@ class UserGamesList extends React.PureComponent {
 
 		return (
 			<div
-				{...classes()}
+				className={this.props.classes.root}
 			>
 				<header>
-					<h3>My Games</h3>
+					<FormattedMessage
+						{...messages.title}
+						tagName="h3"
+					/>
 				</header>
 
 				{
@@ -273,4 +296,4 @@ class UserGamesList extends React.PureComponent {
 	}
 }
 
-export default UserGamesList;
+export default injectIntl(withStyles(styles)(UserGamesList));

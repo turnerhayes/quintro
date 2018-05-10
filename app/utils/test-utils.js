@@ -2,6 +2,11 @@ import React from "react";
 import { IntlProvider } from "react-intl";
 import { translationMessages } from "@app/i18n";
 
+const intlProvider = new IntlProvider({ locale: "en", messages: translationMessages.en }, {});
+const { intl } = intlProvider.getChildContext();
+
+export const formatMessage = intl.formatMessage.bind(intl);
+
 export function unwrapComponent(component) {
 	if (component.WrappedComponent) {
 		return unwrapComponent(component.WrappedComponent);
