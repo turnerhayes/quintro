@@ -44,17 +44,19 @@ const withRedux = connect(
 
 const withSaga = injectSaga({ key: "CreateGameContainer", saga });
 
+export const reducer = function CreateGameContainerReducer(state = Map(), action) {
+	switch(action.type) {
+		case CHECKED_GAME_NAME: {
+			return state.set("isNameValid", !action.payload.result);
+		}
+
+		default: return state;
+	}
+};
+
 const withReducer = injectReducer({
 	key: "CreateGameContainer",
-	reducer: function CreateGameContainerReducer(state = Map(), action) {
-		switch(action.type) {
-			case CHECKED_GAME_NAME: {
-				return state.set("isNameValid", !action.payload.result);
-			}
-
-			default: return state;
-		}
-	}
+	reducer, 
 });
 
 const CreateGameContainer = compose(
