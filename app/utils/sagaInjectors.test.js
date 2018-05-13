@@ -1,4 +1,4 @@
-/* global Reflect */
+/* global Reflect, process */
 
 /**
  * Test injectors
@@ -7,16 +7,16 @@
 import { memoryHistory } from "react-router-dom";
 import { put } from "redux-saga/effects";
 
-import configureStore from "../../configure-store";
+import configureStore from "@app/configure-store";
 import getInjectors, {
 	injectSagaFactory,
 	ejectSagaFactory,
-} from "../sagaInjectors";
+} from "./sagaInjectors";
 import {
 	DAEMON,
 	ONCE_TILL_UNMOUNT,
 	RESTART_ON_REMOUNT,
-} from "../constants";
+} from "./constants";
 
 function* testSaga() {
 	yield put({ type: "TEST", payload: "yup" });

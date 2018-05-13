@@ -1,9 +1,11 @@
 import React from "react";
 import { IntlProvider } from "react-intl";
+import configureStore from "redux-mock-store";
+
 import { translationMessages } from "@app/i18n";
 
 const intlProvider = new IntlProvider({ locale: "en", messages: translationMessages.en }, {});
-const { intl } = intlProvider.getChildContext();
+export const { intl } = intlProvider.getChildContext();
 
 export const formatMessage = intl.formatMessage.bind(intl);
 
@@ -38,4 +40,17 @@ export const wrapWithIntlProvider = (Component) => {
 	WrapperComponent.WrappedComponent = Component;
 
 	return WrapperComponent;
+};
+
+const _mockStore = configureStore();
+
+export const mockStore = (...args) => {
+	const store = _mockStore(...args);
+
+	store.injectedReducers = {};
+	store.injectedSagas = {};
+
+	store.runSaga = () => {};
+
+	return store;
 };
