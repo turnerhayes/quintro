@@ -3,6 +3,7 @@ import { IntlProvider } from "react-intl";
 import configureStore from "redux-mock-store";
 
 import { translationMessages } from "@app/i18n";
+import createReducer from "@app/reducers";
 
 const intlProvider = new IntlProvider({ locale: "en", messages: translationMessages.en }, {});
 export const { intl } = intlProvider.getChildContext();
@@ -44,8 +45,12 @@ export const wrapWithIntlProvider = (Component) => {
 
 const _mockStore = configureStore();
 
-export const mockStore = (...args) => {
-	const store = _mockStore(...args);
+export const mockStore = (initialState, ...args) => {
+	if (!initialState) {
+		initialState = createReducer()(undefined, {});
+	}
+
+	const store = _mockStore(initialState, ...args);
 
 	store.injectedReducers = {};
 	store.injectedSagas = {};
