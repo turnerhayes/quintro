@@ -1,11 +1,11 @@
-import { Set } from "immutable";
-
 export const FIND_OPEN_GAMES = "@@QUINTRO/FIND_OPEN_GAMES";
 
-export function findOpenGames() {
+export function findOpenGames({ numberOfPlayers }) {
 	return {
 		type: FIND_OPEN_GAMES,
-		payload: Set(),
+		payload: {
+			numberOfPlayers,
+		},
 	};
 }
 

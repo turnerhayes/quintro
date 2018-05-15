@@ -10,11 +10,11 @@ import {
 
 const withConnect = connect(
 	function mapStateToProps(state) {
-		const { findGameError, findResults } = state.get("games") || {};
+		const { findGameError, findResults } = state.get("games").toObject();
 
 		return {
 			findGameError,
-			results: findResults
+			results: findResults,
 		};
 	},
 
