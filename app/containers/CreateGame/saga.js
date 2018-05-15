@@ -13,7 +13,8 @@ import {
 
 function* checkGameNameSaga({ payload }) {
 	const result = yield call(checkName, { name: payload.name });
-	yield put(checkedGameName({ result }));
+	const action = yield call(checkedGameName, { result });
+	yield put(action);
 }
 
 function* watchCheckGameName() {
@@ -21,9 +22,18 @@ function* watchCheckGameName() {
 }
 
 function* createGameSaga({ payload }) {
-	const game = yield call(createGame, payload);
-	yield put(gameCreated({ game }));
-	yield put(push(`/play/${game.get("name")}`));
+	try {
+		const game = yield call(createGame, payload);
+		let action = yield call(gameCreated, { game });
+		yield put(action);
+		action = yield call(push, `/play/${game.get("name")}`);
+		yield put(action);
+	}
+	catch (ex) {
+		// TODO: handle error
+		// eslint-disable-next-line no-console
+		console.error(ex);
+	}
 }
 
 function* watchCreateGame() {
@@ -32,7 +42,7 @@ function* watchCreateGame() {
 
 export default function* createGameRootSaga() {
 	yield all([
-		watchCheckGameName(),
-		watchCreateGame(),
+		call(watchCheckGameName),
+		call(watchCreateGame),
 	]);
 }
