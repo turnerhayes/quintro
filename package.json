@@ -47,7 +47,7 @@
     "docs:view": "node ./internals/scripts/viewdocs.js"
   },
   "lint-staged": {
-    "*.js": "eslint"
+    "*.js": [ "eslint --fix", "git add" ]
   },
   "pre-commit": "lint:staged",
   "dependencies": {
