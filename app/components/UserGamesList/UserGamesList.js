@@ -61,7 +61,7 @@ class UserGamesList extends React.PureComponent {
 			).isRequired,
 			PropTypes.oneOf([ null ]),
 		]),
-		usersById: ImmutablePropTypes.mapOf(
+		users: ImmutablePropTypes.mapOf(
 			ImmutablePropTypes.map,
 			PropTypes.string
 		).isRequired,
@@ -158,7 +158,7 @@ class UserGamesList extends React.PureComponent {
 								const isWaitingForYou = game.get("isStarted") &&
 									players &&
 									players.find(
-										(player) => this.props.usersById.get(player.get("userID"), Map()).get("isMe")
+										(player) => this.props.users.get(player.get("userID"), Map()).get("isMe")
 									).get("color") === game.get("currentPlayerColor");
 
 								return (

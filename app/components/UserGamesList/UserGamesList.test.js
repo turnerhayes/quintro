@@ -47,7 +47,7 @@ describe("UserGamesList component", () => {
 			game1,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -59,7 +59,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -102,7 +102,7 @@ describe("UserGamesList component", () => {
 			game1,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -114,7 +114,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -171,7 +171,7 @@ describe("UserGamesList component", () => {
 			game2,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -183,7 +183,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -211,7 +211,7 @@ describe("UserGamesList component", () => {
 				<UserGamesList
 					onGetUserGames={NO_OP}
 					userGames={null}
-					usersById={fromJS({})}
+					users={fromJS({})}
 				/>
 			</MemoryRouter>
 		);
@@ -252,7 +252,7 @@ describe("UserGamesList component", () => {
 			game1,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -264,7 +264,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -287,7 +287,7 @@ describe("UserGamesList component", () => {
 							],
 							"red",
 						)}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -328,7 +328,7 @@ describe("UserGamesList component", () => {
 			game1,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -340,7 +340,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -365,7 +365,7 @@ describe("UserGamesList component", () => {
 								currentPlayerColor: color,
 							})
 						)}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
@@ -421,7 +421,7 @@ describe("UserGamesList component", () => {
 			game2,
 		]);
 
-		const usersById = fromJS({
+		const users = fromJS({
 			1: user1,
 		});
 
@@ -433,7 +433,7 @@ describe("UserGamesList component", () => {
 					<UserGamesList
 						onGetUserGames={NO_OP}
 						userGames={userGames}
-						usersById={usersById}
+						users={users}
 					/>
 				</MemoryRouter>
 			</Provider>
