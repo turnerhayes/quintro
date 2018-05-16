@@ -1,6 +1,5 @@
 import { compose }      from "redux";
 import { connect }      from "react-redux";
-import { Map, Set, List }    from "immutable";
 import injectSaga       from "@app/utils/injectSaga";
 import selectors        from "@app/selectors";
 import {
@@ -11,22 +10,18 @@ import saga             from "./saga";
 
 const withRedux = connect(
 	function mapStateToProps(state) {
-		const games = state.get("games");
-		const userGames = games ? games.get("items", Map()).toList() : List();
+		const users = selectors.users.getUsers(state);
 
-		const userIDs = [];
-
-		userGames && userGames.forEach(
-			(game) => {
-				let players = selectors.games.getPlayers(state, { gameName: game.get("name") });
-
-				userIDs.push(...players.map((player) => player.get("userID")).toArray());
-			},
-		);
+		const userGames = selectors.games.getGames(state).toList()
+			.filter(
+				(game) => game.get("players").find(
+					(player) => users.getIn([ player.get("userID"), "isMe" ])
+				)
+			);
 
 		return {
 			userGames,
-			usersById: selectors.users.filterUsers(state, { userIDs: Set(userIDs) })
+			users,
 		};
 	},
 
