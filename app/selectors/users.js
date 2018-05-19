@@ -3,7 +3,7 @@ import { createSelector } from "reselect";
 
 const getLoggedInUserID = (state) => state.get("currentID");
 
-const getUsers = (state) => state.get("items");
+const getUsers = (state) => state.get("items", Map());
 
 const getUserByID = createSelector(
 	getUsers,

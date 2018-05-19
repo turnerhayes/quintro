@@ -1,14 +1,13 @@
 /* global Promise */
 
-import { Set, List } from "immutable";
-import { runSaga } from "redux-saga";
+import { List } from "immutable";
 
-import createReducer from "@app/reducers";
 import {
 	getUserGames,
 	FETCHING_USER_GAMES,
 	FETCHED_USER_GAMES,
 } from "@app/actions";
+import { runSaga } from "@app/utils/test-utils";
 
 describe("UserGamesList saga", () => {
 	it("should get a list of user's games", async () => {
@@ -27,35 +26,13 @@ describe("UserGamesList saga", () => {
 			}
 		);
 
-		const dispatched = [];
+		const { dispatchers, dispatched } = await runSaga({
+			async getSaga() {
+				const module = await import("./saga");
 
-		const module = await import("./saga");
-
-		const rootSaga = module.default;
-
-		let dispatchers = Set();
-
-		const reducer = createReducer();
-
-		let state = reducer(undefined, {});
-
-		runSaga(
-			{
-				dispatch: (action) => {
-					dispatched.push(action);
-					state = reducer(state, action);
-				},
-				getState: () => state,
-				subscribe: (callback) => {
-					dispatchers = dispatchers.add(callback);
-
-					return () => {
-						dispatchers.remove(callback);
-					};
-				},
-			},
-			rootSaga
-		);
+				return module.default;
+			}
+		});
 
 		dispatchers.forEach(
 			(dispatcher) => dispatcher(getUserGames())
