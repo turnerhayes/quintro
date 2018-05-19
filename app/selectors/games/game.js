@@ -17,7 +17,7 @@ const isWatchingGame = createSelector(
 
 const getWatcherCount = createSelector(
 	getWatchers,
-	(watchers) => watchers ? watchers.get("count") : 0
+	(watchers) => (watchers && watchers.get("count")) || 0
 );
 
 const getCurrentPlayer = createSelector(

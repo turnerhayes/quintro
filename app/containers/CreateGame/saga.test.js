@@ -1,9 +1,7 @@
 /* global Promise */
 
-import { Set, fromJS } from "immutable";
-import { runSaga } from "redux-saga";
+import { fromJS } from "immutable";
 
-import createReducer from "@app/reducers";
 import {
 	checkGameName,
 	checkedGameName,
@@ -11,46 +9,10 @@ import {
 	gameCreated,
 	GAME_CREATED,
 } from "@app/actions";
+import { runSaga } from "@app/utils/test-utils";
 
 
 describe("CreateGame saga", () => {
-	async function createAndRunTestSaga() {
-		const dispatched = [];
-
-		const module = await import("./saga");
-
-		const rootSaga = module.default;
-
-		let dispatchers = Set();
-
-		const reducer = createReducer();
-
-		let state = reducer(undefined, {});
-
-		runSaga(
-			{
-				dispatch: (action) => {
-					dispatched.push(action);
-					state = reducer(state, action);
-				},
-				getState: () => state,
-				subscribe: (callback) => {
-					dispatchers = dispatchers.add(callback);
-
-					return () => {
-						dispatchers.remove(callback);
-					};
-				},
-			},
-			rootSaga
-		);
-
-		return {
-			dispatchers,
-			dispatched,
-		};
-	}
-
 	it("should check name against the server", async () => {
 		// eslint-disable-next-line no-magic-numbers
 		expect.assertions(2);
@@ -72,7 +34,13 @@ describe("CreateGame saga", () => {
 		const {
 			dispatchers,
 			dispatched,
-		} = await createAndRunTestSaga();
+		} = await runSaga({
+			getSaga: async () => {
+				const module = await import("./saga");
+
+				return module.default;
+			},
+		});
 
 		const name = "test";
 
@@ -122,7 +90,13 @@ describe("CreateGame saga", () => {
 		const {
 			dispatchers,
 			dispatched,
-		} = await createAndRunTestSaga();
+		} = await runSaga({
+			getSaga: async () => {
+				const module = await import("./saga");
+
+				return module.default;
+			},
+		});
 
 		dispatchers.forEach((dispatcher) => dispatcher(createGame(gameSpec)));
 
@@ -164,7 +138,13 @@ describe("CreateGame saga", () => {
 
 		const {
 			dispatchers,
-		} = await createAndRunTestSaga();
+		} = await runSaga({
+			getSaga: async () => {
+				const module = await import("./saga");
+
+				return module.default;
+			},
+		});
 
 		dispatchers.forEach((dispatcher) => dispatcher(createGame(gameSpec)));
 

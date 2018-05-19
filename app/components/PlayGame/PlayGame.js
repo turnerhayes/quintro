@@ -2,7 +2,6 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import {
-	FormattedMessage,
 	injectIntl,
 	intlShape,
 }                         from "react-intl";
@@ -55,8 +54,6 @@ class PlayGame extends React.PureComponent {
 	 *	corresponding to the players in this game, keyed by user ID
 	 * @prop {string} [currentUserPlayerColor] - if the player currently viewing the game is a player
 	 *	in the game, this is the color corresponding to that player. Otherwise, undefined.
-	 * @prop {object} [getGameError] - an error object desribing why the game could not be retrieved from the
-	 *	server, if applicable
 	 */
 	static propTypes = {
 		gameName: PropTypes.string.isRequired,
@@ -66,7 +63,6 @@ class PlayGame extends React.PureComponent {
 			PropTypes.string,
 		),
 		currentUserPlayerColor: PropTypes.string,
-		getGameError: PropTypes.object,
 		classes: PropTypes.object,
 		isInGame: PropTypes.bool,
 		isWatchingGame: PropTypes.bool,
@@ -90,7 +86,7 @@ class PlayGame extends React.PureComponent {
 			this.joinIfInGame();
 		}
 		else {
-			this.props.onGetGame({ gameName: this.props.gameName });
+			this.props.onGetGame();
 		}
 	}
 
@@ -307,14 +303,6 @@ class PlayGame extends React.PureComponent {
 	 * @return {external:React.Component} the component as a React component tree
 	 */
 	render() {
-		if (this.props.getGameError) {
-			return (
-				<FormattedMessage
-					{...messages.loadingErrorMessage}
-				/>
-			);
-		}
-
 		if (!this.props.game) {
 			return null;
 		}

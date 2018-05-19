@@ -93,30 +93,6 @@ describe("PlayGame component", () => {
 		expect(startButton).toBeDisabled();
 	});
 
-	it("should show an error instead of the board if there was an error retrieving the game", () => {
-		const store = mockStore(state);
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					getGameError={new Error("Could not get game")}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
-		);
-
-		expect(wrapper.find("Board")).not.toExist();
-	});
-
 	it("should call onStartGame when the start button is clicked", () => {
 		const gameWithPlayers = game.set(
 			"players",

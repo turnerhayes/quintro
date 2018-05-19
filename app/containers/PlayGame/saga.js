@@ -22,6 +22,7 @@ const MARBLE_SOUND_FADE_DURATION_IN_MILLISECONDS = 500;
 let marbleSound;
 
 function playSound() {
+	/* istanbul ignore else */
 	if (!marbleSound) {
 		marbleSound = new Howl({
 			src: urlJoin(Config.staticContent.url, marbleSoundFile),
@@ -53,7 +54,7 @@ function showNotification() {
 	);
 }
 
-function* getGameSaga({ payload }) {
+export function* getGameSaga({ payload }) {
 	const game = yield call(getGame, { name: payload.name });
 	yield put(fetchedGame({ game }));
 }
@@ -62,7 +63,7 @@ function* watchGetGame() {
 	yield takeEvery(GET_GAME, getGameSaga);
 }
 
-function* locationChangeSaga() {
+export function* locationChangeSaga() {
 	const joinedGames = yield select(selectors.games.getJoinedGames);
 	yield all(
 		joinedGames.map(
@@ -71,7 +72,7 @@ function* locationChangeSaga() {
 	);
 }
 
-function* setMarbleSaga() {
+export function* setMarbleSaga() {
 	// TODO: put setting names as constants somewhere
 	const soundsEnabled = !!(yield select(selectors.settings.getSetting, { settingName: "enableSoundEffects" }));
 	if (soundsEnabled) {
@@ -79,7 +80,7 @@ function* setMarbleSaga() {
 	}
 }
 
-function* setCurrentPlayerSaga({ payload }) {
+export function* setCurrentPlayerSaga({ payload }) {
 	const notificationsEnabled = !!(yield select(selectors.settings.getSetting, { settingName: "enableNotifications" }));
 	if (notificationsEnabled) {
 		const newCurrentPlayer = yield select(selectors.games.getCurrentPlayer, { gameName: payload.gameName });

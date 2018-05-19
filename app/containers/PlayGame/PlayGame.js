@@ -36,12 +36,7 @@ const withRedux = connect(
 			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
 		};
 
-		const getGameError = state.getIn([ "games", "getGameError" ]);
-
-		if (getGameError) {
-			props.getGameError = getGameError;
-		}
-		else if (gameIsLoaded) {
+		if (gameIsLoaded) {
 			props.game = game;
 		}
 
@@ -50,8 +45,8 @@ const withRedux = connect(
 
 	function mapDispatchToProps(dispatch, ownProps) {
 		return {
-			onGetGame({ gameName }) {
-				dispatch(getGame({ name: gameName }));
+			onGetGame() {
+				dispatch(getGame({ name: ownProps.gameName }));
 			},
 
 			onWatchGame() {
