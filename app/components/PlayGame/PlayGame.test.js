@@ -1,17 +1,16 @@
 import React from "react";
-import { fromJS } from "immutable";
-import { mount } from "enzyme";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import { MemoryRouter } from "react-router";
-import _PlayGame from "./index";
+import { fromJS, Map } from "immutable";
+import { shallow } from "enzyme";
+import Button from "material-ui/Button";
+import Badge from "material-ui/Badge";
+
+import { intl, mockStore } from "@app/utils/test-utils";
+import Cell from "@app/components/Board/Cell";
+
+import { Unwrapped as PlayGame } from "./PlayGame";
 import StartGameOverlay from "./StartGameOverlay";
 import WinnerBanner from "./WinnerBanner";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-
-const PlayGame = wrapWithIntlProvider(_PlayGame);
-
-const mockStore = configureStore();
+import GameJoinDialog from "@app/components/GameJoinDialog";
 
 const NO_OP = () => {};
 
@@ -29,66 +28,48 @@ describe("PlayGame component", () => {
 		},
 	});
 
-	const state = fromJS({
-		games: {
-			items: {
-				[name]: game,
-			},
-		},
-	});
-
-	const playerUsers = fromJS({});
-
 	it("should have a start button overlay if the game is not started", () => {
-		const store = mockStore(state);
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				classes={{}}
+			/>
 		);
 
 		expect(wrapper.find(StartGameOverlay)).toExist();
 	});
 
 	it("should disable the start button if there are not enough players", () => {
-		const store = mockStore(state);
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				classes={{}}
+			/>
+		).find(StartGameOverlay).shallow();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
+		const classes = wrapper.prop("classes");
+
+		const startButton = wrapper.shallow().findWhere(
+			(el) => el.is(Button) && el.hasClass(classes.startButton)
 		);
-
-		const overlay = wrapper.find("StartGameOverlay");
-
-		const classes = overlay.prop("classes");
-
-		const startButton = overlay.findWhere((el) => el.is("Button") && el.hasClass(classes.startButton));
 
 		expect(startButton).toBeDisabled();
 	});
@@ -118,44 +99,27 @@ describe("PlayGame component", () => {
 			3: {},
 		});
 
-		const store = mockStore(
-			state.setIn(
-				[
-					"games",
-					"items",
-					game.get("name"),
-				],
-				gameWithPlayers
-			)
-		);
-
 		const onStartGame = jest.fn();
 
-		const wrapper = mount(
-			<MemoryRouter>
-				<Provider
-					store={store}
-				>
-					<PlayGame
-						game={gameWithPlayers}
-						gameName={name}
-						onWatchGame={NO_OP}
-						onJoinGame={NO_OP}
-						onStartGame={onStartGame}
-						onPlaceMarble={NO_OP}
-						onGetGame={NO_OP}
-						onCancelJoin={NO_OP}
-						playerUsers={playerUsers}
-					/>
-				</Provider>
-			</MemoryRouter>
-		);
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={gameWithPlayers}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={onStartGame}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={playerUsers}
+				classes={{}}
+			/>
+		).find(StartGameOverlay).shallow();
 
-		const overlay = wrapper.find("StartGameOverlay");
+		const classes = wrapper.prop("classes");
 
-		const classes = overlay.prop("classes");
-
-		const startButton = overlay.findWhere((el) => el.is("Button") && el.hasClass(classes.startButton));
+		const startButton = wrapper.shallow().findWhere((el) => el.is(Button) && el.hasClass(classes.startButton));
 
 		expect(startButton).not.toBeDisabled();
 
@@ -170,48 +134,42 @@ describe("PlayGame component", () => {
 			"green"
 		);
 
-		const store = mockStore(
-			state.setIn(
-				[
-					"games",
-					"items",
-					name,
-				],
-				finishedGame
-			)
-		);
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={finishedGame}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={finishedGame}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				classes={{}}
+			/>
 		);
 
 		expect(wrapper.find(WinnerBanner)).toExist();
 	});
 
-	it("should call onPlaceMarble when a cell is clicked", () => {
-		const store = mockStore(state);
+	describe("onPlaceMarble", () => {
+		const state = fromJS({
+			games: {
+				items: {
+					[name]: game,
+				},
+			},
+		});
 
-		const onPlaceMarble = jest.fn();
+		it("should call onPlaceMarble when a cell is clicked", () => {
+			const store = mockStore(state);
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
+			const onPlaceMarble = jest.fn();
+
+			const wrapper = shallow(
 				<PlayGame
+					intl={intl}
 					game={game}
 					gameName={name}
 					onWatchGame={NO_OP}
@@ -220,67 +178,86 @@ describe("PlayGame component", () => {
 					onPlaceMarble={onPlaceMarble}
 					onGetGame={NO_OP}
 					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
+					playerUsers={Map()}
 					hasJoinedGame
+					classes={{}}
 				/>
-			</Provider>
-		);
+			).find("BoardContainer").shallow({
+				context: {
+					store,
+				},
+			}).shallow().shallow();
 
-		wrapper.find("Cell").first().simulate("click");
+			const cell = {
+				gameName: game.get("name"),
+				position: fromJS([0, 0]),
+			};
 
-		expect(onPlaceMarble).toHaveBeenCalledWith({
-			gameName: game.get("name"),
-			position: fromJS([0, 0]),
+			const firstCell = wrapper.find(Cell).first();
+
+			firstCell.simulate("click", {
+				cell: firstCell.prop("cell"),
+			});
+
+			expect(onPlaceMarble).toHaveBeenCalledWith(cell);
+		});
+
+		it("should not call onPlaceMarble when an occupied cell is clicked", () => {
+			const store = mockStore(
+				state.setIn(
+					[
+						"games",
+						"items",
+						game.get("name"),
+						"board",
+						"filled",
+						0,
+					],
+					fromJS({
+						color: "red",
+						position: [0, 0]
+					})
+				)
+			);
+
+			const onPlaceMarble = jest.fn();
+
+			const wrapper = shallow(
+				<PlayGame
+					intl={intl}
+					game={game}
+					gameName={name}
+					onWatchGame={NO_OP}
+					onJoinGame={NO_OP}
+					onStartGame={NO_OP}
+					onPlaceMarble={onPlaceMarble}
+					onGetGame={NO_OP}
+					onCancelJoin={NO_OP}
+					playerUsers={Map()}
+					hasJoinedGame
+					classes={{}}
+				/>
+			).find("BoardContainer").shallow({
+				context: {
+					store,
+				},
+			}).shallow().shallow();
+
+
+			const firstCell = wrapper.find(Cell).first();
+
+			firstCell.simulate("click", {
+				cell: firstCell.prop("cell"),
+			});
+
+			expect(onPlaceMarble).not.toHaveBeenCalled();
 		});
 	});
 
-	it("should not call onPlaceMarble when an occupied cell is clicked", () => {
-		const store = mockStore(
-			state.setIn(
-				[
-					"games",
-					"items",
-					game.get("name"),
-					"board",
-					"filled",
-					0,
-				],
-				fromJS({
-					color: "red",
-					position: [0, 0]
-				})
-			)
-		);
-
-		const onPlaceMarble = jest.fn();
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={onPlaceMarble}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					hasJoinedGame
-				/>
-			</Provider>
-		);
-
-		wrapper.find("Cell").first().simulate("click");
-
-		expect(onPlaceMarble).not.toHaveBeenCalled();
-	});
-
 	it("should not render anything if no game is provided", () => {
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayGame
+				intl={intl}
 				gameName="testgame"
 				onWatchGame={NO_OP}
 				onJoinGame={NO_OP}
@@ -288,16 +265,15 @@ describe("PlayGame component", () => {
 				onPlaceMarble={NO_OP}
 				onGetGame={NO_OP}
 				onCancelJoin={NO_OP}
-				playerUsers={playerUsers}
+				playerUsers={Map()}
+				classes={{}}
 			/>
 		);
 
-		expect(wrapper.find("PlayGame")).toBeEmptyRender();
+		expect(wrapper).toBeEmptyRender();
 	});
 
-	// Cannot currently figure out how to set a prop on a nested component in such a way that it
-	// will properly execute lifecycle events (e.g. componentDidUpate)
-	it.skip("should call onJoinGame when a game prop is set if the user is in the game", () => {
+	it("should call onJoinGame when a game prop is set if the user is in the game", () => {
 		const gameWithPlayers = game.set(
 			"players",
 			fromJS([
@@ -318,202 +294,167 @@ describe("PlayGame component", () => {
 
 		const playerUsers = fromJS({
 			1: {
+				id: "1",
 				isMe: true,
 			},
-			2: {},
-			3: {},
+			2: {
+				id: "2",
+			},
+			3: {
+				id: "3",
+			},
 		});
 
 		const onJoinGame = jest.fn();
 
-		const wrapper = mount(
-			<MemoryRouter>
-				<PlayGame
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={onJoinGame}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					classes={{}}
-					isInGame
-				/>
-			</MemoryRouter>
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={onJoinGame}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={playerUsers}
+				classes={{}}
+				isInGame
+			/>
 		);
 
 		wrapper.setProps({
-			children: React.cloneElement(
-				wrapper.prop("children"),
-				{
-					game: gameWithPlayers
-				}
-			)
+			game: gameWithPlayers,
 		});
 
-		wrapper.update();
-
-		expect(onJoinGame).toHaveBeenCalled();
+		expect(onJoinGame).toHaveBeenCalledWith({
+			color: undefined,
+		});
 	});
 
 	it("should call onJoinGame if the user is in the game when the component is mounted with a game", () => {
-		const store = mockStore(state);
-
 		const onJoinGame = jest.fn();
 
-		mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={onJoinGame}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					isInGame
-				/>
-			</Provider>
+		shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={onJoinGame}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				isInGame
+				classes={{}}
+			/>
 		);
 
 		expect(onJoinGame).toHaveBeenCalledWith({ color: undefined });
 	});
 
 	it("should not attempt to join the game if the player is already joined", () => {
-		const store = mockStore(state);
-
 		const onJoinGame = jest.fn();
 
-		mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={onJoinGame}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					isInGame
-					hasJoinedGame
-				/>
-			</Provider>
+		shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={onJoinGame}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				isInGame
+				hasJoinedGame
+				classes={{}}
+			/>
 		);
 
 		expect(onJoinGame).not.toHaveBeenCalled();
 	});
 
 	it("should join the game when the GameJoinDialog join button is clicked", () => {
-		const store = mockStore(state);
-
 		const onJoinGame = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={onJoinGame}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
-		);
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={onJoinGame}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				classes={{}}
+			/>
+		).shallow().find(GameJoinDialog).shallow({
+			context: {
+				intl,
+			},
+		}).shallow().shallow();
 
-		wrapper.find("GameJoinDialog form").simulate("submit");
+		wrapper.find("form").simulate("submit", { preventDefault() {} });
 
 		expect(onJoinGame).toHaveBeenCalled();
 	});
 
 	it("should cancel joining when the GameJoinDialog cancel button is clicked", () => {
-		const store = mockStore(state);
-
 		const onCancelJoin = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={onCancelJoin}
-					playerUsers={playerUsers}
-				/>
-			</Provider>
-		);
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={onCancelJoin}
+				playerUsers={Map()}
+				classes={{}}
+			/>
+		).find(GameJoinDialog).shallow({
+			context: {
+				intl,
+			},
+		}).shallow().shallow();
 
-		wrapper.find("GameJoinDialog Button.cancel-button").simulate("click");
+		wrapper.find(Button).filter(".cancel-button").simulate("click");
 
 		expect(onCancelJoin).toHaveBeenCalled();
 	});
 
 	it("should show a summary of people watching the game", () => {
-		const store = mockStore(state);
-
 		const watcherCount = 3;
 
-		let wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					watcherCount={watcherCount}
-				/>
-			</Provider>
+		const wrapper = shallow(
+			<PlayGame
+				intl={intl}
+				game={game}
+				gameName={name}
+				onWatchGame={NO_OP}
+				onJoinGame={NO_OP}
+				onStartGame={NO_OP}
+				onPlaceMarble={NO_OP}
+				onGetGame={NO_OP}
+				onCancelJoin={NO_OP}
+				playerUsers={Map()}
+				watcherCount={watcherCount}
+				classes={{}}
+			/>
 		);
 
-		expect(wrapper.find(`Badge[badgeContent=${watcherCount}]`)).toExist();
-		
-		wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<PlayGame
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={NO_OP}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={playerUsers}
-					watcherCount={watcherCount}
-					isWatchingGame
-				/>
-			</Provider>
-		);
-
-		expect(wrapper.find(`Badge[badgeContent=${watcherCount}]`)).toExist();
+		expect(wrapper.find(Badge).filter(`[badgeContent=${watcherCount}]`)).toExist();
 	});
 });
