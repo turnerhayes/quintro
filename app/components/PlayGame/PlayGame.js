@@ -311,4 +311,6 @@ class PlayGame extends React.PureComponent {
 	}
 }
 
+export { PlayGame as Unwrapped };
+
 export default injectIntl(withStyles(styles)(PlayGame));
