@@ -25,6 +25,7 @@ const styles = {
 };
 
 function WinnerBanner({ winnerColor, classes }) {
+	// TODO: Add i18n
 	return (
 		<div
 			className={classes.root}
@@ -40,5 +41,7 @@ WinnerBanner.propTypes = {
 	winnerColor: PropTypes.oneOf(Config.game.colors.map((color) => color.id)),
 	classes: PropTypes.object.isRequired,
 };
+
+export { WinnerBanner as Unwrapped };
 
 export default withStyles(styles)(WinnerBanner);
