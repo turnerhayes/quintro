@@ -3,7 +3,7 @@
  */
 
 import { combineReducers } from "redux-immutable";
-import { fromJS } from "immutable";
+import { Map } from "immutable";
 import { LOCATION_CHANGE } from "react-router-redux";
 import usersReducer from "@app/reducers/users";
 import gamesReducer from "@app/reducers/games";
@@ -19,7 +19,7 @@ import settingsReducer from "@app/reducers/settings";
  */
 
 // Initial routing state
-const routeInitialState = fromJS({
+const routeInitialState = Map({
 	location: null,
 });
 
