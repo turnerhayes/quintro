@@ -9,7 +9,7 @@ notifications:
     on_success: never
 
 script:
-  - npm run test
+  - npm run test -- -i
   - npm run build
 
 before_install:
