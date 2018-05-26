@@ -1,4 +1,3 @@
-import createDebug    from "debug";
 import {
 	all,
 	put,
@@ -6,9 +5,6 @@ import {
 	takeEvery,
 	call,
 }                     from "redux-saga/effects";
-import {
-	eventChannel,
-}                     from "redux-saga";
 import {
 	FETCHED_GAME,
 	JOIN_GAME,
@@ -18,75 +14,79 @@ import {
 	START_GAME,
 	PLACE_MARBLE,
 }                     from "@app/actions";
-import GameClient     from "@app/api/game-client";
+import createChannel from "@app/sagas/client-channel";
+import GameClient from "@app/api/game-client";
 
-const debug = createDebug("quintro:client:sagas:games-socket");
+const gameSocketChannel = createChannel(GameClient);
 
-let client;
-
-const gamesSocketChannel = eventChannel(
-	(emitter) => {
-		debug("Creating a games socket event channel");
-		client = new GameClient({
-			dispatch: (action) => emitter(action)
-		});
-
-		return () => {
-			debug("Closing games socket event channel");
-			client.dispose();
-			client = null;
-		};
-	}
-);
+const { client } = gameSocketChannel;
 
 function* clientSaga(clientMethod, action) {
 	yield call(client[clientMethod], action.payload);
 }
 
+export const updateGameSaga = clientSaga.bind(undefined, "updateGame");
+
+export const watchGameSaga = clientSaga.bind(undefined, "watchGame");
+
+export const joinGameSaga = clientSaga.bind(undefined, "joinGame");
+
+export const leaveGameSaga = clientSaga.bind(undefined, "leaveGame");
+
+export const startGameSaga = clientSaga.bind(undefined, "startGame");
+
+export const placeMarbleSaga = clientSaga.bind(undefined, "placeMarble");
+
+export function* fetchedGameSaga(action) {
+	yield call(client.updateGame, {
+		gameName: action.payload.game.get("name"),
+	});
+}
+
 function* watchForGameFetched() {
-	yield takeEvery(FETCHED_GAME, clientSaga, "updateGame");
+	yield takeEvery(FETCHED_GAME, fetchedGameSaga);
 }
 
 function* watchForWatchGame() {
-	yield takeEvery(WATCH_GAME, clientSaga, "watchGame");
+	yield takeEvery(WATCH_GAME, watchGameSaga);
 }
 
 function* watchForJoinGame() {
-	yield takeEvery(JOIN_GAME, clientSaga, "joinGame");
+	yield takeEvery(JOIN_GAME, joinGameSaga);
 }
 
 function* watchForLeaveGame() {
-	yield takeEvery(LEAVE_GAME, clientSaga, "leaveGame");
+	yield takeEvery(LEAVE_GAME, leaveGameSaga);
 }
 
 function* watchForUpdateGame() {
-	yield takeEvery(UPDATE_GAME, clientSaga, "updateGame");
+	yield takeEvery(UPDATE_GAME, updateGameSaga);
 }
 
 function* watchForStartGame() {
-	yield takeEvery(START_GAME, clientSaga, "startGame");
+	yield takeEvery(START_GAME, startGameSaga);
 }
 
 function* watchForPlaceMarble() {
-	yield takeEvery(PLACE_MARBLE, clientSaga, "placeMarble");
+	yield takeEvery(PLACE_MARBLE, placeMarbleSaga);
 }
 
-function* watchGameSocket() {
-	while (client) {
-		const action = yield take(gamesSocketChannel);
+export function* watchGameSocket(channel) {
+	while (gameSocketChannel.client) {
+		const action = yield take(channel);
 		yield put(action);
 	}
 }
 
 export default function* rootGamesSocketSaga() {
 	yield all([
-		watchGameSocket(),
-		watchForGameFetched(),
-		watchForJoinGame(),
-		watchForLeaveGame(),
-		watchForWatchGame(),
-		watchForUpdateGame(),
-		watchForStartGame(),
-		watchForPlaceMarble(),
+		call(watchGameSocket, gameSocketChannel),
+		call(watchForGameFetched),
+		call(watchForJoinGame),
+		call(watchForLeaveGame),
+		call(watchForWatchGame),
+		call(watchForUpdateGame),
+		call(watchForStartGame),
+		call(watchForPlaceMarble),
 	]);
 }

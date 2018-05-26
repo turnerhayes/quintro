@@ -87,7 +87,6 @@ export function fetchedGame({ game }) {
 		type: FETCHED_GAME,
 		payload: {
 			game,
-			gameName: game.get("name"),
 		},
 	};
 }
