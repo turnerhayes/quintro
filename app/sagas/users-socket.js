@@ -1,4 +1,3 @@
-import createDebug    from "debug";
 import {
 	all,
 	put,
@@ -7,51 +6,31 @@ import {
 	call,
 }                     from "redux-saga/effects";
 import {
-	eventChannel,
-}                     from "redux-saga";
-import {
 	CHANGE_USER_PROFILE,
 } from "@app/actions";
+import createChannel from "@app/sagas/client-channel";
 import UserClient from "@app/api/user-client";
 
+const channel = createChannel(UserClient);
 
-const debug = createDebug("quintro:client:sagas:users-socket");
-
-let client;
-
-const usersSocketChannel = eventChannel(
-	(emitter) => {
-		debug("Creating a user socket event channel");
-		client = new UserClient({
-			dispatch: (action) => emitter(action)
-		});
-
-		return () => {
-			debug("Closing user socket event channel");
-			client.dispose();
-			client = null;
-		};
-	}
-);
-
-function* clientSaga(clientMethod, action) {
-	yield call(client[clientMethod], action.payload);
+export function* changeUserProfileSaga(action) {
+	yield call(channel.client.changeUserProfile, action.payload);
 }
 
 function* watchForChangeUserProfile() {
-	yield takeEvery(CHANGE_USER_PROFILE, clientSaga, "changeUserProfile");
+	yield takeEvery(CHANGE_USER_PROFILE, changeUserProfileSaga);
 }
 
-function* watchUserSocket() {
-	while (client) {
-		const action = yield take(usersSocketChannel);
+export function* watchUserSocket(channel) {
+	while (channel.client) {
+		const action = yield take(channel);
 		yield put(action);
 	}
 }
 
 export default function* rootUsersSaga() {
 	yield all([
-		watchUserSocket(),
-		watchForChangeUserProfile(),
+		call(watchUserSocket, channel),
+		call(watchForChangeUserProfile),
 	]);
 }
