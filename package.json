@@ -47,7 +47,10 @@
     "docs:view": "node ./internals/scripts/viewdocs.js"
   },
   "lint-staged": {
-    "*.js": [ "eslint --fix", "git add" ]
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "pre-commit": "lint:staged",
   "dependencies": {
@@ -168,6 +171,7 @@
     "less-loader": "^4.0.5",
     "less-plugin-lists": "^1.1.1",
     "lint-staged": "3.5.1",
+    "mock-socket": "^7.1.0",
     "ngrok": "2.2.9",
     "nodemon": "^1.14.12",
     "null-loader": "0.1.1",

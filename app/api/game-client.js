@@ -1,4 +1,3 @@
-import { fromJS }   from "immutable";
 import SocketClient from "@app/api/socket-client";
 import {
 	setMarble,
@@ -14,38 +13,42 @@ import {
 
 class GameClient extends SocketClient {
 	constructor({ dispatch }) {
-		super();
-
-		if (!dispatch) {
+		if (typeof dispatch !== "function") {
 			throw new Error("Cannot construct a GameClient without a dispatch function");
 		}
+
+		super();
 
 		this.dispatch = dispatch;
 
 		const handlers = {
-			"board:marble:placed": (...args) => this.onMarblePlaced(...args),
-			"game:currentPlayer:changed": (...args) => this.onCurrentPlayerChanged(...args),
-			"game:player:joined": (...args) => this.onPlayerJoined(...args),
-			"game:player:left": (...args) => this.onPlayerLeft(...args),
-			"game:watchers:updated": (...args) => this.onWatchersUpdated(...args),
-			"game:started": (...args) => this.onGameStarted(...args),
-			"game:over": (...args) => this.onGameOver(...args),
+			"board:marble:placed": this.onMarblePlaced,
+			"game:currentPlayer:changed": this.onCurrentPlayerChanged,
+			"game:player:joined": this.onPlayerJoined,
+			"game:player:left": this.onPlayerLeft,
+			"game:watchers:updated": this.onWatchersUpdated,
+			"game:started": this.onGameStarted,
+			"game:over": this.onGameOver,
 		};
 
 		for (let eventName in handlers) {
+			// istanbul ignore else
 			if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
 				this.on(eventName, handlers[eventName]);
 			}
 		}
 
+		const _parentDispose = this.dispose;
+
 		this.dispose = () => {
 			for (let eventName in handlers) {
+				// istanbul ignore else
 				if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
 					this.off(eventName, handlers[eventName]);
 				}
 			}
 
-			super.dispose();
+			_parentDispose();
 		};
 	}
 
@@ -78,7 +81,7 @@ class GameClient extends SocketClient {
 		this.dispatch(
 			addPlayer({
 				gameName,
-				player: fromJS(player),
+				player,
 			})
 		);
 		this.dispatch(
@@ -139,15 +142,6 @@ class GameClient extends SocketClient {
 
 	setGamePlayError = ({ gameName, error }) => this.dispatch(setGamePlayError({ gameName, error }))
 
-	getWatchers = ({ gameName }) => {
-		return this.emit(
-			"game:watchers",
-			{
-				gameName,
-			}
-		);
-	}
-
 	watchGame = ({ gameName }) => {
 		return this.emit(
 			"game:watch",
@@ -175,7 +169,7 @@ class GameClient extends SocketClient {
 				this.dispatch(
 					gameUpdated({
 						gameName,
-						update: fromJS(update),
+						update,
 					})
 				);
 			}

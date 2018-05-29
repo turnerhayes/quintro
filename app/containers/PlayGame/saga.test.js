@@ -470,11 +470,11 @@ describe("PlayGame saga", () => {
 				fetchedGame({ game: otherGame }),
 				addPlayer({
 					gameName,
-					player: player1,
+					player: player1.toJS(),
 				}),
 				addPlayer({
 					gameName: otherGameName,
-					player: player1,
+					player: player1.toJS(),
 				}),
 			].reduce(reducer, baseState);
 

@@ -50,7 +50,7 @@ describe("PlayGame container", () => {
 		expect(wrapper.prop("playerUsers")).toEqualImmutable(
 			selectors.games.getPlayerUsers(state, { gameName })
 		);
-		expect(wrapper).toHaveProp("currentUserPlayerColor", player1.get("color"));
+		expect(wrapper).toHaveProp("currentUserPlayerColor", player1.color);
 		expect(wrapper).toHaveProp("isInGame", isInGame);
 		expect(wrapper).toHaveProp("isWatchingGame", isWatchingGame);
 		expect(wrapper).toHaveProp("hasJoinedGame", hasJoinedGame);
@@ -69,20 +69,18 @@ describe("PlayGame container", () => {
 		const player1Color = "blue";
 		const player2Color = "red";
 
-		const player1 = fromJS(
-			{
-				color: player1Color,
-				user: {
-					id: "1",
-					name: {
-						first: "Test",
-						last: "One",
-						display: "Test One",
-					},
-					isMe: true,
+		const player1 = {
+			color: player1Color,
+			user: {
+				id: "1",
+				name: {
+					first: "Test",
+					last: "One",
+					display: "Test One",
 				},
-			}
-		);
+				isMe: true,
+			},
+		};
 
 		const game = fromJS({
 			name: gameName,
@@ -137,7 +135,7 @@ describe("PlayGame container", () => {
 		});
 
 		const joinedGameState = [
-			addPlayer({ gameName, player: player1.set("order", 0) }),
+			addPlayer({ gameName, player: Object.assign({ order: 0 }, player1) }),
 		].reduce(reducer, state);
 
 		store = mockStore(joinedGameState);
