@@ -15,7 +15,6 @@ function processResponse(response) {
 		(json) => {
 			if (!response.ok) {
 				throwError(json.error, response.status);
-				return;
 			}
 
 			return fromJS(json);
