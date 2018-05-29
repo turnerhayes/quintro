@@ -237,7 +237,7 @@ describe("users reducer", () => {
 		const newDisplayName = "Fancy Tester";
 
 		state = reducer(state, updateUserProfile({
-			user: user.setIn([ "name", "display" ], newDisplayName),
+			user: user.setIn([ "name", "display" ], newDisplayName).toJS(),
 		}));
 
 		expect(state.getIn([ "items", user.get("id"), "name", "display" ])).toBe(newDisplayName);

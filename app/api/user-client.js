@@ -1,4 +1,3 @@
-import { fromJS }   from "immutable";
 import SocketClient from "@app/api/socket-client";
 import {
 	updateUserProfile
@@ -7,8 +6,8 @@ import {
 
 class UserClient extends SocketClient {
 	constructor({ dispatch }) {
-		if (!dispatch) {
-			throw new Error("Cannot create a UserClient without a dispatch function");
+		if (typeof dispatch !== "function") {
+			throw new Error("Cannot construct a UserClient without a dispatch function");
 		}
 
 		super();
@@ -16,30 +15,34 @@ class UserClient extends SocketClient {
 		this.dispatch = dispatch;
 
 		const handlers = {
-			"users:profile-changed": (...args) => this.onUserProfileChanged(...args),
+			"users:profile-changed": this.onUserProfileChanged,
 		};
 
 		for (let eventName in handlers) {
+			// istanbul ignore else
 			if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
 				this.on(eventName, handlers[eventName]);
 			}
 		}
 
+		const _parentDispose = this.dispose.bind(this);
+
 		this.dispose = () => {
 			for (let eventName in handlers) {
+				// istanbul ignore else
 				if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
 					this.off(eventName, handlers[eventName]);
 				}
 			}
 
-			super.dispose();
+			_parentDispose();
 		};
 	}
 
 	onUserProfileChanged = ({ user }) => {
 		this.dispatch(
 			updateUserProfile({
-				user: fromJS(user),
+				user,
 			})
 		);
 	}
