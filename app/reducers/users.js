@@ -1,4 +1,4 @@
-import { Map } from "immutable";
+import { Map, fromJS } from "immutable";
 import {
 	FETCHED_USER_GAMES,
 	FETCHED_GAME,
@@ -43,7 +43,7 @@ export default function usersReducer(state = Map(), action) {
 		}
 
 		case ADD_PLAYER: {
-			const { player } = action.payload;
+			const player = fromJS(action.payload.player);
 
 			return state.setIn(
 				["items", player.getIn(["user", "id"])],

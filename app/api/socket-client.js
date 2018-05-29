@@ -26,11 +26,11 @@ class SocketClient {
 		}
 
 		const handlers = {
-			connect_error: (...args) => this._handleConnectError("connect_error", ...args),
-			connect_timeout: (...args) => this._handleConnectError("connect_timeout", ...args),
-			reconnect_error: (...args) => this._handleConnectError(...args),
-			reconnect_failed: (...args) => this._handleConnectError(...args),
-			reconnect: (...args) => this._handleReconnect(...args),
+			connect_error: this._handleConnectError.bind(this, "connect_error"),
+			connect_timeout: this._handleConnectError.bind(this, "connect_timeout"),
+			reconnect_error: this._handleConnectError,
+			reconnect_failed: this._handleConnectError,
+			reconnect: this._handleReconnect,
 		};
 
 		for (let eventName in handlers) {
@@ -38,6 +38,18 @@ class SocketClient {
 				_client.on(eventName, handlers[eventName]);
 			}
 		}
+
+		let _isDisposed = false;
+
+		Object.defineProperty(
+			this,
+			"isDisposed",
+			{
+				configurable: true,
+				enumerable: true,
+				get: () => _isDisposed,
+			}
+		);
 
 		this.dispose = () => {
 			for (let eventName in handlers) {
@@ -47,6 +59,8 @@ class SocketClient {
 			}
 
 			_client = undefined;
+
+			_isDisposed = true;
 		};
 	}
 

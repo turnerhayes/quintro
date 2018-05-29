@@ -22,9 +22,13 @@ beforeAll(() => {
 });
 
 describe("Games reducer", () => {
-	const toStatePlayer = (player) => player.delete("order")
-		.set("userID", player.getIn([ "user", "id" ]))
-		.delete("user");
+	const toStatePlayer = (player) => {
+		player = fromJS(player);
+
+		return player.delete("order")
+			.set("userID", player.getIn([ "user", "id" ]))
+			.delete("user");
+	};
 
 	it("FETCHED_USER_GAMES", () => {
 		const name = "test";
@@ -88,7 +92,7 @@ describe("Games reducer", () => {
 
 		const player1Color = "red";
 
-		const update = fromJS({
+		const update = {
 			players: [
 				{
 					color: player1Color,
@@ -98,7 +102,7 @@ describe("Games reducer", () => {
 					},
 				},
 			],
-		});
+		};
 
 		const initialState = reducer(undefined, fetchedGame({
 			game,
@@ -110,7 +114,7 @@ describe("Games reducer", () => {
 		}));
 
 		expect(state.getIn([ "items", name ])).toEqualImmutable(
-			game.set("isLoaded", true).merge(update)
+			game.set("isLoaded", true).merge(fromJS(update))
 		);
 		expect(state.getIn([ "items", name, "players", 0, "color" ])).toBe(player1Color);
 	});
@@ -129,7 +133,7 @@ describe("Games reducer", () => {
 			players: [],
 		});
 
-		const player1 = fromJS({
+		const player1 = {
 			color: "red",
 			user: {
 				id: "1",
@@ -138,7 +142,7 @@ describe("Games reducer", () => {
 				},
 			},
 			order: 0,
-		});
+		};
 
 		const initialState = reducer(undefined, fetchedGame({
 			game,
@@ -155,7 +159,7 @@ describe("Games reducer", () => {
 			])
 		);
 
-		const player2 = fromJS({
+		const player2 = {
 			color: "blue",
 			user: {
 				id: "2",
@@ -165,7 +169,7 @@ describe("Games reducer", () => {
 				isMe: true,
 			},
 			order: 1,
-		});
+		};
 
 		state = reducer(state, addPlayer({
 			gameName,
@@ -299,7 +303,7 @@ describe("Games reducer", () => {
 			players: [],
 		});
 
-		const player1 = fromJS({
+		const player1 = {
 			color: "blue",
 			user: {
 				id: "1",
@@ -309,7 +313,7 @@ describe("Games reducer", () => {
 				isMe: true,
 			},
 			order: 0,
-		});
+		};
 
 		let state = [
 			fetchedGame({

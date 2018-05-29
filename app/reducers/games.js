@@ -46,12 +46,13 @@ export default function gamesReducer(state = Map(), action) {
 
 			return state.mergeIn(
 				["items", gameName],
-				update
+				fromJS(update)
 			);
 		}
 
 		case ADD_PLAYER: {
-			const { gameName, player } = action.payload;
+			const gameName = action.payload.gameName;
+			const player = fromJS(action.payload.player);
 
 			state = state.setIn(
 				["items", gameName, "players", player.get("order")],
