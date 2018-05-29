@@ -52,7 +52,7 @@ export default function usersReducer(state = Map(), action) {
 		}
 
 		case UPDATE_USER_PROFILE: {
-			const { user } = action.payload;
+			const user = fromJS(action.payload.user);
 
 			return state.mergeDeepIn(
 				["items", user.get("id")],
