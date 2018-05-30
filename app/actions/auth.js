@@ -17,6 +17,9 @@ export function login({ provider }) {
 	else if (provider === "twitter") {
 		document.location.assign(`/auth/twitter?redirectTo=${encodeURIComponent(currentPage)}`);
 	}
+	else {
+		throw new Error(`Unrecognized login provider "${provider}"`);
+	}
 
 	return {
 		type: LOGIN,
