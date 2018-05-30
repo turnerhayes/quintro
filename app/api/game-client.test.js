@@ -1,6 +1,5 @@
 /* global Promise */
 
-import * as immutableMatchers from "jest-immutable-matchers";
 import { SocketIO, Server } from "mock-socket";
 
 import Config from "@app/config";
@@ -16,10 +15,6 @@ import {
 	setGamePlayError,
 } from "@app/actions";
 
-
-beforeAll(() => {
-	jest.addMatchers(immutableMatchers);
-});
 
 describe("Game client API", () => {
 	jest.doMock("socket.io-client", () => SocketIO);

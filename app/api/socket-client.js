@@ -7,36 +7,50 @@ let debug = dbg("quintro:socket-client");
 
 let _client;
 
-// window.addEventListener("beforeunload", () => { _client && _client.close(); });
+const _handleConnectError = (reason, error) => {
+	debug(`Socket connection failure (${reason})`);
+
+	_client.emit("connection:closed", {
+		reason: reason,
+		error: error
+	});
+};
+
+const _handleReconnect = () => {
+	debug("Reconnected to socket server");
+
+	_client.emit("connection:restored");
+};
+
+function initClient() {
+	_client = new SocketIOClient(
+		Config.websockets.url,
+		{
+			path: Config.websockets.path,
+			"sync disconnect on unload": true
+		}
+	);
+
+	const handlers = {
+		connect_error: _handleConnectError.bind(undefined, "connect_error"),
+		connect_timeout: _handleConnectError.bind(undefined, "connect_timeout"),
+		reconnect_error: _handleConnectError.bind(undefined, "reconnect_error"),
+		reconnect_failed: _handleConnectError.bind(undefined, "reconnect_failed"),
+		reconnect: _handleReconnect,
+	};
+
+	for (let eventName in handlers) {
+		// istanbul ignore else
+		if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
+			_client.on(eventName, handlers[eventName]);
+		}
+	}
+}
 
 class SocketClient {
-	get isConnectionOpen() {
-		return _client.connected;
-	}
-
 	constructor() {
 		if (!_client) {
-			_client = new SocketIOClient(
-				Config.websockets.url,
-				{
-					path: Config.websockets.path,
-					"sync disconnect on unload": true
-				}
-			);
-		}
-
-		const handlers = {
-			connect_error: this._handleConnectError.bind(this, "connect_error"),
-			connect_timeout: this._handleConnectError.bind(this, "connect_timeout"),
-			reconnect_error: this._handleConnectError,
-			reconnect_failed: this._handleConnectError,
-			reconnect: this._handleReconnect,
-		};
-
-		for (let eventName in handlers) {
-			if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
-				_client.on(eventName, handlers[eventName]);
-			}
+			initClient();
 		}
 
 		let _isDisposed = false;
@@ -52,14 +66,6 @@ class SocketClient {
 		);
 
 		this.dispose = () => {
-			for (let eventName in handlers) {
-				if (Object.prototype.hasOwnProperty.call(handlers, eventName)) {
-					_client.off(eventName, handlers[eventName]);
-				}
-			}
-
-			_client = undefined;
-
 			_isDisposed = true;
 		};
 	}
@@ -85,25 +91,6 @@ class SocketClient {
 
 	off(...args) {
 		return _client.off(...args);
-	}
-
-	_handleConnectError = (reason, error) => {
-		debug(`Socket connection failure (${reason})`);
-
-		if (this.isConnectionOpen) {
-			this.emit("connection:closed", {
-				reason: reason,
-				error: error
-			});
-		}
-	}
-
-	_handleReconnect = () => {
-		debug("Reconnected to socket server");
-
-		if (!this.isConnectionOpen) {
-			this.emit("connection:restored");
-		}
 	}
 }
 
