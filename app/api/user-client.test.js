@@ -1,6 +1,5 @@
 /* global Promise */
 
-import * as immutableMatchers from "jest-immutable-matchers";
 import { SocketIO, Server } from "mock-socket";
 
 import Config from "@app/config";
@@ -8,10 +7,6 @@ import {
 	updateUserProfile,
 } from "@app/actions";
 
-
-beforeAll(() => {
-	jest.addMatchers(immutableMatchers);
-});
 
 describe("User client API", () => {
 	jest.doMock("socket.io-client", () => SocketIO);
