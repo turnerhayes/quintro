@@ -132,10 +132,13 @@ export function checkedGameName({ result }) {
 
 export const JOIN_GAME = "@@QUINTRO/GAMES/JOIN";
 
-export function joinGame({ gameName }) {
+export function joinGame({ gameName, color }) {
 	return {
 		type: JOIN_GAME,
-		payload: { gameName },
+		payload: {
+			gameName,
+			color,
+		},
 	};
 }
 
