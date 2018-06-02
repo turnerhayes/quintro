@@ -1,21 +1,21 @@
 import React from "react";
-import { mount } from "enzyme";
+import { shallow } from "enzyme";
 import { fromJS } from "immutable";
 import sinon from "sinon";
-import _FindGame from "./index";
+import { Unwrapped as FindGame } from "./FindGame";
 import { SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS } from "./FindGame";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-
-const FindGame = wrapWithIntlProvider(_FindGame);
+import { intl } from "@app/utils/test-utils";
 
 const NO_OP = () => {};
 
 describe("FindGame component", () => {
 	it("should have a player limit input", () => {
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={NO_OP}
 				onJoinGame={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -25,14 +25,18 @@ describe("FindGame component", () => {
 	it("should call onFindOpenGames handler with null numberOfPlayers when no player limit is specified", () => {
 		const onFindOpenGames = jest.fn();
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={onFindOpenGames}
 				onJoinGame={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onFindOpenGames).toHaveBeenCalledWith({
 			numberOfPlayers: null,
@@ -44,14 +48,16 @@ describe("FindGame component", () => {
 
 		const numberOfPlayers = 3;
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={onFindOpenGames}
 				onJoinGame={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("input[name='playerLimit']").simulate(
+		wrapper.find("TextField[name='playerLimit']").simulate(
 			"change",
 			{
 				target: {
@@ -60,7 +66,9 @@ describe("FindGame component", () => {
 			}
 		);
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onFindOpenGames).toHaveBeenCalledWith({
 			numberOfPlayers,
@@ -74,14 +82,18 @@ describe("FindGame component", () => {
 
 		const gameName = "openGame";
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={onFindOpenGames}
 				onJoinGame={onJoinGame}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		const results = fromJS([
 			{
@@ -107,14 +119,18 @@ describe("FindGame component", () => {
 
 		const onJoinGame = jest.fn();
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={onFindOpenGames}
 				onJoinGame={onJoinGame}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onFindOpenGames).toHaveBeenCalledTimes(1);
 
@@ -132,19 +148,23 @@ describe("FindGame component", () => {
 	});
 
 	it("should stop searching on encountering an error", () => {
-		const wrapper = mount(
+		const wrapper = shallow(
 			<FindGame
 				onFindOpenGames={NO_OP}
 				onJoinGame={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
-		expect(wrapper.find("FindGame").instance().state).toHaveProperty("isSearching", true);
+		expect(wrapper.instance().state).toHaveProperty("isSearching", true);
 
 		wrapper.setProps({ findGameError: new Error("the world exploded") });
 
-		expect(wrapper.find("FindGame").instance().state).toHaveProperty("isSearching", false);
+		expect(wrapper.instance().state).toHaveProperty("isSearching", false);
 	});
 });

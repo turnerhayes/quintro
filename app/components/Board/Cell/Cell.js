@@ -44,43 +44,57 @@ const styles = {
 	),
 };
 
-function Cell({ cell, onClick, allowPlacement, classes }) {
-	cell = cell && cell.set("isQuintroMember", !!cell.get("isQuintroMember"));
-	const color = cell && cell.get("color");
-	const isFilled = !!color;
-	const isQuintroMember = isFilled && cell.get("isQuintroMember");
+class Cell extends React.PureComponent {
+	handleClick = () => {
+		this.props.onClick && this.props.onClick({
+			cell: this.props.cell.set(
+				"isQuintroMember",
+				!!this.props.cell.get("isQuintroMember")
+			)
+		});
+	}
 
-	return (
-		<td
-			className={classnames([
-				classes.cell,
+	render() {
+		const {
+			cell,
+			allowPlacement,
+			classes,
+		} = this.props;
+
+		const color = cell.get("color");
+		const isFilled = !!color;
+		const isQuintroMember = isFilled && !!cell.get("isQuintroMember");
+
+		return (
+			<td
+				className={classnames([
+					classes.cell,
+					{
+						[classes.quintroMember]: isQuintroMember,
+						[classes.noPlacement]: !allowPlacement,
+					},
+				])}
+				onClick={this.handleClick}
+			>
 				{
-					[classes.quintroMember]: isQuintroMember,
-					[classes.noPlacement]: !allowPlacement,
-				},
-			])}
-			onClick={() => onClick && onClick({
-				cell,
-			})}
-		>
-			{
-				isFilled ? (
-					<Marble
-						color={color}
-						size="90%"
-						className={classes.marble}
-					/>
-				) : null
-			}
-		</td>
-	);
+					isFilled ? (
+						<Marble
+							color={color}
+							size="90%"
+							className={classes.marble}
+						/>
+					) : null
+				}
+			</td>
+		);
+	}
 }
 
 Cell.propTypes = {
 	cell: ImmutablePropTypes.map.isRequired,
 	allowPlacement: PropTypes.bool,
 	onClick: PropTypes.func,
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Cell);

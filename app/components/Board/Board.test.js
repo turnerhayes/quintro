@@ -1,11 +1,8 @@
 import React from "react";
 import { fromJS, Set } from "immutable";
-import { mount } from "enzyme";
-import Board from "./index";
+import { shallow } from "enzyme";
+import { Unwrapped as Board } from "./Board";
 import Cell from "./Cell";
-import { unwrapComponent } from "@app/utils/test-utils";
-
-const UnwrappedCell = unwrapComponent(Cell);
 
 describe("Board component", () => {
 	it("should render a table with a cell for each square", () => {
@@ -18,11 +15,12 @@ describe("Board component", () => {
 			filled: [],
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<Board
 				board={board}
+				classes={{}}
 			/>
-		);
+		).shallow();
 
 		expect(wrapper.find(Cell)).toHaveLength(width * height);
 	});
@@ -78,20 +76,19 @@ describe("Board component", () => {
 			filled,
 		]);
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<Board
 				board={board}
 				quintros={quintros}
 				gameIsOver
+				classes={{}}
 			/>
-		);
+		).shallow();
 
-		const cells = wrapper.find(UnwrappedCell);
+		const cells = wrapper.find(Cell);
 
 		const quintroCells = cells.filterWhere((cell) => {
-			// `cell` is the Cell component; the class is on the <td> that is its root
-			// DOM element
-			return cell.childAt(0).hasClass(cell.prop("classes").quintroMember);
+			return cell.prop("cell").get("isQuintroMember");
 		});
 
 		expect(quintroCells).toHaveLength(filled.size);
@@ -149,16 +146,19 @@ describe("Board component", () => {
 
 		const cellClickHandler = jest.fn();
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<Board
 				board={board}
+				classes={{}}
 				onCellClick={cellClickHandler}
 				quintros={quintros}
 				gameIsOver
 			/>
-		);
+		).shallow();
 
-		wrapper.find(Cell).first().simulate("click");
+		const firstTd = wrapper.find(Cell).first().shallow().dive();
+
+		firstTd.simulate("click");
 
 		expect(cellClickHandler).toHaveBeenCalledWith({
 			cell: filled.first().set("isQuintroMember", true),
@@ -169,7 +169,7 @@ describe("Board component", () => {
 		// from left to right. So cell at index {width - 1} is the
 		// last cell of the first row, and the cell at the next
 		// index is the first cell of the second row
-		wrapper.find(Cell).at(width).simulate("click");
+		wrapper.find(Cell).at(width).first().shallow().dive().simulate("click");
 
 		expect(cellClickHandler).toHaveBeenCalledWith({
 			cell: fromJS({

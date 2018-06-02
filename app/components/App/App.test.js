@@ -55,7 +55,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/` ]}
+					initialEntries={[ "/" ]}
 				>
 					<App
 					/>
@@ -81,7 +81,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/` ]}
+					initialEntries={[ "/" ]}
 				>
 					<App
 					/>
@@ -152,7 +152,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/game/create` ]}
+					initialEntries={[ "/game/create" ]}
 				>
 					<App
 					/>
@@ -178,7 +178,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/game/find` ]}
+					initialEntries={[ "/game/find" ]}
 				>
 					<App
 					/>
@@ -204,7 +204,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/how-to-play` ]}
+					initialEntries={[ "/how-to-play" ]}
 				>
 					<App
 					/>
@@ -230,7 +230,7 @@ describe("App component", () => {
 				store={createStore(initialState)}
 			>
 				<MemoryRouter
-					initialEntries={[ `/this-is-not-a-real-route-dude` ]}
+					initialEntries={[ "/this-is-not-a-real-route-dude" ]}
 				>
 					<App
 					/>
