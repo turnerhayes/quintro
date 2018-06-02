@@ -237,6 +237,8 @@ class AccountDialog extends React.PureComponent {
 	}
 }
 
+export { AccountDialog as Unwrapped };
+
 export default injectIntl(
 	withStyles(styles)(AccountDialog)
 );

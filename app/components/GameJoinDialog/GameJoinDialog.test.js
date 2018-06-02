@@ -1,19 +1,12 @@
 import React from "react";
-import { mount } from "enzyme";
+import { shallow } from "enzyme";
 import { fromJS } from "immutable";
-import { Provider } from "react-redux";
-import { ConnectedRouter } from "react-router-redux";
-import createHistory from "history/createBrowserHistory";
-import configureStore from "redux-mock-store";
 import Button from "material-ui/Button";
-import _GameJoinDialog from "./index";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-
-const history = createHistory();
-
-const mockStore = configureStore();
-
-const GameJoinDialog = wrapWithIntlProvider(_GameJoinDialog);
+import Menu, {
+	MenuItem,
+} from "material-ui/Menu";
+import { Unwrapped as GameJoinDialog } from "./GameJoinDialog";
+import { intl } from "@app/utils/test-utils";
 
 const NO_OP = () => {};
 
@@ -40,20 +33,24 @@ describe("GameJoinDialog component", () => {
 			playerLimit: 3,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<GameJoinDialog
 				game={game}
 				onSubmit={NO_OP}
 				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find(Button).filterWhere((button) => button.key() === "color-change-button").simulate("click");
+		wrapper.find(Button).filterWhere(
+			(button) => button.key() === "color-change-button"
+		).simulate("click", {});
 
-		expect(wrapper.find("Menu")).toExist();
-		expect(wrapper.find(`MenuItem[data-color='${color1}']`)).not.toExist();
-		expect(wrapper.find(`MenuItem[data-color='${color2}']`)).not.toExist();
-		expect(wrapper.find("MenuItem[data-color='red']")).toExist();
+		expect(wrapper.find(Menu)).toExist();
+		expect(wrapper.find(MenuItem).filter(`[data-color='${color1}']`)).not.toExist();
+		expect(wrapper.find(MenuItem).filter(`[data-color='${color2}']`)).not.toExist();
+		expect(wrapper.find(MenuItem).filter("[data-color='red']")).toExist();
 	});
 
 	it("should change the selected color when one is selected", () => {
@@ -71,21 +68,24 @@ describe("GameJoinDialog component", () => {
 			playerLimit: 3,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<GameJoinDialog
 				game={game}
 				onSubmit={NO_OP}
 				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find(Button).filterWhere((button) => button.key() === "color-change-button").simulate("click");
+		wrapper.find(Button).filterWhere(
+			(button) => button.key() === "color-change-button"
+		).simulate("click", {});
 
-		wrapper.find(`MenuItem[data-color='${color}']`).simulate("click");
+		wrapper.find(MenuItem).filter(`[data-color='${color}']`).simulate("click", {});
 
-		expect(wrapper.find("Menu")).toHaveProp("open", false);
-		// HOCs wrap the actual component, we need to find the actual component
-		expect(wrapper.find("GameJoinDialog").instance().state).toHaveProperty("selectedColor", color);
+		expect(wrapper.find(Menu)).toHaveProp("open", false);
+		expect(wrapper).toHaveState("selectedColor", color);
 	});
 
 	it("should remove a color from the list if it is taken while the dialog is open", () => {
@@ -100,21 +100,25 @@ describe("GameJoinDialog component", () => {
 			playerLimit: 3,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<GameJoinDialog
 				game={game}
 				onSubmit={NO_OP}
 				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		const defaultColor = wrapper.find("GameJoinDialog").instance().getDefaultColor();
+		const defaultColor = wrapper.instance().getDefaultColor();
 
-		wrapper.find(Button).filterWhere((button) => button.key() === "color-change-button").simulate("click");
+		wrapper.find(Button).filterWhere(
+			(button) => button.key() === "color-change-button"
+		).simulate("click", {});
 
-		expect(wrapper.find(`MenuItem[data-color='${defaultColor}']`)).toExist();
+		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toExist();
 		// Default color should start out selected
-		expect(wrapper.find(`MenuItem[data-color='${defaultColor}']`)).toHaveProp("selected", true);
+		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toHaveProp("selected", true);
 
 		const gameWithPlayer = game.setIn(
 			[
@@ -128,16 +132,14 @@ describe("GameJoinDialog component", () => {
 
 		wrapper.setProps({ game: gameWithPlayer });
 
-		expect(wrapper.find(`MenuItem[data-color='${defaultColor}']`)).not.toExist();
+		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).not.toExist();
 		// Former default color was taken; should have different default color
-		expect(wrapper.find("GameJoinDialog").instance().getDefaultColor()).not.toBe(defaultColor);
+		expect(wrapper.instance().getDefaultColor()).not.toBe(defaultColor);
 		// Should automatically select the first non-taken color
-		expect(wrapper.find("MenuItem").first()).toHaveProp("selected", true);
+		expect(wrapper.find(MenuItem).first()).toHaveProp("selected", true);
 	});
 
 	it("should not show color picker if the game is full", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -159,20 +161,14 @@ describe("GameJoinDialog component", () => {
 			playerLimit: 3,
 		});
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
 		expect(
@@ -182,9 +178,7 @@ describe("GameJoinDialog component", () => {
 		).not.toExist();
 	});
 
-	it("should show allow user to watch game if the game is full", () => {
-		const store = mockStore();
-
+	it("should allow user to watch game if the game is full", () => {
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -206,28 +200,20 @@ describe("GameJoinDialog component", () => {
 			playerLimit: 3,
 		});
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
-		expect(wrapper.find("Button.watch-game-button")).toExist();
+		expect(wrapper.find(Button).filter(".watch-game-button")).toExist();
 	});
 
 	it("should not show color picker if the game is started", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -247,20 +233,14 @@ describe("GameJoinDialog component", () => {
 			isStarted: true,
 		});
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
 		expect(
@@ -270,9 +250,7 @@ describe("GameJoinDialog component", () => {
 		).not.toExist();
 	});
 
-	it("should show allow user to watch game if the game is started", () => {
-		const store = mockStore();
-
+	it("should allow user to watch game if the game is started", () => {
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -292,28 +270,20 @@ describe("GameJoinDialog component", () => {
 			isStarted: true,
 		});
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
-		expect(wrapper.find("Button.watch-game-button")).toExist();
+		expect(wrapper.find(Button).filter(".watch-game-button")).toExist();
 	});
 
 	it("should call the onWatchGame callback", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -338,31 +308,23 @@ describe("GameJoinDialog component", () => {
 
 		const onWatchGame = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={NO_OP}
-						onWatchGame={onWatchGame}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={NO_OP}
+				onWatchGame={onWatchGame}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
-		wrapper.find("Button.watch-game-button").simulate("click");
+		wrapper.find(Button).filter(".watch-game-button").simulate("click", {});
 
 		expect(onWatchGame).toHaveBeenCalledWith();
 	});
 
 	it("should call the onCancel callback", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -377,30 +339,22 @@ describe("GameJoinDialog component", () => {
 
 		const onCancel = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={NO_OP}
-						onCancel={onCancel}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={NO_OP}
+				onCancel={onCancel}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
-		wrapper.find("Button.cancel-button").simulate("click");
+		wrapper.find(Button).filter(".cancel-button").simulate("click", {});
 
 		expect(onCancel).toHaveBeenCalledWith();
 	});
 
 	it("should call the onSubmit callback with the default color if no color was selected", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -414,32 +368,26 @@ describe("GameJoinDialog component", () => {
 
 		const onSubmit = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={onSubmit}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={onSubmit}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
-		const defaultColor = wrapper.find("GameJoinDialog").instance().getDefaultColor();
+		const defaultColor = wrapper.instance().getDefaultColor();
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {}
+		});
 
 		expect(onSubmit).toHaveBeenCalledWith({ color: defaultColor });
 	});
 
 	it("should call the onSubmit callback with the selected color if a color was selected", () => {
-		const store = mockStore();
-
 		const game = fromJS({
 			name: "testgame",
 			board: {
@@ -453,31 +401,28 @@ describe("GameJoinDialog component", () => {
 
 		const onSubmit = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<ConnectedRouter
-					history={history}
-				>
-					<GameJoinDialog
-						game={game}
-						onSubmit={onSubmit}
-						onCancel={NO_OP}
-					/>
-				</ConnectedRouter>
-			</Provider>
+		const wrapper = shallow(
+			<GameJoinDialog
+				game={game}
+				onSubmit={onSubmit}
+				onCancel={NO_OP}
+				classes={{}}
+				intl={intl}
+			/>
 		);
 
 		const color = "yellow";
 
 		wrapper.find(Button).filterWhere(
 			(button) => button.key() === "color-change-button"
-		).simulate("click");
+		).simulate("click", {});
 
-		wrapper.find(`MenuItem[data-color='${color}']`).simulate("click");
+		wrapper.find(MenuItem).filter(`[data-color='${color}']`)
+			.simulate("click", {});
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onSubmit).toHaveBeenCalledWith({ color });
 	});

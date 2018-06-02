@@ -1,13 +1,13 @@
 import React from "react";
-import { mount } from "enzyme";
+import { shallow } from "enzyme";
 import { URLSearchParams } from "url";
 import sinon from "sinon";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-import Config from "@app/config";
-import _CreateGame from "./index";
-import { CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS } from "./CreateGame";
+import Button from "material-ui/Button";
 
-const CreateGame = wrapWithIntlProvider(_CreateGame);
+import { intl } from "@app/utils/test-utils";
+import Config from "@app/config";
+import { Unwrapped as CreateGame } from "./CreateGame";
+import { CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS } from "./CreateGame";
 
 const NO_OP = () => {};
 
@@ -20,20 +20,22 @@ describe("CreateGame component", () => {
 			playerLimit: "4",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
+				intl={intl}
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
 			/>
 		);
 
-		expect(wrapper.find("input[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("input[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("input[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(params.playerLimit);
+		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
 	});
 
 	it("should use default values when missing from the query string", () => {
@@ -43,36 +45,40 @@ describe("CreateGame component", () => {
 		};
 
 		// some values missing
-		let wrapper = mount(
+		let wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		expect(wrapper.find("input[name='name']")).toHaveValue("");
-		expect(wrapper.find("input[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("input[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
+		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
 
 		// all values missing
-		wrapper = mount(
+		wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: "?",
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		expect(wrapper.find("input[name='name']")).toHaveValue("");
-		expect(wrapper.find("input[name='width']")).toHaveValue(Config.game.board.width.min + "");
-		expect(wrapper.find("input[name='height']")).toHaveValue(Config.game.board.height.min + "");
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
+		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(Config.game.board.width.min + "");
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(Config.game.board.height.min + "");
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
 	});
 
 	it("should use default values when the query string has invalid values", () => {
@@ -82,20 +88,22 @@ describe("CreateGame component", () => {
 			playerLimit: "**bb",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		expect(wrapper.find("input[name='name']")).toHaveValue("");
-		expect(wrapper.find("input[name='width']")).toHaveValue(Config.game.board.width.min + "");
-		expect(wrapper.find("input[name='height']")).toHaveValue(Config.game.board.height.min + "");
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
+		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(Config.game.board.width.min + "");
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(Config.game.board.height.min + "");
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
 	});
 
 	it("should have an error when a query string value is too small", () => {
@@ -105,13 +113,15 @@ describe("CreateGame component", () => {
 			playerLimit: "1",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -127,13 +137,15 @@ describe("CreateGame component", () => {
 			playerLimit: "1000",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -150,20 +162,22 @@ describe("CreateGame component", () => {
 			playerLimit: "4",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{
 					search: `?${new URLSearchParams(params)}`,
 				}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		expect(wrapper.find("input[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("input[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("input[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(params.playerLimit);
+		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
 
 		params.name = "othertest";
 		params.width = "21";
@@ -176,48 +190,52 @@ describe("CreateGame component", () => {
 			},
 		});
 
-		expect(wrapper.find("input[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("input[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("input[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("input[name='playerLimit']")).toHaveValue(params.playerLimit);
+		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
+		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
+		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
+		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
 	});
 
 	it("should have the submit button disabled if there are any errors", () => {
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("input[name='name']").simulate("change", { target: { value: "testgame" } });
+		wrapper.find("TextField[name='name']").simulate("change", { target: { value: "testgame" } });
 		// value too small!
-		wrapper.find("input[name='width']").simulate("change", { target: { value: "1" } });
+		wrapper.find("TextField[name='width']").simulate("change", { target: { value: "1" } });
 		// value too large!
-		wrapper.find("input[name='height']").simulate("change", { target: { value: "1000" } });
+		wrapper.find("TextField[name='height']").simulate("change", { target: { value: "1000" } });
 
-		expect(wrapper.find("button[type='submit']")).toBeDisabled();
+		expect(wrapper.find(Button).filter("[type='submit']")).toBeDisabled();
 	});
 
 	it("should not have the submit button disabled if the form is valid", () => {
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
 				location={{}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
 		// Fill out the form with valid values
-		wrapper.find("input[name='name']").simulate("change", { target: { value: "testgame" } });
-		wrapper.find("input[name='width']").simulate("change", { target: { value: "20" } });
-		wrapper.find("input[name='height']").simulate("change", { target: { value: "20" } });
-		wrapper.find("input[name='playerLimit']").simulate("change", { target: { value: "5" } });
+		wrapper.find("TextField[name='name']").simulate("change", { target: { value: "testgame" } });
+		wrapper.find("TextField[name='width']").simulate("change", { target: { value: "20" } });
+		wrapper.find("TextField[name='height']").simulate("change", { target: { value: "20" } });
+		wrapper.find("TextField[name='playerLimit']").simulate("change", { target: { value: "5" } });
 
-		expect(wrapper.find("button[type='submit']")).not.toBeDisabled();
+		expect(wrapper.find(Button).filter("[type='submit']")).not.toBeDisabled();
 	});
 
 	it("should have error when a required field is omitted", () => {
@@ -228,7 +246,7 @@ describe("CreateGame component", () => {
 			playerLimit: "3",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
@@ -236,6 +254,8 @@ describe("CreateGame component", () => {
 					search: `?${new URLSearchParams(params)}`,
 				}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -247,7 +267,7 @@ describe("CreateGame component", () => {
 			(inputName) => {
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
 
-				wrapper.find(`input[name="${inputName}"]`).simulate("change", { target: { value: "" } });
+				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "" } });
 
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
 			}
@@ -262,7 +282,7 @@ describe("CreateGame component", () => {
 			playerLimit: "3",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
@@ -270,6 +290,8 @@ describe("CreateGame component", () => {
 					search: `?${new URLSearchParams(params)}`,
 				}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -282,7 +304,7 @@ describe("CreateGame component", () => {
 			(inputName) => {
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
 
-				wrapper.find(`input[name="${inputName}"]`).simulate("change", { target: { value: "glorb" } });
+				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "glorb" } });
 
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
 			}
@@ -297,7 +319,7 @@ describe("CreateGame component", () => {
 			playerLimit: "3",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
@@ -305,6 +327,8 @@ describe("CreateGame component", () => {
 					search: `?${new URLSearchParams(params)}`,
 				}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -317,7 +341,7 @@ describe("CreateGame component", () => {
 			(inputName) => {
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
 				
-				wrapper.find(`input[name="${inputName}"]`).simulate("change", { target: { value: "1" } });
+				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "1" } });
 
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
 			}
@@ -332,7 +356,7 @@ describe("CreateGame component", () => {
 			playerLimit: "3",
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={NO_OP}
@@ -340,6 +364,8 @@ describe("CreateGame component", () => {
 					search: `?${new URLSearchParams(params)}`,
 				}}
 				isNameValid
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -352,7 +378,7 @@ describe("CreateGame component", () => {
 			(inputName) => {
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
 
-				wrapper.find(`input[name="${inputName}"]`).simulate("change", { target: { value: "1000" } });
+				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "1000" } });
 
 				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
 			}
@@ -364,15 +390,17 @@ describe("CreateGame component", () => {
 
 		const onCheckName = jest.fn();
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={NO_OP}
 				onCheckName={onCheckName}
 				location={{}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		const nameInput = wrapper.find("input[name='name']");
+		const nameInput = wrapper.find("TextField[name='name']");
 
 		const NUMBER_OF_CHANGES = 5;
 
@@ -405,15 +433,17 @@ describe("CreateGame component", () => {
 			playerLimit: 4,
 		};
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<CreateGame
 				onCreateGame={onCreateGame}
 				onCheckName={NO_OP}
 				location={{}}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
-		wrapper.find("input[name='name']").simulate(
+		wrapper.find("TextField[name='name']").simulate(
 			"change",
 			{
 				target: {
@@ -421,7 +451,7 @@ describe("CreateGame component", () => {
 				},
 			},
 		);
-		wrapper.find("input[name='width']").simulate(
+		wrapper.find("TextField[name='width']").simulate(
 			"change",
 			{
 				target: {
@@ -429,7 +459,7 @@ describe("CreateGame component", () => {
 				},
 			},
 		);
-		wrapper.find("input[name='height']").simulate(
+		wrapper.find("TextField[name='height']").simulate(
 			"change",
 			{
 				target: {
@@ -437,7 +467,7 @@ describe("CreateGame component", () => {
 				},
 			},
 		);
-		wrapper.find("input[name='playerLimit']").simulate(
+		wrapper.find("TextField[name='playerLimit']").simulate(
 			"change",
 			{
 				target: {
@@ -454,7 +484,9 @@ describe("CreateGame component", () => {
 		// `wrapper.find("button[type='submit']").getDOMNode().click()`)
 		// for some reason. https://github.com/jsdom/jsdom/issues/1026
 		// suggests that the latter *should* work...
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onCreateGame).toHaveBeenCalledWith(values);
 	});

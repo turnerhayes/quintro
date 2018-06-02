@@ -374,4 +374,6 @@ class GameJoinDialog extends React.Component {
 	}
 }
 
+export { GameJoinDialog as Unwrapped };
+
 export default injectIntl(withStyles(styles)(GameJoinDialog));

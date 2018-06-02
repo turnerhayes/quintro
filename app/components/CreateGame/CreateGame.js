@@ -8,14 +8,21 @@ import {
 }                        from "react-intl";
 import TextField         from "material-ui/TextField";
 import Button            from "material-ui/Button";
+import { withStyles }    from "material-ui/styles";
 import qs                from "qs";
 import Config            from "@app/config";
-import createClassHelper from "@app/components/class-helper";
 import messages          from "./messages";
-import                        "./CreateGame.less";
 
+const styles = {
+	dimensionSeparator: {
+		margin: "0 0.5em",
+		verticalAlign: "bottom",
+	},
 
-const classes = createClassHelper("create-game");
+	inputLabel: {
+		position: "static",
+	},
+};
 
 export const CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS = 500;
 
@@ -42,6 +49,7 @@ class CreateGame extends React.PureComponent {
 		onCreateGame: PropTypes.func.isRequired,
 		onCheckName: PropTypes.func.isRequired,
 		intl: intlShape.isRequired,
+		classes: PropTypes.object.isRequired,
 	}
 
 	static defaultProps = {
@@ -315,9 +323,7 @@ class CreateGame extends React.PureComponent {
 	 */
 	render() {
 		return (
-			<div
-				{...classes()}
-			>
+			<div>
 				<FormattedMessage
 					tagName="h1"
 					{...messages.header}
@@ -357,9 +363,7 @@ class CreateGame extends React.PureComponent {
 								min: Config.game.board.width.min,
 							}}
 							InputLabelProps={{
-								...classes({
-									element: "width-label",
-								}),
+								className: this.props.classes.inputLabel,
 							}}
 							name="width"
 							value={this.state.width}
@@ -367,9 +371,7 @@ class CreateGame extends React.PureComponent {
 						/>
 						
 						<span
-							{...classes({
-								element: "dimension-separator",
-							})}
+							className={this.props.classes.dimensionSeparator}
 						>×</span>
 
 						<TextField
@@ -383,9 +385,7 @@ class CreateGame extends React.PureComponent {
 								max: Config.game.board.height.max,
 							}}
 							InputLabelProps={{
-								...classes({
-									element: "height-label",
-								}),
+								className: this.props.classes.inputLabel,
 							}}
 							name="height"
 							value={this.state.height}
@@ -404,9 +404,7 @@ class CreateGame extends React.PureComponent {
 								max: Config.game.players.max,
 							}}
 							InputLabelProps={{
-								...classes({
-									element: "player-limit-label",
-								}),
+								className: this.props.classes.inputLabel,
 							}}
 							name="playerLimit"
 							value={this.state.playerLimit}
@@ -431,4 +429,6 @@ class CreateGame extends React.PureComponent {
 	}
 }
 
-export default injectIntl(CreateGame);
+export { CreateGame as Unwrapped };
+
+export default withStyles(styles)(injectIntl(CreateGame));

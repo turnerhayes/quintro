@@ -241,4 +241,6 @@ class FindGame extends React.PureComponent {
 	}
 }
 
+export { FindGame as Unwrapped };
+
 export default withStyles(styles)(injectIntl(FindGame));

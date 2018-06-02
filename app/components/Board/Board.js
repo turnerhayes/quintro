@@ -31,7 +31,7 @@ const styles = {
  *
  * @memberof client.react-components
  */
-class Board extends React.Component {
+class Board extends React.PureComponent {
 	/**
 	 * @member {object} - Component prop types
 	 *
@@ -45,7 +45,7 @@ class Board extends React.Component {
 		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
 		onCellClick: PropTypes.func,
-		classes: PropTypes.object,
+		classes: PropTypes.object.isRequired,
 	}
 
 	/**
@@ -145,5 +145,7 @@ class Board extends React.Component {
 		);
 	}
 }
+
+export { Board as Unwrapped };
 
 export default withStyles(styles)(Board);
