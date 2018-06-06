@@ -1,5 +1,5 @@
 import React from "react";
-import { mount } from "enzyme";
+import { shallow } from "enzyme";
 
 const NO_OP = () => {};
 
@@ -38,7 +38,7 @@ describe("QuickSettingsDialog component", () => {
 
 				const onChangeSetting = jest.fn();
 
-				const wrapper = mount(
+				const wrapper = shallow(
 					<QuickSettingsDialog
 						onChangeSetting={onChangeSetting}
 						enableSoundEffects={false}
@@ -47,7 +47,7 @@ describe("QuickSettingsDialog component", () => {
 					/>
 				);
 
-				return wrapper.find("Switch.notifications-switch")
+				return wrapper.find(".notifications-switch")
 					.prop("onChange")({ target: { checked: true } })
 					// The event handler is asynchronous because it may need
 					// to call the async Notify.requestPermission function
@@ -72,7 +72,7 @@ describe("QuickSettingsDialog component", () => {
 			(module) => {
 				const QuickSettingsDialog = module.default;
 
-				const wrapper = mount(
+				const wrapper = shallow(
 					<QuickSettingsDialog
 						onChangeSetting={NO_OP}
 						enableSoundEffects
@@ -81,7 +81,7 @@ describe("QuickSettingsDialog component", () => {
 					/>
 				);
 
-				wrapper.find("Switch.notifications-switch")
+				wrapper.find(".notifications-switch")
 					.prop("onChange")({ target: { checked: true } });
 
 				expect(Notify.requestPermission).toHaveBeenCalled();
@@ -101,7 +101,7 @@ describe("QuickSettingsDialog component", () => {
 		return import("./index").then(
 			(module) => {
 				const QuickSettingsDialog = module.default;
-				const wrapper = mount(
+				const wrapper = shallow(
 					<QuickSettingsDialog
 						onChangeSetting={NO_OP}
 						enableSoundEffects
@@ -110,7 +110,7 @@ describe("QuickSettingsDialog component", () => {
 					/>
 				);
 
-				expect(wrapper.find("Switch.notifications-switch")).toBeDisabled();
+				expect(wrapper.find(".notifications-switch")).toBeDisabled();
 			}
 		);
 	});
@@ -125,7 +125,7 @@ describe("QuickSettingsDialog component", () => {
 
 				const onChangeSetting = jest.fn();
 
-				const wrapper = mount(
+				const wrapper = shallow(
 					<QuickSettingsDialog
 						onChangeSetting={onChangeSetting}
 						enableSoundEffects={false}
@@ -134,7 +134,7 @@ describe("QuickSettingsDialog component", () => {
 					/>
 				);
 
-				wrapper.find("Switch.sound-effects-switch")
+				wrapper.find(".sound-effects-switch")
 					.prop("onChange")({ target: { checked: true } });
 
 				expect(onChangeSetting).toHaveBeenCalledWith({

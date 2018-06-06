@@ -4,9 +4,7 @@ import React        from "react";
 import PropTypes    from "prop-types";
 import Switch       from "material-ui/Switch";
 import Notify       from "notifyjs";
-import createHelper from "@app/components/class-helper";
 
-const classes = createHelper("quick-settings-dialog");
 
 const NOTIFICATIONS_SUPPORTED = !Notify.needsPermission || Notify.isSupported();
 
@@ -102,9 +100,7 @@ class QuickSettingsDialog extends React.PureComponent {
 	 */
 	render() {
 		return (
-			<div
-				{...classes()}
-			>
+			<div>
 				<h4
 				>Quick Settings</h4>
 				<div

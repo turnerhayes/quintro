@@ -1,15 +1,21 @@
 import React from "react";
 import { fromJS } from "immutable";
-import { mount } from "enzyme";
-import { MemoryRouter } from "react-router";
+import { shallow, mount } from "enzyme";
+import { CardHeader } from "material-ui/Card";
+import IconButton from "material-ui/IconButton";
 import EditIcon from "material-ui-icons/Edit";
 import CloseIcon from "material-ui-icons/Close";
-import _PlayerInfoPopup from "./index";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-
-const PlayerInfoPopup = wrapWithIntlProvider(_PlayerInfoPopup);
+import PlayerInfoPopup from "./index";
 
 const NO_OP = () => {};
+
+function getEditIconFromShallowWrapper(wrapper) {
+	return wrapper.find(CardHeader)
+		.shallow().dive().find(IconButton)
+		.filterWhere(
+			(button) => button.find(EditIcon).exists()
+		);
+}
 
 describe("PlayerInfoPopup component", () => {
 	it("should show an edit icon if the player is the current user and current user is anonymous", () => {
@@ -24,13 +30,13 @@ describe("PlayerInfoPopup component", () => {
 			isMe: true,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerInfoPopup
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
 			/>
-		);
+		).find(CardHeader).shallow().dive();
 
 		expect(wrapper.find(EditIcon)).toExist();
 	});
@@ -46,13 +52,13 @@ describe("PlayerInfoPopup component", () => {
 			isAnonymous: true,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerInfoPopup
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
 			/>
-		);
+		).find(CardHeader).shallow().dive();
 
 		expect(wrapper.find(EditIcon)).not.toExist();
 	});
@@ -68,15 +74,13 @@ describe("PlayerInfoPopup component", () => {
 			isMe: true,
 		});
 
-		const wrapper = mount(
-			<MemoryRouter>
-				<PlayerInfoPopup
-					player={player}
-					playerUser={playerUser}
-					onDisplayNameChange={NO_OP}
-				/>
-			</MemoryRouter>
-		);
+		const wrapper = shallow(
+			<PlayerInfoPopup
+				player={player}
+				playerUser={playerUser}
+				onDisplayNameChange={NO_OP}
+			/>
+		).find(CardHeader).shallow().dive();
 
 		expect(wrapper.find(EditIcon)).not.toExist();
 	});
@@ -93,7 +97,7 @@ describe("PlayerInfoPopup component", () => {
 			isMe: true,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerInfoPopup
 				player={player}
 				playerUser={playerUser}
@@ -101,9 +105,11 @@ describe("PlayerInfoPopup component", () => {
 			/>
 		);
 
-		wrapper.find("IconButton").filterWhere((button) => button.find(EditIcon).exists()).simulate("click");
+		getEditIconFromShallowWrapper(wrapper).simulate("click", {});
 
-		expect(wrapper.find(EditIcon)).not.toExist();
+		wrapper.update();
+
+		expect(wrapper.find(CardHeader).shallow().dive().find(EditIcon)).not.toExist();
 
 		expect(wrapper.find("form")).toExist();
 	});
@@ -120,6 +126,9 @@ describe("PlayerInfoPopup component", () => {
 			isMe: true,
 		});
 
+		// Need to mount this because the CloseIcon (all the endAdornment stuff)
+		// doesn't seem to show up with shallow() (or at least it's not easy to
+		// make it do so)
 		const wrapper = mount(
 			<PlayerInfoPopup
 				player={player}
@@ -128,13 +137,20 @@ describe("PlayerInfoPopup component", () => {
 			/>
 		);
 
-		wrapper.find("IconButton").filterWhere((button) => button.find(EditIcon).exists()).simulate("click");
+		wrapper.find(IconButton)
+			.filterWhere(
+				(button) => button.find(EditIcon).exists()
+			).simulate("click", {});
+
+		wrapper.update();
 
 		expect(wrapper.find(EditIcon)).not.toExist();
 
 		expect(wrapper.find("form")).toExist();
 
-		wrapper.find("IconButton").filterWhere((button) => button.find(CloseIcon).exists()).simulate("click");
+		wrapper.find(
+			IconButton).filterWhere((button) => button.find(CloseIcon).exists()
+		).simulate("click");
 
 		expect(wrapper.find(EditIcon)).toExist();
 
@@ -153,7 +169,7 @@ describe("PlayerInfoPopup component", () => {
 			isMe: true,
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerInfoPopup
 				player={player}
 				playerUser={playerUser}
@@ -161,15 +177,19 @@ describe("PlayerInfoPopup component", () => {
 			/>
 		);
 
-		wrapper.find("IconButton").filterWhere((button) => button.find(EditIcon).exists()).simulate("click");
+		getEditIconFromShallowWrapper(wrapper).simulate("click");
+
+		wrapper.update();
 
 		expect(wrapper.find(EditIcon)).not.toExist();
 
 		expect(wrapper.find("form")).toExist();
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
-		expect(wrapper.find(EditIcon)).toExist();
+		expect(getEditIconFromShallowWrapper(wrapper)).toExist();
 
 		expect(wrapper.find("form")).not.toExist();
 	});
@@ -190,7 +210,7 @@ describe("PlayerInfoPopup component", () => {
 
 		const onDisplayNameChange = jest.fn();
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerInfoPopup
 				player={player}
 				playerUser={playerUser}
@@ -198,15 +218,19 @@ describe("PlayerInfoPopup component", () => {
 			/>
 		);
 
-		wrapper.find("IconButton").filterWhere((button) => button.find(EditIcon).exists()).simulate("click");
+		getEditIconFromShallowWrapper(wrapper).simulate("click");
 
-		expect(wrapper.find(EditIcon)).not.toExist();
+		wrapper.update();
+
+		expect(getEditIconFromShallowWrapper(wrapper)).not.toExist();
 
 		expect(wrapper.find("form")).toExist();
 
-		wrapper.find("input[name='name']").simulate("change", { target: { value: testName } });
+		wrapper.find("TextField[name='name']").simulate("change", { target: { value: testName } });
 
-		wrapper.find("form").simulate("submit");
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
 
 		expect(onDisplayNameChange).toHaveBeenCalledWith({
 			displayName: testName,

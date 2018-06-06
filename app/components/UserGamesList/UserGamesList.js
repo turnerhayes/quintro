@@ -77,6 +77,10 @@ class UserGamesList extends React.PureComponent {
 		this.props.onGetUserGames();
 	}
 
+	handleTabChange = (event, selectedTabIndex) => {
+		this.setState({ selectedTabIndex });
+	}
+
 	formatMessage = (messageDescriptor, values) => {
 		return this.props.intl.formatMessage(messageDescriptor, values);
 	}
@@ -125,7 +129,7 @@ class UserGamesList extends React.PureComponent {
 					key="tabs"
 					value={selectedTabIndex}
 					fullWidth
-					onChange={(event, selectedTabIndex) => this.setState({ selectedTabIndex })}
+					onChange={this.handleTabChange}
 				>
 					{
 						hasGamesInProgress && (
@@ -295,5 +299,7 @@ class UserGamesList extends React.PureComponent {
 		);
 	}
 }
+
+export { UserGamesList as Unwrapped };
 
 export default injectIntl(withStyles(styles)(UserGamesList));
