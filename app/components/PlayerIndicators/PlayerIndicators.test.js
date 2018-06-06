@@ -1,17 +1,12 @@
 import React from "react";
 import { fromJS } from "immutable";
-import { mount } from "enzyme";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import { MemoryRouter } from "react-router";
+import { shallow } from "enzyme";
+import Popover from "material-ui/Popover";
 
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-import _PlayerIndicators from "./index";
+import { intl } from "@app/utils/test-utils";
+import { Unwrapped as PlayerIndicators } from "./PlayerIndicators";
 import Marble from "@app/components/Marble";
 
-const mockStore = configureStore();
-
-const PlayerIndicators = wrapWithIntlProvider(_PlayerIndicators);
 
 describe("PlayerIndicators component", () => {
 	it("should have a marble for each player", () => {
@@ -52,11 +47,13 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerIndicators
 				game={game}
 				playerUsers={playerUsers}
 				markActive
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -84,10 +81,12 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const wrapper = mount(
+		const wrapper = shallow(
 			<PlayerIndicators
 				game={game}
 				playerUsers={playerUsers}
+				classes={{}}
+				intl={intl}
 			/>
 		);
 
@@ -121,37 +120,26 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const state = fromJS({
-			games: {
-				items: {
-					[gameName]: game,
-				},
-			},
-			users: {
-				items: playerUsers,
-			},
-		});
+		const classes = {
+			item: "item-class",
+		};
 
-		const store = mockStore(state);
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<MemoryRouter>
-					<PlayerIndicators
-						game={game}
-						playerUsers={playerUsers}
-					/>
-				</MemoryRouter>
-			</Provider>
+		const wrapper = shallow(
+			<PlayerIndicators
+				game={game}
+				playerUsers={playerUsers}
+				classes={classes}
+				intl={intl}
+			/>
 		);
 
-		const classes = wrapper.find("PlayerIndicators").prop("classes");
+		const firstIndicator = wrapper.find(`.${classes.item}`).first();
 
-		wrapper.find(`.${classes.item}`).first().simulate("click");
+		firstIndicator.simulate("click", {
+			target: firstIndicator,
+		});
 
-		expect(wrapper.find("Popover")).toHaveProp("open", true);
+		expect(wrapper.find(Popover)).toHaveProp("open", true);
 	});
 
 	it("should invoke the onIndicatorClicked callback when a player indicator is clicked", () => {
@@ -180,38 +168,23 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const state = fromJS({
-			games: {
-				items: {
-					[gameName]: game,
-				},
-			},
-			users: {
-				items: playerUsers,
-			},
-		});
-
-		const store = mockStore(state);
-
 		const onIndicatorClicked = jest.fn();
 
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<MemoryRouter>
-					<PlayerIndicators
-						game={game}
-						playerUsers={playerUsers}
-						onIndicatorClicked={onIndicatorClicked}
-					/>
-				</MemoryRouter>
-			</Provider>
+		const classes = {
+			item: "item-class",
+		};
+
+		const wrapper = shallow(
+			<PlayerIndicators
+				game={game}
+				playerUsers={playerUsers}
+				onIndicatorClicked={onIndicatorClicked}
+				classes={classes}
+				intl={intl}
+			/>
 		);
 
-		const classes = wrapper.find("PlayerIndicators").prop("classes");
-
-		wrapper.find(`.${classes.item}`).first().simulate("click");
+		wrapper.find(`.${classes.item}`).first().simulate("click", {});
 
 		expect(onIndicatorClicked).toHaveBeenCalledWith({ selectedPlayer: player });
 	});
@@ -243,42 +216,27 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const state = fromJS({
-			games: {
-				items: {
-					[gameName]: game,
-				},
-			},
-			users: {
-				items: playerUsers,
-			},
-		});
+		const classes = {
+			item: "item-class",
+		};
 
-		const store = mockStore(state);
-
-		const wrapper = mount(
-			<Provider
-				store={store}
-			>
-				<MemoryRouter>
-					<PlayerIndicators
-						game={game}
-						playerUsers={playerUsers}
-					/>
-				</MemoryRouter>
-			</Provider>
+		const wrapper = shallow(
+			<PlayerIndicators
+				game={game}
+				playerUsers={playerUsers}
+				classes={classes}
+				intl={intl}
+			/>
 		);
 
-		const classes = wrapper.find("PlayerIndicators").prop("classes");
+		wrapper.find(`.${classes.item}`).first().simulate("click", {});
 
-		wrapper.find(`.${classes.item}`).first().simulate("click");
+		expect(wrapper)
+			.toHaveState("selectedPlayerColor", color);
 
-		expect(wrapper.find("PlayerIndicators").instance().state)
-			.toHaveProperty("selectedPlayerColor", color);
+		wrapper.find(Popover).prop("onClose")();
 
-		wrapper.find("Popover").prop("onClose")();
-
-		expect(wrapper.find("PlayerIndicators").instance().state)
-			.toHaveProperty("selectedPlayerColor", null);
+		expect(wrapper)
+			.toHaveState("selectedPlayerColor", null);
 	});
 });

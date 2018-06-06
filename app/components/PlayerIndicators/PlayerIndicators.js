@@ -289,4 +289,6 @@ class PlayerIndicators extends React.Component {
 	}
 }
 
+export { PlayerIndicators as Unwrapped };
+
 export default injectIntl(withStyles(styles)(PlayerIndicators));

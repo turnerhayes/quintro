@@ -14,16 +14,19 @@ import Card, {
 }                           from "material-ui/Card";
 import Button               from "material-ui/Button";
 import IconButton           from "material-ui/IconButton";
+import { withStyles }       from "material-ui/styles";
 import HomeIcon             from "material-ui-icons/Home";
 import AccountCircleIcon    from "material-ui-icons/AccountCircle";
 import SettingsIcon         from "material-ui-icons/Settings";
-import createHelper         from "@app/components/class-helper";
 import AccountDialog        from "@app/containers/AccountDialog";
 import QuickSettingsDialog  from "@app/containers/QuickSettingsDialog";
 import messages             from "./messages";
-import                           "./TopNavigation.less";
 
-const classes = createHelper("top-navigation");
+const styles = {
+	accountButton: {
+		marginLeft: "auto",
+	},
+};
 
 /**
  * Component representing the navigation bar on the top of the page.
@@ -45,6 +48,7 @@ class TopNavigation extends React.PureComponent {
 		loggedInUser: ImmutablePropTyps.map,
 		className: PropTypes.string,
 		intl: intlShape.isRequired,
+		classes: PropTypes.object.isRequired,
 	}
 
 	state = {
@@ -110,9 +114,7 @@ class TopNavigation extends React.PureComponent {
 	render() {
 		return (
 			<AppBar
-				{...classes({
-					extra: [ this.props.className ],
-				})}
+				className={this.props.className}
 				position="static"
 			>
 				<Toolbar>
@@ -142,9 +144,7 @@ class TopNavigation extends React.PureComponent {
 					</Button>
 
 					<IconButton
-						{...classes({
-							element: "account-button"
-						})}
+						className={this.props.classes.accountButton}
 						onClick={this.onAccountButtonClick}
 					>
 						<AccountCircleIcon />
@@ -197,4 +197,6 @@ class TopNavigation extends React.PureComponent {
 	}
 }
 
-export default injectIntl(TopNavigation);
+export { TopNavigation as Unwrapped };
+
+export default injectIntl(withStyles(styles)(TopNavigation));

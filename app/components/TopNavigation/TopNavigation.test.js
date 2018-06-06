@@ -1,19 +1,20 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Map } from "immutable";
-import { mount } from "enzyme";
+import { shallow, mount } from "enzyme";
 import { MemoryRouter } from "react-router";
-import { Provider } from "react-redux";
 import Loadable from "react-loadable";
-import configureStore from "redux-mock-store";
+import { intlShape } from "react-intl";
+import IconButton from "material-ui/IconButton";
+import Button from "material-ui/Button";
 import AccountCircleIcon from "material-ui-icons/AccountCircle";
 import SettingsIcon from "material-ui-icons/Settings";
 
-import _TopNavigation from "./index";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
+import AccountDialog from "@app/components/AccountDialog";
+import { intl, mockStore } from "@app/utils/test-utils";
 
-const TopNavigation = wrapWithIntlProvider(_TopNavigation);
+import { Unwrapped as TopNavigation } from "./TopNavigation";
 
-const mockStore = configureStore();
 
 describe("TopNavigation component", () => {
 	describe("Menu buttons", () => {
@@ -25,24 +26,40 @@ describe("TopNavigation component", () => {
 			// rendered on mount unless we preload them here
 			await Loadable.preloadAll();
 
-			const store = mockStore(Map());
+			const store = mockStore();
 
 			const wrapper = mount(
-				<Provider
-					store={store}
-				>
+				(
 					<MemoryRouter>
 						<TopNavigation
+							classes={{}}
+							intl={intl}
+							store={store}
 						/>
 					</MemoryRouter>
-				</Provider>
+				),
+				{
+					context: {
+						intl,
+						store,
+					},
+
+					childContextTypes: {
+						store: PropTypes.object,
+						intl: intlShape,
+					},
+				}
 			);
 
-			wrapper.find("IconButton").filterWhere(
+			const iconButton = wrapper.find(IconButton).filterWhere(
 				(button) => button.find(AccountCircleIcon).exists()
-			).simulate("click");
+			);
 
-			const accountDialog = wrapper.find("AccountDialog");
+			iconButton.simulate("click");
+
+			wrapper.update();
+
+			const accountDialog = wrapper.find(AccountDialog);
 
 			expect(accountDialog).toExist();
 			expect(accountDialog.closest("Popover")).toHaveProp("open", true);
@@ -63,14 +80,25 @@ describe("TopNavigation component", () => {
 			const store = mockStore(Map());
 
 			const wrapper = mount(
-				<Provider
-					store={store}
-				>
+				(
 					<MemoryRouter>
 						<TopNavigation
+							classes={{}}
+							intl={intl}
 						/>
 					</MemoryRouter>
-				</Provider>
+				),
+				{
+					context: {
+						intl,
+						store,
+					},
+
+					childContextTypes: {
+						store: PropTypes.object,
+						intl: intlShape,
+					},
+				}
 			);
 
 			wrapper.find("IconButton").filterWhere(
@@ -90,47 +118,64 @@ describe("TopNavigation component", () => {
 
 	describe("Links", () => {
 		it("should have a link to find a game", () => {
-			const wrapper = mount(
+			const wrapper = shallow(
 				<MemoryRouter>
 					<TopNavigation
+						classes={{}}
+						intl={intl}
 					/>
 				</MemoryRouter>
 			);
 
-			expect(wrapper.find("Link[to='/game/find']")).toExist();
+			expect(
+				wrapper.find(TopNavigation).shallow()
+					.find(Button).filter("[to='/game/find']")
+			).toExist();
 		});
 
 		it("should have a link to home", () => {
-			const wrapper = mount(
+			const wrapper = shallow(
 				<MemoryRouter>
 					<TopNavigation
+						classes={{}}
+						intl={intl}
 					/>
 				</MemoryRouter>
 			);
 
-			expect(wrapper.find("Link[to='/']")).toExist();
+			expect(wrapper.find(TopNavigation).shallow().find("Link[to='/']")).toExist();
 		});
 
 		it("should have a link to the how to play page", () => {
-			const wrapper = mount(
+			const wrapper = shallow(
 				<MemoryRouter>
 					<TopNavigation
+						classes={{}}
+						intl={intl}
 					/>
 				</MemoryRouter>
 			);
 
-			expect(wrapper.find("Link[to='/how-to-play']")).toExist();
+			expect(
+				wrapper.find(TopNavigation).shallow()
+					.find(Button).filter("[to='/how-to-play']")
+			).toExist();
 		});
 
 		it("should have a link to create a game", () => {
-			const wrapper = mount(
+			const wrapper = shallow(
 				<MemoryRouter>
 					<TopNavigation
+						classes={{}}
+						intl={intl}
 					/>
 				</MemoryRouter>
 			);
 
-			expect(wrapper.find("Link[to='/game/create']")).toExist();
+			expect(
+				wrapper.find(TopNavigation).shallow()
+					.find(Button).filter("[to='/game/create']")
+			).toExist();
 		});
 	});
 });

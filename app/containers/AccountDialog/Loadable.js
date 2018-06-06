@@ -8,7 +8,11 @@ const loadingMessage = () => <div>Loading Account Dialog</div>;
 
 loadingMessage.displayName = "AccountDialogLoading";
 
-export default Loadable({
+const LoadableAccountDialog = Loadable({
 	loader: () => import("./AccountDialog"),
 	loading: loadingMessage,
 });
+
+LoadableAccountDialog.displayName = "LoadableAccountDialog";
+
+export default LoadableAccountDialog;
