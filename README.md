@@ -50,9 +50,11 @@ In addition to the `SESSION_DB_URL` setting, you must also set the `SESSION_SECR
 
 "Static content" refers to things like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the `STATIC_CONTENT_URL` setting empty. Otherwise, set it to the base URL for your static content server.
 
-### Webpack Dev Server
+## Running the app
 
-For the purposes of development, the [Webpack dev server](https://webpack.js.org/guides/development/#using-webpack-dev-server) is very useful. You can start it up by running `npm run dev-server`. This will serve your static content and update it automatically when static content files change, as well as providing neat features like Hot Module Reload. To use it as your static content server, set `STATIC_CONTENT_URL=https://localhost:7200/` (this is assuming you are and the Webpack Dev Server on localhost, which is the default, and serving the application over SSL).
+For development purposes, just run `npm start` with the `$NODE_ENV` environment variable set to `development` or not set at all. This will start a server on `localhost` on the port specified by the `$PORT` environment variable, defaulting to `4000`if not specified. The server includes a [Webpack dev server](https://webpack.js.org/guides/development/#using-webpack-dev-server) instance that watches for changes to static content and automatically recompiles them and triggers a reload of the browser.
+
+For production purposes, build a production bundle via `npm run build` and start the server by running `npm start` with the `$NODE_ENV` environment variable set to `production`.
 
 
 ## Other Configuration Values
