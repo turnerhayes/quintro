@@ -19,7 +19,7 @@ export default ({ key, reducer }) => (WrappedComponent) => {
 		};
 		static displayName = `withReducer(${(WrappedComponent.displayName || WrappedComponent.name || "Component")})`;
 
-		componentWillMount() {
+		componentDidMount() {
 			const { injectReducer } = this.injectors;
 
 			injectReducer(key, reducer);
