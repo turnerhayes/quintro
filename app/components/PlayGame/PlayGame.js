@@ -81,7 +81,7 @@ class PlayGame extends React.PureComponent {
 		return this.props.intl.formatMessage(...args);
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		if (this.props.game) {
 			this.joinIfInGame();
 		}

@@ -73,7 +73,7 @@ class UserGamesList extends React.PureComponent {
 		selectedTabIndex: 0,
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		this.props.onGetUserGames();
 	}
 
