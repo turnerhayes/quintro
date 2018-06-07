@@ -23,16 +23,14 @@ export default ({ key, saga, mode }) => (WrappedComponent) => {
 		};
 		static displayName = `withSaga(${(WrappedComponent.displayName || WrappedComponent.name || "Component")})`;
 
-		componentWillMount() {
-			const { injectSaga } = this.injectors;
+		constructor(...args) {
+			super(...args);
 
-			injectSaga(key, { saga, mode }, this.props);
-		}
+			this.injectors.injectSaga(key, { saga, mode }, this.props);
+		}		
 
 		componentWillUnmount() {
-			const { ejectSaga } = this.injectors;
-
-			ejectSaga(key);
+			this.injectors.ejectSaga(key);
 		}
 
 		injectors = getInjectors(this.context.store);
