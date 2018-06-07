@@ -57,4 +57,10 @@ export default {
 	"quintro.components.UserGamesList.tabs.finished": "Finished Games",
 	"quintro.components.UserGamesList.list.item.notStarted": "Game has not started yet",
 	"quintro.components.UserGamesList.list.item.waitingForYou": "It's your turn!",
+	"quintro.components.PlayerInfoPopup.displayNameInput.label": "My name",
+	"quintro.components.PlayerInfoPopup.displayNameInput.submitButtonTitle": "Change",
+	"quintro.components.PlayerInfoPopup.displayNameInput.cancelButtonTitle": "Cancel",
+	"quintro.components.PlayerInfoPopup.profileLink": "Profile",
+	"quintro.components.PlayerInfoPopup.showFormButtonTitle": "Change display name",
+	"quintro.components.PlayerInfoPopup.anonymousUserTitle": "Anonymous User",
 };
