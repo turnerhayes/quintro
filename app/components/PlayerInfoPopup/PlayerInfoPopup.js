@@ -12,6 +12,12 @@ import EditIcon           from "material-ui-icons/Edit";
 import CloseIcon          from "material-ui-icons/Close";
 import CheckIcon          from "material-ui-icons/Check";
 import { Link }           from "react-router-dom";
+import {
+	injectIntl,
+	intlShape,
+}                         from "react-intl";
+
+import messages           from "./messages";
 
 /**
  * @callback client.react-components.PlayerInfoPopup~onDisplayNameChange
@@ -52,6 +58,8 @@ class PlayerInfoPopup extends React.PureComponent {
 		playerUser: ImmutablePropTypes.map.isRequired,
 
 		onDisplayNameChange: PropTypes.func.isRequired,
+
+		intl: intlShape.isRequired,
 	}
 
 	/**
@@ -64,6 +72,10 @@ class PlayerInfoPopup extends React.PureComponent {
 	state = {
 		isFormVisible: false,
 		displayNameValue: this.props.playerUser.getIn(["name", "display"]) || "",
+	}
+
+	formatMessage = (messageDescriptor, values) => {
+		return this.props.intl.formatMessage(messageDescriptor, values);
 	}
 
 	/**
@@ -110,12 +122,15 @@ class PlayerInfoPopup extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	renderDisplayNameForm = () => {
+		const submitButtonTitle = this.formatMessage(messages.displayNameInput.submitButtonTitle);
+		const cancelButtonTitle = this.formatMessage(messages.displayNameInput.cancelButtonTitle);
+
 		return (
 			<form
 				onSubmit={this.handleChangeDisplayNameFormSubmit}
 			>
 				<TextField
-					label="My name"
+					label={this.formatMessage(messages.displayNameInput.label)}
 					name="name"
 					inputRef={this.textFieldRef}
 					value={this.state.displayNameValue}
@@ -124,16 +139,16 @@ class PlayerInfoPopup extends React.PureComponent {
 						endAdornment: (
 							<InputAdornment position="end">
 								<IconButton
-									title="Change"
-									aria-label="Change"
+									title={submitButtonTitle}
+									aria-label={submitButtonTitle}
 									type="submit"
 								>
 									<CheckIcon />
 								</IconButton>
 								<IconButton
 									onClick={this.makeFormHidden}
-									title="Cancel"
-									aria-label="Cancel"
+									title={cancelButtonTitle}
+									aria-label={cancelButtonTitle}
 								>
 									<CloseIcon />
 								</IconButton>
@@ -169,10 +184,12 @@ class PlayerInfoPopup extends React.PureComponent {
 					to={`/profile/${this.props.playerUser.get("username")}`}
 					target="_blank"
 				>
-					Profile
+					{this.formatMessage(messages.profileLink)}
 				</Link>
 			);
 		}
+
+		const showFormButtonTitle = this.formatMessage(messages.showFormButtonTitle);
 
 		return (
 			<Card>
@@ -180,15 +197,18 @@ class PlayerInfoPopup extends React.PureComponent {
 					title={(
 						<div>
 							<span>
-								{this.props.playerUser.getIn(["name", "display"]) || "Anonymous User"}
+								{
+									this.props.playerUser.getIn(["name", "display"]) ||
+									this.formatMessage(messages.anonymousUserTitle)
+								}
 							</span>
 							{
 								!this.state.isFormVisible &&
 								this.props.playerUser.get("isAnonymous") &&
 								this.props.playerUser.get("isMe") && (
 									<IconButton
-										title="Change display name"
-										aria-label="Change display name"
+										title={showFormButtonTitle}
+										aria-label={showFormButtonTitle}
 										onClick={this.makeFormVisible}
 									>
 										<EditIcon
@@ -211,4 +231,6 @@ class PlayerInfoPopup extends React.PureComponent {
 	}
 }
 
-export default PlayerInfoPopup;
+export { PlayerInfoPopup as Unwrapped };
+
+export default injectIntl(PlayerInfoPopup);

@@ -5,7 +5,10 @@ import { CardHeader } from "material-ui/Card";
 import IconButton from "material-ui/IconButton";
 import EditIcon from "material-ui-icons/Edit";
 import CloseIcon from "material-ui-icons/Close";
-import PlayerInfoPopup from "./index";
+
+import { intl } from "@app/utils/test-utils";
+
+import { Unwrapped as PlayerInfoPopup } from "./PlayerInfoPopup";
 
 const NO_OP = () => {};
 
@@ -35,6 +38,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		).find(CardHeader).shallow().dive();
 
@@ -57,6 +61,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		).find(CardHeader).shallow().dive();
 
@@ -79,6 +84,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		).find(CardHeader).shallow().dive();
 
@@ -102,6 +108,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		);
 
@@ -134,6 +141,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		);
 
@@ -174,6 +182,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={NO_OP}
+				intl={intl}
 			/>
 		);
 
@@ -215,6 +224,7 @@ describe("PlayerInfoPopup component", () => {
 				player={player}
 				playerUser={playerUser}
 				onDisplayNameChange={onDisplayNameChange}
+				intl={intl}
 			/>
 		);
 
