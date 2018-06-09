@@ -129,7 +129,7 @@ class Board extends React.PureComponent {
 														cell={filled || fromJS({
 															position,
 														})}
-														allowPlacement={allowPlacement}
+														allowPlacement={allowPlacement && !filled}
 														onClick={this.handleCellClick}
 													/>
 												);
