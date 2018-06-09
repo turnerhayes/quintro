@@ -4,6 +4,15 @@ export default defineMessages({
 	header: {
 		id: "quintro.components.FindGame.header",
 	},
+
+	searchingText: {
+		id: "quintro.components.FindGame.searchingText",
+	},
+
+	cancelSearchLabel: {
+		id: "quintro.components.FindGame.cancelSearchLabel",
+	},
+
 	form: {
 		playerLimit: {
 			label: {

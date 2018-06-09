@@ -24,9 +24,18 @@ const hasJoinedGame = createSelector(
 	(joinedGames, gameName) => joinedGames.includes(gameName)
 );
 
+const getOpenGames = createSelector(
+	getGames,
+	(state) => state.get("openGames"),
+	(games, openGameNames) => openGameNames && games.filter(
+		(game) => openGameNames.includes(game.get("name"))
+	).toList()
+);
+
 export default {
 	getGames,
 	getGame,
+	getOpenGames,
 	getJoinedGames,
 	hasJoinedGame,
 	...wrappedGameSelectors,

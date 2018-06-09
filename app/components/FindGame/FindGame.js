@@ -5,6 +5,7 @@ import ImmutablePropTypes from "react-immutable-proptypes";
 import {
 	injectIntl,
 	intlShape,
+	FormattedMessage,
 }                         from "react-intl";
 import TextField          from "material-ui/TextField";
 import Button             from "material-ui/Button";
@@ -40,12 +41,14 @@ class FindGame extends React.PureComponent {
 	 *
 	 * @prop {function} onFindOpenGames - function to trigger searching for open games
 	 * @prop {function} onJoinGame - function to call when trying to join a game
+	 * @prop {function} onJoinGame - function to call when cancelling a search
 	 * @prop {object} [findGameError] - error resulting from the game search, if there was one
 	 * @prop {external:Immutable.List} [results] - the results of the search
 	 */
 	static propTypes = {
 		onFindOpenGames: PropTypes.func.isRequired,
 		onJoinGame: PropTypes.func.isRequired,
+		onCancelFind: PropTypes.func.isRequired,
 		findGameError: PropTypes.object,
 		results: ImmutablePropTypes.list,
 		intl: intlShape.isRequired,
@@ -118,6 +121,12 @@ class FindGame extends React.PureComponent {
 		}
 	)
 
+	cancelSearch = () => {
+		this.runSearch.cancel();
+		this.setState({ isSearching: false });
+		this.props.onCancelFind();
+	}
+
 	/**
 	 * Handles the case when the component has been updated with search results.
 	 *
@@ -183,9 +192,16 @@ class FindGame extends React.PureComponent {
 	 */
 	renderSearching() {
 		return (
-			<h3>
-				<LoadingSpinner /> Searching for open games, please wait
-			</h3>
+			<React.Fragment>
+				<h3>
+					<LoadingSpinner /> <FormattedMessage {...messages.searchingText} />
+				</h3>
+				<Button
+					onClick={this.cancelSearch}
+				>
+					{this.formatMessage(messages.cancelSearchLabel)}
+				</Button>
+			</React.Fragment>
 		);
 	}
 

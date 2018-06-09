@@ -8,14 +8,26 @@ import { intl } from "@app/utils/test-utils";
 
 const NO_OP = () => {};
 
+function getProps({
+	onFindOpenGames = NO_OP,
+	onJoinGame = NO_OP,
+	onCancelFind = NO_OP,
+	classes = {},
+} = {}) {
+	return {
+		onFindOpenGames,
+		onJoinGame,
+		onCancelFind,
+		classes,
+		intl,
+	};
+}
+
 describe("FindGame component", () => {
 	it("should have a player limit input", () => {
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={NO_OP}
-				onJoinGame={NO_OP}
-				classes={{}}
-				intl={intl}
+				{...getProps()}
 			/>
 		);
 
@@ -27,10 +39,7 @@ describe("FindGame component", () => {
 
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={onFindOpenGames}
-				onJoinGame={NO_OP}
-				classes={{}}
-				intl={intl}
+				{...getProps({ onFindOpenGames })}
 			/>
 		);
 
@@ -50,10 +59,7 @@ describe("FindGame component", () => {
 
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={onFindOpenGames}
-				onJoinGame={NO_OP}
-				classes={{}}
-				intl={intl}
+				{...getProps({ onFindOpenGames })}
 			/>
 		);
 
@@ -84,8 +90,11 @@ describe("FindGame component", () => {
 
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={onFindOpenGames}
-				onJoinGame={onJoinGame}
+				{...getProps({
+					onFindOpenGames,
+					onJoinGame,
+				})}
+				onCancelFind={NO_OP}
 				classes={{}}
 				intl={intl}
 			/>
@@ -121,10 +130,10 @@ describe("FindGame component", () => {
 
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={onFindOpenGames}
-				onJoinGame={onJoinGame}
-				classes={{}}
-				intl={intl}
+				{...getProps({
+					onFindOpenGames,
+					onJoinGame,
+				})}
 			/>
 		);
 
@@ -150,10 +159,7 @@ describe("FindGame component", () => {
 	it("should stop searching on encountering an error", () => {
 		const wrapper = shallow(
 			<FindGame
-				onFindOpenGames={NO_OP}
-				onJoinGame={NO_OP}
-				classes={{}}
-				intl={intl}
+				{...getProps()}
 			/>
 		);
 

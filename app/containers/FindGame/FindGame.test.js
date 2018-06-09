@@ -7,6 +7,7 @@ import createReducer from "@app/reducers";
 import { mockStore } from "@app/utils/test-utils";
 import {
 	findOpenGames,
+	setFindOpenGamesResults,
 } from "@app/actions";
 
 import FindGame from "./FindGame";
@@ -18,18 +19,29 @@ describe("FindGame container", () => {
 		const results = fromJS([
 			{
 				name: "test1",
+				board: {
+					width: 15,
+					height: 15,
+					filled: [],
+				},
+				players: [],
+				isStarted: false,
 			},
 			{
 				name: "test2",
+				board: {
+					width: 15,
+					height: 15,
+					filled: [],
+				},
+				players: [],
+				isStarted: false,
 			},
 		]);
 
-		const state = reducer(undefined, {})
-			.mergeDeep(fromJS({
-				games: {
-					findResults: results,
-				},
-			}));
+		const state = reducer(undefined, setFindOpenGamesResults({
+			games: results,
+		}));
 
 		let store = mockStore(state);
 
@@ -45,7 +57,9 @@ describe("FindGame container", () => {
 			}
 		);
 
-		expect(wrapper).toHaveProp("results", results);
+		expect(wrapper).toHaveProp("results", results.map(
+			(result) => result.set("isLoaded", true)
+		));
 		expect(wrapper).toHaveProp("findGameError", undefined);
 		expect(wrapper).toHaveProp("onJoinGame", expect.any(Function));
 		expect(wrapper).toHaveProp("onFindOpenGames", expect.any(Function));
@@ -61,7 +75,7 @@ describe("FindGame container", () => {
 		).deleteIn(
 			[
 				"games",
-				"findResults",
+				"openGames",
 			]
 		));
 
