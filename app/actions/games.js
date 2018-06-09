@@ -1,10 +1,21 @@
-export const FIND_OPEN_GAMES = "@@QUINTRO/FIND_OPEN_GAMES";
+export const FIND_OPEN_GAMES = "@@QUINTRO/GAMES/FIND_OPEN_GAMES";
 
 export function findOpenGames({ numberOfPlayers }) {
 	return {
 		type: FIND_OPEN_GAMES,
 		payload: {
 			numberOfPlayers,
+		},
+	};
+}
+
+export const SET_FIND_OPEN_GAMES_RESULTS = "@@QUINTRO/GAMES/SET_FIND_OPEN_GAMES_RESULTS";
+
+export function setFindOpenGamesResults({ games }) {
+	return {
+		type: SET_FIND_OPEN_GAMES_RESULTS,
+		payload: {
+			games,
 		},
 	};
 }

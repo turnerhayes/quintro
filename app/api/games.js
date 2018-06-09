@@ -30,7 +30,9 @@ export function getGame({ name }) {
 }
 
 export function findOpenGames({ numberOfPlayers } = {}) {
-	const query = {};
+	const query = {
+		onlyOpenGames: true,
+	};
 
 	if (numberOfPlayers) {
 		query.numberOfPlayers = numberOfPlayers;

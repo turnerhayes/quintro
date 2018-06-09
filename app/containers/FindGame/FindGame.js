@@ -3,18 +3,20 @@ import { compose } from "redux";
 import { connect } from "react-redux";
 import { push }    from "react-router-redux";
 import injectSaga  from "@app/utils/injectSaga";
-import saga        from "./saga";
 import {
-	findOpenGames
+	findOpenGames,
 }                  from "@app/actions";
+import selectors   from "@app/selectors";
+
+import saga        from "./saga";
 
 const withConnect = connect(
 	function mapStateToProps(state) {
-		const { findGameError, findResults } = state.get("games").toObject();
+		const findGameError = state.get("games").get("findGameError");
 
 		return {
 			findGameError,
-			results: findResults,
+			results: selectors.games.getOpenGames(state),
 		};
 	},
 
@@ -26,6 +28,10 @@ const withConnect = connect(
 
 			onFindOpenGames({ numberOfPlayers }) {
 				dispatch(findOpenGames({ numberOfPlayers }));
+			},
+
+			onCancelFind() {
+
 			},
 		};
 	}

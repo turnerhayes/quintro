@@ -11,6 +11,8 @@ import {
 	SET_MARBLE,
 	SET_CURRENT_PLAYER,
 	SET_WINNER,
+	FIND_OPEN_GAMES,
+	SET_FIND_OPEN_GAMES_RESULTS,
 } from "@app/actions";
 
 function prepareGame(game) {
@@ -24,13 +26,17 @@ function prepareGame(game) {
 	).set("isLoaded", true);
 }
 
+function addGames(state, games) {
+	return state.mergeIn(["items"], games.reduce(
+		(map, game) => map.set(game.get("name"), prepareGame(game)),
+		Map()
+	));
+}
+
 export default function gamesReducer(state = Map(), action) {
 	switch (action.type) {
 		case FETCHED_USER_GAMES: {
-			return state.mergeIn(["items"], action.payload.games.reduce(
-				(map, game) => map.set(game.get("name"), prepareGame(game)),
-				Map()
-			));
+			return addGames(state, action.payload.games);
 		}
 
 		case FETCHED_GAME: {
@@ -142,6 +148,20 @@ export default function gamesReducer(state = Map(), action) {
 				["items", gameName, "winner"],
 				color
 			);
+		}
+
+		case FIND_OPEN_GAMES: {
+			// Clear out open games list in preparation for it being populated
+			// when the SET_FIND_OPEN_GAMES_RESULTS action is dispatched
+			return state.delete("openGames");
+		}
+
+		case SET_FIND_OPEN_GAMES_RESULTS: {
+			return addGames(state, action.payload.games)
+				.set(
+					"openGames",
+					action.payload.games.map((game) => game.get("name"))
+				);
 		}
 
 		case GAME_STARTED: {

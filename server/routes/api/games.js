@@ -82,8 +82,7 @@ router.route("/")
 			const onlyOpenGames = !!req.query.onlyOpenGames;
 			let numberOfPlayers = Number(req.query.numberOfPlayers);
 
-			if (numberOfPlayers !== numberOfPlayers) {
-				// is NaN
+			if (Number.isNaN(numberOfPlayers)) {
 				numberOfPlayers = undefined;
 			}
 

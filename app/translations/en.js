@@ -45,6 +45,8 @@ export default {
 	"quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.absent": "Player {playerColor} is absent",
 	"quintro.components.PlayerIndicators.indicatorMessages.availableSlot": "This spot is open for another player",
 	"quintro.components.FindGame.header": "Find a Game",
+	"quintro.components.FindGame.searchingText": "Searching for open games, please wait",
+	"quintro.components.FindGame.cancelSearchLabel": "Stop searching",
 	"quintro.components.FindGame.form.playerLimit.label": "Number of players",
 	"quintro.components.FindGame.form.playerLimit.details": "Leave blank if you don't care how many players the game has",
 	"quintro.components.FindGame.form.submitButton.label": "Find",
