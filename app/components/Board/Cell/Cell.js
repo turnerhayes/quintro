@@ -23,6 +23,10 @@ const styles = {
 		cursor: "not-allowed",
 	},
 
+	allowPlacement: {
+		cursor: "pointer",
+	},
+
 	quintroMember: {
 		backgroundColor: "rgba(255, 255, 0, 0.6)",
 	},
@@ -72,6 +76,7 @@ class Cell extends React.PureComponent {
 					{
 						[classes.quintroMember]: isQuintroMember,
 						[classes.noPlacement]: !allowPlacement,
+						[classes.allowPlacement]: allowPlacement,
 					},
 				])}
 				onClick={this.handleClick}
