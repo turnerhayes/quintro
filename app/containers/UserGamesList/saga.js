@@ -12,10 +12,6 @@ function* fetchUserGames() {
 	yield put(fetchedUserGames({ games }));
 }
 
-function* watchGetUserGames() {
-	yield takeLatest(GET_USER_GAMES, fetchUserGames);
-}
-
 export default function* UserGamesListWatcher() {
-	yield watchGetUserGames();
+	yield takeLatest(GET_USER_GAMES, fetchUserGames);
 }
