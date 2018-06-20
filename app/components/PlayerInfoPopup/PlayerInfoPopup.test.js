@@ -1,10 +1,10 @@
 import React from "react";
 import { fromJS } from "immutable";
 import { shallow, mount } from "enzyme";
-import { CardHeader } from "material-ui/Card";
-import IconButton from "material-ui/IconButton";
-import EditIcon from "material-ui-icons/Edit";
-import CloseIcon from "material-ui-icons/Close";
+import CardHeader from "@material-ui/core/CardHeader";
+import IconButton from "@material-ui/core/IconButton";
+import EditIcon from "@material-ui/icons/Edit";
+import CloseIcon from "@material-ui/icons/Close";
 
 import { intl } from "@app/utils/test-utils";
 

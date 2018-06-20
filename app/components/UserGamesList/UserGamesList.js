@@ -3,17 +3,17 @@ import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { Link }           from "react-router-dom";
-import { withStyles }     from "material-ui/styles";
-import Button             from "material-ui/Button";
-import Tabs, { Tab }      from "material-ui/Tabs";
-import ListComponent, {
-	ListItem,
-	ListItemText
-}                         from "material-ui/List";
-import Badge              from "material-ui/Badge";
-import StopIcon           from "material-ui-icons/Stop";
-import WarningIcon        from "material-ui-icons/Warning";
-import AccountCircleIcon  from "material-ui-icons/AccountCircle";
+import { withStyles }     from "@material-ui/core/styles";
+import Button             from "@material-ui/core/Button";
+import Tabs               from "@material-ui/core/Tabs";
+import Tab                from "@material-ui/core/Tab";
+import ListComponent      from "@material-ui/core/List";
+import ListItem           from "@material-ui/core/ListItem";
+import ListItemText       from "@material-ui/core/ListItemText";
+import Badge              from "@material-ui/core/Badge";
+import StopIcon           from "@material-ui/icons/Stop";
+import WarningIcon        from "@material-ui/icons/Warning";
+import AccountCircleIcon  from "@material-ui/icons/AccountCircle";
 import {
 	FormattedMessage,
 	injectIntl,

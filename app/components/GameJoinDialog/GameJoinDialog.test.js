@@ -1,10 +1,9 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { fromJS } from "immutable";
-import Button from "material-ui/Button";
-import Menu, {
-	MenuItem,
-} from "material-ui/Menu";
+import Button from "@material-ui/core/Button";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import { Unwrapped as GameJoinDialog } from "./GameJoinDialog";
 import { intl } from "@app/utils/test-utils";
 

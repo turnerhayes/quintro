@@ -6,11 +6,12 @@ import {
 	intlShape,
 }                         from "react-intl";
 import classnames         from "classnames";
-import Icon               from "material-ui/Icon";
-import Badge              from "material-ui/Badge";
-import { withStyles }     from "material-ui/styles";
+import Icon               from "@material-ui/core/Icon";
+import Badge              from "@material-ui/core/Badge";
+import { withStyles }     from "@material-ui/core/styles";
 import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
+import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
 import Config             from "@app/config";
 import messages           from "./messages";
@@ -21,6 +22,11 @@ import WinnerBanner       from "./WinnerBanner";
 const styles = {
 	root: {
 		margin: "1em",
+	},
+
+	gameControls: {
+		display: "flex",
+		justifyContent: "space-between",
 	},
 
 	boardContainer: {
@@ -63,6 +69,7 @@ class PlayGame extends React.PureComponent {
 			PropTypes.string,
 		),
 		currentUserPlayerColor: PropTypes.string,
+		currentZoomLevel: PropTypes.number,
 		classes: PropTypes.object,
 		isInGame: PropTypes.bool,
 		isWatchingGame: PropTypes.bool,
@@ -74,7 +81,12 @@ class PlayGame extends React.PureComponent {
 		onGetGame: PropTypes.func.isRequired,
 		onPlaceMarble: PropTypes.func.isRequired,
 		onCancelJoin: PropTypes.func.isRequired,
+		onZoomLevelChange: PropTypes.func.isRequired,
 		intl: intlShape.isRequired,
+	}
+
+	static defaultProps = {
+		currentZoomLevel: 1,
 	}
 
 	formatMessage = (...args) => {
@@ -192,6 +204,10 @@ class PlayGame extends React.PureComponent {
 		this.props.onCancelJoin();
 	}
 
+	handleZoomLevelChange = (value) => {
+		this.props.onZoomLevelChange(value);
+	}
+
 	/**
 	 * Returns a React component that contains the game board.
 	 *
@@ -264,13 +280,27 @@ class PlayGame extends React.PureComponent {
 						/>
 					)
 				}
-				<PlayerIndicators
-					game={game}
-					markActive={gameIsStarted}
-					playerUsers={playerUsers}
-				/>
+				<div
+					className={this.props.classes.gameControls}
+				>
+					<PlayerIndicators
+						game={game}
+						markActive={gameIsStarted}
+						playerUsers={playerUsers}
+					/>
+					<ZoomControls
+						onZoomLevelChange={this.handleZoomLevelChange}
+						currentZoomLevel={this.props.currentZoomLevel}
+						minZoomLevel={0.2}
+						maxZoomLevel={3}
+						stepSize={0.2}
+					/>
+				</div>
 				<div
 					className={this.props.classes.boardContainer}
+					style={{
+						fontSize: (this.props.currentZoomLevel) + "em",
+					}}
 				>
 					{
 						!gameIsStarted && !gameIsOver && !isWatchingGame && (

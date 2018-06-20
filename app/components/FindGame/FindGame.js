@@ -7,14 +7,13 @@ import {
 	intlShape,
 	FormattedMessage,
 }                         from "react-intl";
-import TextField          from "material-ui/TextField";
-import Button             from "material-ui/Button";
-import Typography         from "material-ui/Typography";
-import Card, {
-	CardHeader,
-	CardContent
-}                         from "material-ui/Card";
-import { withStyles }     from "material-ui/styles";
+import TextField          from "@material-ui/core/TextField";
+import Button             from "@material-ui/core/Button";
+import Typography         from "@material-ui/core/Typography";
+import Card               from "@material-ui/core/Card";
+import CardHeader         from "@material-ui/core/CardHeader";
+import CardContent        from "@material-ui/core/CardContent";
+import { withStyles }     from "@material-ui/core/styles";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Config             from "@app/config";
 import messages           from "./messages";
@@ -26,6 +25,10 @@ const styles = {
 	playerLimitLabel: {
 		position: "static",
 	},
+
+	// This is here simply to give a class to the Cancel button so that
+	// it can be grabbed by tests
+	cancelButton: {},
 };
 
 /**
@@ -74,13 +77,17 @@ class FindGame extends React.PureComponent {
 	}
 
 	componentDidUpdate() {
+		// istanbul ignore else
 		if (this.state.isSearching) {
 			if (this.props.findGameError) {
 				// TODO: display error notification
 				this.setState({ isSearching: false });
 			}
-			else if (this.props.results) {
-				this.handleGamesFound();
+			else {
+				// istanbul ignore else
+				if (this.props.results) {
+					this.handleGamesFound();
+				}
 			}
 		}
 	}
@@ -198,6 +205,7 @@ class FindGame extends React.PureComponent {
 				</h3>
 				<Button
 					onClick={this.cancelSearch}
+					className={this.props.classes.cancelButton}
 				>
 					{this.formatMessage(messages.cancelSearchLabel)}
 				</Button>

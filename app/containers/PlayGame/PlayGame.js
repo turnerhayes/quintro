@@ -1,7 +1,7 @@
 import PlayGame    from "@app/components/PlayGame";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import { goBack }  from "react-router-redux";
+import { goBack }  from "connected-react-router";
 import injectSaga  from "@app/utils/injectSaga";
 import {
 	getGame,
@@ -9,11 +9,16 @@ import {
 	watchGame,
 	startGame,
 	placeMarble,
+	setUIState,
 }                  from "@app/actions";
-import selectors from "@app/selectors";
+import selectors   from "@app/selectors";
 import saga        from "./saga";
 
 const displayName = "PlayGameContainer";
+
+const uiSection = "PlayGame";
+
+const zoomLevelSettingName = "currentZoomLevel";
 
 const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
@@ -21,6 +26,10 @@ const withRedux = connect(
 		const game = selectors.games.getGame(state, selectorProps);
 		const gameIsLoaded = selectors.games.isLoaded(state, selectorProps);
 		const currentUserPlayer = selectors.games.getCurrentUserPlayer(state, selectorProps);
+		const currentZoomLevel = selectors.ui.getSetting(state, {
+			section: uiSection,
+			settingName: zoomLevelSettingName,
+		});
 
 		const props = {
 			playerUsers: selectors.games.getPlayerUsers(state, selectorProps),
@@ -34,6 +43,8 @@ const withRedux = connect(
 			hasJoinedGame: selectors.games.hasJoinedGame(state, selectorProps),
 
 			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
+
+			currentZoomLevel,
 		};
 
 		if (gameIsLoaded) {
@@ -73,6 +84,15 @@ const withRedux = connect(
 
 			onCancelJoin() {
 				dispatch(goBack());
+			},
+
+			onZoomLevelChange(value) {
+				dispatch(setUIState({
+					section: uiSection,
+					settings: {
+						[zoomLevelSettingName]: value,
+					},
+				}));
 			},
 		};
 	}

@@ -5,10 +5,10 @@ import { shallow, mount } from "enzyme";
 import { MemoryRouter } from "react-router";
 import Loadable from "react-loadable";
 import { intlShape } from "react-intl";
-import IconButton from "material-ui/IconButton";
-import Button from "material-ui/Button";
-import AccountCircleIcon from "material-ui-icons/AccountCircle";
-import SettingsIcon from "material-ui-icons/Settings";
+import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import SettingsIcon from "@material-ui/icons/Settings";
 
 import AccountDialog from "@app/components/AccountDialog";
 import { intl, mockStore } from "@app/utils/test-utils";

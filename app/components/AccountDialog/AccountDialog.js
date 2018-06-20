@@ -7,15 +7,14 @@ import {
 	intlShape,
 }                         from "react-intl";
 import classnames         from "classnames";
-import Button             from "material-ui/Button";
-import Icon               from "material-ui/Icon";
-import IconButton         from "material-ui/IconButton";
-import Card, {
-	CardContent,
-	CardHeader,
-	CardActions,
-}                         from "material-ui/Card";
-import { withStyles }     from "material-ui/styles";
+import Button             from "@material-ui/core/Button";
+import Icon               from "@material-ui/core/Icon";
+import IconButton         from "@material-ui/core/IconButton";
+import Card               from "@material-ui/core/Card";
+import CardContent        from "@material-ui/core/CardContent";
+import CardHeader         from "@material-ui/core/CardHeader";
+import CardActions        from "@material-ui/core/CardActions";
+import { withStyles }     from "@material-ui/core/styles";
 import Config             from "@app/config";
 import messages           from "./messages";
 import                         "@app/fonts/icomoon/style.css";

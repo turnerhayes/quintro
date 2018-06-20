@@ -1,7 +1,7 @@
 import React from "react";
 import { fromJS } from "immutable";
 import { shallow } from "enzyme";
-import Popover from "material-ui/Popover";
+import Popover from "@material-ui/core/Popover";
 
 import { intl } from "@app/utils/test-utils";
 import { Unwrapped as PlayerIndicators } from "./PlayerIndicators";

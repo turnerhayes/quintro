@@ -1,7 +1,7 @@
 import FindGame    from "@app/components/FindGame";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import { push }    from "react-router-redux";
+import { push }    from "connected-react-router";
 import injectSaga  from "@app/utils/injectSaga";
 import {
 	findOpenGames,

@@ -1,7 +1,7 @@
 import React          from "react";
 import PropTypes      from "prop-types";
 import classnames     from "classnames";
-import { withStyles } from "material-ui/styles";
+import { withStyles } from "@material-ui/core/styles";
 import Config         from "@app/config";
 
 const commonStyles = {
@@ -59,5 +59,7 @@ Marble.propTypes = {
 	className: PropTypes.string,
 	classes: PropTypes.object,
 };
+
+export { Marble as Unwrapped };
 
 export default withStyles(styles)(Marble);
