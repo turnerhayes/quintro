@@ -6,7 +6,7 @@ import {
 } from "@app/actions";
 import { findOpenGames } from "@app/api/games";
 
-function* findOpenGamesSaga({ payload }) {
+export function* findOpenGamesSaga({ payload }) {
 	const games = yield call(findOpenGames, {
 		numberOfPlayers: payload.numberOfPlayers,
 	});
@@ -14,10 +14,6 @@ function* findOpenGamesSaga({ payload }) {
 	yield put(setFindOpenGamesResults({ games }));
 }
 
-function* watchForFindOpenGameActions() {
-	yield takeLatest(FIND_OPEN_GAMES, findOpenGamesSaga);
-}
-
 export default function* findGames() {
-	yield call(watchForFindOpenGameActions);
+	yield takeLatest(FIND_OPEN_GAMES, findOpenGamesSaga);
 }

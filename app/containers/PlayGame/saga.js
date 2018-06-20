@@ -59,10 +59,6 @@ export function* getGameSaga({ payload }) {
 	yield put(fetchedGame({ game }));
 }
 
-function* watchGetGame() {
-	yield takeEvery(GET_GAME, getGameSaga);
-}
-
 export function* locationChangeSaga() {
 	const joinedGames = yield select(selectors.games.getJoinedGames);
 	yield all(
@@ -92,23 +88,11 @@ export function* setCurrentPlayerSaga({ payload }) {
 	}
 }
 
-function* watchLocationChange() {
-	yield takeEvery(LOCATION_CHANGE, locationChangeSaga);
-}
-
-function* watchSetMarble() {
-	yield takeEvery(SET_MARBLE, setMarbleSaga);
-}
-
-function* watchSetCurrentPlayer() {
-	yield takeEvery(SET_CURRENT_PLAYER, setCurrentPlayerSaga);
-}
-
 export default function* playGameRootSaga() {
 	yield all([
-		watchGetGame(),
-		watchLocationChange(),
-		watchSetMarble(),
-		watchSetCurrentPlayer(),
+		takeEvery(GET_GAME, getGameSaga),
+		takeEvery(LOCATION_CHANGE, locationChangeSaga),
+		takeEvery(SET_MARBLE, setMarbleSaga),
+		takeEvery(SET_CURRENT_PLAYER, setCurrentPlayerSaga),
 	]);
 }

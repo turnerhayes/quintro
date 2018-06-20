@@ -17,10 +17,6 @@ function* checkGameNameSaga({ payload }) {
 	yield put(action);
 }
 
-function* watchCheckGameName() {
-	yield takeLatest(CHECK_GAME_NAME, checkGameNameSaga);
-}
-
 function* createGameSaga({ payload }) {
 	try {
 		const game = yield call(createGame, payload);
@@ -36,13 +32,9 @@ function* createGameSaga({ payload }) {
 	}
 }
 
-function* watchCreateGame() {
-	yield takeLatest(CREATE_GAME, createGameSaga);
-}
-
 export default function* createGameRootSaga() {
 	yield all([
-		call(watchCheckGameName),
-		call(watchCreateGame),
+		takeLatest(CHECK_GAME_NAME, checkGameNameSaga),
+		takeLatest(CREATE_GAME, createGameSaga),
 	]);
 }
