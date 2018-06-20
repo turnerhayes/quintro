@@ -1,7 +1,7 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
-import { withStyles }     from "material-ui/styles";
+import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
 import Config             from "@app/config";
 import Marble             from "@app/components/Marble";

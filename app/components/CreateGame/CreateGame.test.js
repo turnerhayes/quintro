@@ -2,7 +2,7 @@ import React from "react";
 import { shallow } from "enzyme";
 import { URLSearchParams } from "url";
 import sinon from "sinon";
-import Button from "material-ui/Button";
+import Button from "@material-ui/core/Button";
 
 import { intl } from "@app/utils/test-utils";
 import Config from "@app/config";

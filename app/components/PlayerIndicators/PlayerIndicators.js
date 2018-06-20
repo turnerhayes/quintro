@@ -6,8 +6,8 @@ import {
 	injectIntl,
 	intlShape,
 }                         from "react-intl";
-import Popover            from "material-ui/Popover";
-import { withStyles }     from "material-ui/styles";
+import Popover            from "@material-ui/core/Popover";
+import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import LoadingSpinner     from "@app/components/LoadingSpinner";

@@ -1,7 +1,7 @@
 /* global Promise */
 
 import { fromJS, List } from "immutable";
-import { push } from "react-router-redux";
+import { push } from "connected-react-router";
 
 import createReducer from "@app/reducers";
 import {

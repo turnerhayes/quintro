@@ -6,7 +6,7 @@
 
 import { createStore, applyMiddleware, compose } from "redux";
 import { Map, fromJS } from "immutable";
-import { routerMiddleware } from "react-router-redux";
+import { routerMiddleware } from "connected-react-router/immutable";
 import createSagaMiddleware from "redux-saga";
 import createReducer from "@app/reducers";
 import globalSagas from "@app/sagas";
@@ -28,20 +28,17 @@ export default function configureStore(initialState = Map(), history) {
 
 	// If Redux DevTools Extension is installed use it, otherwise use Redux compose
 	/* eslint-disable no-underscore-dangle */
-	const composeEnhancers =
-	process.env.NODE_ENV !== "production" &&
+	const composeEnhancers = process.env.NODE_ENV !== "production" &&
 	typeof window === "object" &&
 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-		? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-			// TODO Try to remove when `react-router-redux` is out of beta, LOCATION_CHANGE should not be fired more than once after hot reloading
-			// Prevent recomputing reducers for `replaceReducer`
-			shouldHotReload: false,
-		})
+		? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
 		: compose;
 	/* eslint-enable no-underscore-dangle */
 
 	const store = createStore(
-		createReducer(),
+		createReducer({
+			history,
+		}),
 		fromJS(initialState),
 		composeEnhancers(...enhancers)
 	);
@@ -55,12 +52,15 @@ export default function configureStore(initialState = Map(), history) {
 	/* istanbul ignore next */
 	if (module.hot) {
 		module.hot.accept("./reducers", () => {
-			store.replaceReducer(createReducer(store.injectedReducers));
+			store.replaceReducer(createReducer({
+				injectedReducers: store.injectedReducers,
+				history,
+			}));
 		});
 	}
 
 
-	(globalSagas || []).forEach(
+	globalSagas.forEach(
 		(saga) => sagaMiddleware.run(saga)
 	);
 

@@ -1,7 +1,7 @@
 /* global Promise */
 
 import { all, put, call, select, takeEvery } from "redux-saga/effects";
-import { LOCATION_CHANGE } from "react-router-redux";
+import { LOCATION_CHANGE } from "connected-react-router";
 import { Howl } from "howler";
 import Notify from "notifyjs";
 import urlJoin from "proper-url-join";

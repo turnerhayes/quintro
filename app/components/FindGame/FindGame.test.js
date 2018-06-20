@@ -173,4 +173,34 @@ describe("FindGame component", () => {
 
 		expect(wrapper.instance().state).toHaveProperty("isSearching", false);
 	});
+
+	it("should stop searching on clicking the Cancel button", () => {
+		const cancelButtonClass = "cancel-button";
+
+		const wrapper = shallow(
+			<FindGame
+				{...getProps({
+					classes: {
+						cancelButton: cancelButtonClass,
+					},
+				})}
+			/>
+		);
+
+		wrapper.find("form").simulate("submit", {
+			preventDefault() {},
+		});
+
+		expect(wrapper.instance().state).toHaveProperty("isSearching", true);
+
+		const cancelButton = wrapper.find(`.${cancelButtonClass}`);
+
+		expect(cancelButton).toExist();
+
+		cancelButton.simulate("click");
+
+		expect(wrapper.instance().state).toHaveProperty("isSearching", false);
+
+		expect(wrapper.find("form")).toExist();
+	});
 });

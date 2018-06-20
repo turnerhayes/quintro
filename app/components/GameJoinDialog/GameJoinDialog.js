@@ -2,18 +2,16 @@ import React         from "react";
 import PropTypes     from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { Link }      from "react-router-dom";
-import Dialog        from "material-ui/Dialog";
-import Card, {
-	CardHeader,
-	CardContent
-}                    from "material-ui/Card";
-import Menu, {
-	MenuItem
-}                    from "material-ui/Menu";
-import Button        from "material-ui/Button";
+import Dialog        from "@material-ui/core/Dialog";
+import Card          from "@material-ui/core/Card";
+import CardHeader    from "@material-ui/core/CardHeader";
+import CardContent   from "@material-ui/core/CardContent";
+import Menu          from "@material-ui/core/Menu";
+import MenuItem      from "@material-ui/core/MenuItem";
+import Button        from "@material-ui/core/Button";
 import {
 	withStyles
-}                    from "material-ui/styles";
+}                    from "@material-ui/core/styles";
 import {
 	injectIntl,
 	intlShape,

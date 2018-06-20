@@ -4,8 +4,8 @@ import { shallow, mount } from "enzyme";
 import configureStore from "redux-mock-store";
 import * as immutableMatchers from "jest-immutable-matchers";
 import { MemoryRouter } from "react-router";
-import Icon from "material-ui/Icon";
-import Button from "material-ui/Button";
+import Icon from "@material-ui/core/Icon";
+import Button from "@material-ui/core/Button";
 
 import { wrapWithIntlProvider } from "@app/utils/test-utils";
 import { LOGOUT, LOGIN } from "@app/actions";

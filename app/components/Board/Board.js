@@ -3,7 +3,7 @@ import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import { fromJS }         from "immutable";
 import range              from "lodash/range";
-import { withStyles }     from "material-ui/styles";
+import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
 import Cell               from "./Cell";
 

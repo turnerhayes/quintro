@@ -1,5 +1,5 @@
 import React             from "react";
-import Icon              from "material-ui/Icon";
+import Icon              from "@material-ui/core/Icon";
 import                        "@app/fonts/icomoon/style.less";
 import                        "./LoadingSpinner.less";
 

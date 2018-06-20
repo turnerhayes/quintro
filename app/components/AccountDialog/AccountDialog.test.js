@@ -2,10 +2,10 @@ import React from "react";
 import { fromJS } from "immutable";
 import { shallow } from "enzyme";
 import { Link } from "react-router-dom";
-import Icon from "material-ui/Icon";
-import Button from "material-ui/Button";
-import IconButton from "material-ui/IconButton";
-import { CardHeader } from "material-ui/Card";
+import Icon from "@material-ui/core/Icon";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import CardHeader from "@material-ui/core/CardHeader";
 import { Unwrapped as AccountDialog } from "./AccountDialog";
 import { intl } from "@app/utils/test-utils";
 

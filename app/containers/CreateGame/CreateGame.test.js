@@ -131,7 +131,9 @@ describe("CreateGame container", () => {
 			}
 		).dive().dive();
 
-		reducer = createReducer(store.injectedReducers);
+		reducer = createReducer({
+			injectedReducers: store.injectedReducers,
+		});
 
 		let state;
 
@@ -146,12 +148,5 @@ describe("CreateGame container", () => {
 		store.dispatch(checkedGameName({ result: false }));
 
 		expect(state.getIn([ "CreateGameContainer", "isNameValid" ])).toBeTruthy();
-
-		// Reducer should pass through state if it doesn't handle the action
-		const prevState = state;
-
-		store.dispatch({ type: "DUMMY_ACTION" });
-
-		expect(state).toBe(prevState);
 	});
 });

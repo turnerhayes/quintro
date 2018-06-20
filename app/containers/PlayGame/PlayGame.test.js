@@ -2,7 +2,7 @@ import React from "react";
 import { fromJS } from "immutable";
 import { shallow, mount } from "enzyme";
 import { intlShape } from "react-intl";
-import { goBack } from "react-router-redux";
+import { goBack } from "connected-react-router";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";

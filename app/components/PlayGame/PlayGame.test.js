@@ -1,8 +1,8 @@
 import React from "react";
 import { fromJS, Map } from "immutable";
 import { shallow } from "enzyme";
-import Button from "material-ui/Button";
-import Badge from "material-ui/Badge";
+import Button from "@material-ui/core/Button";
+import Badge from "@material-ui/core/Badge";
 
 import { intl, mockStore } from "@app/utils/test-utils";
 import Cell from "@app/components/Board/Cell";
@@ -13,6 +13,41 @@ import WinnerBanner from "./WinnerBanner";
 import GameJoinDialog from "@app/components/GameJoinDialog";
 
 const NO_OP = () => {};
+
+function getProps({
+	game,
+	gameName,
+	onWatchGame = NO_OP,
+	onJoinGame = NO_OP,
+	onStartGame = NO_OP,
+	onPlaceMarble = NO_OP,
+	onGetGame = NO_OP,
+	onCancelJoin = NO_OP,
+	onZoomLevelChange = NO_OP,
+	watcherCount,
+	hasJoinedGame,
+	isInGame,
+	playerUsers = Map(),
+	classes = {},
+} = {}) {
+	return {
+		game,
+		gameName,
+		onWatchGame,
+		onJoinGame,
+		onStartGame,
+		onPlaceMarble,
+		onGetGame,
+		onCancelJoin,
+		onZoomLevelChange,
+		watcherCount,
+		hasJoinedGame,
+		isInGame,
+		playerUsers,
+		classes,
+		intl,
+	};
+}
 
 describe("PlayGame component", () => {
 	const name = "test";
@@ -31,17 +66,10 @@ describe("PlayGame component", () => {
 	it("should have a start button overlay if the game is not started", () => {
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+				})}
 			/>
 		);
 
@@ -51,17 +79,10 @@ describe("PlayGame component", () => {
 	it("should disable the start button if there are not enough players", () => {
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+				})}
 			/>
 		).find(StartGameOverlay).shallow();
 
@@ -103,17 +124,12 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={gameWithPlayers}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={onStartGame}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={playerUsers}
-				classes={{}}
+				{...getProps({
+					game: gameWithPlayers,
+					gameName: name,
+					onStartGame,
+					playerUsers,
+				})}
 			/>
 		).find(StartGameOverlay).shallow();
 
@@ -136,17 +152,10 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={finishedGame}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					game: finishedGame,
+					gameName: name,
+				})}
 			/>
 		);
 
@@ -169,18 +178,12 @@ describe("PlayGame component", () => {
 
 			const wrapper = shallow(
 				<PlayGame
-					intl={intl}
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={onPlaceMarble}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={Map()}
-					hasJoinedGame
-					classes={{}}
+					{...getProps({
+						game,
+						gameName: name,
+						onPlaceMarble,
+						hasJoinedGame: true,
+					})}
 				/>
 			).find("BoardContainer").shallow({
 				context: {
@@ -224,18 +227,12 @@ describe("PlayGame component", () => {
 
 			const wrapper = shallow(
 				<PlayGame
-					intl={intl}
-					game={game}
-					gameName={name}
-					onWatchGame={NO_OP}
-					onJoinGame={NO_OP}
-					onStartGame={NO_OP}
-					onPlaceMarble={onPlaceMarble}
-					onGetGame={NO_OP}
-					onCancelJoin={NO_OP}
-					playerUsers={Map()}
-					hasJoinedGame
-					classes={{}}
+					{...getProps({
+						game,
+						gameName: name,
+						onPlaceMarble,
+						hasJoinedGame: true
+					})}
 				/>
 			).find("BoardContainer").shallow({
 				context: {
@@ -257,16 +254,9 @@ describe("PlayGame component", () => {
 	it("should not render anything if no game is provided", () => {
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				gameName="testgame"
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					gameName: "testgame",
+				})}
 			/>
 		);
 
@@ -309,17 +299,12 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={onJoinGame}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={playerUsers}
-				classes={{}}
-				isInGame
+				{...getProps({
+					gameName: name,
+					onJoinGame,
+					playerUsers,
+					isInGame: true,
+				})}
 			/>
 		);
 
@@ -337,18 +322,12 @@ describe("PlayGame component", () => {
 
 		shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={onJoinGame}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				isInGame
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+					onJoinGame,
+					isInGame: true,
+				})}
 			/>
 		);
 
@@ -360,19 +339,13 @@ describe("PlayGame component", () => {
 
 		shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={onJoinGame}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				isInGame
-				hasJoinedGame
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+					onJoinGame,
+					isInGame: true,
+					hasJoinedGame: true,
+				})}
 			/>
 		);
 
@@ -384,17 +357,11 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={onJoinGame}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+					onJoinGame,
+				})}
 			/>
 		).shallow().find(GameJoinDialog).shallow({
 			context: {
@@ -412,17 +379,11 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={onCancelJoin}
-				playerUsers={Map()}
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+					onCancelJoin,
+				})}
 			/>
 		).find(GameJoinDialog).shallow({
 			context: {
@@ -440,18 +401,11 @@ describe("PlayGame component", () => {
 
 		const wrapper = shallow(
 			<PlayGame
-				intl={intl}
-				game={game}
-				gameName={name}
-				onWatchGame={NO_OP}
-				onJoinGame={NO_OP}
-				onStartGame={NO_OP}
-				onPlaceMarble={NO_OP}
-				onGetGame={NO_OP}
-				onCancelJoin={NO_OP}
-				playerUsers={Map()}
-				watcherCount={watcherCount}
-				classes={{}}
+				{...getProps({
+					game,
+					gameName: name,
+					watcherCount,
+				})}
 			/>
 		);
 

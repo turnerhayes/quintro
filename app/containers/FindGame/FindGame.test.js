@@ -1,7 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { fromJS } from "immutable";
-import { push } from "react-router-redux";
+import { push } from "connected-react-router";
 
 import createReducer from "@app/reducers";
 import { mockStore } from "@app/utils/test-utils";

@@ -4,11 +4,11 @@ import { fromJS } from "immutable";
 import { shallow, mount } from "enzyme";
 import { MemoryRouter } from "react-router";
 import { intlShape } from "react-intl";
-import { Tab } from "material-ui/Tabs";
-import { ListItemText } from "material-ui/List";
-import Typography from "material-ui/Typography";
-import WarningIcon from "material-ui-icons/Warning";
-import StopIcon from "material-ui-icons/Stop";
+import Tab from "@material-ui/core/Tab";
+import ListItemText from "@material-ui/core/ListItemText";
+import Typography from "@material-ui/core/Typography";
+import WarningIcon from "@material-ui/icons/Warning";
+import StopIcon from "@material-ui/icons/Stop";
 
 import { Unwrapped as UserGamesList } from "./UserGamesList";
 import messages from "./messages";
