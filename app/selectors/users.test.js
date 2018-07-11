@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import { fromJS } from "immutable";
+import { fromJS, Set } from "immutable";
 import userSelectors from "./users";
 import * as immutableMatchers from "jest-immutable-matchers";
 
@@ -73,6 +73,51 @@ describe("users selector", () => {
 			const loggedInUser = userSelectors.getLoggedInUser(state);
 
 			expect(currentUser).toEqualImmutable(loggedInUser);
+		});
+	});
+
+	describe("filterUsers", () => {
+		const users = {};
+
+		const NUMBER_OF_USERS = 10;
+
+		for (let i = 0; i <= NUMBER_OF_USERS; i++) {
+			users["" + i] = {
+				id: i + "",
+				name: `Test User ${i}`,
+			};
+		}
+
+		const state = fromJS({
+			items: users,
+			currentID: null,
+		});
+
+		it("should return all users if no user IDs are passed", () => {
+			const result = userSelectors.filterUsers(state);
+
+			expect(result).toEqualImmutable(fromJS(users));
+		});
+
+		it("should return an empty Map if an empty set of user IDs are passed", () => {
+			const result = userSelectors.filterUsers(state, { userIDs: Set() });
+
+			expect(result).toEqualImmutable(fromJS({}));
+		});
+
+		it("should return a subset of users if user IDs are passed", () => {
+			const result = userSelectors.filterUsers(
+				state,
+				{
+					userIDs: Set([ "2", "4", "6" ]),
+				}
+			);
+
+			expect(result).toEqualImmutable(fromJS({
+				2: users["2"],
+				4: users["4"],
+				6: users["6"],
+			}));
 		});
 	});
 });

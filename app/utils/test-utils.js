@@ -1,4 +1,3 @@
-import React from "react";
 import { IntlProvider } from "react-intl";
 import configureStore from "redux-mock-store";
 import { runSaga as realRunSaga } from "redux-saga";
@@ -10,39 +9,6 @@ const intlProvider = new IntlProvider({ locale: "en", messages: translationMessa
 export const { intl } = intlProvider.getChildContext();
 
 export const formatMessage = intl.formatMessage.bind(intl);
-
-export function unwrapComponent(component) {
-	if (component.WrappedComponent) {
-		return unwrapComponent(component.WrappedComponent);
-	}
-
-	if (component.Naked) {
-		return unwrapComponent(component.Naked);
-	}
-
-	return component;
-}
-
-export const wrapWithIntlProvider = (Component) => {
-	const WrapperComponent = ({...props}) => {
-		return (
-			<IntlProvider
-				locale="en"
-				messages={translationMessages.en}
-			>
-				<Component
-					{...props}
-				/>
-			</IntlProvider>
-		);
-	};
-
-	WrapperComponent.getDisplayName = (name) => `wrapWithIntlProvider(${name})`;
-
-	WrapperComponent.WrappedComponent = Component;
-
-	return WrapperComponent;
-};
 
 const _mockStore = configureStore();
 

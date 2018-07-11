@@ -54,17 +54,18 @@ const getLoggedInUser = createSelector(
 
 const filterUsers = createSelector(
 	getUsers,
-	(state, props) => props.userIDs,
+	(state, props) => props && props.userIDs,
 	(users, userIDs) => {
 		if (userIDs === undefined) {
 			return users;
 		}
 
-		if (userIDs.length === 0) {
+		userIDs = Set(userIDs);
+
+		if (userIDs.isEmpty()) {
 			return Map();
 		}
 
-		userIDs = Set(userIDs);
 
 		return users.filter(
 			(user, id) => userIDs.includes(id)

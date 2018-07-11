@@ -1,20 +1,17 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { fromJS } from "immutable";
 import { shallow, mount } from "enzyme";
-import configureStore from "redux-mock-store";
 import * as immutableMatchers from "jest-immutable-matchers";
 import { MemoryRouter } from "react-router";
+import { intlShape } from "react-intl";
 import Icon from "@material-ui/core/Icon";
 import Button from "@material-ui/core/Button";
 
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
 import { LOGOUT, LOGIN } from "@app/actions";
+import { intl, mockStore } from "@app/utils/test-utils";
 
 import AccountDialog from "./AccountDialog";
-
-const WrappedAccountDialog = wrapWithIntlProvider(AccountDialog);
-
-const mockStore = configureStore();
 
 beforeAll(async () => {
 	jest.addMatchers(immutableMatchers);
@@ -37,9 +34,16 @@ describe("AccountDialog container", () => {
 		}));
 
 		const wrapper = shallow(
-			<WrappedAccountDialog
-				store={store}
-			/>
+			(
+				<AccountDialog
+				/>
+			),
+			{
+				context: {
+					intl,
+					store,
+				},
+			}
 		);
 
 		expect(wrapper.dive().dive().prop("loggedInUser")).toEqualImmutable(user);
@@ -52,9 +56,16 @@ describe("AccountDialog container", () => {
 		}));
 
 		const wrapper = shallow(
-			<WrappedAccountDialog
-				store={store}
-			/>
+			(
+				<AccountDialog
+				/>
+			),
+			{
+				context: {
+					intl,
+					store,
+				},
+			}
 		);
 
 		expect(wrapper.dive().prop("loggedInUser")).toBeUndefined();
@@ -80,14 +91,24 @@ describe("AccountDialog container", () => {
 
 		jest.spyOn(document.location, "assign").mockImplementation(() => {});
 
-		const WrappedAccountDialog = wrapWithIntlProvider(AccountDialog);
-
 		const wrapper = mount(
-			<MemoryRouter>
-				<WrappedAccountDialog
-					store={store}
-				/>
-			</MemoryRouter>
+			(
+				<MemoryRouter>
+					<AccountDialog
+					/>
+				</MemoryRouter>
+			),
+			{
+				context: {
+					intl,
+					store,
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		const logoutButton = wrapper.find(Button).filterWhere(
@@ -117,12 +138,24 @@ describe("AccountDialog container", () => {
 		jest.spyOn(document.location, "assign").mockImplementation(() => {});
 
 		const wrapper = mount(
-			<MemoryRouter>
-				<WrappedAccountDialog
-					store={store}
-					enabledProviders={[ "facebook" ]}
-				/>
-			</MemoryRouter>
+			(
+				<MemoryRouter>
+					<AccountDialog
+						enabledProviders={[ "facebook" ]}
+					/>
+				</MemoryRouter>
+			),
+			{
+				context: {
+					intl,
+					store,
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		const classes = wrapper.find("AccountDialog").prop("classes");

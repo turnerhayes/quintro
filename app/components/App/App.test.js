@@ -1,32 +1,14 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { fromJS } from "immutable";
 import { mount } from "enzyme";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
 import { MemoryRouter } from "react-router";
-import createSagaMiddleware from "redux-saga";
+import { intlShape } from "react-intl";
 import fetchMock from "fetch-mock";
 import Loadable from "react-loadable";
 import * as immutableMatchers from "jest-immutable-matchers";
-import { wrapWithIntlProvider } from "@app/utils/test-utils";
-import _App from "./index";
-
-const App = wrapWithIntlProvider(_App);
-const sagaMiddleware = createSagaMiddleware();
-
-const mockStore = configureStore([
-	sagaMiddleware,
-]);
-
-function createStore(initialState) {
-	const store = mockStore(initialState);
-
-	store.runSaga = sagaMiddleware.run;
-	store.injectedReducers = {};
-	store.injectedSagas = {};
-
-	return store;
-}
+import { intl, mockStore } from "@app/utils/test-utils";
+import App from "./index";
 
 
 beforeAll(() => {
@@ -51,16 +33,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find("HomePage")).toExist();
@@ -77,16 +68,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find(".page-layout__left-panel").find("UserGamesList")).toExist();
@@ -118,16 +118,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ `/play/${gameName}` ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		const component = wrapper.find("PlayGame");
@@ -148,16 +157,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/game/create" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find("CreateGame")).toExist();
@@ -174,16 +192,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/game/find" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find("FindGame")).toExist();
@@ -200,16 +227,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/how-to-play" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find("HowToPlay")).toExist();
@@ -226,16 +262,25 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			<Provider
-				store={createStore(initialState)}
-			>
+			(
 				<MemoryRouter
 					initialEntries={[ "/this-is-not-a-real-route-dude" ]}
 				>
 					<App
 					/>
 				</MemoryRouter>
-			</Provider>
+			),
+			{
+				context: {
+					intl,
+					store: mockStore(initialState),
+				},
+
+				childContextTypes: {
+					intl: intlShape,
+					store: PropTypes.object,
+				},
+			}
 		);
 
 		expect(wrapper.find("NotFoundPage")).toExist();

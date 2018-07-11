@@ -103,10 +103,13 @@ class PlayGame extends React.PureComponent {
 	}
 
 	componentDidUpdate() {
-		if (this.props.game) {
-			if (this.props.playerUsers && this.props.playerUsers.size === this.props.game.get("players").size) {
-				this.joinIfInGame();
-			}
+		// istanbul ignore else
+		if (
+			this.props.game &&
+			this.props.playerUsers &&
+			this.props.playerUsers.size === this.props.game.get("players").size
+		) {
+			this.joinIfInGame();
 		}
 	}
 

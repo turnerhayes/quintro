@@ -4,6 +4,7 @@ import * as immutableMatchers from "jest-immutable-matchers";
 import {
 	fetchedUserGames,
 	fetchedGame,
+	findOpenGames,
 	gameUpdated,
 	addPlayer,
 	updateWatchers,
@@ -550,5 +551,61 @@ describe("Games reducer", () => {
 
 		expect(state.getIn([ "items", name, "isStarted" ]))
 			.toBeTruthy();
+	});
+
+	it("FIND_OPEN_GAMES", () => {
+		const name = "test";
+
+		const player1 = fromJS({
+			color: "blue",
+			user: {
+				id: "1",
+				name: {
+					display: "Tester 1",
+				},
+				isMe: true,
+			},
+			order: 0,
+		});
+
+		const player2 = fromJS({
+			color: "red",
+			user: {
+				id: "2",
+				name: {
+					display: "Tester 2",
+				},
+			},
+			order: 1,
+		});
+
+		const game = fromJS({
+			name,
+			board: {
+				width: 10,
+				height: 10,
+				filled: [],
+			},
+			playerLimit: 3,
+			players: [
+				player1,
+				player2,
+			],
+			currentPlayerColor: player1.get("color"),
+		});
+
+		let state = fromJS({
+			items: {
+				[game.name]: name,
+			},
+			openGames: [ game.name ],
+		});
+
+		state = [
+			findOpenGames({}),
+		].reduce(reducer, state);
+
+		expect(state.get("openGames"))
+			.toBe(undefined);
 	});
 });
