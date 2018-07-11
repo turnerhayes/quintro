@@ -2,13 +2,11 @@ function getQueryParams(query) {
 	const queryParams = new URLSearchParams();
 
 	for (let key in query) {
-		if (Object.prototype.hasOwnProperty.call(query, key)) {
-			if (Array.isArray(query[key])) {
-				query[key].forEach((value) => queryParams.append(key, value));
-			}
-			else {
-				queryParams.append(key, query[key]);
-			}
+		if (Array.isArray(query[key])) {
+			query[key].forEach((value) => queryParams.append(key, value));
+		}
+		else {
+			queryParams.append(key, query[key]);
 		}
 	}
 
