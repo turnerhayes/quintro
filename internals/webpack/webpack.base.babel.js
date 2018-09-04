@@ -94,9 +94,15 @@ module.exports = (options) => ({
 					{
 						loader: "image-webpack-loader",
 						options: {
-							progressive: true,
-							optimizationLevel: 7,
-							interlaced: false,
+							mozJpeg: {
+								progressive: true,
+							},
+							optipng: {
+								optimizationLevel: 7,
+							},
+							gifsicle: {
+								interlaced: false,
+							},
 							pngquant: {
 								quality: "65-90",
 								speed: 4,
@@ -161,6 +167,7 @@ module.exports = (options) => ({
 			".js",
 			".jsx",
 			".react.js",
+			".less",
 		],
 		mainFields: [
 			"browser",
