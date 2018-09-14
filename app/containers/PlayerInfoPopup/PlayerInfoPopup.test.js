@@ -38,7 +38,7 @@ describe("PlayerInfoPopup container", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -90,7 +90,7 @@ describe("PlayerInfoPopup container", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{

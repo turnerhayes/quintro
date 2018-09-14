@@ -1,11 +1,9 @@
-#!/usr/bin/nodejs
-
 "use strict";
 
 require("dotenv").config();
 
 const debug            = require("debug")("quintro:socket:server");
-const createSocketsApp = require("../app");
+const createSocketsApp = require("../");
 
 const { server, app } = createSocketsApp();
 

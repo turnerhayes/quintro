@@ -85,7 +85,7 @@ describe("games action creators", () => {
 					board: {
 						width: 10,
 						height: 15,
-						filled: [],
+						filledCells: [],
 					},
 					name: "test",
 					playerLimit: 4,
@@ -105,7 +105,7 @@ describe("games action creators", () => {
 						board: {
 							width: 15,
 							height: 15,
-							filled: [],
+							filledCells: [],
 						},
 						playerLimit: 3,
 						players: [
@@ -126,7 +126,7 @@ describe("games action creators", () => {
 						board: {
 							width: 15,
 							height: 15,
-							filled: [],
+							filledCells: [],
 						},
 						playerLimit: 3,
 						players: [
@@ -147,7 +147,7 @@ describe("games action creators", () => {
 						board: {
 							width: 15,
 							height: 15,
-							filled: [],
+							filledCells: [],
 						},
 						playerLimit: 3,
 						players: [
@@ -181,7 +181,7 @@ describe("games action creators", () => {
 					board: {
 						width: 10,
 						height: 15,
-						filled: [],
+						filledCells: [],
 					},
 					name: "test",
 					playerLimit: 4,

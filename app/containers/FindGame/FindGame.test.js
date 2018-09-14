@@ -2,6 +2,7 @@ import React from "react";
 import { shallow } from "enzyme";
 import { fromJS } from "immutable";
 import { push } from "connected-react-router";
+import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";
 import { mockStore } from "@app/utils/test-utils";
@@ -11,6 +12,10 @@ import {
 } from "@app/actions";
 
 import FindGame from "./FindGame";
+
+beforeAll(() => {
+	jest.addMatchers(immutableMatchers);
+});
 
 describe("FindGame container", () => {
 	it("should pass the correct props", () => {
@@ -22,7 +27,7 @@ describe("FindGame container", () => {
 				board: {
 					width: 15,
 					height: 15,
-					filled: [],
+					filledCells: [],
 				},
 				players: [],
 				isStarted: false,
@@ -32,7 +37,7 @@ describe("FindGame container", () => {
 				board: {
 					width: 15,
 					height: 15,
-					filled: [],
+					filledCells: [],
 				},
 				players: [],
 				isStarted: false,
@@ -57,7 +62,7 @@ describe("FindGame container", () => {
 			}
 		);
 
-		expect(wrapper).toHaveProp("results", results.map(
+		expect(wrapper.prop("results")).toEqualImmutable(results.map(
 			(result) => result.set("isLoaded", true)
 		));
 		expect(wrapper).toHaveProp("findGameError", undefined);

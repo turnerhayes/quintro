@@ -1,9 +1,8 @@
 require("dotenv").config();
-const path = require("path");
 const rfr = require("rfr");
-const Config = rfr("server/lib/config");
+const pathConfig = rfr("server/lib/config/paths");
 
 module.exports = exports = {
-	"@app": Config.paths.app,
-	"@shared-lib": path.join(Config.paths.root, "shared-lib"),
+	"@app": pathConfig.APP_PATH,
+	"@shared-lib": pathConfig.SHARED_LIB_PATH,
 };

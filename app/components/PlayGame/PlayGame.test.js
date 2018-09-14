@@ -3,9 +3,13 @@ import { fromJS, Map } from "immutable";
 import { shallow } from "enzyme";
 import Button from "@material-ui/core/Button";
 import Badge from "@material-ui/core/Badge";
+import TextField from "@material-ui/core/TextField";
+
+import BoardRecord from "@shared-lib/board";
 
 import { intl, mockStore } from "@app/utils/test-utils";
 import Cell from "@app/components/Board/Cell";
+import ZoomControls from "@app/components/Board/ZoomControls";
 
 import { Unwrapped as PlayGame } from "./PlayGame";
 import StartGameOverlay from "./StartGameOverlay";
@@ -26,6 +30,7 @@ function getProps({
 	onZoomLevelChange = NO_OP,
 	watcherCount,
 	hasJoinedGame,
+	isWatchingGame,
 	isInGame,
 	playerUsers = Map(),
 	classes = {},
@@ -42,6 +47,7 @@ function getProps({
 		onZoomLevelChange,
 		watcherCount,
 		hasJoinedGame,
+		isWatchingGame,
 		isInGame,
 		playerUsers,
 		classes,
@@ -56,11 +62,11 @@ describe("PlayGame component", () => {
 		name,
 		playerLimit: 3,
 		players: [],
-		board: {
+		board: new BoardRecord({
 			width: 10,
 			height: 10,
-			filled: [],
-		},
+			filledCells: [],
+		}),
 	});
 
 	it("should have a start button overlay if the game is not started", () => {
@@ -213,7 +219,7 @@ describe("PlayGame component", () => {
 						"items",
 						game.get("name"),
 						"board",
-						"filled",
+						"filledCells",
 						0,
 					],
 					fromJS({
@@ -396,10 +402,36 @@ describe("PlayGame component", () => {
 		expect(onCancelJoin).toHaveBeenCalled();
 	});
 
+	it("should change the zoom level when the zoom control is used", () => {
+		const onZoomLevelChange = jest.fn().mockName("mock_onZoomLevelChange");
+
+		const zoomLevel = 0.8;
+
+		const wrapper = shallow(
+			<PlayGame
+				{...getProps({
+					game,
+					gameName: name,
+					onZoomLevelChange,
+				})}
+			/>
+		).find(ZoomControls).shallow({
+			context: {
+				intl,
+			},
+		}).shallow();
+
+		wrapper.find(TextField).simulate("change", { target: { valueAsNumber: zoomLevel }});
+
+		expect(onZoomLevelChange).toHaveBeenCalledWith(zoomLevel);
+	});
+
 	it("should show a summary of people watching the game", () => {
 		const watcherCount = 3;
 
-		const wrapper = shallow(
+		jest.spyOn(intl, "formatMessage");
+
+		let wrapper = shallow(
 			<PlayGame
 				{...getProps({
 					game,
@@ -410,5 +442,35 @@ describe("PlayGame component", () => {
 		);
 
 		expect(wrapper.find(Badge).filter(`[badgeContent=${watcherCount}]`)).toExist();
+		expect(intl.formatMessage).toHaveBeenCalledWith(
+			{
+				id: "quintro.components.PlayGame.watchers.summary.withoutYou"
+			},
+			{
+				watcherCount,
+			}
+		);
+
+		// if current player is watching the game, shows a different message
+		wrapper = shallow(
+			<PlayGame
+				{...getProps({
+					game,
+					gameName: name,
+					watcherCount,
+					isWatchingGame: true,
+				})}
+			/>
+		);
+
+		expect(wrapper.find(Badge).filter(`[badgeContent=${watcherCount}]`)).toExist();
+		expect(intl.formatMessage).toHaveBeenCalledWith(
+			{
+				id: "quintro.components.PlayGame.watchers.summary.withYou"
+			},
+			{
+				watcherCount: watcherCount - 1,
+			}
+		);
 	});
 });

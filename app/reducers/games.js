@@ -1,4 +1,6 @@
 import { Map, Set, List, fromJS } from "immutable";
+
+import Board from "@shared-lib/board";
 import {
 	FETCHED_USER_GAMES,
 	FETCHED_GAME,
@@ -16,13 +18,18 @@ import {
 } from "@app/actions";
 
 function prepareGame(game) {
-	return game.updateIn(
-		["players"],
+	const board = game.get("board").toJS();
+
+	return game.update(
+		"players",
 		(players) => players.map(
 			(player) => player.set("userID", player.getIn(["user", "id"]))
 				.delete("user")
 				.delete("order")
 		)
+	).set(
+		"board",
+		new Board(board),
 	).set("isLoaded", true);
 }
 
@@ -122,7 +129,7 @@ export default function gamesReducer(state = Map(), action) {
 			const { gameName, position, color } = action.payload;
 
 			return state.updateIn(
-				["items", gameName, "board", "filled"],
+				["items", gameName, "board", "filledCells"],
 				(filledCells) => (filledCells || List()).push(
 					fromJS({
 						position,

@@ -2,9 +2,8 @@
 
 const passport  = require("passport");
 const debug     = require("debug")("quintro:server:middleware:passport");
-const rfr       = require("rfr");
-const UserStore = rfr("server/persistence/stores/user");
-const Config    = rfr("server/lib/config");
+const UserStore = require("../persistence/stores/user");
+const Config    = require("../lib/config");
 
 passport.serializeUser((user, done) => {
 	done(null, user.id);

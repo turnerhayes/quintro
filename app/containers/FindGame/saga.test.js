@@ -49,7 +49,7 @@ describe("FindGame saga", () => {
 				board: {
 					width: 15,
 					height: 15,
-					filled: [],
+					filledCells: [],
 				},
 				players: [],
 				playerLimit: 3,

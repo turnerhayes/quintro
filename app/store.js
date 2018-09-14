@@ -28,6 +28,7 @@ const initialState = Map(
 let store;
 
 export default function getStore() {
+	/* istanbul ignore else */
 	if (!store) {
 		store = configureStore(initialState, history);
 	}

@@ -25,14 +25,10 @@ const SERIALIZED_SEPARATOR = ";";
  */
 const QUINTRO_LENGTH = 5;
 
-// Taken from https://stackoverflow.com/a/7616484/324399
+// Adapted from https://stackoverflow.com/a/7616484/324399
 function stringHash(str) {
 	let hash = 0, i, chr;
 	
-	if (str.length === 0) {
-		return hash;
-	}
-
 	for (i = 0; i < str.length; i++) {
 		chr = str.charCodeAt(i);
 		// eslint-disable-next-line no-magic-numbers
@@ -58,12 +54,12 @@ class Quintro extends Record(schema, "Quintro") {
 	 * @throws {AssertionError} the collection of cells contains occupied cells with different colors
 	 */
 	constructor(args) {
-		args.cells = fromJS(args.cells);
+		const cells = fromJS(args.cells);
 
 		let quintroColor;
 		let numberOfEmptyCells = 0;
 
-		args.cells.forEach(
+		cells.forEach(
 			(cell) => {
 				const color = cell.get("color");
 
@@ -81,10 +77,15 @@ class Quintro extends Record(schema, "Quintro") {
 			}
 		);
 
+		assert(quintroColor !== undefined, "Cannot create a quintro with only empty cells");
+
 		args.numberOfEmptyCells = numberOfEmptyCells;
 		args.color = quintroColor;
 
-		super(args);
+		super({
+			...args,
+			cells,
+		});
 	}
 
 	/**
@@ -109,6 +110,23 @@ class Quintro extends Record(schema, "Quintro") {
 	 */
 
 	/**
+	 * Returns a serialized string representation of the specified cell.
+	 *
+	 * @private
+	 *
+	 * @return {string} the serialized quintro
+	 */
+	_serializeCell(cell) {
+		const obj = { position: cell.get("position") };
+
+		if (cell.get("color")) {
+			obj.color = cell.get("color");
+		}
+
+		return JSON.stringify(obj);
+	}
+
+	/**
 	 * Returns a serialized string representation of this quintro. This value can be used to
 	 * determine if two {@link shared-lib.Quintro|Quintros} represent the same set of cells.
 	 *
@@ -116,9 +134,7 @@ class Quintro extends Record(schema, "Quintro") {
 	 */
 	serialize() {
 		if (!this._serialized) {
-			this._serialized = SERIALIZED_SEPARATOR + this.cells.map(
-				(cell) => `${JSON.stringify(cell.get("position"))}(${cell.get("color") || ""})`
-			).join(SERIALIZED_SEPARATOR) + SERIALIZED_SEPARATOR;
+			this._serialized = this.cells.map(this._serializeCell).join(SERIALIZED_SEPARATOR);
 		}
 
 		return this._serialized;
@@ -133,6 +149,15 @@ class Quintro extends Record(schema, "Quintro") {
 		return `Quintro<${this.serialize()}>`;
 	}
 
+	/**
+	 * Determines whether this quintro represents the same set of cells as another
+	 * (without regard to the colors in the cells, if any).
+	 *
+	 * @param {*} other - the other object to check equality against
+	 *
+	 * @return {boolean} false if the other is not a Quintro object or the cells
+	 * are not the same sets
+	 */
 	cellsAreInSamePositions(other) {
 		if (!(other instanceof Quintro)) {
 			return false;

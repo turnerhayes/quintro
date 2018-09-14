@@ -19,7 +19,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -60,7 +60,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 			],
@@ -93,7 +93,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [],
 			playerLimit: 3,
@@ -144,7 +144,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -183,7 +183,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -218,7 +218,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -255,7 +255,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -288,7 +288,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 				{
@@ -329,7 +329,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [
 			],
@@ -359,7 +359,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [],
 			playerLimit: 3,
@@ -392,7 +392,7 @@ describe("GameJoinDialog component", () => {
 			board: {
 				width: 15,
 				height: 15,
-				filled: [],
+				filledCells: [],
 			},
 			players: [],
 			playerLimit: 3,

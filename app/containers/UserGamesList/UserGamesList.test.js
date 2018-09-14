@@ -71,7 +71,7 @@ describe("UserGamesList container", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [
@@ -87,7 +87,7 @@ describe("UserGamesList container", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [

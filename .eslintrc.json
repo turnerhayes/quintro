@@ -45,7 +45,10 @@
 	},
 	"overrides": [
 		{
-			"files": "**/*.test.js",
+			"files": ["**/*.test.js", "**/__test__/**/*.js"],
+			"parserOptions": {
+				"sourceType": "module"
+			},
 			"env": {
 				"jest": true
 			}

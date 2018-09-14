@@ -1,6 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { intlShape } from "react-intl";
+import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";
 import { mockStore, intl } from "@app/utils/test-utils";
@@ -11,6 +12,10 @@ import {
 }                  from "@app/actions";
 
 import CreateGame from "./CreateGame";
+
+beforeAll(() => {
+	jest.addMatchers(immutableMatchers);
+});
 
 describe("CreateGame container", () => {
 	it("should pass correct props", () => {
@@ -148,5 +153,11 @@ describe("CreateGame container", () => {
 		store.dispatch(checkedGameName({ result: false }));
 
 		expect(state.getIn([ "CreateGameContainer", "isNameValid" ])).toBeTruthy();
+
+		const prevState = state;
+
+		store.dispatch({ type: "@@TEST/DUMMY", });
+
+		expect(prevState).toEqualImmutable(state);
 	});
 });
