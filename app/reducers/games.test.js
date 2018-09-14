@@ -15,6 +15,8 @@ import {
 	setWinner,
 	gameStarted,
 } from "@app/actions";
+import selectors from "@app/selectors/games";
+import Board from "@shared-lib/board";
 
 import reducer from "./games";
 
@@ -39,7 +41,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [],
@@ -59,11 +61,11 @@ describe("Games reducer", () => {
 
 		const game = fromJS({
 			name,
-			board: {
+			board: new Board({
 				width: 10,
 				height: 10,
-				filled: [],
-			},
+				filledCells: [],
+			}),
 			playerLimit: 3,
 			players: [],
 		});
@@ -80,12 +82,12 @@ describe("Games reducer", () => {
 	it("GAME_UPDATED", () => {
 		const name = "test";
 
-		const game = fromJS({
+		let game = fromJS({
 			name,
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [],
@@ -109,6 +111,8 @@ describe("Games reducer", () => {
 			game,
 		}));
 
+		game = selectors.getGame(initialState, { gameName: name });
+
 		const state = reducer(initialState, gameUpdated({
 			gameName: name,
 			update,
@@ -128,7 +132,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [],
@@ -195,7 +199,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [],
@@ -240,7 +244,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players,
@@ -298,7 +302,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [],
@@ -380,7 +384,7 @@ describe("Games reducer", () => {
 			color,
 		}));
 
-		expect(state.getIn([ "items", name, "board", "filled" ]))
+		expect(state.getIn([ "items", name, "board", "filledCells" ]))
 			.toEqualImmutable(fromJS([
 				{
 					position,
@@ -420,7 +424,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [
@@ -475,7 +479,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [
@@ -530,7 +534,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [
@@ -584,7 +588,7 @@ describe("Games reducer", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [

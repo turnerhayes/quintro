@@ -32,7 +32,7 @@ const GameSchema = new mongoose.Schema({
 			min: Config.game.board.height.min,
 			max: Config.game.board.height.max,
 		},
-		filled: [
+		filledCells: [
 			{
 				position: {
 					type: Array
@@ -161,7 +161,7 @@ class Game {
 	}
 
 	fillCell({ position, color }) {
-		this.board.filled.push({
+		this.board.filledCells.push({
 			position,
 			color
 		});
@@ -172,7 +172,7 @@ class Game {
 	}
 
 	getCell([column, row]) {
-		return this.board.filled.find(
+		return this.board.filledCells.find(
 			(filledCell) => filledCell.position[0] === column &&
 				filledCell.position[1] === row
 		);

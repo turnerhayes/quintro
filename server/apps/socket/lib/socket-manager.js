@@ -1,28 +1,27 @@
 "use strict";
 
 const _                  = require("lodash");
-const path               = require("path");
 const assert             = require("assert");
+const path               = require("path");
 const util               = require("util");
 const IOServer           = require("socket.io");
 const passport           = require("passport");
 const cookieParser       = require("cookie-parser");
-const rfrProject         = require("rfr")({
-	root: path.resolve(__dirname, "..", "..", "..", "..")
-});
+const { fromJS }         = require("immutable");
+
+const Config             = require("./config");
 const {
 	prepareUserForFrontend,
-}                        = rfrProject("server/routes/utils");
-const GameStore          = rfrProject("server/persistence/stores/game");
-const UserStore          = rfrProject("server/persistence/stores/user");
-const ErrorCodes         = rfrProject("shared-lib/error-codes");
-const Board              = rfrProject("shared-lib/board");
-const Config             = rfrProject("server/lib/config");
-const Loggers            = rfrProject("server/lib/loggers");
-const session            = rfrProject("server/lib/session");
+}                        = require(path.join(Config.paths.server, "routes/utils"));
+const GameStore          = require(path.join(Config.paths.server, "persistence/stores/game"));
+const UserStore          = require(path.join(Config.paths.server, "persistence/stores/user"));
+const ErrorCodes         = require(path.join(Config.paths.sharedLib, "error-codes"));
+const Loggers            = require(path.join(Config.paths.server, "lib/loggers"));
+const session            = require(path.join(Config.paths.server, "lib/session"));
+const { getQuintros }    = require(path.join(Config.paths.sharedLib, "quintro/utils"));
 const {
 	getNextColor
-}                        = rfrProject("shared-lib/players");
+}                        = require(path.join(Config.paths.sharedLib, "players"));
 
 const LOG_LEVELS   = {
 	INFO: "info",
@@ -705,13 +704,9 @@ class SocketManager {
 
 				game.fillCell(cell);
 
-				const quintros = new Board({
-					width: game.board.width,
-					height: game.board.height,
-					// game.board.filled is a collection of Mongo documents, so convert it to an
-					// array of plain objects for Board to work with
-					filledCells: game.board.filled.toObject(),
-				}).getQuintros({
+				const gameState = fromJS(game.toFrontendObject());
+
+				const quintros = getQuintros(gameState.get("board"), {
 					startCell: cell,
 				});
 

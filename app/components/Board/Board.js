@@ -5,6 +5,8 @@ import { fromJS }         from "immutable";
 import range              from "lodash/range";
 import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
+
+import BoardRecord        from "@shared-lib/board";
 import Cell               from "./Cell";
 
 const styles = {
@@ -40,7 +42,7 @@ class Board extends React.PureComponent {
 	 * @prop {client.react-components.Board~onCellClickCallback} [onCellClick] - handler called when a cell is clicked
 	 */
 	static propTypes = {
-		board: ImmutablePropTypes.map.isRequired,
+		board: PropTypes.instanceOf(BoardRecord).isRequired,
 		quintros: ImmutablePropTypes.set,
 		allowPlacement: PropTypes.bool,
 		gameIsOver: PropTypes.bool,
@@ -80,7 +82,7 @@ class Board extends React.PureComponent {
 		if (gameIsOver) {
 			quintros = this.props.quintros.reduce(
 				(cells, quintro) => {
-					quintro.forEach(
+					quintro.get("cells").forEach(
 						cell => cells[JSON.stringify(cell.get("position"))] = true
 					);
 
@@ -90,13 +92,13 @@ class Board extends React.PureComponent {
 			);
 		}
 
-		const filledMap = board.get("filled").reduce(
-			(filled, cell) => {
+		const filledMap = board.get("filledCells").reduce(
+			(filledCells, cell) => {
 				const stringPosition = JSON.stringify(cell.get("position"));
 
-				filled[stringPosition] = cell.set("isQuintroMember", quintros && !!quintros[stringPosition]);
+				filledCells[stringPosition] = cell.set("isQuintroMember", quintros && !!quintros[stringPosition]);
 
-				return filled;
+				return filledCells;
 			},
 			{}
 		);
@@ -121,15 +123,15 @@ class Board extends React.PureComponent {
 										range(board.get("width")).map(
 											(columnIndex) => {
 												const position = [columnIndex, rowIndex];
-												const filled = filledMap[JSON.stringify(position)];
+												const filledCells = filledMap[JSON.stringify(position)];
 
 												return (
 													<Cell
 														key={`${columnIndex}-${rowIndex}`}
-														cell={filled || fromJS({
+														cell={filledCells || fromJS({
 															position,
 														})}
-														allowPlacement={allowPlacement && !filled}
+														allowPlacement={allowPlacement && !filledCells}
 														onClick={this.handleCellClick}
 													/>
 												);

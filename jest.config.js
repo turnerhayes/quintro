@@ -6,6 +6,9 @@ module.exports = exports = {
 		"!app/app.js",
 		"!app/*/*/Loadable.js",
 		"!app/fonts/**",
+		"!app/utils/test-utils.js",
+		"shared-lib/**/*.js",
+		"!shared-lib/**/__test__/**/*.js",
 	],
 	coverageThreshold: {
 		global: {
@@ -17,7 +20,8 @@ module.exports = exports = {
 	},
 	moduleDirectories: [
 		"node_modules",
-		"app"
+		"app",
+		"shared-lib",
 	],
 	moduleNameMapper: {
 		".*\\.(css|less|styl|scss|sass)$": "<rootDir>/internals/mocks/cssModule.js",

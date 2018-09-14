@@ -37,16 +37,21 @@ global.document = {
 	origin: ORIGIN
 };
 
-const rfr          = require("rfr");
-const sharedConfig = rfr("shared-lib/config");
+const pathsConfig = require("./config/paths");
 
+const {
+	PROJECT_ROOT,
+	APP_PATH,
+	SHARED_LIB_PATH,
+	DIST_PATH,
+	SERVER_PATH,
+} = pathsConfig;
+
+const sharedConfig = require(path.join(SHARED_LIB_PATH, "config"));
 
 const ENVIRONMENT = process.env.NODE_ENV || "development";
 const IS_DEVELOPMENT = ENVIRONMENT === "development";
 
-const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
-const APP_PATH = path.join(PROJECT_ROOT, "app");
-const DIST_PATH = path.join(PROJECT_ROOT, "dist");
 const LOGS_DIRECTORY = path.resolve(PROJECT_ROOT, process.env.LOGS_DIRECTORY || "logs");
 
 const sslKeyPath = process.env.APP_SSL_KEY ?
@@ -115,6 +120,8 @@ const Config = {
 		root: PROJECT_ROOT,
 		app: APP_PATH,
 		dist: DIST_PATH,
+		server: SERVER_PATH,
+		sharedLib: SHARED_LIB_PATH,
 		logs: LOGS_DIRECTORY,
 		indexFile: {
 			name: "index.html",

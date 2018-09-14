@@ -40,7 +40,7 @@ describe("PlayGame saga", () => {
 		board: {
 			width: 10,
 			height: 10,
-			filled: [],
+			filledCells: [],
 		},
 		playerLimit: 3,
 		isStarted: true,
@@ -410,7 +410,7 @@ describe("PlayGame saga", () => {
 				board: {
 					width: 10,
 					height: 10,
-					filled: [],
+					filledCells: [],
 				},
 				playerLimit: 3,
 				players: [
@@ -458,7 +458,7 @@ describe("PlayGame saga", () => {
 				board: {
 					width: 10,
 					height: 10,
-					filled: [],
+					filledCells: [],
 				},
 				playerLimit: 3,
 				players: [

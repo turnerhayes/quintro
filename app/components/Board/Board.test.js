@@ -1,6 +1,9 @@
 import React from "react";
 import { fromJS, Set } from "immutable";
 import { shallow } from "enzyme";
+
+import BoardRecord from "@shared-lib/board";
+
 import { Unwrapped as Board } from "./Board";
 import Cell from "./Cell";
 
@@ -9,10 +12,10 @@ describe("Board component", () => {
 		const width = 10;
 		const height = 12;
 
-		const board = fromJS({
+		const board = new BoardRecord({
 			width,
 			height,
-			filled: [],
+			filledCells: [],
 		});
 
 		const wrapper = shallow(
@@ -32,7 +35,7 @@ describe("Board component", () => {
 
 		const color = "blue";
 
-		const filled = fromJS([
+		const filledCells = fromJS([
 			/* eslint-disable no-magic-numbers */
 			{
 				position: [0, 0],
@@ -66,14 +69,14 @@ describe("Board component", () => {
 			/* eslint-enable no-magic-numbers */
 		]);
 
-		const board = fromJS({
+		const board = new BoardRecord({
 			width,
 			height,
-			filled,
+			filledCells,
 		});
 
 		const quintros = Set([
-			filled,
+			filledCells,
 		]);
 
 		const wrapper = shallow(
@@ -91,7 +94,7 @@ describe("Board component", () => {
 			return cell.prop("cell").get("isQuintroMember");
 		});
 
-		expect(quintroCells).toHaveLength(filled.size);
+		expect(quintroCells).toHaveLength(filledCells.size);
 	});
 
 	it("should trigger the click handler when a cell is clicked", () => {
@@ -100,7 +103,7 @@ describe("Board component", () => {
 
 		const color = "blue";
 
-		const filled = fromJS([
+		const filledCells = fromJS([
 			/* eslint-disable no-magic-numbers */
 			{
 				position: [0, 0],
@@ -134,14 +137,14 @@ describe("Board component", () => {
 			/* eslint-enable no-magic-numbers */
 		]);
 
-		const board = fromJS({
+		const board = new BoardRecord({
 			width,
 			height,
-			filled,
+			filledCells,
 		});
 
 		const quintros = Set([
-			filled,
+			filledCells,
 		]);
 
 		const cellClickHandler = jest.fn();
@@ -161,7 +164,7 @@ describe("Board component", () => {
 		firstTd.simulate("click");
 
 		expect(cellClickHandler).toHaveBeenCalledWith({
-			cell: filled.first().set("isQuintroMember", true),
+			cell: filledCells.first().set("isQuintroMember", true),
 		});
 
 		// cell at {width} should be the first cell of the second

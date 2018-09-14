@@ -15,6 +15,7 @@ import {
 	startGame,
 	joinGame,
 	placeMarble,
+	setUIState,
 } from "@app/actions";
 import { mockStore, intl } from "@app/utils/test-utils";
 
@@ -87,7 +88,7 @@ describe("PlayGame container", () => {
 			board: {
 				width: 10,
 				height: 10,
-				filled: [],
+				filledCells: [],
 			},
 			playerLimit: 3,
 			players: [
@@ -373,5 +374,44 @@ describe("PlayGame container", () => {
 		wrapper.prop("onCancelJoin")();
 
 		expect(store.dispatch).toHaveBeenCalledWith(goBack());
+	});
+
+	it("should dispatch a setUIState action to change the zoom level", () => {
+		const reducer = createReducer();
+
+		const gameName = "test";
+
+		const state = reducer(undefined, {});
+
+		const store = mockStore(state);
+
+		jest.spyOn(store, "dispatch");
+
+		const wrapper = shallow(
+			(
+				<PlayGame
+					gameName={gameName}
+				/>
+			),
+			{
+				context: {
+					store,
+					intl,
+				},
+				childContextTypes: {
+					intl: intlShape,
+				},
+			},
+		);
+
+		// eslint-disable-next-line no-magic-numbers
+		wrapper.prop("onZoomLevelChange")(1.4);
+
+		expect(store.dispatch).toHaveBeenCalledWith(setUIState({
+			section: "PlayGame",
+			settings: {
+				currentZoomLevel: 1.4,
+			},
+		}));
 	});
 });

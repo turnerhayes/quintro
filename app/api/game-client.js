@@ -165,14 +165,12 @@ class GameClient extends SocketClient {
 			"game:update",
 			{ gameName }
 		).then(
-			({ update }) => {
-				this.dispatch(
-					gameUpdated({
-						gameName,
-						update,
-					})
-				);
-			}
+			({ update }) => this.dispatch(
+				gameUpdated({
+					gameName,
+					update,
+				})
+			)
 		);
 	}
 

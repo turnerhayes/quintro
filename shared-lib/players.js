@@ -1,16 +1,10 @@
 "use strict";
 
-const {
-	find,
-	includes
-} = require("lodash");
 const Config = require("./config");
 
 function getNextColor(currentPlayerColors) {
-	return find(
-		Config.game.colors,
-		(colorDefinition) => !includes(
-			currentPlayerColors,
+	return Config.game.colors.find(
+		(colorDefinition) => !currentPlayerColors.includes(
 			colorDefinition.id
 		)
 	);

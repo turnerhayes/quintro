@@ -1,6 +1,6 @@
 import { List, Map } from "immutable";
 import { createSelector } from "reselect";
-import quintroSelectors from "./quintros";
+import * as quintroSelectors from "./quintros";
 
 const getWinner = (game) => game.get("winner");
 

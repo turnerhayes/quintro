@@ -7,7 +7,11 @@ import { intlShape } from "react-intl";
 import fetchMock from "fetch-mock";
 import Loadable from "react-loadable";
 import * as immutableMatchers from "jest-immutable-matchers";
+
+import BoardRecord from "@shared-lib/board";
+
 import { intl, mockStore } from "@app/utils/test-utils";
+
 import App from "./index";
 
 
@@ -97,11 +101,11 @@ describe("App component", () => {
 
 		const game = fromJS({
 			name: gameName,
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-				filled: [],
-			},
+				filledCells: [],
+			}),
 			players: [],
 			isLoaded: true,
 		});
