@@ -65,4 +65,9 @@ export default {
 	"quintro.components.PlayerInfoPopup.profileLink": "Profile",
 	"quintro.components.PlayerInfoPopup.showFormButtonTitle": "Change display name",
 	"quintro.components.PlayerInfoPopup.anonymousUserTitle": "Anonymous User",
+	"quintro.components.QuickSettingsDialog.dialogTitle": "Quick Settings",
+	"quintro.components.QuickSettingsDialog.settingLabels.notifications": "Enable Browser Notifications",
+	"quintro.components.QuickSettingsDialog.settingLabels.soundEffects": "Enable Sound Effects",
+	"quintro.components.QuickSettingsDialog.settingNames.notifications": "Notifications",
+	"quintro.components.QuickSettingsDialog.settingNames.soundEffects": "Sound Effects",
 };
