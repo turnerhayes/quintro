@@ -3,6 +3,7 @@ import { fromJS, Set } from "immutable";
 import { shallow } from "enzyme";
 
 import BoardRecord from "@shared-lib/board";
+import Quintro from "@shared-lib/quintro";
 
 import { Unwrapped as Board } from "./Board";
 import Cell from "./Cell";
@@ -76,7 +77,7 @@ describe("Board component", () => {
 		});
 
 		const quintros = Set([
-			filledCells,
+			new Quintro({ cells: filledCells, }),
 		]);
 
 		const wrapper = shallow(
@@ -144,7 +145,7 @@ describe("Board component", () => {
 		});
 
 		const quintros = Set([
-			filledCells,
+			new Quintro({ cells: filledCells, }),
 		]);
 
 		const cellClickHandler = jest.fn();
