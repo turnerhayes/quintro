@@ -7,7 +7,7 @@
     "url": "git://github.com/turnerhayes/quintro"
   },
   "engines": {
-    "npm": ">=5",
+    "npm": ">=6",
     "node": ">=8"
   },
   "author": "Turner Hayes <dev@turnerhayes.com>",
@@ -21,13 +21,9 @@
     "postinstall": "npm run build:dll && npm run install:app:sockets",
     "install:app:sockets": "cd ./server/apps/socket && npm install",
     "prebuild": "npm run build:clean",
-    "build": "build:client && build:shared-lib",
-    "build:client": "cross-env NODE_ENV=production webpack --config internals/webpack/webpack.prod.babel.js --color --progress --hide-modules",
-    "build:client:clean": "rimraf ./dist",
-    "build:clean": "npm run build:client:clean && npm run build:shared-lib:clean",
+    "build": "cross-env NODE_ENV=production webpack --config internals/webpack/webpack.prod.babel.js --color --progress --hide-modules",
+    "build:clean": "rimraf ./dist",
     "build:dll": "node ./internals/scripts/dependencies.js",
-    "build:shared-lib": "npm run build:shared-lib:clean; babel --ignore \"__test__/**,**/*.test.js\" --source-maps --copy-files -d shared-lib.es5 shared-lib",
-    "build:shared-lib:clean": "rimraf shared-lib.es5/",
     "start": "cross-env NODE_ENV=development nodemon server --debug",
     "start:tunnel": "cross-env NODE_ENV=development ENABLE_TUNNEL=true node server --debug",
     "start:production": "npm run test && npm run build && npm run start:prod",
