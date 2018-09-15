@@ -29,9 +29,8 @@ module.exports = (options) => ({
 				use: [
 					{
 						loader: "babel-loader",
-						options: options.babelQuery,
 					},
-					"eslint-loader"
+					"eslint-loader",
 				],
 			},
 			

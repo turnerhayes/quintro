@@ -15,7 +15,8 @@
 	"env": {
 		"production": {
 			"only": [
-				"app"
+				"app",
+				"shared-lib"
 			],
 			"plugins": [
 				"transform-react-remove-prop-types",
