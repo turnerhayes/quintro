@@ -1,7 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import { FormattedMessage } from "react-intl";
+
 import Config from "@app/config";
+
+import messages from "./messages";
 
 const styles = {
 	root: {
@@ -25,14 +29,20 @@ const styles = {
 };
 
 function WinnerBanner({ winnerColor, classes }) {
-	// TODO: Add i18n
 	return (
 		<div
 			className={classes.root}
 		>
 			<div
 				className={classes.winMessage}
-			>{Config.game.colors.get(winnerColor).name} wins!</div>
+			>
+				<FormattedMessage
+					{...messages.winMessage}
+					values={{
+						winnerColor: Config.game.colors.get(winnerColor).name,
+					}}
+				/>
+			</div>
 		</div>
 	);
 }

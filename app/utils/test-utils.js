@@ -1,3 +1,4 @@
+import React from "react";
 import { IntlProvider } from "react-intl";
 import configureStore from "redux-mock-store";
 import { runSaga as realRunSaga } from "redux-saga";
@@ -5,7 +6,11 @@ import { runSaga as realRunSaga } from "redux-saga";
 import { translationMessages } from "@app/i18n";
 import createReducer from "@app/reducers";
 
-const intlProvider = new IntlProvider({ locale: "en", messages: translationMessages.en }, {});
+const intlProvider = new IntlProvider({
+	locale: "en",
+	messages: translationMessages.en,
+	textComponent: React.Fragment,
+}, {});
 export const { intl } = intlProvider.getChildContext();
 
 export const formatMessage = intl.formatMessage.bind(intl);
