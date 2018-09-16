@@ -61,6 +61,7 @@ const render = (messages) => {
 				<IntlProvider
 					locale={locale}
 					messages={localeMessages}
+					textComponent={React.Fragment}
 				>
 					<ConnectedRouter history={history}>
 						<App />

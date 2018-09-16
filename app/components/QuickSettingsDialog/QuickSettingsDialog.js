@@ -113,10 +113,11 @@ class QuickSettingsDialog extends React.PureComponent {
 	render() {
 		return (
 			<div>
-				<FormattedMessage
-					tagName="h4"
-					{...messages.dialogTitle}
-				/>
+				<h4>
+					<FormattedMessage
+						{...messages.dialogTitle}
+					/>
+				</h4>
 				<div
 				>
 					<form
