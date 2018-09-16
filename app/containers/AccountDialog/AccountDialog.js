@@ -1,10 +1,11 @@
-import AccountDialog from "@app/components/AccountDialog";
 import { connect }   from "react-redux";
+
 import {
 	login,
 	logout
 }                    from "@app/actions";
 import selectors     from "@app/selectors";
+import AccountDialog from "@app/components/AccountDialog";
 
 const AccountDialogContainer = connect(
 	function mapStateToProps(state) {
