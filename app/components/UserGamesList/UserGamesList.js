@@ -262,7 +262,26 @@ class UserGamesList extends React.PureComponent {
 	renderEmptyGames = () => {
 		return (
 			<p>
-			You are not a part of any games. <Link to="/game/find">Find one to join</Link> or <Link to="/game/create">start your own!</Link>
+				<FormattedMessage
+					{...messages.noGamesActions.message}
+					values={{
+						findGameLink: (
+							<Link to="/game/find">
+								<FormattedMessage
+									{...messages.noGamesActions.findGameLinkText}
+								/>
+							</Link>
+						),
+
+						createGameLink: (
+							<Link to="/game/create">
+								<FormattedMessage
+									{...messages.noGamesActions.createGameLinkText}
+								/>
+							</Link>
+						),
+					}}
+				/>
 			</p>
 		);
 	}
