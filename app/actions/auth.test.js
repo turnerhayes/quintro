@@ -28,7 +28,7 @@ describe("auth action creators", () => {
 				(provider) => {
 					const action = login({ provider });
 
-					expect(document.location.assign).toHaveBeenCalledWith(`/auth/${provider}?redirectTo=blank`);
+					expect(document.location.assign).toHaveBeenCalledWith(`/auth/${provider}?redirectTo=%2F`);
 					
 					expect(isFSA(action)).toBeTruthy();
 
@@ -46,7 +46,7 @@ describe("auth action creators", () => {
 
 			const action = logout();
 
-			expect(document.location.assign).toHaveBeenCalledWith(`/auth/logout?redirectTo=blank`);
+			expect(document.location.assign).toHaveBeenCalledWith(`/auth/logout?redirectTo=%2F`);
 			
 			expect(isFSA(action)).toBeTruthy();
 
