@@ -284,10 +284,11 @@ class UserGamesList extends React.PureComponent {
 				className={this.props.classes.root}
 			>
 				<header>
-					<FormattedMessage
-						{...messages.title}
-						tagName="h3"
-					/>
+					<h3>
+						<FormattedMessage
+							{...messages.title}
+						/>
+					</h3>
 				</header>
 
 				{

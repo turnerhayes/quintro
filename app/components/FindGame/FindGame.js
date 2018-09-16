@@ -207,7 +207,9 @@ class FindGame extends React.PureComponent {
 					onClick={this.cancelSearch}
 					className={this.props.classes.cancelButton}
 				>
-					{this.formatMessage(messages.cancelSearchLabel)}
+					<FormattedMessage
+						{...messages.cancelSearchLabel}
+					/>
 				</Button>
 			</React.Fragment>
 		);

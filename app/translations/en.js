@@ -70,4 +70,11 @@ export default {
 	"quintro.components.QuickSettingsDialog.settingLabels.soundEffects": "Enable Sound Effects",
 	"quintro.components.QuickSettingsDialog.settingNames.notifications": "Notifications",
 	"quintro.components.QuickSettingsDialog.settingNames.soundEffects": "Sound Effects",
+	"quintro.components.HowToPlay.header": "How to Play Quintro",
+	"quintro.components.HowToPlay.sections.intro.text": "Quintro is a simple game played with marbles on a square board divided into a grid. The goal is to get five or more marbles of your color in a row before any other player.",
+	"quintro.components.HowToPlay.sections.turns.header": "Turns",
+	"quintro.components.HowToPlay.sections.turns.text": "Players take turns placing a single marble of their color on any unoccupied square on the board. Play order is determined at the start of the game and remains the same throughout the game.",
+	"quintro.components.HowToPlay.sections.winning.header": "Winning",
+	"quintro.components.HowToPlay.sections.winning.text": "Any line of five or more marbles of your color will cause you to win and the game to end. Lines can be horizontal, vertical, or diagonal. It is possible to have multiple \"quintros\" at once, if the last marble placed would complete multiple lines at once.",
+	"quintro.components.HowToPlay.figure.caption": "The last marble placed (circled in red) completed two diagonal quintros",
 };

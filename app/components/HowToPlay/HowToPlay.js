@@ -1,10 +1,32 @@
 import React             from "react";
-import createHelper      from "@app/components/class-helper";
+import PropTypes         from "prop-types";
+import { withStyles }    from "@material-ui/core/styles";
+import {
+	FormattedMessage
+}                        from "react-intl";
+
 import Config            from "@app/config";
 import multiQuintroImage from "@app/images/how-to-play/multi-quintro.png";
-import                        "./HowToPlay.less";
 
-const classes = createHelper("how-to-play");
+import messages from "./messages";
+
+const styles = {
+	header: {
+		textAlign: "center",
+	},
+	
+	figure: {
+		textAlign: "center",
+	},
+
+	figureImage: {
+		maxWidth: "30em",
+	},
+
+	figureCaption: {
+		fontStyle: "italic",
+	},
+};
 
 /**
  * Component representing a description of how to play the game.
@@ -13,60 +35,67 @@ const classes = createHelper("how-to-play");
  *
  * @memberof client.react-components
  */
-class HowToPlay extends React.PureComponent {
-	/**
-	 * Renders the component.
-	 *
-	 * @function
-	 *
-	 * @return {external:React.Component} the component to render
-	 */
-	render() {
-		return (
-			<section
-				{...classes()}
+function HowToPlay({ classes }) {
+	return (
+		<section
+		>
+			<header
+				className={classes.header}
 			>
-				<header
-					{...classes({
-						element: "header",
-					})}
+				<h1>
+					<FormattedMessage
+						{...messages.header}
+					/>
+				</h1>
+			</header>
+			<div>
+				<p>
+					<FormattedMessage
+						{...messages.sections.intro.text}
+					/>
+				</p>
+				<h2>
+					<FormattedMessage
+						{...messages.sections.turns.header}
+					/>
+				</h2>
+				<p>
+					<FormattedMessage
+						{...messages.sections.turns.text}
+					/>
+				</p>
+				<h2>
+					<FormattedMessage
+						{...messages.sections.winning.header}
+					/>
+				</h2>
+				<p>
+					<FormattedMessage
+						{...messages.sections.winning.text}
+					/>
+				</p>
+				<figure
+					className={classes.figure}
 				>
-					<h1>
-						How to Play Quintro
-					</h1>
-				</header>
-				<div>
-					<p>
-					Quintro is a simple game played with marbles on a square board divided into a grid. The goal is to get five or more marbles of your color in a row before any other player.
-					</p>
-					<h2>
-					Turns
-					</h2>
-					<p>
-					Players take turns placing a single marble of their color on any unoccupied square on the board. Play order is determined at the start of the game and remains the same throughout the game.
-					</p>
-					<h2>
-					Winning
-					</h2>
-					<p>
-					Any line of five or more marbles of your color will cause you to win and the game to end. Lines can be horizontal, vertical, or diagonal. It is possible to have multiple &quot;quintros&quot; at once, if the last marble placed would complete multiple lines at once.
-					</p>
-					<figure
-						{...classes({
-							element: "figure",
-						})}
+					<img
+						src={`${Config.staticContent.url}${multiQuintroImage}`}
+						className={classes.figureImage}
+					/>
+					<figcaption
+						className={classes.figureCaption}
 					>
-						<img
-							src={`${Config.staticContent.url}${multiQuintroImage}`}
+						<FormattedMessage
+							{...messages.figure.caption}
 						/>
-						<figcaption>
-						The last marble placed (circled in red) completed two diagonal quintros
-						</figcaption>
-					</figure>
-				</div>
-			</section>
-		);
-	}
+					</figcaption>
+				</figure>
+			</div>
+		</section>
+	);
 }
 
-export default HowToPlay;
+HowToPlay.propTypes = {
+	classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(HowToPlay);
