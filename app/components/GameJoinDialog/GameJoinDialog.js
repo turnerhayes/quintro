@@ -15,6 +15,7 @@ import {
 import {
 	injectIntl,
 	intlShape,
+	FormattedMessage,
 }                    from "react-intl";
 import Config        from "@app/config";
 import messages      from "./messages";
@@ -216,14 +217,39 @@ class GameJoinDialog extends React.Component {
 			<div>
 				{reason}.
 				<div>
-					<Link to="/game/find">Find another game</Link> or <Link to="/game/create">create your own!</Link>
+					<FormattedMessage
+						{...messages.cannotJoinActions}
+						values={{
+							findGameLink: (
+								<Link
+									to="/game/find"
+								>
+									<FormattedMessage
+										{...messages.findGameLinkText}
+									/>
+								</Link>
+							),
+
+							createGameLink: (
+								<Link
+									to="/game/create"
+								>
+									<FormattedMessage
+										{...messages.createGameLinkText}
+									/>
+								</Link>
+							),
+						}}
+					/>
 				</div>
 				<Button
 					className="watch-game-button"
 					color="secondary"
 					onClick={this.handleWatchGameButtonClicked}
 				>
-					{this.formatMessage(messages.buttons.watchGame.label)}
+					<FormattedMessage
+						{...messages.buttons.watchGame.label}
+					/>
 				</Button>
 			</div>
 		);
@@ -261,7 +287,9 @@ class GameJoinDialog extends React.Component {
 				<div>
 					<label
 					>
-						{this.formatMessage(messages.color)}:
+						<FormattedMessage
+							{...messages.color}
+						/>:
 						{
 							<Button
 								key="color-change-button"
@@ -307,14 +335,18 @@ class GameJoinDialog extends React.Component {
 						type="submit"
 						color="primary"
 					>
-						{this.formatMessage(messages.buttons.join.label)}
+						<FormattedMessage
+							{...messages.buttons.join.label}
+						/>
 					</Button>
 					<Button
 						className="cancel-button"
 						type="button"
 						onClick={this.handleCancelButtonClicked}
 					>
-						{this.formatMessage(messages.buttons.cancel.label)}
+						<FormattedMessage
+							{...messages.buttons.cancel.label}
+						/>
 					</Button>
 				</div>
 			</form>
