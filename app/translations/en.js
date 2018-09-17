@@ -42,6 +42,8 @@ export default {
 	} watching this game.`,
 	"quintro.components.PlayGame.loadingErrorMessage": "Error loading the game",
 	"quintro.components.PlayGame.WinnerBanner.winMessage": "{winnerColor} wins!",
+	"quintro.containers.PlayGame.saga.notification.title": "Quintro",
+	"quintro.containers.PlayGame.saga.notification.message": "It's your turn!",
 	"quintro.components.PlayerIndicators.indicatorMessages.you": "This is you",
 	"quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.present": "{playerName}",
 	"quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.absent": "{playerName} is absent",

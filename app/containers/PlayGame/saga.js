@@ -5,6 +5,8 @@ import { LOCATION_CHANGE } from "connected-react-router";
 import { Howl } from "howler";
 import Notify from "notifyjs";
 import urlJoin from "proper-url-join";
+
+import { formatMessage } from "@app/components/IntlContextExposer";
 import { getGame } from "@app/api/games";
 import {
 	fetchedGame,
@@ -16,6 +18,8 @@ import {
 import selectors from "@app/selectors";
 import Config from "@app/config";
 import marbleSoundFile from "@app/sounds/marble-drop.wav";
+
+import messages from "./messages";
 
 const MARBLE_SOUND_FADE_DURATION_IN_MILLISECONDS = 500;
 
@@ -41,8 +45,8 @@ function showNotification() {
 		!Notify.needsPermission || new Promise(Notify.requestPermission)
 	).then(
 		() => {
-			const notification = new Notify("Quintro", {
-				body: "It's your turn!",
+			const notification = new Notify(formatMessage(messages.notification.title), {
+				body: formatMessage(messages.notification.message),
 				notifyClick: () => {
 					window.focus();
 					notification.close();
