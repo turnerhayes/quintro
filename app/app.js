@@ -16,6 +16,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { ConnectedRouter } from "connected-react-router/immutable";
 import { IntlProvider } from "react-intl";
+import IntlContextExposer from "./components/IntlContextExposer";
 import "sanitize.css/sanitize.css";
 
 // Import root app
@@ -63,9 +64,11 @@ const render = (messages) => {
 					messages={localeMessages}
 					textComponent={React.Fragment}
 				>
-					<ConnectedRouter history={history}>
-						<App />
-					</ConnectedRouter>
+					<IntlContextExposer>
+						<ConnectedRouter history={history}>
+							<App />
+						</ConnectedRouter>
+					</IntlContextExposer>
 				</IntlProvider>
 			</Provider>
 		),

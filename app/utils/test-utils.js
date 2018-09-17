@@ -4,6 +4,7 @@ import configureStore from "redux-mock-store";
 import { runSaga as realRunSaga } from "redux-saga";
 
 import { translationMessages } from "@app/i18n";
+
 import createReducer from "@app/reducers";
 
 const intlProvider = new IntlProvider({
@@ -11,6 +12,7 @@ const intlProvider = new IntlProvider({
 	messages: translationMessages.en,
 	textComponent: React.Fragment,
 }, {});
+
 export const { intl } = intlProvider.getChildContext();
 
 export const formatMessage = intl.formatMessage.bind(intl);

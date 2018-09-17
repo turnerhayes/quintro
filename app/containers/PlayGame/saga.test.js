@@ -14,7 +14,14 @@ import {
 	addPlayer,
 } from "@app/actions";
 
-import { runSaga } from "@app/utils/test-utils";
+import { runSaga, intl } from "@app/utils/test-utils";
+
+jest.doMock("@app/components/IntlContextExposer", () => {
+	return {
+		default: ({ children }) => children,
+		formatMessage: intl.formatMessage,
+	};
+});
 
 describe("PlayGame saga", () => {
 	const reducer = createReducer();
