@@ -21,6 +21,7 @@ import {
 }                         from "react-intl";
 
 import gameSelectors      from "@app/selectors/games/game";
+
 import messages           from "./messages";
 
 
@@ -163,7 +164,7 @@ class UserGamesList extends React.PureComponent {
 									players &&
 									players.find(
 										(player) => this.props.users.get(player.get("userID"), Map()).get("isMe")
-									).get("color") === game.get("currentPlayerColor");
+									).get("color") === gameSelectors.getCurrentPlayerColor(game);
 
 								return (
 									<ListItem
@@ -262,7 +263,26 @@ class UserGamesList extends React.PureComponent {
 	renderEmptyGames = () => {
 		return (
 			<p>
-			You are not a part of any games. <Link to="/game/find">Find one to join</Link> or <Link to="/game/create">start your own!</Link>
+				<FormattedMessage
+					{...messages.noGamesActions.message}
+					values={{
+						findGameLink: (
+							<Link to="/game/find">
+								<FormattedMessage
+									{...messages.noGamesActions.findGameLinkText}
+								/>
+							</Link>
+						),
+
+						createGameLink: (
+							<Link to="/game/create">
+								<FormattedMessage
+									{...messages.noGamesActions.createGameLinkText}
+								/>
+							</Link>
+						),
+					}}
+				/>
 			</p>
 		);
 	}
@@ -284,10 +304,11 @@ class UserGamesList extends React.PureComponent {
 				className={this.props.classes.root}
 			>
 				<header>
-					<FormattedMessage
-						{...messages.title}
-						tagName="h3"
-					/>
+					<h3>
+						<FormattedMessage
+							{...messages.title}
+						/>
+					</h3>
 				</header>
 
 				{

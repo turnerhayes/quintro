@@ -1,7 +1,6 @@
 import React from "react";
 import { fromJS } from "immutable";
 import { shallow } from "enzyme";
-import Popover from "@material-ui/core/Popover";
 
 import { intl } from "@app/utils/test-utils";
 import { Unwrapped as PlayerIndicators } from "./PlayerIndicators";
@@ -27,7 +26,6 @@ describe("PlayerIndicators component", () => {
 					userID: "3",
 				},
 			],
-			currentPlayerColor: "blue",
 			playerLimit: 3,
 			playerPresence: {
 				red: true,
@@ -97,52 +95,7 @@ describe("PlayerIndicators component", () => {
 		expect(wrapper.find(Marble).at(2)).toHaveProp("color", null);
 	});
 
-	it("should show a user information popover on clicking an indicator", () => {
-		const gameName = "testgame";
-
-		const game = fromJS({
-			name: gameName,
-			players: [
-				{
-					color: "blue",
-					userID: "1",
-				},
-			],
-			playerLimit: 3,
-		});
-
-		const playerUsers = fromJS({
-			1: {
-				id: "1",
-				name: {
-					display: "Test",
-				},
-			},
-		});
-
-		const classes = {
-			item: "item-class",
-		};
-
-		const wrapper = shallow(
-			<PlayerIndicators
-				game={game}
-				playerUsers={playerUsers}
-				classes={classes}
-				intl={intl}
-			/>
-		);
-
-		const firstIndicator = wrapper.find(`.${classes.item}`).first();
-
-		firstIndicator.simulate("click", {
-			target: firstIndicator,
-		});
-
-		expect(wrapper.find(Popover)).toHaveProp("open", true);
-	});
-
-	it("should invoke the onIndicatorClicked callback when a player indicator is clicked", () => {
+	it("should invoke the onIndicatorClick callback when a player indicator is clicked", () => {
 		const gameName = "testgame";
 		const userID = "1";
 
@@ -168,7 +121,7 @@ describe("PlayerIndicators component", () => {
 			},
 		});
 
-		const onIndicatorClicked = jest.fn();
+		const onIndicatorClick = jest.fn();
 
 		const classes = {
 			item: "item-class",
@@ -178,7 +131,7 @@ describe("PlayerIndicators component", () => {
 			<PlayerIndicators
 				game={game}
 				playerUsers={playerUsers}
-				onIndicatorClicked={onIndicatorClicked}
+				onIndicatorClick={onIndicatorClick}
 				classes={classes}
 				intl={intl}
 			/>
@@ -186,17 +139,15 @@ describe("PlayerIndicators component", () => {
 
 		wrapper.find(`.${classes.item}`).first().simulate("click", {});
 
-		expect(onIndicatorClicked).toHaveBeenCalledWith({ selectedPlayer: player });
+		expect(onIndicatorClick).toHaveBeenCalledWith({ selectedPlayer: player });
 	});
 
-	it("should update state correctly when popover is opened and closed", () => {
+	it("should accept a function for definining indicator props", () => {
 		const gameName = "testgame";
-		const userID = "1";
-		const color = "blue";
 
 		const player = fromJS({
-			color,
-			userID,
+			color: "blue",
+			userID: "1",
 		});
 
 		const game = fromJS({
@@ -208,16 +159,24 @@ describe("PlayerIndicators component", () => {
 		});
 
 		const playerUsers = fromJS({
-			[userID]: {
-				id: userID,
+			1: {
+				id: "1",
 				name: {
 					display: "Test",
 				},
 			},
 		});
-
+		
 		const classes = {
 			item: "item-class",
+		};
+
+		const propArgs = {
+			player,
+			user: playerUsers.get("1"),
+			index: 0,
+			active: false,
+			isPresent: false,
 		};
 
 		const wrapper = shallow(
@@ -226,17 +185,14 @@ describe("PlayerIndicators component", () => {
 				playerUsers={playerUsers}
 				classes={classes}
 				intl={intl}
+				indicatorProps={(args) => {
+					return {
+						"data-indicator-props": JSON.stringify(args),
+					};
+				}}
 			/>
 		);
 
-		wrapper.find(`.${classes.item}`).first().simulate("click", {});
-
-		expect(wrapper)
-			.toHaveState("selectedPlayerColor", color);
-
-		wrapper.find(Popover).prop("onClose")();
-
-		expect(wrapper)
-			.toHaveState("selectedPlayerColor", null);
+		expect(wrapper.find(`.${classes.item}`).first()).toHaveProp("data-indicator-props", JSON.stringify(propArgs));
 	});
 });

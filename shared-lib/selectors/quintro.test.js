@@ -8,7 +8,7 @@ import quintroBoardLayouts from "../__test__/quintro/quintro-board-layouts";
 import quintroDeltaBoardLayouts from "../__test__/quintro/quintro-delta-board-layouts";
 import Board from "../board";
 
-import { getQuintros, getQuintrosForCell, getPotentialQuintros, getAllPotentialQuintros, getPotentialQuintroDelta } from "./utils";
+import { getQuintros, getQuintrosForCell, getPotentialQuintros, getAllPotentialQuintros, getPotentialQuintroDelta } from "./quintro";
 
 
 expect.extend({

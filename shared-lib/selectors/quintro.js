@@ -2,16 +2,11 @@
 
 const assert = require("assert");
 const { Set, Map, List, fromJS, is } = require("immutable");
-const { createSelectorCreator } = require("reselect");
-const memoize = require("lodash/memoize");
+const { createSelector } = require("reselect");
 
 const Quintro = require("../quintro");
 
 const QUINTRO_LENGTH = 5;
-
-const createSelector = createSelectorCreator(
-	memoize
-);
 
 /**
  * Finds all potential quintros along any one axis (horizontal, vertical and both diagonals).
@@ -514,6 +509,7 @@ const getPotentialQuintroDelta = createSelector(
 				const quintroInUpdated = quintrosWithNewCell.find((newQuintro) => newQuintro.cellsAreInSamePositions(quintro));
 	
 				if (quintroInUpdated) {
+					// istanbul ignore else
 					if (!quintro.equals(quintroInUpdated)) {
 						return quintros.add(Map({
 							quintro: quintroInUpdated,

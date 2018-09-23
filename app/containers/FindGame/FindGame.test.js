@@ -62,9 +62,7 @@ describe("FindGame container", () => {
 			}
 		);
 
-		expect(wrapper.prop("results")).toEqualImmutable(results.map(
-			(result) => result.set("isLoaded", true)
-		));
+		expect(wrapper.prop("results")).toEqualImmutable(results);
 		expect(wrapper).toHaveProp("findGameError", undefined);
 		expect(wrapper).toHaveProp("onJoinGame", expect.any(Function));
 		expect(wrapper).toHaveProp("onFindOpenGames", expect.any(Function));

@@ -11,7 +11,6 @@ import {
 	setMarble,
 	addPlayer,
 	setPlayerPresence,
-	setCurrentPlayer,
 	setGamePlayError,
 } from "@app/actions";
 
@@ -85,10 +84,6 @@ describe("Game client API", () => {
 			client.onMarblePlaced
 		);
 		expect(client.off).toHaveBeenCalledWith(
-			"game:currentPlayer:changed",
-			client.onCurrentPlayerChanged
-		);
-		expect(client.off).toHaveBeenCalledWith(
 			"game:player:joined",
 			client.onPlayerJoined
 		);
@@ -159,7 +154,7 @@ describe("Game client API", () => {
 
 			expect(dispatch).toHaveBeenCalledWith(setWinner({
 				gameName,
-				color: winner.color,
+				color: winner,
 			}));
 		});
 
@@ -237,23 +232,6 @@ describe("Game client API", () => {
 			}));
 		});
 
-		it("should dispatch an setCurrentPlayer action on a game:currentPlayer:changed socket message", async () => {
-			expect.assertions(1);
-
-			await connectPromise;
-
-			const gameName = "test";
-
-			const color = "blue";
-
-			server.emit("game:currentPlayer:changed", { gameName, color });
-
-			expect(dispatch).toHaveBeenCalledWith(setCurrentPlayer({
-				gameName,
-				color
-			}));
-		});
-
 		it("should dispatch an setGamePlayError action on a from the setGamePlayError() function", async () => {
 			expect.assertions(1);
 
@@ -307,7 +285,6 @@ describe("Game client API", () => {
 
 						callback({
 							player,
-							currentPlayerColor: color,
 						});
 						resolve();
 					});
@@ -342,12 +319,6 @@ describe("Game client API", () => {
 							presenceMap: {
 								[color]: true,
 							},
-						}),
-					],
-					[
-						setCurrentPlayer({
-							gameName,
-							color,
 						}),
 					],
 					[

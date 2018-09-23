@@ -1,10 +1,11 @@
 import { List, Map } from "immutable";
 import { createSelector } from "reselect";
+
 import * as quintroSelectors from "./quintros";
 
-const getWinner = (game) => game.get("winner");
+import * as sharedGameSelectors from "@shared-lib/selectors/game";
 
-const isLoaded = (game) => game.get("isLoaded");
+const getWinner = (game) => game.get("winner");
 
 const getPlayers = (game) => game.get("players", List());
 
@@ -22,25 +23,19 @@ const getWatcherCount = createSelector(
 
 const getCurrentPlayer = createSelector(
 	getPlayers,
-	(game) => game.get("currentPlayerColor"),
+	sharedGameSelectors.getCurrentPlayerColor,
 	(players, currentPlayerColor) => players.find(
 		(player) => player.get("color") === currentPlayerColor
 	)
 );
 
-const isOver = createSelector(
-	getWinner,
-	(winner) => !!winner
-);
-
 export default {
 	getWinner,
-	isLoaded,
 	getPlayers,
 	getWatchers,
 	getCurrentPlayer,
-	isOver,
 	isWatchingGame,
 	getWatcherCount,
 	...quintroSelectors,
+	...sharedGameSelectors,
 };

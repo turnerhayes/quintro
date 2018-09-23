@@ -32,4 +32,18 @@ export default defineMessages({
 			},
 		},
 	},
+
+	noGamesActions: {
+		message: {
+			id: "quintro.components.UserGamesList.noGamesActions.message",
+		},
+
+		findGameLinkText: {
+			id: "quintro.components.UserGamesList.noGamesActions.findGameLinkText",
+		},
+
+		createGameLinkText: {
+			id: "quintro.components.UserGamesList.noGamesActions.createGameLinkText",
+		},
+	},
 });

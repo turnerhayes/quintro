@@ -113,8 +113,13 @@ describe("Board container", () => {
 			/* eslint-enable no-magic-numbers */
 		];
 
-		game = game.set("winner", color1)
-			.setIn(["board", "filledCells"], fromJS(cells));
+		game = game.merge({
+			isStarted: true,
+			winner: color1
+		}).setIn(
+			["board", "filledCells"],
+			fromJS(cells)
+		);
 
 		const state = reducer(undefined, fetchedGame({ game }));
 		const store = mockStore(state);
