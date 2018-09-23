@@ -5,6 +5,7 @@ module.exports = exports = {
 		"!app/*/RbGenerated*/*.js",
 		"!app/app.js",
 		"!app/*/*/Loadable.js",
+		"!app/*/Sandbox/*",
 		"!app/fonts/**",
 		"!app/utils/test-utils.js",
 		"shared-lib/**/*.js",
@@ -35,4 +36,5 @@ module.exports = exports = {
 	testRegex: ".*\\.test\\.js$",
 	resolver: "./internals/jest-resolver",
 	testEnvironment: "jsdom",
+	verbose: false,
 };

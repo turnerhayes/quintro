@@ -48,12 +48,11 @@ class GamesStore {
 		);
 	}
 
-	static createGame({ name, currentPlayer, playerLimit, width, height } = {}) {
+	static createGame({ name, playerLimit, width, height } = {}) {
 		name = name || _createGameName();
 
 		let newGameModel = new GameModel({
 			name,
-			currentPlayer,
 			playerLimit,
 			board: {
 				width,

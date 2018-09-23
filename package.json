@@ -56,6 +56,7 @@
   "dependencies": {
     "@material-ui/core": "^1.2.1",
     "@material-ui/icons": "^1.1.0",
+    "@material-ui/lab": "^3.0.0-alpha.16",
     "babel-plugin-transform-undefined-to-void": "^6.9.0",
     "babel-polyfill": "6.23.0",
     "bluebird": "^3.5.1",
@@ -80,6 +81,8 @@
     "intl": "1.2.5",
     "invariant": "2.2.2",
     "ip": "1.1.5",
+    "jss": "^9.8.7",
+    "jss-nested": "^6.0.1",
     "lodash": "^4.17.10",
     "minimist": "1.2.0",
     "mkdirp": "^0.5.1",

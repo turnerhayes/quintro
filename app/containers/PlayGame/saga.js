@@ -13,7 +13,6 @@ import {
 	leaveGame,
 	GET_GAME,
 	SET_MARBLE,
-	SET_CURRENT_PLAYER,
 } from "@app/actions";
 import selectors from "@app/selectors";
 import Config from "@app/config";
@@ -72,22 +71,19 @@ export function* locationChangeSaga() {
 	);
 }
 
-export function* setMarbleSaga() {
+export function* setMarbleSaga({ payload }) {
 	// TODO: put setting names as constants somewhere
 	const soundsEnabled = !!(yield select(selectors.settings.getSetting, { settingName: "enableSoundEffects" }));
 	if (soundsEnabled) {
 		playSound();
 	}
-}
-
-export function* setCurrentPlayerSaga({ payload }) {
 	const notificationsEnabled = !!(yield select(selectors.settings.getSetting, { settingName: "enableNotifications" }));
 	if (notificationsEnabled) {
 		const newCurrentPlayer = yield select(selectors.games.getCurrentPlayer, { gameName: payload.gameName });
 		const currentPlayerUser = yield select(selectors.users.getUserByID, { userID: newCurrentPlayer.get("userID") });
-
+	
 		if (currentPlayerUser.get("isMe")) {
-			yield showNotification();
+			yield call(showNotification);
 		}
 	}
 }
@@ -97,6 +93,5 @@ export default function* playGameRootSaga() {
 		takeEvery(GET_GAME, getGameSaga),
 		takeEvery(LOCATION_CHANGE, locationChangeSaga),
 		takeEvery(SET_MARBLE, setMarbleSaga),
-		takeEvery(SET_CURRENT_PLAYER, setCurrentPlayerSaga),
 	]);
 }

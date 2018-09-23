@@ -182,4 +182,38 @@ describe("Board component", () => {
 			}),
 		});
 	});
+
+	it("should not allow placement on a filled cell", () => {
+		const width = 10;
+		const height = 10;
+
+		const color = "blue";
+
+		const filledCells = fromJS([
+			/* eslint-disable no-magic-numbers */
+			{
+				position: [0, 0],
+				color,
+			},
+			/* eslint-enable no-magic-numbers */
+		]);
+
+		const board = new BoardRecord({
+			width,
+			height,
+			filledCells,
+		});
+
+		const wrapper = shallow(
+			<Board
+				board={board}
+				classes={{}}
+				allowPlacement
+			/>
+		).shallow();
+
+		expect(wrapper.find(Cell).first()).toHaveProp("allowPlacement", false);
+		// make sure unfilled cells do allow placement
+		expect(wrapper.find(Cell).at(1)).toHaveProp("allowPlacement", true);
+	});
 });

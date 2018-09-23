@@ -16,6 +16,10 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { ConnectedRouter } from "connected-react-router/immutable";
 import { IntlProvider } from "react-intl";
+import { create as createJSS } from "jss";
+import { jssPreset } from "@material-ui/core";
+import JssProvider from "react-jss/lib/JssProvider";
+import nestedJSS from "jss-nested";
 import IntlContextExposer from "./components/IntlContextExposer";
 import "sanitize.css/sanitize.css";
 
@@ -41,6 +45,10 @@ import getStore, { history } from "@app/store";
 
 // Create redux store with history
 const store = getStore();
+
+const jss = createJSS(jssPreset());
+jss.use(nestedJSS());
+
 const MOUNT_NODE = document.getElementById("app");
 
 // Import i18n messages
@@ -65,9 +73,11 @@ const render = (messages) => {
 					textComponent={React.Fragment}
 				>
 					<IntlContextExposer>
-						<ConnectedRouter history={history}>
-							<App />
-						</ConnectedRouter>
+						<JssProvider jss={jss}>
+							<ConnectedRouter history={history}>
+								<App />
+							</ConnectedRouter>
+						</JssProvider>
 					</IntlContextExposer>
 				</IntlProvider>
 			</Provider>

@@ -216,18 +216,6 @@ export function addPlayer({ gameName, player }) {
 	};
 }
 
-export const SET_CURRENT_PLAYER = "@@QUINTRO/GAME/PLAYERS/SET_CURRENT";
-
-export function setCurrentPlayer({ gameName, color }) {
-	return {
-		type: SET_CURRENT_PLAYER,
-		payload: {
-			gameName,
-			color
-		}
-	};
-}
-
 export const SET_PLAYER_PRESENCE = "@@QUINTRO/GAME/PLAYERS/SET_PRESENCE";
 
 export function setPlayerPresence({ gameName, presenceMap, setMissingPlayersTo }) {

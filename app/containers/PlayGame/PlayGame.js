@@ -24,7 +24,6 @@ const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
 		const selectorProps = { gameName: ownProps.gameName };
 		const game = selectors.games.getGame(state, selectorProps);
-		const gameIsLoaded = selectors.games.isLoaded(state, selectorProps);
 		const currentUserPlayer = selectors.games.getCurrentUserPlayer(state, selectorProps);
 		const currentZoomLevel = selectors.ui.getSetting(state, {
 			section: uiSection,
@@ -45,11 +44,10 @@ const withRedux = connect(
 			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
 
 			currentZoomLevel,
+			
+			game,
 		};
 
-		if (gameIsLoaded) {
-			props.game = game;
-		}
 
 		return props;
 	},
