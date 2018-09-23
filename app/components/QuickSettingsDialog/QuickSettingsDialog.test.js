@@ -1,6 +1,8 @@
 import React from "react";
 import { shallow } from "enzyme";
 
+import { intl } from "@app/utils/test-utils";
+
 const NO_OP = () => {};
 
 function mockNotify({
@@ -32,14 +34,15 @@ describe("QuickSettingsDialog component", () => {
 
 		mockNotify();
 
-		return import("./index").then(
+		return import("./QuickSettingsDialog").then(
 			(module) => {
-				const QuickSettingsDialog = module.default;
+				const QuickSettingsDialog = module.Unwrapped;
 
 				const onChangeSetting = jest.fn();
 
 				const wrapper = shallow(
 					<QuickSettingsDialog
+						intl={intl}
 						onChangeSetting={onChangeSetting}
 						enableSoundEffects={false}
 						enableNotifications={false}
@@ -68,12 +71,13 @@ describe("QuickSettingsDialog component", () => {
 			needsPermission: true,
 		});
 
-		return import("./index").then(
+		return import("./QuickSettingsDialog").then(
 			(module) => {
-				const QuickSettingsDialog = module.default;
+				const QuickSettingsDialog = module.Unwrapped;
 
 				const wrapper = shallow(
 					<QuickSettingsDialog
+						intl={intl}
 						onChangeSetting={NO_OP}
 						enableSoundEffects
 						enableNotifications={false}
@@ -98,11 +102,12 @@ describe("QuickSettingsDialog component", () => {
 			isSupported: false,
 		});
 
-		return import("./index").then(
+		return import("./QuickSettingsDialog").then(
 			(module) => {
-				const QuickSettingsDialog = module.default;
+				const QuickSettingsDialog = module.Unwrapped;
 				const wrapper = shallow(
 					<QuickSettingsDialog
+						intl={intl}
 						onChangeSetting={NO_OP}
 						enableSoundEffects
 						enableNotifications={false}
@@ -119,14 +124,15 @@ describe("QuickSettingsDialog component", () => {
 		expect.assertions(1);
 		jest.resetModules();
 
-		return import("./index").then(
+		return import("./QuickSettingsDialog").then(
 			(module) => {
-				const QuickSettingsDialog = module.default;
+				const QuickSettingsDialog = module.Unwrapped;
 
 				const onChangeSetting = jest.fn();
 
 				const wrapper = shallow(
 					<QuickSettingsDialog
+						intl={intl}
 						onChangeSetting={onChangeSetting}
 						enableSoundEffects={false}
 						enableNotifications={false}

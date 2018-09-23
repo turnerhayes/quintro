@@ -18,7 +18,7 @@ const UserStore          = require(path.join(Config.paths.server, "persistence/s
 const ErrorCodes         = require(path.join(Config.paths.sharedLib, "error-codes"));
 const Loggers            = require(path.join(Config.paths.server, "lib/loggers"));
 const session            = require(path.join(Config.paths.server, "lib/session"));
-const { getQuintros }    = require(path.join(Config.paths.sharedLib, "quintro/utils"));
+const { getQuintros }    = require(path.join(Config.paths.sharedLib, "selectors/quintro"));
 const {
 	getNextColor
 }                        = require(path.join(Config.paths.sharedLib, "players"));
@@ -569,7 +569,6 @@ class SocketManager {
 				const joinResults = {
 					gameName,
 					player: playerData,
-					currentPlayerColor: data.game.currentPlayer && data.game.currentPlayer.color
 				};
 
 				// Remove isMe for the broadcast to other players, so they don't think this
@@ -685,8 +684,8 @@ class SocketManager {
 				assert(position, 'Property "position" is required');
 
 				const [column, row] = position;
-
-				if (color !== game.currentPlayer.color) {
+				
+				if (color !== game.getCurrentPlayerColor()) {
 					const err = new Error(`Not ${color}'s turn`);
 					err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
@@ -712,9 +711,6 @@ class SocketManager {
 
 				if (quintros.size > 0) {
 					game.winner = color;
-				}
-				else {
-					game.nextPlayer();
 				}
 
 				return GameStore.saveGameState(game).then(
@@ -750,14 +746,8 @@ class SocketManager {
 				if (data.game.isOver) {
 					SocketManager._server.to(data.game.name).emit("game:over", {
 						gameName: data.game.name,
-						winner: data.game.currentPlayer,
-						quintros: data.quintros
-					});
-				}
-				else {
-					SocketManager._server.to(data.game.name).emit("game:currentPlayer:changed", {
-						gameName: data.game.name,
-						color: data.game.currentPlayer.color
+						winner: data.game.winner,
+						quintros: data.quintros,
 					});
 				}
 			}
@@ -825,19 +815,11 @@ class SocketManager {
 				return game.start();
 			}
 		).then(
-			(game) => {
+			() => {
 				SocketManager._server.to(gameName).emit(
 					"game:started",
 					{
 						gameName
-					}
-				);
-
-				SocketManager._server.to(gameName).emit(
-					"game:currentPlayer:changed",
-					{
-						gameName,
-						color: game.currentPlayer.color
 					}
 				);
 			}

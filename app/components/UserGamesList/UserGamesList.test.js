@@ -10,9 +10,11 @@ import Typography from "@material-ui/core/Typography";
 import WarningIcon from "@material-ui/icons/Warning";
 import StopIcon from "@material-ui/icons/Stop";
 
+import BoardRecord from "@shared-lib/board";
+import { intl, formatMessage, mockStore } from "@app/utils/test-utils";
+
 import { Unwrapped as UserGamesList } from "./UserGamesList";
 import messages from "./messages";
-import { intl, formatMessage, mockStore } from "@app/utils/test-utils";
 
 const NO_OP = () => {};
 
@@ -29,10 +31,10 @@ describe("UserGamesList component", () => {
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
@@ -85,13 +87,14 @@ describe("UserGamesList component", () => {
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
+			isStarted: true,
 			winner: "blue",
 		});
 
@@ -143,10 +146,10 @@ describe("UserGamesList component", () => {
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
@@ -155,10 +158,10 @@ describe("UserGamesList component", () => {
 
 		const game2 = fromJS({
 			name: "test2",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
@@ -232,38 +235,66 @@ describe("UserGamesList component", () => {
 	});
 
 	it("should show a notification icon if it's your turn", () => {
-		const color = "blue";
+		const color1 = "blue";
 
 		const user1 = fromJS({
 			id: "1",
+		});
+
+		const color2 = "red";
+
+		const user2 = fromJS({
+			id: "2",
 			isMe: true,
 		});
 
 		const player1 = fromJS({
-			color,
+			color: color1,
 			userID: "1",
+		});
+
+		const player2 = fromJS({
+			color: color2,
+			userID: "2",
 		});
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+				filledCells: [
+					{
+						position: [0, 1],
+						color: color1,
+					},
+
+					{
+						position: [1, 1],
+						color: color2,
+					},
+
+					{
+						position: [1, 0],
+						color: color1,
+					},
+				],
+			}),
 			players: [
 				player1,
+				player2,
 			],
 			isStarted: true,
-			currentPlayerColor: color,
 		});
 
 
-		const userGames = fromJS([
+		let userGames = fromJS([
 			game1,
 		]);
 
 		const users = fromJS({
 			1: user1,
+			2: user2,
 		});
 
 		let wrapper = shallow(
@@ -277,24 +308,28 @@ describe("UserGamesList component", () => {
 		);
 
 		expect(wrapper.find(WarningIcon)).toExist();
+		
+		userGames = userGames.updateIn(
+			[
+				0,
+				"board",
+				"filledCells",
+			],
+			(filledCells) => filledCells.delete(-1)
+		);
+
 
 		// If it's not your turn, the icon should not appear
 		wrapper = shallow(
 			<UserGamesList
 				onGetUserGames={NO_OP}
-				userGames={userGames.setIn(
-					[
-						0,
-						"currentPlayerColor",
-					],
-					"red",
-				)}
+				userGames={userGames}
 				users={users}
 				classes={{}}
 				intl={intl}
 			/>
 		);
-
+		
 		expect(wrapper.find(WarningIcon)).not.toExist();
 	});
 
@@ -313,10 +348,10 @@ describe("UserGamesList component", () => {
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
@@ -354,7 +389,6 @@ describe("UserGamesList component", () => {
 					],
 					fromJS({
 						isStarted: true,
-						currentPlayerColor: color,
 					})
 				)}
 				users={users}
@@ -381,10 +415,10 @@ describe("UserGamesList component", () => {
 
 		const game1 = fromJS({
 			name: "test1",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
@@ -393,15 +427,14 @@ describe("UserGamesList component", () => {
 
 		const game2 = fromJS({
 			name: "test2",
-			board: {
+			board: new BoardRecord({
 				width: 10,
 				height: 10,
-			},
+			}),
 			players: [
 				player1,
 			],
 			isStarted: true,
-			currentPlayerColor: color,
 		});
 
 

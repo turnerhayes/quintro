@@ -4,6 +4,13 @@ import React        from "react";
 import PropTypes    from "prop-types";
 import Switch       from "@material-ui/core/Switch";
 import Notify       from "notifyjs";
+import {
+	injectIntl,
+	intlShape,
+	FormattedMessage,
+}                   from "react-intl";
+
+import messages     from "./messages";
 
 
 const NOTIFICATIONS_SUPPORTED = !Notify.needsPermission || Notify.isSupported();
@@ -27,15 +34,20 @@ class QuickSettingsDialog extends React.PureComponent {
 	 *	settings from a local store
 	 */
 	static propTypes = {
+		intl: intlShape.isRequired,
 		onChangeSetting: PropTypes.func.isRequired,
 		enableSoundEffects: PropTypes.bool.isRequired,
 		enableNotifications: PropTypes.bool.isRequired,
-		isLoadingStoredSettings: PropTypes.bool
+		isLoadingStoredSettings: PropTypes.bool,
 	}
 
 	static defaultProps = {
 		enableSoundEffects: false,
 		enableNotifications: false,
+	}
+
+	formatMessage = (...args) => {
+		return this.props.intl.formatMessage(...args);
 	}
 
 	/**
@@ -101,8 +113,11 @@ class QuickSettingsDialog extends React.PureComponent {
 	render() {
 		return (
 			<div>
-				<h4
-				>Quick Settings</h4>
+				<h4>
+					<FormattedMessage
+						{...messages.dialogTitle}
+					/>
+				</h4>
 				<div
 				>
 					<form
@@ -115,10 +130,10 @@ class QuickSettingsDialog extends React.PureComponent {
 									checked={this.props.enableNotifications}
 									onChange={this.handleChangeNotifications}
 									disabled={this.props.isLoadingStoredSettings || !NOTIFICATIONS_SUPPORTED}
-									aria-label="Enable Browser Notifications"
+									aria-label={this.formatMessage(messages.settingLabels.notifications)}
 								/>
 
-								Notifications
+								{this.formatMessage(messages.settingNames.notifications)}
 							</label>
 						</div>
 						<div
@@ -129,10 +144,10 @@ class QuickSettingsDialog extends React.PureComponent {
 									checked={this.props.enableSoundEffects}
 									onChange={this.handleChangeSoundEffects}
 									disabled={this.props.isLoadingStoredSettings}
-									aria-label="Enable Sound Effects"
+									aria-label={this.formatMessage(messages.settingLabels.soundEffects)}
 								/>
 
-								Sound Effects
+								{this.formatMessage(messages.settingNames.soundEffects)}
 							</label>
 						</div>
 					</form>
@@ -142,4 +157,6 @@ class QuickSettingsDialog extends React.PureComponent {
 	}
 }
 
-export default QuickSettingsDialog;
+export { QuickSettingsDialog as Unwrapped };
+
+export default injectIntl(QuickSettingsDialog);

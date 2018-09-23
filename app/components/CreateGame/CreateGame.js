@@ -357,10 +357,11 @@ class CreateGame extends React.PureComponent {
 	render() {
 		return (
 			<div>
-				<FormattedMessage
-					tagName="h1"
-					{...messages.header}
-				/>
+				<h1>
+					<FormattedMessage
+						{...messages.header}
+					/>
+				</h1>
 				<form
 					onSubmit={this.handleFormSubmit}
 				>
@@ -381,10 +382,11 @@ class CreateGame extends React.PureComponent {
 						/>
 					</div>
 					<fieldset>
-						<FormattedMessage
-							tagName="legend"
-							{...messages.form.dimensions.label}
-						/>
+						<legend>
+							<FormattedMessage
+								{...messages.form.dimensions.label}
+							/>
+						</legend>
 						<TextField
 							type="number"
 							label={this.formatMessage(messages.form.width.label)}

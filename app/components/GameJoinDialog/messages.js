@@ -29,6 +29,18 @@ export default defineMessages({
 		},
 	},
 
+	cannotJoinActions: {
+		id: "quintro.components.GameJoinDialog.cannotJoinActions",
+	},
+
+	findGameLinkText: {
+		id: "quintro.components.GameJoinDialog.findGameLinkText",
+	},
+
+	createGameLinkText: {
+		id: "quintro.components.GameJoinDialog.createGameLinkText",
+	},
+
 	color: {
 		id: "quintro.components.GameJoinDialog.color",
 	},

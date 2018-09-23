@@ -1,7 +1,6 @@
 import SocketClient from "@app/api/socket-client";
 import {
 	setMarble,
-	setCurrentPlayer,
 	addPlayer,
 	updateWatchers,
 	setPlayerPresence,
@@ -23,7 +22,6 @@ class GameClient extends SocketClient {
 
 		const handlers = {
 			"board:marble:placed": this.onMarblePlaced,
-			"game:currentPlayer:changed": this.onCurrentPlayerChanged,
 			"game:player:joined": this.onPlayerJoined,
 			"game:player:left": this.onPlayerLeft,
 			"game:watchers:updated": this.onWatchersUpdated,
@@ -64,7 +62,7 @@ class GameClient extends SocketClient {
 	)
 
 	onGameOver = ({ gameName, winner }) => this.dispatch(
-		setWinner({ gameName, color: winner.color })
+		setWinner({ gameName, color: winner })
 	)
 
 	onMarblePlaced = ({ gameName, position, color }) => {
@@ -105,15 +103,6 @@ class GameClient extends SocketClient {
 		);
 	}
 
-	onCurrentPlayerChanged = ({ gameName, color }) => {
-		this.dispatch(
-			setCurrentPlayer({
-				gameName,
-				color
-			})
-		);
-	}
-
 	joinGame = ({ gameName, color }) => {
 		return this.emit(
 			"game:join",
@@ -122,9 +111,8 @@ class GameClient extends SocketClient {
 				color
 			}
 		).then(
-			({ player, currentPlayerColor }) => {
+			({ player }) => {
 				this.onPlayerJoined({ gameName, player });
-				this.onCurrentPlayerChanged({ gameName, color: currentPlayerColor });
 			}
 		).then(
 			() => this.updateGame({ gameName })

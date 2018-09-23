@@ -68,29 +68,7 @@ const GameSchema = new mongoose.Schema({
 			_id: false
 		}
 	],
-	currentPlayerColor: {
-		type: String,
-	},
 });
-
-GameSchema.virtual("currentPlayer").get(
-	function() {
-		return _.find(
-			this.players,
-			{
-				color: this.currentPlayerColor
-			}
-		);
-	}
-).set(
-	function(player) {
-		if (player === undefined) {
-			return;
-		}
-
-		this.currentPlayerColor = player.color;
-	}
-);
 
 GameSchema.virtual("isOver").get(
 	function() {
@@ -132,32 +110,31 @@ GameSchema.pre("validate", function(next) {
 	next();
 });
 
-GameSchema.pre("save", function(next) {
-	if (!this.currentPlayerColor && this.players.length === 1) {
-		this.currentPlayerColor = this.players[0].color;
-	}
-
-	next();
-});
-
-
-
 
 class Game {
 	start() {
 		this.isStarted = true;
-		this.currentPlayer = this.players[0];
 		return this.save();
 	}
 
-	nextPlayer() {
-		this.currentPlayer = this.players[
+	getCurrentPlayerColor() {
+		if (!this.isStarted) {
+			return undefined;
+		}
+
+		if (this.board.filledCells.length === 0) {
+			return this.players[0].color;
+		}
+
+		const lastCell = this.board.filledCells[this.board.filledCells.length - 1];
+
+		return this.players[
 			(
-				this.players.indexOf(
-					this.currentPlayer
+				this.players.findIndex(
+					(player) => player.color === lastCell.color
 				) + 1
 			) % this.players.length
-		];
+		].color;
 	}
 
 	fillCell({ position, color }) {
@@ -184,7 +161,6 @@ class Game {
 		});
 
 		delete obj._id;
-		delete obj.currentPlayer;
 
 		obj.players = this.players.map(
 			(player) => {
