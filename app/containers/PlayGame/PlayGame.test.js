@@ -106,7 +106,6 @@ describe("PlayGame container", () => {
 				},
 			],
 			isStarted: true,
-			currentPlayerColor: player2Color,
 		});
 
 		let state = [

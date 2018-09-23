@@ -56,7 +56,7 @@ function coerceToSliceSelector(sliceSelector, defaultValue) {
  */
 export function wrapSelector({
 	selector,
-	selectorName = selector.name,
+	selectorName,
 	sliceSelector,
 	defaultValue,
 }) {
@@ -68,6 +68,7 @@ export function wrapSelector({
 		(stateSlice, props) => stateSlice && selector(stateSlice, props)
 	);
 
+	// istanbul ignore else
 	if (selectorName) {
 		// Set display name for easier debugging
 		Object.defineProperty(

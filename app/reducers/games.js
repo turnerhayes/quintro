@@ -1,4 +1,4 @@
-import { Map, Set, List, fromJS } from "immutable";
+import { Map, Set, fromJS } from "immutable";
 
 import Board from "@shared-lib/board";
 import {
@@ -11,7 +11,6 @@ import {
 	SET_PLAYER_PRESENCE,
 	LEAVE_GAME,
 	SET_MARBLE,
-	SET_CURRENT_PLAYER,
 	SET_WINNER,
 	FIND_OPEN_GAMES,
 	SET_FIND_OPEN_GAMES_RESULTS,
@@ -30,7 +29,7 @@ function prepareGame(game) {
 	).set(
 		"board",
 		new Board(board),
-	).set("isLoaded", true);
+	);
 }
 
 function addGames(state, games) {
@@ -130,21 +129,12 @@ export default function gamesReducer(state = Map(), action) {
 
 			return state.updateIn(
 				["items", gameName, "board", "filledCells"],
-				(filledCells) => (filledCells || List()).push(
+				(filledCells) => filledCells.push(
 					fromJS({
 						position,
 						color,
 					})
 				)
-			);
-		}
-
-		case SET_CURRENT_PLAYER: {
-			const { gameName, color } = action.payload;
-
-			return state.setIn(
-				["items", gameName, "currentPlayerColor"],
-				color
 			);
 		}
 

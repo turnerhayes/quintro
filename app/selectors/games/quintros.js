@@ -1,4 +1,4 @@
-import { getQuintros as _getQuintros, getQuintrosForCell as _getQuintrosForCell } from "@shared-lib/quintro/utils";
+import { getQuintros as _getQuintros, getQuintrosForCell as _getQuintrosForCell } from "@shared-lib/selectors/quintro";
 import { createSelector } from "reselect";
 
 const getBoard = (state) => state.get("board");

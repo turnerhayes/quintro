@@ -4,10 +4,17 @@ import { fromJS } from "immutable";
 import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { Unwrapped as GameJoinDialog } from "./GameJoinDialog";
+
 import { intl } from "@app/utils/test-utils";
+import ColorPicker from "@app/components/ColorPicker";
+
+import { Unwrapped as GameJoinDialog } from "./GameJoinDialog";
 
 const NO_OP = () => {};
+
+function getColorPickerFromDialogWrapper(wrapper) {
+	return wrapper.find(ColorPicker).shallow();
+}
 
 describe("GameJoinDialog component", () => {
 	it("should not show claimed colors in the color picker", () => {
@@ -42,49 +49,16 @@ describe("GameJoinDialog component", () => {
 			/>
 		);
 
-		wrapper.find(Button).filterWhere(
+		const colorPicker = getColorPickerFromDialogWrapper(wrapper).shallow();
+
+		colorPicker.find(Button).filterWhere(
 			(button) => button.key() === "color-change-button"
 		).simulate("click", {});
 
-		expect(wrapper.find(Menu)).toExist();
-		expect(wrapper.find(MenuItem).filter(`[data-color='${color1}']`)).not.toExist();
-		expect(wrapper.find(MenuItem).filter(`[data-color='${color2}']`)).not.toExist();
-		expect(wrapper.find(MenuItem).filter("[data-color='red']")).toExist();
-	});
-
-	it("should change the selected color when one is selected", () => {
-		const color = "green";
-
-		const game = fromJS({
-			name: "testgame",
-			board: {
-				width: 15,
-				height: 15,
-				filledCells: [],
-			},
-			players: [
-			],
-			playerLimit: 3,
-		});
-
-		const wrapper = shallow(
-			<GameJoinDialog
-				game={game}
-				onSubmit={NO_OP}
-				onCancel={NO_OP}
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-		wrapper.find(Button).filterWhere(
-			(button) => button.key() === "color-change-button"
-		).simulate("click", {});
-
-		wrapper.find(MenuItem).filter(`[data-color='${color}']`).simulate("click", {});
-
-		expect(wrapper.find(Menu)).toHaveProp("open", false);
-		expect(wrapper).toHaveState("selectedColor", color);
+		expect(colorPicker.find(Menu)).toExist();
+		expect(colorPicker.find(MenuItem).filter(`[data-color='${color1}']`)).not.toExist();
+		expect(colorPicker.find(MenuItem).filter(`[data-color='${color2}']`)).not.toExist();
+		expect(colorPicker.find(MenuItem).filter("[data-color='red']")).toExist();
 	});
 
 	it("should remove a color from the list if it is taken while the dialog is open", () => {
@@ -110,14 +84,16 @@ describe("GameJoinDialog component", () => {
 		);
 
 		const defaultColor = wrapper.instance().getDefaultColor();
+		
+		let colorPicker = getColorPickerFromDialogWrapper(wrapper).shallow();
 
-		wrapper.find(Button).filterWhere(
+		colorPicker.find(Button).filterWhere(
 			(button) => button.key() === "color-change-button"
 		).simulate("click", {});
 
-		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toExist();
+		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toExist();
 		// Default color should start out selected
-		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toHaveProp("selected", true);
+		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toHaveProp("selected", true);
 
 		const gameWithPlayer = game.setIn(
 			[
@@ -131,11 +107,17 @@ describe("GameJoinDialog component", () => {
 
 		wrapper.setProps({ game: gameWithPlayer });
 
-		expect(wrapper.find(MenuItem).filter(`[data-color='${defaultColor}']`)).not.toExist();
+		colorPicker = getColorPickerFromDialogWrapper(wrapper);
+
+		const getDefaultColor = colorPicker.prop("getDefaultColor");
+
+		colorPicker = colorPicker.shallow();
+
+		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).not.toExist();
 		// Former default color was taken; should have different default color
-		expect(wrapper.instance().getDefaultColor()).not.toBe(defaultColor);
+		expect(getDefaultColor()).not.toBe(defaultColor);
 		// Should automatically select the first non-taken color
-		expect(wrapper.find(MenuItem).first()).toHaveProp("selected", true);
+		expect(colorPicker.find(MenuItem).first()).toHaveProp("selected", true);
 	});
 
 	it("should not show color picker if the game is full", () => {
@@ -412,12 +394,9 @@ describe("GameJoinDialog component", () => {
 
 		const color = "yellow";
 
-		wrapper.find(Button).filterWhere(
-			(button) => button.key() === "color-change-button"
-		).simulate("click", {});
-
-		wrapper.find(MenuItem).filter(`[data-color='${color}']`)
-			.simulate("click", {});
+		wrapper.find(ColorPicker).prop("onColorChosen")({
+			color,
+		});
 
 		wrapper.find("form").simulate("submit", {
 			preventDefault() {},

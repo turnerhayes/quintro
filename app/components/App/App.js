@@ -8,6 +8,7 @@ import PlayGame                     from "@app/containers/PlayGame";
 import HowToPlay                    from "@app/components/HowToPlay";
 import UserGamesList                from "@app/containers/UserGamesList";
 import TopNavigation                from "@app/containers/TopNavigation";
+import Sandbox                      from "@app/containers/Sandbox";
 import                                   "./App.less";
 
 /**
@@ -77,6 +78,7 @@ class App extends React.Component { // Do not use PureComponent; messes with rea
 								/>
 							)} />
 							<Route exact path="/how-to-play" component={HowToPlay} />
+							<Route exact path="/sandbox" component={Sandbox} />
 							<Route component={NotFoundPage} />
 						</Switch>
 					</article>

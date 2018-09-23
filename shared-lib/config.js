@@ -14,6 +14,7 @@ const websocketsUrl = webSocketsInline ?
 let staticContentURL = process.env.STATIC_CONTENT_URL;
 const staticContentInline = !staticContentURL;
 
+// istanbul ignore else
 if (staticContentInline) {
 	staticContentURL = "";
 }
@@ -26,33 +27,33 @@ const colors = [
 	{
 		id: "blue",
 		name: "Blue",
-		hex: "#0000FF"
+		hex: "#0000FF",
 	},
 	{
 		id: "red",
 		name: "Red",
-		hex: "#FF0000"
+		hex: "#FF0000",
 	},
 	{
 		id: "yellow",
 		name: "Yellow",
-		hex: "#FFFF00"
+		hex: "#FFFF00",
 	},
 	{
 		id: "green",
 		name: "Green",
-		hex: "#008000"
+		hex: "#008000",
 	},
 	{
 		id: "purple",
 		name: "Purple",
-		hex: "#9706CC"
+		hex: "#9706CC",
 	},
 	{
 		id: "black",
 		name: "Black",
-		hex: "#000000"
-	}
+		hex: "#000000",
+	},
 ];
 
 // Cache a mapping of color ID to index within the colors array so that
@@ -73,7 +74,7 @@ Object.defineProperty(
 	{
 		value: function getColorDefinition(colorID) {
 			return colors[colorIndexMap[colorID]];
-		}
+		},
 	}
 );
 
@@ -82,29 +83,29 @@ exports = module.exports = {
 	game: {
 		board: {
 			width: {
-				min: 15,
-				max: 25
+				min: 10,
+				max: 25,
 			},
 			height: {
-				min: 15,
-				max: 25
+				min: 10,
+				max: 25,
 			}
 		},
 		players: {
 			min: 3,
-			max: 6
+			max: 6,
 		},
-		colors
+		colors,
 	},
 
 	staticContent: {
 		inline: staticContentInline,
-		url: staticContentURL
+		url: staticContentURL,
 	},
 
 	websockets: {
 		inline: webSocketsInline,
 		url: websocketsUrl,
-		path: websocketsPath
-	}
+		path: websocketsPath,
+	},
 };

@@ -11,7 +11,6 @@ import {
 	setPlayerPresence,
 	leaveGame,
 	setMarble,
-	setCurrentPlayer,
 	setWinner,
 	gameStarted,
 } from "@app/actions";
@@ -51,9 +50,7 @@ describe("Games reducer", () => {
 			games: [ game ],
 		}));
 
-		expect(state.getIn([ "items", name ])).toEqualImmutable(
-			game.set("isLoaded", true)
-		);
+		expect(state.getIn([ "items", name ])).toEqualImmutable(game);
 	});
 
 	it("FETCHED_GAME", () => {
@@ -74,9 +71,7 @@ describe("Games reducer", () => {
 			game,
 		}));
 
-		expect(state.getIn([ "items", name ])).toEqualImmutable(
-			game.set("isLoaded", true)
-		);
+		expect(state.getIn([ "items", name ])).toEqualImmutable(game);
 	});
 
 	it("GAME_UPDATED", () => {
@@ -119,7 +114,7 @@ describe("Games reducer", () => {
 		}));
 
 		expect(state.getIn([ "items", name ])).toEqualImmutable(
-			game.set("isLoaded", true).merge(fromJS(update))
+			game.merge(fromJS(update))
 		);
 		expect(state.getIn([ "items", name, "players", 0, "color" ])).toBe(player1Color);
 	});
@@ -393,61 +388,6 @@ describe("Games reducer", () => {
 			]));
 	});
 
-	it("SET_CURRENT_PLAYER", () => {
-		const name = "test";
-
-		const player1 = fromJS({
-			color: "blue",
-			user: {
-				id: "1",
-				name: {
-					display: "Tester 1",
-				},
-				isMe: true,
-			},
-			order: 0,
-		});
-
-		const player2 = fromJS({
-			color: "red",
-			user: {
-				id: "2",
-				name: {
-					display: "Tester 2",
-				},
-			},
-			order: 1,
-		});
-
-		const game = fromJS({
-			name,
-			board: {
-				width: 10,
-				height: 10,
-				filledCells: [],
-			},
-			playerLimit: 3,
-			players: [
-				player1,
-				player2,
-			],
-			currentPlayerColor: player1.get("color"),
-		});
-
-		const state = [
-			fetchedGame({
-				game,
-			}),
-			setCurrentPlayer({
-				gameName: name,
-				color: player2.get("color"),
-			}),
-		].reduce(reducer, undefined);
-
-		expect(state.getIn([ "items", name, "currentPlayerColor" ]))
-			.toBe(player2.get("color"));
-	});
-
 	it("SET_WINNER", () => {
 		const name = "test";
 
@@ -486,7 +426,6 @@ describe("Games reducer", () => {
 				player1,
 				player2,
 			],
-			currentPlayerColor: player1.get("color"),
 		});
 
 		const state = [
@@ -541,7 +480,6 @@ describe("Games reducer", () => {
 				player1,
 				player2,
 			],
-			currentPlayerColor: player1.get("color"),
 		});
 
 		const state = [
@@ -595,7 +533,6 @@ describe("Games reducer", () => {
 				player1,
 				player2,
 			],
-			currentPlayerColor: player1.get("color"),
 		});
 
 		let state = fromJS({

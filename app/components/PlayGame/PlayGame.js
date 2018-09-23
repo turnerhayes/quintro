@@ -8,12 +8,17 @@ import {
 import classnames         from "classnames";
 import Icon               from "@material-ui/core/Icon";
 import Badge              from "@material-ui/core/Badge";
+import Popover            from "@material-ui/core/Popover";
 import { withStyles }     from "@material-ui/core/styles";
+
 import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
 import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
+import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import Config             from "@app/config";
+import gameSelectors      from "@app/selectors/games/game";
+
 import messages           from "./messages";
 import StartGameOverlay   from "./StartGameOverlay";
 import WinnerBanner       from "./WinnerBanner";
@@ -87,6 +92,20 @@ class PlayGame extends React.PureComponent {
 
 	static defaultProps = {
 		currentZoomLevel: 1,
+	}
+
+	/**
+	 * Component state
+	 *
+	 * @type object
+	 *
+	 * @prop {string} selectedPlayerColor=null - the color ID of the color that is currently selected (has the
+	 *	player info popover opened)
+	 * @prop {string} selectedIndicatorEl=null - the DOM element corresponding to the selected color's indicator
+	 */
+	state = {
+		selectedPlayerColor: null,
+		selectedIndicatorEl: null,
 	}
 
 	formatMessage = (...args) => {
@@ -212,6 +231,44 @@ class PlayGame extends React.PureComponent {
 	}
 
 	/**
+	 * Toggles the player info popover open or closed for the specified color.
+	 *
+	 * @function
+	 *
+	 * @param {string} color - the color ID of the color for which to open the popover
+	 *
+	 * @return {void}
+	 */
+	togglePopoverOpened = (color) => {
+		this.setState({ selectedPlayerColor: color });
+	}
+
+	/**
+	 * Handles a click on a player indicator.
+	 *
+	 * @function
+	 *
+	 * @param {object} args
+	 * @param {client.records.PlayerRecord} args.selectedPlayer - the player whose indicator was clicked
+	 * @param {DOMElement} args.element - the DOM element corresponding to the indicator selected
+	 *
+	 * @return {void}
+	 */
+	handlePlayerIndicatorClick = ({ selectedPlayer, element }) => {
+		this.setState({
+			selectedIndicatorEl: element,
+		});
+		this.togglePopoverOpened(selectedPlayer.get("color"));
+	}
+
+	handlePlayerInfoPopoverClose = () => {
+		this.setState({
+			selectedIndicatorEl: null,
+			selectedPlayerColor: null,
+		});
+	}
+
+	/**
 	 * Returns a React component that contains the game board.
 	 *
 	 * @function
@@ -224,10 +281,10 @@ class PlayGame extends React.PureComponent {
 			isInGame,
 			isWatchingGame,
 			watcherCount,
-			playerUsers
+			playerUsers,
 		} = this.props;
 
-		const myTurn = this.props.currentUserPlayerColor === game.get("currentPlayerColor");
+		const myTurn = this.props.currentUserPlayerColor === gameSelectors.getCurrentPlayerColor(game);
 		const gameIsOver = !!game.get("winner");
 		const gameIsStarted = game.get("isStarted") && !gameIsOver;
 
@@ -290,7 +347,30 @@ class PlayGame extends React.PureComponent {
 						game={game}
 						markActive={gameIsStarted}
 						playerUsers={playerUsers}
+						onIndicatorClick={this.handlePlayerIndicatorClick}
 					/>
+					<Popover
+						open={!!this.state.selectedIndicatorEl}
+						onClose={this.handlePlayerInfoPopoverClose}
+						anchorEl={this.state.selectedIndicatorEl}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "center",
+						}}
+						transformOrigin={{
+							vertical: "top",
+							horizontal: "left",
+						}}
+					>
+						{
+							this.state.selectedPlayerColor && (
+								<PlayerInfoPopup
+									game={game}
+									player={game.get("players").find((player) => player.get("color") === this.state.selectedPlayerColor)}
+								/>
+							)
+						}
+					</Popover>
 					<ZoomControls
 						onZoomLevelChange={this.handleZoomLevelChange}
 						currentZoomLevel={this.props.currentZoomLevel}

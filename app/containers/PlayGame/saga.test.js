@@ -7,12 +7,12 @@ import createReducer from "@app/reducers";
 import {
 	fetchedGame,
 	changeSetting,
-	setCurrentPlayer,
 	setMarble,
 	getGame,
 	leaveGame,
 	addPlayer,
 } from "@app/actions";
+import BoardRecord from "@shared-lib/board";
 
 import { runSaga, intl } from "@app/utils/test-utils";
 
@@ -44,14 +44,13 @@ describe("PlayGame saga", () => {
 
 	const game = fromJS({
 		name: gameName,
-		board: {
+		board: new BoardRecord({
 			width: 10,
 			height: 10,
 			filledCells: [],
-		},
+		}),
 		playerLimit: 3,
 		isStarted: true,
-		currentPlayerColor: player2Color,
 		players: [
 			player1,
 			{
@@ -95,32 +94,40 @@ describe("PlayGame saga", () => {
 
 						show = show
 					}
-
+					
 					return Notify;
 				}
 			);
 
+			const action = setMarble({
+				gameName,
+				position: [0, 0],
+				color: player2Color,
+			});
+				
 			const state = [
 				changeSetting({
 					enableNotifications: true,
-				})
+				}),
+				setMarble({
+					gameName,
+					position: [1, 0],
+					color: player1Color,
+				}),
+				action,
 			].reduce(reducer, baseState);
 			
-			const { dispatchers } = await runSaga({
-				state,
-				getSaga: async () => {
-					const module = await import ("./saga");
+			runSaga(
+				{
+					state,
+					getSaga: async () => {
+						const module = await import ("./saga");
 
-					return module.default;
+						return module.setMarbleSaga;
+					},
 				},
-			});
-
-			const action = setCurrentPlayer({
-				gameName,
-				color: player1Color,
-			});
-
-			dispatchers.forEach((dispatcher) => dispatcher(action));
+				action
+			);
 
 			await notificationPromise;
 
@@ -150,16 +157,18 @@ describe("PlayGame saga", () => {
 				}
 			);
 
+			const action = setMarble({
+				gameName,
+				position: [1, 0],
+				color: player1Color,
+			});
+
 			const state = [
 				changeSetting({
 					enableNotifications: true,
 				}),
+				action,
 			].reduce(reducer, baseState);
-
-			const action = setCurrentPlayer({
-				gameName,
-				color: player2Color,
-			});
 			
 			const { sagaPromise } = await runSaga(
 				{
@@ -167,7 +176,7 @@ describe("PlayGame saga", () => {
 					getSaga: async () => {
 						const module = await import ("./saga");
 
-						return module.setCurrentPlayerSaga;
+						return module.setMarbleSaga;
 					},
 				},
 				action
@@ -200,8 +209,9 @@ describe("PlayGame saga", () => {
 				}
 			);
 
-			const action = setCurrentPlayer({
+			const action = setMarble({
 				gameName,
+				position: [0, 0],
 				color: player1Color,
 			});
 
@@ -219,7 +229,7 @@ describe("PlayGame saga", () => {
 					getSaga: async () => {
 						const module = await import ("./saga");
 
-						return module.setCurrentPlayerSaga;
+						return module.setMarbleSaga;
 					},
 				},
 				action
@@ -263,25 +273,31 @@ describe("PlayGame saga", () => {
 				}
 			);
 
-			const action = setCurrentPlayer({
+			const action = setMarble({
 				gameName,
-				color: player1Color,
+				position: [0, 0],
+				color: player2Color,
 			});
 
 			const state = [
-				action,
 				changeSetting({
 					enableNotifications: true,
-				})
+				}),
+				setMarble({
+					gameName,
+					position: [1, 0],
+					color: player1Color,
+				}),
+				action,
 			].reduce(reducer, baseState);
 
 			const { sagaPromise } = await runSaga(
 				{
 					state,
 					getSaga: async () => {
-						const module = await import ("./saga");
+						const module = await import("./saga");
 
-						return module.setCurrentPlayerSaga;
+						return module.setMarbleSaga;
 					},
 				},
 				action
@@ -359,10 +375,27 @@ describe("PlayGame saga", () => {
 
 			jest.resetModules();
 
+			const action = setMarble({
+				gameName,
+				position: [1, 1],
+				color: player1Color,
+			});
+
 			const state = [
 				changeSetting({
 					enableSoundEffects: false,
-				})
+				}),
+				setMarble({
+					gameName,
+					position: [0, 0],
+					color: player1Color,
+				}),
+				setMarble({
+					gameName,
+					position: [1, 0],
+					color: player2Color,
+				}),
+				action,
 			].reduce(reducer, baseState);
 
 			const play = jest.fn();
@@ -381,22 +414,17 @@ describe("PlayGame saga", () => {
 				};
 			});
 			
-			const { dispatchers, sagaPromise } = await runSaga({
-				state,
-				getSaga: async () => {
-					const module = await import ("./saga");
+			const { sagaPromise } = await runSaga(
+				{
+					state,
+					getSaga: async () => {
+						const module = await import ("./saga");
 
-					return module.setMarbleSaga;
+						return module.setMarbleSaga;
+					},
 				},
-			});
-
-			const action = setMarble({
-				gameName,
-				position: List([ 0, 1 ]),
-				color: player1Color,
-			});
-
-			dispatchers.forEach((dispatcher) => dispatcher(action));
+				action
+			);
 
 			await sagaPromise;
 

@@ -259,13 +259,6 @@ describe("games action creators", () => {
 				},
 			},
 		},
-		{
-			...actionsToTest.SET_CURRENT_PLAYER,
-			args: {
-				gameName: "test",
-				color: "blue",
-			},
-		},
 
 		{
 			...actionsToTest.SET_PLAYER_PRESENCE,

@@ -21,6 +21,7 @@ import {
 }                         from "react-intl";
 
 import gameSelectors      from "@app/selectors/games/game";
+
 import messages           from "./messages";
 
 
@@ -163,7 +164,7 @@ class UserGamesList extends React.PureComponent {
 									players &&
 									players.find(
 										(player) => this.props.users.get(player.get("userID"), Map()).get("isMe")
-									).get("color") === game.get("currentPlayerColor");
+									).get("color") === gameSelectors.getCurrentPlayerColor(game);
 
 								return (
 									<ListItem

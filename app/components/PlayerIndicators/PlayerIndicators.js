@@ -1,17 +1,17 @@
 import React              from "react";
 import ImmutablePropTypes from "react-immutable-proptypes";
 import PropTypes          from "prop-types";
-import { Map }            from "immutable";
 import {
 	injectIntl,
 	intlShape,
 }                         from "react-intl";
-import Popover            from "@material-ui/core/Popover";
 import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
-import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
+
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Marble             from "@app/components/Marble";
+import gameSelectors      from "@app/selectors/games/game";
+
 import messages           from "./messages";
 
 const MARBLE_SIZE = {
@@ -40,13 +40,20 @@ const styles = {
 		fontSize: "1.3em",
 	},
 
-	activeMarble: {
-		boxShadow: "#C3C374 0px 0px 20px 6px",
+	
+	activeItem: {
+		"&::after": {
+			content: "'▲'",
+			display: "inline-block",
+			width: "100%",
+			textAlign: "center",
+			fontSize: "1.5em",
+		},
 	},
 };
 
 /**
- * @callback client.react-components.PlayerIndicators~onIndicatorClicked
+ * @callback client.react-components.PlayerIndicators~onIndicatorClick
  *
  * @param {object} args - the function arguments
  * @param {external:Immutable.Map} args.selectedPlayer - the player whose indicator was clicked
@@ -69,7 +76,7 @@ class PlayerIndicators extends React.Component {
 	 *
 	 * @prop {external:Immutable.Map} game - the game the players are in
 	 * @prop {boolean} [markActive] - whether or not to distinguish which player is the current player
-	 * @prop {client.react-components.PlayerIndicators~onIndicatorClicked} [onPlayerIndicatorClicked] - handler
+	 * @prop {client.react-components.PlayerIndicators~onIndicatorClick} [onPlayerIndicatorClicked] - handler
 	 *	for when an indicator is clicked
 	 */
 	static propTypes = {
@@ -82,42 +89,20 @@ class PlayerIndicators extends React.Component {
 
 		markActive: PropTypes.bool,
 
-		onIndicatorClicked: PropTypes.func,
+		onIndicatorClick: PropTypes.func,
+
+		indicatorProps: PropTypes.oneOfType([
+			PropTypes.object,
+			PropTypes.func,
+		]),
 
 		intl: intlShape.isRequired,
 
 		classes: PropTypes.object,
 	}
 
-	/**
-	 * Component state
-	 *
-	 * @type object
-	 *
-	 * @prop {string} selectedPlayerColor=null - the color ID of the color that is currently selected (has the
-	 *	player info popover opened)
-	 * @prop {string} selectedIndicatorEl=null - the DOM element corresponding to the selected color's indicator
-	 */
-	state = {
-		selectedPlayerColor: null,
-		selectedIndicatorEl: null,
-	}
-
 	formatMessage = (...args) => {
 		return this.props.intl.formatMessage(...args);
-	}
-
-	/**
-	 * Toggles the player info popover open or closed for the specified color.
-	 *
-	 * @function
-	 *
-	 * @param {string} color - the color ID of the color for which to open the popover
-	 *
-	 * @return {void}
-	 */
-	togglePopoverOpened = (color) => {
-		this.setState({ selectedPlayerColor: color });
 	}
 
 	/**
@@ -130,12 +115,8 @@ class PlayerIndicators extends React.Component {
 	 *
 	 * @return {void}
 	 */
-	handlePlayerIndicatorClicked = (selectedPlayer, element) => {
-		this.setState({
-			selectedIndicatorEl: element,
-		});
-		this.togglePopoverOpened(selectedPlayer.get("color"));
-		this.props.onIndicatorClicked && this.props.onIndicatorClicked({ selectedPlayer });
+	handlePlayerIndicatorClick = (selectedPlayer, element) => {
+		this.props.onIndicatorClick && this.props.onIndicatorClick({ selectedPlayer, element });
 	}
 
 	/**
@@ -147,11 +128,6 @@ class PlayerIndicators extends React.Component {
 	 */
 	render() {
 		const {
-			selectedPlayerColor,
-			selectedIndicatorEl,
-		} = this.state;
-
-		const {
 			game,
 			markActive,
 			classes,
@@ -160,11 +136,6 @@ class PlayerIndicators extends React.Component {
 		if (game.get("players").isEmpty()) {
 			return (<LoadingSpinner />);
 		}
-
-		const playerMap = game.get("players").reduce(
-			(playerMap, player) => playerMap.set(player.get("color"), player),
-			Map()
-		);
 
 		return (
 			<div
@@ -175,10 +146,10 @@ class PlayerIndicators extends React.Component {
 				>
 					{
 						game.get("players").map(
-							(player) => {
+							(player, index) => {
 								const playerUser = this.props.playerUsers.get(player.get("userID"));
 
-								const active = player.get("color") === game.get("currentPlayerColor");
+								const active = player.get("color") === gameSelectors.getCurrentPlayerColor(game);
 								const isPresent = !!game.getIn(["playerPresence", player.get("color")]);
 
 								let message;
@@ -213,11 +184,26 @@ class PlayerIndicators extends React.Component {
 										className={classnames([
 											classes.item,
 											{
-												[classes.currentPlayerItem]: player.getIn(["user", "isMe"]),
+												[classes.currentPlayerItem]: playerUser.get("isMe"),
+												[classes.activeItem]: active && markActive,
+												[classes[`activeItem-color-${player.get("color")}`]]: active && markActive,
 											}
 										])}
 										title={label}
-										onClick={(event) => this.handlePlayerIndicatorClicked(player, event.target)}
+										onClick={(event) => this.handlePlayerIndicatorClick(player, event.target)}
+										{
+										...(
+											typeof this.props.indicatorProps === "function" ?
+												this.props.indicatorProps({
+													player,
+													user: playerUser,
+													index,
+													active,
+													isPresent,
+												}) :
+												this.props.indicatorProps
+										)
+										}
 									>
 										<Marble
 											color={player.get("color")}
@@ -226,40 +212,12 @@ class PlayerIndicators extends React.Component {
 													MARBLE_SIZE.absent :
 													MARBLE_SIZE.normal
 											}
-											className={classnames({
-												[classes.activeMarble]: active && markActive,
-											})}
 										/>
 									</li>
 								);
 							}
 						).toArray()
 					}
-					<Popover
-						open={!!selectedIndicatorEl}
-						onClose={() => this.setState({
-							selectedIndicatorEl: null,
-							selectedPlayerColor: null,
-						})}
-						anchorEl={selectedIndicatorEl}
-						anchorOrigin={{
-							vertical: "bottom",
-							horizontal: "center",
-						}}
-						transformOrigin={{
-							vertical: "top",
-							horizontal: "left",
-						}}
-					>
-						{
-							selectedPlayerColor && (
-								<PlayerInfoPopup
-									game={game}
-									player={playerMap.get(selectedPlayerColor)}
-								/>
-							)
-						}
-					</Popover>
 					{
 						[
 							...Array(
@@ -274,6 +232,19 @@ class PlayerIndicators extends React.Component {
 									key={`not-filled-player-${index}`}
 									className={classes.item}
 									title={this.formatMessage(messages.indicatorMessages.availableSlot)}
+									{
+									...(
+										typeof this.props.indicatorProps === "function" ?
+											this.props.indicatorProps({
+												player: null,
+												user: null,
+												index,
+												active: false,
+												isPresent: false,
+											}) :
+											this.props.indicatorProps
+									)
+									}
 								>
 									<Marble
 										size={MARBLE_SIZE.normal}
