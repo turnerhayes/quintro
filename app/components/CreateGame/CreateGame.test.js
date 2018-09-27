@@ -6,13 +6,58 @@ import Button from "@material-ui/core/Button";
 
 import { intl } from "@app/utils/test-utils";
 import Config from "@app/config";
+import {
+	DimensionInput,
+	PlayerLimitInput
+} from "@app/components/GameFormControls";
+
 import { Unwrapped as CreateGame } from "./CreateGame";
 import { CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS } from "./CreateGame";
 
 const NO_OP = () => {};
 
+function renderInputs(wrapper) {
+	// Render the dimension input so that its lifecycle events trigger. Have to get down
+	// to the bare, unwrapped component
+	wrapper.find(DimensionInput).shallow().shallow({
+		context: {
+			intl,
+		},
+	}).shallow();
+
+	// see above
+	wrapper.find(PlayerLimitInput).shallow().shallow({
+		context: {
+			intl,
+		},
+	}).shallow();
+}
+
+function expectValues(wrapper, expectedValues) {
+	renderInputs(wrapper);
+
+	if ("name" in expectedValues) {
+		expect(wrapper).toHaveState("name", expectedValues.name);
+	}
+
+	if ("width" in expectedValues) {
+		expect(wrapper).toHaveState("width", expectedValues.width);
+	}
+
+	if ("height" in expectedValues) {
+		expect(wrapper).toHaveState("height", expectedValues.height);
+	}
+
+	if ("playerLimit" in expectedValues) {
+		expect(wrapper).toHaveState("playerLimit", expectedValues.playerLimit);
+	}
+}
+
 describe("CreateGame component", () => {
 	it("should set form state from the query string", () => {
+		// eslint-disable-next-line no-magic-numbers
+		expect.assertions(4);
+
 		const params = {
 			name: "testgame",
 			width: "13",
@@ -32,13 +77,15 @@ describe("CreateGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
+		renderInputs(wrapper);
+
+		expectValues(wrapper, params);
 	});
 
 	it("should use default values when missing from the query string", () => {
+		// eslint-disable-next-line no-magic-numbers
+		expect.assertions(8);
+		
 		const params = {
 			width: "13",
 			height: "10",
@@ -57,10 +104,11 @@ describe("CreateGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
+		expectValues(wrapper, {
+			...params,
+			playerLimit: Config.game.players.min.toString(),
+			name: "",
+		});
 
 		// all values missing
 		wrapper = shallow(
@@ -75,10 +123,12 @@ describe("CreateGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(Config.game.board.width.min + "");
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(Config.game.board.height.min + "");
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
+		expectValues(wrapper, {
+			name: "",
+			width: Config.game.board.width.min.toString(),
+			height: Config.game.board.height.min.toString(),
+			playerLimit: Config.game.players.min.toString(),
+		});
 	});
 
 	it("should use default values when the query string has invalid values", () => {
@@ -100,58 +150,12 @@ describe("CreateGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue("");
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(Config.game.board.width.min + "");
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(Config.game.board.height.min + "");
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(Config.game.players.min + "");
-	});
-
-	it("should have an error when a query string value is too small", () => {
-		const params = {
-			width: "1",
-			height: "1",
-			playerLimit: "1",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-		expect(wrapper.find("TextField[name='width']")).toHaveProp("error", true);
-		expect(wrapper.find("TextField[name='height']")).toHaveProp("error", true);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveProp("error", true);
-	});
-
-	it("should have an error when a query string value is too large", () => {
-		const params = {
-			width: "1000",
-			height: "1000",
-			playerLimit: "1000",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-		expect(wrapper.find("TextField[name='width']")).toHaveProp("error", true);
-		expect(wrapper.find("TextField[name='height']")).toHaveProp("error", true);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveProp("error", true);
+		expectValues(wrapper, {
+			name: "",
+			width: Config.game.board.width.min.toString(),
+			height: Config.game.board.height.min.toString(),
+			playerLimit: Config.game.players.min.toString(),
+		});
 	});
 
 	it("should change the field values when the query string changes", () => {
@@ -174,10 +178,7 @@ describe("CreateGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
+		expectValues(wrapper, params);
 
 		params.name = "othertest";
 		params.width = "21";
@@ -190,10 +191,7 @@ describe("CreateGame component", () => {
 			},
 		});
 
-		expect(wrapper.find("TextField[name='name']")).toHaveValue(params.name);
-		expect(wrapper.find("TextField[name='width']")).toHaveValue(params.width);
-		expect(wrapper.find("TextField[name='height']")).toHaveValue(params.height);
-		expect(wrapper.find("TextField[name='playerLimit']")).toHaveValue(params.playerLimit);
+		expectValues(wrapper, params);
 	});
 
 	it("should have the submit button disabled if there are any errors", () => {
@@ -209,10 +207,11 @@ describe("CreateGame component", () => {
 		);
 
 		wrapper.find("TextField[name='name']").simulate("change", { target: { value: "testgame" } });
+		
 		// value too small!
-		wrapper.find("TextField[name='width']").simulate("change", { target: { value: "1" } });
+		wrapper.find(DimensionInput).simulate("widthChange", { value: "1", error: "foo" });
 		// value too large!
-		wrapper.find("TextField[name='height']").simulate("change", { target: { value: "1000" } });
+		wrapper.find(DimensionInput).simulate("heightChange", { value: "1000", error: "foo" });
 
 		expect(wrapper.find(Button).filter("[type='submit']")).toBeDisabled();
 	});
@@ -231,158 +230,11 @@ describe("CreateGame component", () => {
 
 		// Fill out the form with valid values
 		wrapper.find("TextField[name='name']").simulate("change", { target: { value: "testgame" } });
-		wrapper.find("TextField[name='width']").simulate("change", { target: { value: "20" } });
-		wrapper.find("TextField[name='height']").simulate("change", { target: { value: "20" } });
-		wrapper.find("TextField[name='playerLimit']").simulate("change", { target: { value: "5" } });
+		wrapper.find(DimensionInput).simulate("widthChange", { value: "20" });
+		wrapper.find(DimensionInput).simulate("heightChange", { value: "20" });
+		wrapper.find(PlayerLimitInput).simulate("playerLimitChange", { value: "5" });
 
 		expect(wrapper.find(Button).filter("[type='submit']")).not.toBeDisabled();
-	});
-
-	it("should have error when a required field is omitted", () => {
-		const params = {
-			name: "test",
-			width: "15",
-			height: "15",
-			playerLimit: "3",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				isNameValid
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-		[
-			"width",
-			"height",
-			"playerLimit",
-		].forEach(
-			(inputName) => {
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
-
-				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "" } });
-
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
-			}
-		);
-	});
-
-	it("should have error when a field has invalid value", () => {
-		const params = {
-			name: "test",
-			width: "15",
-			height: "15",
-			playerLimit: "3",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				isNameValid
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-
-		[
-			"width",
-			"height",
-			"playerLimit",
-		].forEach(
-			(inputName) => {
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
-
-				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "glorb" } });
-
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
-			}
-		);
-	});
-
-	it("should have error when a field value is too small", () => {
-		const params = {
-			name: "test",
-			width: "15",
-			height: "15",
-			playerLimit: "3",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				isNameValid
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-
-		[
-			"width",
-			"height",
-			"playerLimit",
-		].forEach(
-			(inputName) => {
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
-				
-				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "1" } });
-
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
-			}
-		);
-	});
-
-	it("should have error when a field value is too large", () => {
-		const params = {
-			name: "test",
-			width: "15",
-			height: "15",
-			playerLimit: "3",
-		};
-
-		const wrapper = shallow(
-			<CreateGame
-				onCreateGame={NO_OP}
-				onCheckName={NO_OP}
-				location={{
-					search: `?${new URLSearchParams(params)}`,
-				}}
-				isNameValid
-				classes={{}}
-				intl={intl}
-			/>
-		);
-
-
-		[
-			"width",
-			"height",
-			"playerLimit",
-		].forEach(
-			(inputName) => {
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", false);
-
-				wrapper.find(`TextField[name="${inputName}"]`).simulate("change", { target: { value: "1000" } });
-
-				expect(wrapper.find(`TextField[name="${inputName}"]`)).toHaveProp("error", true);
-			}
-		);
 	});
 
 	it("should call onCheckName handler debounced", () => {
@@ -447,34 +299,22 @@ describe("CreateGame component", () => {
 			"change",
 			{
 				target: {
-					value: values.name + "",
+					value: values.name,
 				},
 			},
 		);
-		wrapper.find("TextField[name='width']").simulate(
-			"change",
-			{
-				target: {
-					value: values.width + "",
-				},
-			},
-		);
-		wrapper.find("TextField[name='height']").simulate(
-			"change",
-			{
-				target: {
-					value: values.height + "",
-				},
-			},
-		);
-		wrapper.find("TextField[name='playerLimit']").simulate(
-			"change",
-			{
-				target: {
-					value: values.playerLimit + "",
-				},
-			},
-		);
+
+		wrapper.find(DimensionInput).simulate("widthChange", {
+			value: values.width.toString(),
+		});
+
+		wrapper.find(DimensionInput).simulate("heightChange", {
+			value: values.height.toString(),
+		});
+
+		wrapper.find(PlayerLimitInput).simulate("playerLimitChange", {
+			value: values.playerLimit.toString(),
+		});
 
 		wrapper.setProps({ isNameValid: true });
 

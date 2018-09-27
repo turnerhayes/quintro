@@ -1,29 +1,26 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { withStyles } from "@material-ui/core/styles";
 
-import Config from "@shared-lib/config";
+import Config from "@app/config";
+
+import ColorSwatch from "./ColorSwatch";
 
 const styles = {
-	colorSwatch: {
+	root: {
 		display: "inline-block",
-		width: "1.5em",
-		height: "1.5em",
-		borderRadius: "100%",
-		marginRight: "0.5em",
 	},
 };
-
 class ColorPicker extends React.PureComponent {
 	static propTypes = {
 		classes: PropTypes.object.isRequired,
 		getDefaultColor: PropTypes.func,
 		colorFilter: PropTypes.func,
 		onColorChosen: PropTypes.func.isRequired,
-		selectedColor: PropTypes.string,
+		selectedColor: PropTypes.oneOf(Config.game.colors.map(({ id }) => id)),
 	}
 
 	static defaultProps = {
@@ -84,9 +81,8 @@ class ColorPicker extends React.PureComponent {
 			<span
 				{...rootProps}
 			>
-				<span
-					className={this.props.classes.colorSwatch}
-					style={{backgroundColor: colorDefinition.hex}}
+				<ColorSwatch
+					color={colorDefinition.id}
 				/>
 				{colorDefinition.name}
 			</span>
@@ -103,7 +99,9 @@ class ColorPicker extends React.PureComponent {
 		}
 
 		return (
-			<React.Fragment>
+			<div
+				className={this.props.classes.root}
+			>
 				<Button
 					key="color-change-button"
 					onClick={this.handleCurrentColorClicked}
@@ -138,11 +136,9 @@ class ColorPicker extends React.PureComponent {
 						)
 					}
 				</Menu>
-			</React.Fragment>
+			</div>
 		);
 	}
 }
-
-export { ColorPicker as Unwrapped };
 
 export default withStyles(styles)(ColorPicker);

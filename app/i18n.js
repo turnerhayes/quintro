@@ -12,10 +12,6 @@ import enTranslationMessages from "@app/translations/en";
 
 addLocaleData(enLocaleData);
 
-export const appLocales = [
-	"en",
-];
-
 export const formatTranslationMessages = (locale, messages) => {
 	const defaultFormattedMessages = locale !== DEFAULT_LOCALE
 		? formatTranslationMessages(DEFAULT_LOCALE, enTranslationMessages)

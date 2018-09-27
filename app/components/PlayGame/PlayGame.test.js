@@ -483,179 +483,234 @@ describe("PlayGame component", () => {
 		);
 	});
 
-	it("should show a user information popover on clicking an indicator", () => {
-		const gameName = "testgame";
-
-		const game = fromJS({
-			name: gameName,
-			board: new BoardRecord({
-				width: 10,
-				height: 10,
-				filledCells: [],
-			}),
-			players: [
-				{
-					color: "blue",
-					userID: "1",
+	describe("Player indicators", () => {
+		it("should show a user information popover on clicking an indicator", () => {
+			const gameName = "testgame";
+	
+			const game = fromJS({
+				name: gameName,
+				board: new BoardRecord({
+					width: 10,
+					height: 10,
+					filledCells: [],
+				}),
+				players: [
+					{
+						color: "blue",
+						userID: "1",
+					},
+				],
+				playerLimit: 3,
+			});
+	
+			const users = fromJS({
+				1: {
+					id: "1",
+					name: {},
 				},
-			],
-			playerLimit: 3,
-		});
-
-		const users = fromJS({
-			1: {
-				id: "1",
-				name: {},
-			},
-		});
-
-		const actions = [
-			fetchedGame({
-				game: game.setIn(
-					[
+			});
+	
+			const actions = [
+				fetchedGame({
+					game: game.setIn(
+						[
+							"players",
+							0,
+							"user",
+						],
+						users.get("1"),
+					).deleteIn([
 						"players",
 						0,
-						"user",
-					],
-					users.get("1"),
-				).deleteIn([
-					"players",
-					0,
-					"userID",
-				]),
-			}),
-		];
-
-		const reducer = createReducer();
-
-		const state = actions.reduce(reducer, undefined);
-		
-		const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
-
-		const store = mockStore(state);
-
-		const wrapper = shallow(
-			<PlayGame
-				{...getProps({
-					game,
-					gameName,
-					playerUsers,
-				})}
-			/>
-		);
-
-		let playerIndicators = wrapper.find(PlayerIndicators).shallow({
-			context: {
-				intl,
-				store,
-			},
-		}).shallow();
-
-		const indicatorClasses = playerIndicators.prop("classes");
-		playerIndicators = playerIndicators.shallow();
-
-		const firstIndicator = playerIndicators.find(`.${indicatorClasses.item}`).first();
-
-		firstIndicator.simulate("click", {
-			target: firstIndicator,
-		});
-
-		expect(wrapper.find(Popover)).toHaveProp("open", true);
-	});
-
-	it("should close the user information popover when clicking outside", () => {
-		const gameName = "testgame";
-
-		const game = fromJS({
-			name: gameName,
-			board: new BoardRecord({
-				width: 10,
-				height: 10,
-				filledCells: [],
-			}),
-			players: [
-				{
-					color: "blue",
-					userID: "1",
-				},
-			],
-			playerLimit: 3,
-			isStarted: true,
-		});
-
-		const users = fromJS({
-			1: {
-				id: "1",
-				name: {},
-				isMe: true,
-			},
-		});
-
-		const actions = [
-			fetchedGame({
-				game: game.setIn(
-					[
-						"players",
-						0,
-						"user",
-					],
-					users.get("1"),
-				).deleteIn([
-					"players",
-					0,
-					"userID",
-				]),
-			}),
-		];
-
-		const reducer = createReducer();
-
-		const state = actions.reduce(reducer, undefined);
-		
-		const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
-
-		const store = mockStore(state);
-
-		// Can't use shallow() because we need access to the Backdrop component, and
-		// shallow() rendering doesn't seem to provide access to components in a Portal.
-		const wrapper = mount(
-			(
-				<MemoryRouter>
-					<PlayGame
-						{...getProps({
-							game,
-							gameName,
-							playerUsers,
-							isInGame: true,
-						})}
-					/>
-				</MemoryRouter>
-			),
-			{
+						"userID",
+					]),
+				}),
+			];
+	
+			const reducer = createReducer();
+	
+			const state = actions.reduce(reducer, undefined);
+			
+			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
+	
+			const store = mockStore(state);
+	
+			const wrapper = shallow(
+				<PlayGame
+					{...getProps({
+						game,
+						gameName,
+						playerUsers,
+					})}
+				/>
+			);
+	
+			let playerIndicators = wrapper.find(PlayerIndicators).shallow({
 				context: {
 					intl,
 					store,
 				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
-		);
-
-		const playerIndicators = wrapper.find("PlayerIndicators");
-
-		const indicatorClasses = playerIndicators.prop("classes");
-
-		const firstIndicator = playerIndicators.find(`.${indicatorClasses.item}`).first();
-
-		firstIndicator.simulate("click", {
-			target: firstIndicator.getDOMNode(),
+			}).shallow();
+	
+			const indicatorClasses = playerIndicators.prop("classes");
+			playerIndicators = playerIndicators.shallow();
+	
+			const firstIndicator = playerIndicators.find(`.${indicatorClasses.item}`).first();
+	
+			firstIndicator.simulate("click", {
+				target: firstIndicator,
+			});
+	
+			expect(wrapper.find(Popover)).toHaveProp("open", true);
 		});
+	
+		it("should close the user information popover when clicking outside", () => {
+			const gameName = "testgame";
+	
+			const game = fromJS({
+				name: gameName,
+				board: new BoardRecord({
+					width: 10,
+					height: 10,
+					filledCells: [],
+				}),
+				players: [
+					{
+						color: "blue",
+						userID: "1",
+					},
+				],
+				playerLimit: 3,
+				isStarted: true,
+			});
+	
+			const users = fromJS({
+				1: {
+					id: "1",
+					name: {},
+					isMe: true,
+				},
+			});
+	
+			const actions = [
+				fetchedGame({
+					game: game.setIn(
+						[
+							"players",
+							0,
+							"user",
+						],
+						users.get("1"),
+					).deleteIn([
+						"players",
+						0,
+						"userID",
+					]),
+				}),
+			];
+	
+			const reducer = createReducer();
+	
+			const state = actions.reduce(reducer, undefined);
+			
+			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
+	
+			const store = mockStore(state);
+	
+			// Can't use shallow() because we need access to the Backdrop component, and
+			// shallow() rendering doesn't seem to provide access to components in a Portal.
+			const wrapper = mount(
+				(
+					<MemoryRouter>
+						<PlayGame
+							{...getProps({
+								game,
+								gameName,
+								playerUsers,
+								isInGame: true,
+							})}
+						/>
+					</MemoryRouter>
+				),
+				{
+					context: {
+						intl,
+						store,
+					},
+	
+					childContextTypes: {
+						intl: intlShape,
+						store: PropTypes.object,
+					},
+				}
+			);
+	
+			const playerIndicators = wrapper.find("PlayerIndicators");
+	
+			const indicatorClasses = playerIndicators.prop("classes");
+	
+			const firstIndicator = playerIndicators.find(`.${indicatorClasses.item}`).first();
+	
+			firstIndicator.simulate("click", {
+				target: firstIndicator.getDOMNode(),
+			});
+	
+			expect(wrapper.find(Popover)).toHaveProp("open", true);
+			wrapper.find(Backdrop).simulate("click");
+			expect(wrapper.find(Popover)).toHaveProp("open", false);
+		});
+	
+		it("should not open a player info dialog when clicking on an empty indicator", () => {
+			const gameName = "test";
 
-		expect(wrapper.find(Popover)).toHaveProp("open", true);
-		wrapper.find(Backdrop).simulate("click");
-		expect(wrapper.find(Popover)).toHaveProp("open", false);
+			let game = fromJS({
+				name: gameName,
+				board: new BoardRecord({
+					width: 10,
+					height: 10,
+				}),
+				players: [
+					{
+						user: {
+							id: "1",
+						},
+						color: "blue",
+					},
+				],
+				playerLimit: 4,
+			});
+
+			const reducer = createReducer();
+
+			const state = [
+				fetchedGame({ game }),
+			].reduce(reducer, undefined);
+
+			game = selectors.games.getGame(state, { gameName });
+
+			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
+
+			const wrapper = shallow(
+				<PlayGame
+					{...getProps({
+						game,
+						gameName,
+						playerUsers,
+					})}
+				/>
+			);
+			
+			expect(wrapper).toHaveState("selectedIndicatorEl", null);
+			
+			wrapper.find(PlayerIndicators).simulate("indicatorClick", {
+				selectedPlayer: null,
+				index: 1,
+				element: null,
+			});
+
+			// Should not have changed the indicator el because the popover should not be open
+			expect(wrapper).toHaveState("selectedIndicatorEl", null);
+			expect(wrapper.find(Popover).filterWhere((el) => el.key() === "player indicator popover")).toHaveProp("open", false);
+		});
 	});
 });

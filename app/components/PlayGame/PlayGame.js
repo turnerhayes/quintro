@@ -15,6 +15,7 @@ import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
 import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
+import LoadingSpinner     from "@app/components/LoadingSpinner";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import Config             from "@app/config";
 import gameSelectors      from "@app/selectors/games/game";
@@ -255,6 +256,10 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	handlePlayerIndicatorClick = ({ selectedPlayer, element }) => {
+		if (selectedPlayer === null) {
+			return;
+		}
+
 		this.setState({
 			selectedIndicatorEl: element,
 		});
@@ -343,13 +348,20 @@ class PlayGame extends React.PureComponent {
 				<div
 					className={this.props.classes.gameControls}
 				>
-					<PlayerIndicators
-						game={game}
-						markActive={gameIsStarted}
-						playerUsers={playerUsers}
-						onIndicatorClick={this.handlePlayerIndicatorClick}
-					/>
+					{
+						game.get("players").isEmpty() ?
+							(<LoadingSpinner/>) :
+							(
+								<PlayerIndicators
+									game={game}
+									markActive={gameIsStarted}
+									playerUsers={playerUsers}
+									onIndicatorClick={this.handlePlayerIndicatorClick}
+								/>
+							)
+					}
 					<Popover
+						key="player indicator popover"
 						open={!!this.state.selectedIndicatorEl}
 						onClose={this.handlePlayerInfoPopoverClose}
 						anchorEl={this.state.selectedIndicatorEl}

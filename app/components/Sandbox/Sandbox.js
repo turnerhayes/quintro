@@ -1,23 +1,73 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { fromJS } from "immutable";
-import TextField from "@material-ui/core/TextField";
+import classnames from "classnames";
 import { withStyles } from "@material-ui/core/styles";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Switch from "@material-ui/core/Switch";
-import LinkIcon from "@material-ui/icons/Link";
-import ToggleButton from "@material-ui/lab/ToggleButton";
+import IconButton from "@material-ui/core/IconButton";
 
 import Board from "@app/components/Board";
 import PlayerIndicators from "@app/components/PlayerIndicators";
+import ColorPicker from "@app/components/ColorPicker";
+import {
+	DimensionInput,
+	PlayerLimitInput
+} from "@app/components/GameFormControls";
 import BoardRecord from "@shared-lib/board";
+import gameSelectors from "@app/selectors/games/game";
 import Config from "@app/config";
+
+import "@fonts/icomoon/style.css";
+
+import MoveList from "./MoveList";
 
 const styles = {
 	dimensionSeparator: {
 		margin: "0 0.5em",
 		verticalAlign: "bottom",
+	},
+
+	boardContainer: {
+		display: "flex",
+	},
+
+	board: {
+		flex: 1,
+	},
+
+	// Icomoon icons are off center in Material UI 
+	icomoonIcon: {
+		transform: "translate(-50%)",
+	},
+
+	moveList: {
+		minWidth: "20%",
+	},
+
+	playerControls: {
+		display: "flex",
+		flexDirection: "row",
+		flexWrap: "wrap",
+	},
+
+	playerControlsHeader: {
+		width: "100%",
+		display: "flex",
+	},
+
+	playerLimitInput: {
+		width: "100%",
+	},
+
+	addRemovePlayerContainer: {
+		display: "flex",
+		flexDirection: "column",
+	},
+
+	hiddenAddPlayerButton: {
+		visibility: "hidden",
 	},
 };
 
@@ -34,14 +84,13 @@ class Sandbox extends React.PureComponent {
 				filledCells: [],
 			}),
 
-			players: fromJS([
-				{
-					userID: "1",
-					color: Config.game.colors[0].id,
-				},
-			]),
+			players: [],
 
 			playerLimit: 6,
+
+			playerPresence: {},
+
+			isStarted: true,
 		}),
 
 		users: fromJS({
@@ -54,11 +103,11 @@ class Sandbox extends React.PureComponent {
 		}),
 
 		
-		keepRatio: false,
+		keepRatio: true,
 
 		contextMenuAnchorEl: null,
 		
-		contextMenuPlayer: null,
+		contextMenuPlayerIndex: null,
 
 		submenuAnchorEl: null
 	}
@@ -75,14 +124,28 @@ class Sandbox extends React.PureComponent {
 		}
 
 		this.setState((prevState) => {
+			let game = prevState.game.mergeIn(["board"], dimensions);
+
+			const firstMoveIndex = game.getIn(["board", "filledCells"]).findIndex(
+				(cell) => cell.getIn(["position", 0]) >= width ||
+					cell.getIn(["position", 1]) >= height
+			);
+
+			if (firstMoveIndex >= 0) {
+				game = game.updateIn(
+					["board", "filledCells"],
+					(filledCells) => filledCells.slice(0, firstMoveIndex)
+				);
+			}
+
 			return {
-				board: prevState.game.mergeIn(["board"], dimensions),
+				game,
 			}; 
 		});
 	}
 	
-	handleWidthChange = (event) => {
-		const width = event.target.valueAsNumber;
+	handleWidthChange = ({ value }) => {
+		const width = Number(value);
 		let height;
 
 		if (!Number.isNaN(width)) {
@@ -96,8 +159,8 @@ class Sandbox extends React.PureComponent {
 		}
 	}
 	
-	handleHeightChange = (event) => {
-		const height = event.target.valueAsNumber;
+	handleHeightChange = ({ value }) => {
+		const height = Number(value);
 		let width;
 		
 		if (!Number.isNaN(height)) {
@@ -111,37 +174,34 @@ class Sandbox extends React.PureComponent {
 		}
 	}
 
-	handlePlayerIndicatorClicked = (/* selectedPlayer, element */) => {
-	}
-
-	handlePlayerIndicatorContextMenu = ({ event, player }) => {
+	handlePlayerIndicatorContextMenu = ({ event, index }) => {
 		event.preventDefault();
 
 		this.setState({
 			contextMenuAnchorEl: event.target,
-			contextMenuPlayer: player,
+			contextMenuPlayerIndex: index,
 		});
+	}
+
+	getCloseContextMenuState = () => {
+		return {
+			contextMenuAnchorEl: null,
+			contextMenuPlayerIndex: null,
+			submenuAnchorEl: null,
+		};
 	}
 
 	handlePlayerIndicatorContextMenuClose = () => {
-		this.setState({
-			contextMenuAnchorEl: null,
-			contextMenuPlayer: null,
-			submenuAnchorEl: null,
-		});
-	}
-
-	toggleKeepRatio = () => {
-		this.setState(
-			(prevState) => ({
-				keepRatio: !prevState.keepRatio,
-			})
-		);
+		this.setState(this.getCloseContextMenuState());
 	}
 
 	handleTogglePresenceMenuItemClick = () => {
 		this.setState((prevState) => {
-			const color = prevState.contextMenuPlayer.get("color");
+			const color = prevState.game.getIn([
+				"players",
+				this.state.contextMenuPlayerIndex,
+				"color",
+			]);
 
 			return {
 				game: prevState.game.setIn(
@@ -154,7 +214,11 @@ class Sandbox extends React.PureComponent {
 
 	handleToggleIsMeMenuItemClick = () => {
 		this.setState((prevState) => {
-			const userID = prevState.contextMenuPlayer.get("userID");
+			const userID = prevState.game.getIn(
+				"players",
+				this.state.contextMenuPlayerIndex,
+				"userID",
+			);
 
 			return {
 				users: prevState.users.setIn(
@@ -171,20 +235,211 @@ class Sandbox extends React.PureComponent {
 		});
 	}
 
-	renderPlayerControls = () => {
-		return (
-			<fieldset>
-				<legend>
-					Player Controls
-				</legend>
+	handleNewPlayerColorChosen = ({ color }) => {
+		this.setState({
+			newPlayerColor: color,
+		});
+	}
 
+	handleAddPlayerButtonClick = () => {
+		this.setState((prevState) => {
+			const color = prevState.newPlayerColor || this.getDefaultColorPickerColor();
+			const nextIndex = prevState.game.get("players").size;
+			const userID = (nextIndex + 1).toString();
+
+			return {
+				game: prevState.game.setIn(
+					["players", nextIndex],
+					fromJS({
+						userID,
+						color,
+					})
+				).setIn(
+					["playerPresence", color],
+					true
+				),
+				users: prevState.users.set(userID, fromJS({
+					id: userID,
+				})),
+			};
+		});
+	}
+
+	handleRemovePlayerButtonClick = () => {
+		this.setState((prevState) => {
+			const player = prevState.game.get("players").last();
+			const userID = player.get("userID");
+
+			// eslint-disable-next-line no-magic-numbers
+			const prevPlayer = prevState.game.get("players").get(-2);
+
+			return {
+				game: prevState.game.update(
+					"players",
+					(players) => players.slice(0, -1)
+				).updateIn(
+					["board", "filledCells"],
+					(filledCells) => {
+						let endIndex = prevPlayer === undefined ?
+							0 :
+							filledCells.findIndex((cell) => cell.get("color") === player.get("color"));
+							
+						endIndex = endIndex === -1 ?
+							filledCells.size :
+							endIndex;
+
+
+						return filledCells.slice(
+							0,
+							endIndex
+						);
+					}
+				),
+
+				users: prevState.users.delete(userID),
+			};
+		});
+	}
+
+	handleColorChosen = ({ color }) => {
+		this.setState((prevState) => {
+			const index = prevState.contextMenuPlayerIndex;
+			const currentColor = prevState.game.getIn(["players", index, "color"]);
+
+			return {
+				game: prevState.game.setIn(
+					["players", index, "color"],
+					color
+				).setIn(
+					["playerPresence", color],
+					prevState.game.getIn(["playerPresence", currentColor])
+				).updateIn(
+					["board", "filledCells"],
+					(filledCells) => filledCells.reduce(
+						(filledCells, cell, index) => {
+							if (cell.get("color") === currentColor) {
+								return filledCells.set(index, cell.set("color", color));
+							}
+
+							return filledCells;
+						},
+						filledCells
+					)
+				).deleteIn(
+					["playerPresence", currentColor]
+				),
+				...this.getCloseContextMenuState(),
+			};
+		});
+	}
+
+	handleCellClick = ({ cell }) => {
+		if (
+			this.state.game.get("players").isEmpty() ||
+			this.state.game.get("winner") || cell.get("color")
+		) {
+			return;
+		}
+
+		this.setState((prevState) => {
+			return {
+				game: prevState.game.update(
+					"board",
+					(board) => board.fillCells({
+						position: cell.get("position"),
+						color: gameSelectors.getCurrentPlayerColor(this.state.game),
+					})
+				),
+			};
+		});
+	}
+
+	handleSelectMove = ({ index }) => {
+		this.setState((prevState) => {
+			if (index !== null && prevState.game.getIn(["board", "filledCells"]).size === index + 1) {
+				return undefined;
+			}
+
+			return {
+				game: prevState.game.updateIn(
+					["board", "filledCells"],
+					(filledCells) => filledCells.slice(
+						0,
+						index === null ?
+							0 :
+							index + 1
+					)
+				),
+			};
+		});
+	}
+
+	handlePlayerLimitChange = ({ value }) => {
+		value = Number(value);
+
+		if (!Number.isNaN(value)) {
+			this.setState((prevState) => {
+				return {
+					game: prevState.game.set(
+						"playerLimit",
+						value
+					).update(
+						"players",
+						(players) => players.slice(0, value)
+					),
+				};
+			});
+		}
+	}
+	;
+	handleToggleKeepRatio = () => {
+		this.setState((prevState) => {
+			return {
+				keepRatio: !prevState.keepRatio,
+			};
+		});
+	}
+
+	filterPlayerIndicatorColors = ({ id }) => {
+		return !this.state.game.get("players").map((player) => player.get("color")).includes(id);
+	}
+
+	getDefaultColorPickerColor = () => {
+		const colors = Config.game.colors.filter(this.filterPlayerIndicatorColors);
+
+		return colors.length > 0 ? colors[0].id : undefined;
+	}
+
+	renderPlayerControls = () => {
+		const contextMenuPlayer = this.state.contextMenuPlayerIndex !== null &&
+			this.state.game.getIn(["players", this.state.contextMenuPlayerIndex]);
+
+		return (
+			<div
+				className={this.props.classes.playerControls}
+			>
+				<header
+					className={this.props.classes.playerControlsHeader}
+				>
+					<h3>Players</h3>
+				</header>
+				<PlayerLimitInput
+					playerLimit={this.state.game.get("playerLimit")}
+					onPlayerLimitChange={this.handlePlayerLimitChange}
+					classes={{
+						root: this.props.classes.playerLimitInput,
+					}}
+				/>
 				<PlayerIndicators
 					playerUsers={this.state.users}
 					game={this.state.game}
-					onIndicatorClick={this.handlePlayerIndicatorClicked}
-					indicatorProps={({ player }) => ({
-						onContextMenu: (event) => this.handlePlayerIndicatorContextMenu({event, player}),
+					indicatorProps={({ index }) => ({
+						onContextMenu: (event) => this.handlePlayerIndicatorContextMenu({event, index}),
 					})}
+					classes={{
+						root: this.props.classes.playerIndicators
+					}}
+					markActive
 				/>
 				{
 					this.state.contextMenuAnchorEl !== null && (
@@ -202,7 +457,7 @@ class Sandbox extends React.PureComponent {
 								onClick={this.handleTogglePresenceMenuItemClick}
 							>
 								<Switch
-									checked={this.state.game.getIn(["playerPresence", this.state.contextMenuPlayer.get("color")], false)}
+									checked={this.state.game.getIn(["playerPresence", contextMenuPlayer.get("color")], false)}
 								/>
 								Toggle presence
 							</MenuItem>
@@ -210,14 +465,19 @@ class Sandbox extends React.PureComponent {
 								onClick={this.handleToggleIsMeMenuItemClick}
 							>
 								<Switch
-									checked={this.state.users.getIn([this.state.contextMenuPlayer.get("userID"), "isMe"], false)}
+									checked={this.state.users.getIn([contextMenuPlayer.get("userID"), "isMe"], false)}
 								/>
 								Toggle whether player is me
 							</MenuItem>
 							<MenuItem
-								onClick={this.handleChangeColorMenuItemClick}
+								button={false}
 							>
-								Change color
+								<ColorPicker
+									onColorChosen={this.handleColorChosen}
+									selectedColor={contextMenuPlayer.get("color")}
+									colorFilter={this.filterPlayerIndicatorColors}
+									getDefaultColor={this.getDefaultColorPickerColor}
+								/>
 							</MenuItem>
 						</Menu>
 
@@ -242,50 +502,64 @@ class Sandbox extends React.PureComponent {
 						</Menu>
 					)
 				}
-			</fieldset>
+				<div
+					className={this.props.classes.addRemovePlayerContainer}
+				>
+					<div
+						className={classnames({
+							[this.props.classes.hiddenAddPlayerButton]: this.state.game.get("players").size >= this.state.game.get("playerLimit"),
+						})}
+					>
+						<IconButton
+							onClick={this.handleAddPlayerButtonClick}
+							aria-label="Add player"
+							title="Add player"
+						>
+							<div
+								className={`icon ${this.props.classes.icomoonIcon}`}
+							>add player</div>
+						</IconButton>
+						<ColorPicker
+							onColorChosen={this.handleNewPlayerColorChosen}
+							colorFilter={this.filterPlayerIndicatorColors}
+							getDefaultColor={this.getDefaultColorPickerColor}
+							selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
+						/>
+					</div>
+					{
+						!this.state.game.get("players").isEmpty() && (
+							<IconButton
+								onClick={this.handleRemovePlayerButtonClick}
+								aria-label="Remove rightmost player"
+								title="Remove rightmost player"
+							>
+								<div
+									className={`icon ${this.props.classes.icomoonIcon}`}
+								>remove player</div>
+							</IconButton>
+						)
+					}
+				</div>
+			</div>
 		);
 	}
 	
-	renderBoardControls = () => {
+	renderGameControls = () => {
 		return (
 			<fieldset>
-				<legend>Board Controls</legend>
+				<legend>Game Controls</legend>
 			
-				<TextField
-					type="number"
-					label="Width"
-					inputProps={{
-						max: Config.game.board.width.max,
-						min: Config.game.board.width.min,
-					}}
-					name="width"
-					value={this.state.game.getIn(["board", "width"])}
-					onChange={this.handleWidthChange}
-				/>
-				<span
-					className={this.props.classes.dimensionSeparator}
-				>×</span>
-			
-				<TextField
-					type="number"
-					label="Height"
-					inputProps={{
-						max: Config.game.board.height.max,
-						min: Config.game.board.height.min,
-					}}
-					name="height"
-					value={this.state.game.getIn(["board", "height"])}
-					onChange={this.handleHeightChange}
+				<h3>Board</h3>
+				<DimensionInput
+					width={this.state.game.getIn(["board", "width"])}
+					height={this.state.game.getIn(["board", "height"])}
+					onWidthChange={this.handleWidthChange}
+					onHeightChange={this.handleHeightChange}
+					keepRatio={this.state.keepRatio}
+					onToggleKeepRatio={this.handleToggleKeepRatio}
 				/>
 
-				<ToggleButton
-					selected={this.state.keepRatio}
-					value=""
-					onClick={this.toggleKeepRatio}
-					title={`${this.state.keepRatio ? "Unl" : "L"}ock ratio`}
-				>
-					<LinkIcon />
-				</ToggleButton>
+				{this.renderPlayerControls()}
 			</fieldset>
 		);
 	}
@@ -293,11 +567,27 @@ class Sandbox extends React.PureComponent {
 	render() {
 		return (
 			<div>
-				{this.renderBoardControls()}
-				{this.renderPlayerControls()}
-				<Board
-					board={this.state.game.get("board")}
-				/>
+				{this.renderGameControls()}
+				<div
+					className={this.props.classes.boardContainer}
+				>
+					<div
+						className={this.props.classes.board}
+					>
+						<Board
+							board={this.state.game.get("board")}
+							allowPlacement={!this.state.game.get("players").isEmpty() && this.state.game.get("isStarted")}
+							onCellClick={this.handleCellClick}
+						/>
+					</div>
+					<MoveList
+						classes={{
+							root: this.props.classes.moveList,
+						}}
+						game={this.state.game}
+						onSelectMove={this.handleSelectMove}
+					/>
+				</div>
 			</div>
 		);
 	}
