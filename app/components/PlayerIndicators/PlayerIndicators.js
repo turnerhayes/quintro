@@ -8,7 +8,6 @@ import {
 import { withStyles }     from "@material-ui/core/styles";
 import classnames         from "classnames";
 
-import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Marble             from "@app/components/Marble";
 import gameSelectors      from "@app/selectors/games/game";
 
@@ -115,8 +114,8 @@ class PlayerIndicators extends React.Component {
 	 *
 	 * @return {void}
 	 */
-	handlePlayerIndicatorClick = (selectedPlayer, element) => {
-		this.props.onIndicatorClick && this.props.onIndicatorClick({ selectedPlayer, element });
+	handlePlayerIndicatorClick = ({ player, index, element }) => {
+		this.props.onIndicatorClick && this.props.onIndicatorClick({ selectedPlayer: player, index, element });
 	}
 
 	/**
@@ -132,10 +131,6 @@ class PlayerIndicators extends React.Component {
 			markActive,
 			classes,
 		} = this.props;
-
-		if (game.get("players").isEmpty()) {
-			return (<LoadingSpinner />);
-		}
 
 		return (
 			<div
@@ -190,7 +185,7 @@ class PlayerIndicators extends React.Component {
 											}
 										])}
 										title={label}
-										onClick={(event) => this.handlePlayerIndicatorClick(player, event.target)}
+										onClick={(event) => this.handlePlayerIndicatorClick({ player, index, element: event.target })}
 										{
 										...(
 											typeof this.props.indicatorProps === "function" ?
@@ -227,31 +222,40 @@ class PlayerIndicators extends React.Component {
 								)
 							)
 						].map(
-							(val, index) => (
-								<li
-									key={`not-filled-player-${index}`}
-									className={classes.item}
-									title={this.formatMessage(messages.indicatorMessages.availableSlot)}
-									{
-									...(
-										typeof this.props.indicatorProps === "function" ?
-											this.props.indicatorProps({
-												player: null,
-												user: null,
-												index,
-												active: false,
-												isPresent: false,
-											}) :
-											this.props.indicatorProps
-									)
-									}
-								>
-									<Marble
-										size={MARBLE_SIZE.normal}
-										color={null}
-									/>
-								</li>
-							)
+							(val, index) => {
+								index = index + game.get("players").size;
+
+								return (
+									<li
+										key={`not-filled-player-${index}`}
+										className={classes.item}
+										title={this.formatMessage(messages.indicatorMessages.availableSlot)}
+										onClick={(event) => this.handlePlayerIndicatorClick({
+											player: null,
+											index,
+											element: event.target,
+										})}
+										{
+										...(
+											typeof this.props.indicatorProps === "function" ?
+												this.props.indicatorProps({
+													player: null,
+													user: null,
+													index,
+													active: false,
+													isPresent: false,
+												}) :
+												this.props.indicatorProps
+										)
+										}
+									>
+										<Marble
+											size={MARBLE_SIZE.normal}
+											color={null}
+										/>
+									</li>
+								);
+							}
 						)
 					}
 				</ul>

@@ -25,6 +25,10 @@
     var icons;
     if (!supportsProperty('fontFeatureSettings')) {
         icons = {
+            'remove user': '&#xe906;',
+            'remove player': '&#xe906;',
+            'add user': '&#xe907;',
+            'add player': '&#xe907;',
             'eye': '&#xe905;',
             'watcher': '&#xe905;',
             'log out': '&#xe904;',

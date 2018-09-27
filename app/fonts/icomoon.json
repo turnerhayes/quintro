@@ -9,11 +9,29 @@
       "selection": [
         {
           "order": 1,
+          "id": 7,
+          "prevSize": 32,
+          "code": 59654,
+          "name": "user-minus",
+          "tempChar": "",
+          "ligatures": "remove user, remove player"
+        },
+        {
+          "order": 2,
+          "id": 6,
+          "prevSize": 32,
+          "code": 59655,
+          "name": "user-plus",
+          "tempChar": "",
+          "ligatures": "add user, add player"
+        },
+        {
+          "order": 1,
           "id": 5,
           "prevSize": 32,
           "code": 59653,
           "name": "eye",
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "eye, watcher"
         },
         {
@@ -22,7 +40,7 @@
           "name": "exit, signout, logout, quit, close",
           "prevSize": 32,
           "code": 59652,
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "log out"
         },
         {
@@ -31,7 +49,7 @@
           "prevSize": 32,
           "code": 59651,
           "name": "spinner",
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "loading"
         },
         {
@@ -40,7 +58,7 @@
           "name": "twitter, brand2, tweet, social2",
           "prevSize": 32,
           "code": 59649,
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "twitter"
         },
         {
@@ -49,7 +67,7 @@
           "name": "google-plus, brand, social",
           "prevSize": 32,
           "code": 59648,
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "google plus"
         },
         {
@@ -58,7 +76,7 @@
           "prevSize": 32,
           "code": 59650,
           "name": "facebook",
-          "tempChar": "",
+          "tempChar": "",
           "ligatures": "facebook"
         }
       ],
@@ -79,6 +97,52 @@
       "height": 1024,
       "prevSize": 32,
       "icons": [
+        {
+          "id": 7,
+          "paths": [
+            "M384 736c0-151.234 95.874-280.486 230.032-330.2 16.28-36.538 25.968-77.164 25.968-117.8 0-159.058 0-288-192-288s-192 128.942-192 288c0 99.060 57.502 198.104 128 237.832v52.78c-217.102 17.748-384 124.42-384 253.388h397.306c-8.664-30.53-13.306-62.732-13.306-96z",
+            "M736 448c-159.058 0-288 128.942-288 288s128.942 288 288 288c159.056 0 288-128.942 288-288s-128.942-288-288-288zM896 768h-320v-64h320v64z"
+          ],
+          "attrs": [
+            {},
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "user-minus",
+            "user",
+            "user-remove",
+            "profile",
+            "avatar",
+            "person",
+            "member"
+          ],
+          "grid": 16
+        },
+        {
+          "id": 6,
+          "paths": [
+            "M384 736c0-151.234 95.874-280.486 230.032-330.2 16.28-36.538 25.968-77.164 25.968-117.8 0-159.058 0-288-192-288s-192 128.942-192 288c0 99.060 57.502 198.104 128 237.832v52.78c-217.102 17.748-384 124.42-384 253.388h397.306c-8.664-30.53-13.306-62.732-13.306-96z",
+            "M736 448c-159.058 0-288 128.942-288 288s128.942 288 288 288c159.056 0 288-128.942 288-288s-128.942-288-288-288zM896 768h-128v128h-64v-128h-128v-64h128v-128h64v128h128v64z"
+          ],
+          "attrs": [
+            {},
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "user-plus",
+            "user",
+            "user-add",
+            "profile",
+            "avatar",
+            "person",
+            "member"
+          ],
+          "grid": 16
+        },
         {
           "id": 5,
           "paths": [

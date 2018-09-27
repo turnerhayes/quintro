@@ -10,7 +10,13 @@ import TextField         from "@material-ui/core/TextField";
 import Button            from "@material-ui/core/Button";
 import { withStyles }    from "@material-ui/core/styles";
 import qs                from "qs";
+
+import {
+	DimensionInput,
+	PlayerLimitInput
+}                        from "@app/components/GameFormControls";
 import Config            from "@app/config";
+
 import messages          from "./messages";
 
 const styles = {
@@ -36,91 +42,6 @@ const stateDefaults = {
 	widthError: "",
 	heightError: "",
 	playerLimitError: ""
-};
-
-
-/**
- * Checks whether the current state for the specified board dimension is valid.
- *
- * @function
- *
- * @param {"width"|"height"} dimension - the dimension to check
- * @param {string} value - the value for the dimension
- *
- * @return {?string} the error message, or undefined if the dimension is valid.
- */
-const validateDimension = ({ dimension, value, intl }) => {
-	if (value === "") {
-		return intl.formatMessage(messages.form.errors.general.isRequired);
-	}
-
-	value = Number(value);
-
-	if (Number.isNaN(value)) {
-		return intl.formatMessage(messages.form.errors.dimensions.invalid, {
-			dimension,
-			value,
-		});
-	}
-
-	if (value < Config.game.board[dimension].min) {
-		return intl.formatMessage(messages.form.errors.dimensions.tooSmall, {
-			dimension,
-			value,
-			min: Config.game.board[dimension].min,
-		});
-	}
-	
-	if (value > Config.game.board[dimension].max) {
-		return intl.formatMessage(messages.form.errors.dimensions.tooLarge, {
-			dimension,
-			value,
-			max: Config.game.board[dimension].max,
-		});
-	}
-
-	return undefined;
-};
-
-/**
- * Checks whether the current state for the player limit is valid.
- *
- * @function
- *
- * @param {string} playerLimit - the player limit input value
- *
- * @return {?string} the error message, or undefined if the player limit is valid.
- */
-const validatePlayerLimit = ({ playerLimit, intl }) => {
-	if (playerLimit === "") {
-		return intl.formatMessage(messages.form.errors.general.isRequired);
-	}
-
-	const playerLimitAsNumber = Number(playerLimit);
-
-	let error;
-
-	if (Number.isNaN(playerLimitAsNumber)) {
-		error = intl.formatMessage(messages.form.errors.playerLimit.invalid, {
-			value: playerLimit,
-		});
-	}
-	else {
-		if (playerLimitAsNumber < Config.game.players.min) {
-			error = intl.formatMessage(messages.form.errors.playerLimit.tooSmall, {
-				value: playerLimit,
-				min: Config.game.players.min,
-			});
-		}
-		else if (playerLimitAsNumber > Config.game.players.max) {
-			error = intl.formatMessage(messages.form.errors.playerLimit.tooLarge, {
-				value: playerLimit,
-				max: Config.game.players.max,
-			});
-		}
-	}
-
-	return error;
 };
 
 /**
@@ -213,29 +134,6 @@ class CreateGame extends React.PureComponent {
 			delete query.playerLimit;
 		}
 
-		if (query.width) {
-			query.widthError = validateDimension({
-				dimension: "width",
-				value: query.width,
-				intl: props.intl,
-			}) || "";
-		}
-
-		if (query.height) {
-			query.heightError = validateDimension({
-				dimension: "height",
-				value: query.height,
-				intl: props.intl,
-			}) || "";
-		}
-
-		if (query.playerLimit) {
-			query.playerLimitError = validatePlayerLimit({
-				playerLimit: query.playerLimit,
-				intl: props.intl,
-			}) || "";
-		}
-
 		return query;
 	}
 
@@ -269,35 +167,18 @@ class CreateGame extends React.PureComponent {
 		this.debouncedCheckName();
 	}
 
-	/**
-	 * Handles changes to a board dimension input field.
-	 *
-	 * @function
-	 *
-	 * @param {"width"|"height"} dimension - the name of the dimension being changed
-	 * @param {string} value - the value to change the dimension to
-	 *
-	 * @return {void}
-	 */
-	handleDimensionInputChange = (dimension, value) => {
-		const error = validateDimension({
-			dimension,
-			value,
-			intl: this.props.intl,
-		});
-
+	handleWidthChange = ({ error, value }) => {
 		this.setState({
-			[dimension]: value,
-			[`${dimension}Error`]: error || "",
+			width: value,
+			widthError: error,
 		});
 	}
 
-	handleWidthChange = (event) => {
-		this.handleDimensionInputChange("width", event.target.value);
-	}
-
-	handleHeightChange = (event) => {
-		this.handleDimensionInputChange("height", event.target.value);
+	handleHeightChange = ({ error, value }) => {
+		this.setState({
+			height: value,
+			heightError: error,
+		});
 	}
 
 	/**
@@ -334,16 +215,10 @@ class CreateGame extends React.PureComponent {
 		});
 	}
 
-	handleNumberOfPlayersChanged = (event) => {
-		const playerLimit = event.target.value;
-		const error = validatePlayerLimit({
-			playerLimit,
-			intl: this.props.intl,
-		});
-
+	handlePlayerLimitChange = ({ value, error }) => {
 		this.setState({
-			playerLimit,
-			playerLimitError: error || "",
+			playerLimit: value,
+			playerLimitError: error,
 		});
 	}
 
@@ -387,65 +262,20 @@ class CreateGame extends React.PureComponent {
 								{...messages.form.dimensions.label}
 							/>
 						</legend>
-						<TextField
-							type="number"
-							label={this.formatMessage(messages.form.width.label)}
-							required
-							error={!!this.state.widthError}
-							helperText={this.state.widthError}
-							inputProps={{
-								max: Config.game.board.width.max,
-								min: Config.game.board.width.min,
-							}}
-							InputLabelProps={{
-								className: this.props.classes.inputLabel,
-							}}
-							name="width"
-							value={this.state.width}
-							onChange={this.handleWidthChange}
-						/>
-						
-						<span
-							className={this.props.classes.dimensionSeparator}
-						>×</span>
-
-						<TextField
-							type="number"
-							label={this.formatMessage(messages.form.height.label)}
-							required
-							error={!!this.state.heightError}
-							helperText={this.state.heightError}
-							inputProps={{
-								min: Config.game.board.height.min,
-								max: Config.game.board.height.max,
-							}}
-							InputLabelProps={{
-								className: this.props.classes.inputLabel,
-							}}
-							name="height"
-							value={this.state.height}
-							onChange={this.handleHeightChange}
+						<DimensionInput
+							widthError={this.state.widthError}
+							heightError={this.state.heightError}
+							width={this.state.width}
+							height={this.state.height}
+							onWidthChange={this.handleWidthChange}
+							onHeightChange={this.handleHeightChange}
 						/>
 					</fieldset>
-					<div>
-						<TextField
-							type="number"
-							label={this.formatMessage(messages.form.playerLimit.label)}
-							required
-							error={!!this.state.playerLimitError}
-							helperText={this.state.playerLimitError}
-							inputProps={{
-								min: Config.game.players.min,
-								max: Config.game.players.max,
-							}}
-							InputLabelProps={{
-								className: this.props.classes.inputLabel,
-							}}
-							name="playerLimit"
-							value={this.state.playerLimit}
-							onChange={this.handleNumberOfPlayersChanged}
-						/>
-					</div>
+					<PlayerLimitInput
+						playerLimit={this.state.playerLimit}
+						onPlayerLimitChange={this.handlePlayerLimitChange}
+						error={this.state.playerLimitError}
+					/>
 					<Button
 						type="submit"
 						disabled={

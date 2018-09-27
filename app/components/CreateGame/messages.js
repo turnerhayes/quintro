@@ -16,16 +16,6 @@ export default defineMessages({
 				id: "quintro.components.CreateGame.form.name.label",
 			},
 		},
-		width: {
-			label: {
-				id: "quintro.components.CreateGame.form.width.label",
-			},
-		},
-		height: {
-			label: {
-				id: "quintro.components.CreateGame.form.height.label",
-			},
-		},
 		playerLimit: {
 			label: {
 				id: "quintro.components.CreateGame.form.playerLimit.label",
@@ -44,28 +34,6 @@ export default defineMessages({
 			},
 			nameInUse: {
 				id: "quintro.components.CreateGame.form.errors.nameInUse",
-			},
-			dimensions: {
-				invalid: {
-					id: "quintro.components.CreateGame.form.errors.dimensions.invalid",
-				},
-				tooSmall: {
-					id: "quintro.components.CreateGame.form.errors.dimensions.tooSmall",
-				},
-				tooLarge: {
-					id: "quintro.components.CreateGame.form.errors.dimensions.tooLarge",
-				},
-			},
-			playerLimit: {
-				invalid: {
-					id: "quintro.components.CreateGame.form.errors.playerLimit.invalid",
-				},
-				tooSmall: {
-					id: "quintro.components.CreateGame.form.errors.playerLimit.tooSmall",
-				},
-				tooLarge: {
-					id: "quintro.components.CreateGame.form.errors.playerLimit.tooLarge",
-				},
 			},
 		},
 	},

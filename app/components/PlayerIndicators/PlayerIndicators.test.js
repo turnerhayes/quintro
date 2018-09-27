@@ -95,7 +95,7 @@ describe("PlayerIndicators component", () => {
 		expect(wrapper.find(Marble).at(2)).toHaveProp("color", null);
 	});
 
-	it("should invoke the onIndicatorClick callback when a player indicator is clicked", () => {
+	it("should invoke the onIndicatorClick callback when a filled player indicator is clicked", () => {
 		const gameName = "testgame";
 		const userID = "1";
 
@@ -139,7 +139,62 @@ describe("PlayerIndicators component", () => {
 
 		wrapper.find(`.${classes.item}`).first().simulate("click", {});
 
-		expect(onIndicatorClick).toHaveBeenCalledWith({ selectedPlayer: player });
+		expect(onIndicatorClick).toHaveBeenCalledWith({
+			selectedPlayer: player,
+			element: undefined,
+			index: 0,
+		});
+	});
+
+	it("should invoke the onIndicatorClick callback when an empty player indicator is clicked", () => {
+		const gameName = "testgame";
+		const userID = "1";
+
+		const player = fromJS({
+			color: "blue",
+			userID,
+		});
+
+		const game = fromJS({
+			name: gameName,
+			players: [
+				player,
+			],
+			playerLimit: 3,
+		});
+
+		const playerUsers = fromJS({
+			[userID]: {
+				id: userID,
+				name: {
+					display: "Test",
+				},
+			},
+		});
+
+		const onIndicatorClick = jest.fn();
+
+		const classes = {
+			item: "item-class",
+		};
+
+		const wrapper = shallow(
+			<PlayerIndicators
+				game={game}
+				playerUsers={playerUsers}
+				onIndicatorClick={onIndicatorClick}
+				classes={classes}
+				intl={intl}
+			/>
+		);
+
+		wrapper.find(`.${classes.item}`).at(1).simulate("click", {});
+
+		expect(onIndicatorClick).toHaveBeenCalledWith({
+			selectedPlayer: null,
+			element: undefined,
+			index: 1,
+		});
 	});
 
 	it("should accept a function for definining indicator props", () => {
