@@ -519,12 +519,16 @@ class Sandbox extends React.PureComponent {
 								className={`icon ${this.props.classes.icomoonIcon}`}
 							>add player</div>
 						</IconButton>
-						<ColorPicker
-							onColorChosen={this.handleNewPlayerColorChosen}
-							colorFilter={this.filterPlayerIndicatorColors}
-							getDefaultColor={this.getDefaultColorPickerColor}
-							selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
-						/>
+						{
+							this.getDefaultColorPickerColor() !== undefined && (
+								<ColorPicker
+									onColorChosen={this.handleNewPlayerColorChosen}
+									colorFilter={this.filterPlayerIndicatorColors}
+									getDefaultColor={this.getDefaultColorPickerColor}
+									selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
+								/>
+							)
+						}
 					</div>
 					{
 						!this.state.game.get("players").isEmpty() && (
