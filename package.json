@@ -55,7 +55,7 @@
   "pre-commit": "lint:staged",
   "dependencies": {
     "@material-ui/core": "^1.2.1",
-    "@material-ui/icons": "^1.1.0",
+    "@material-ui/icons": "^3.0.1",
     "@material-ui/lab": "^3.0.0-alpha.16",
     "babel-plugin-transform-undefined-to-void": "^6.9.0",
     "babel-polyfill": "6.23.0",
@@ -83,6 +83,7 @@
     "ip": "1.1.5",
     "jss": "^9.8.7",
     "jss-nested": "^6.0.1",
+    "localforage": "^1.7.2",
     "lodash": "^4.17.10",
     "minimist": "1.2.0",
     "mkdirp": "^0.5.1",
