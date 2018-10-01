@@ -9,45 +9,24 @@ import {
 
 describe("auth action creators", () => {
 	describe("login", () => {
-		it("should throw on a bad provider", () => {
-			const provider = "imnotreal";
+		it("should return a LOGIN action", () => {
+			const action = login({ provider: "facebook" });
 
-			expect(
-				() => login({ provider })
-			).toThrow(`Unrecognized login provider "${provider}"`);
-		});
+			expect(isFSA(action)).toBeTruthy();
 
-		it("should change document.location and return a LOGIN action", () => {
-			jest.spyOn(document.location, "assign").mockImplementation(() => {});
-
-			[
-				"facebook",
-				"twitter",
-				"google",
-			].forEach(
-				(provider) => {
-					const action = login({ provider });
-
-					expect(document.location.assign).toHaveBeenCalledWith(`/auth/${provider}?redirectTo=%2F`);
-					
-					expect(isFSA(action)).toBeTruthy();
-
-					expect(action).toEqual({
-						type: LOGIN,
-					});
-				}
-			);
+			expect(action).toEqual({
+				type: LOGIN,
+				payload: {
+					provider: "facebook",
+				},
+			});
 		});
 	});
 
 	describe("logout", () => {
-		it("should change document.location and return a LOGOUT action", () => {
-			jest.spyOn(document.location, "assign").mockImplementation(() => {});
-
+		it("should return a LOGOUT action", () => {
 			const action = logout();
 
-			expect(document.location.assign).toHaveBeenCalledWith(`/auth/logout?redirectTo=%2F`);
-			
 			expect(isFSA(action)).toBeTruthy();
 
 			expect(action).toEqual({
