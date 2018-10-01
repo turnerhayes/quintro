@@ -33,9 +33,7 @@ export default {
 	"quintro.components.GameJoinDialog.createGameLinkText": "create your own!",
 	"quintro.components.CreateGame.header": "Create a Game",
 	"quintro.components.CreateGame.form.dimensions.label": "Dimensions",
-	"quintro.components.CreateGame.form.name.label": "Name",
 	"quintro.components.CreateGame.form.submitButton.label": "Create",
-	"quintro.components.CreateGame.form.errors.nameInUse": "That name is already in use. Please use another name.",
 	"quintro.components.PlayGame.watchers.summary.withYou": `You {watcherCount, plural,
 		=0 {}
 		one {and 1 other person}
