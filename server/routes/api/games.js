@@ -3,6 +3,8 @@
 const Promise           = require("bluebird");
 const express           = require("express");
 const HTTPStatusCodes   = require("http-status-codes");
+const shortid           = require("shortid");
+
 const bodyParsers       = require("./body-parsers");
 const {
 	prepareGameForFrontend,
@@ -14,6 +16,25 @@ const NotFoundException = require("../../persistence/exceptions/not-found");
 
 function prepareGame(game, req) {
 	return prepareGameForFrontend({ game, request: req });
+}
+
+function getGameName() {
+	const name = shortid.generate();
+
+	return GamesStore.getGame({ name })
+		.then(
+			// If this resolved, then a game with this name exists; keep trying
+			() => getGameName()
+		).catch(
+			(ex) => {
+				// No game found; this name is available
+				if (NotFoundException.isThisException(ex)) {
+					return name;
+				}
+
+				throw ex;
+			}
+		);
 }
 
 const router = express.Router();
@@ -39,37 +60,6 @@ router.route("/:gameName")
 				name: gameName
 			}).then(
 				(game) => res.json(prepareGame(game, req))
-			).catch(processError.bind(null, next, gameName));
-		}
-	)
-	.post(
-		...bodyParsers,
-		(req, res, next) => {
-			const { width, height, playerLimit } = req.body;
-			const { gameName } = req.params;
-
-			return GamesStore.createGame({
-				name: gameName,
-				width,
-				height,
-				playerLimit
-			}).then(
-				(game) => {
-					res.status(HTTPStatusCodes.CREATED)
-						.set("Location", `${req.baseUrl}/${game.name}`)
-						.json(prepareGame(game, req));
-				}
-			).catch(next);
-		}
-	).head(
-		(req, res, next) => {
-			const { gameName } = req.params;
-
-			return GamesStore.getGame({
-				name: gameName,
-				populate: false
-			}).then(
-				() => res.end()
 			).catch(processError.bind(null, next, gameName));
 		}
 	);
@@ -103,6 +93,26 @@ router.route("/")
 				}
 			).then(
 				(games) => res.json(games.map((game) => prepareGame(game, req)))
+			).catch(next);
+		}
+	).post(
+		...bodyParsers,
+		(req, res, next) => {
+			const { width, height, playerLimit } = req.body;
+
+			return getGameName().then(
+				(name) => GamesStore.createGame({
+					name,
+					width,
+					height,
+					playerLimit,
+				})
+			).then(
+				(game) => {
+					res.status(HTTPStatusCodes.CREATED)
+						.set("Location", `${req.baseUrl}/${game.name}`)
+						.json(prepareGame(game, req));
+				}
 			).catch(next);
 		}
 	);

@@ -205,14 +205,6 @@ describe("games action creators", () => {
 			},
 		},
 		{
-			...actionsToTest.CHECK_GAME_NAME,
-			args: { name: "test" },
-		},
-		{
-			...actionsToTest.CHECKED_GAME_NAME,
-			args: { result: true },
-		},
-		{
 			...actionsToTest.JOIN_GAME,
 			args: {
 				gameName: "test",

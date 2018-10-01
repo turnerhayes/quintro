@@ -2,13 +2,11 @@ import { fromJS } from "immutable";
 import fetchMock from "fetch-mock";
 import * as immutableMatchers from "jest-immutable-matchers";
 import { URLSearchParams } from "url";
-import { OK, NOT_FOUND } from "http-status-codes";
 
 import {
 	getGame,
 	findOpenGames,
 	getUserGames,
-	checkName,
 	createGame,
 } from "./games";
 
@@ -571,83 +569,6 @@ describe("Games API", () => {
 		});
 	});
 
-	describe("checkName", () => {
-		it("should return true if the game already exists", async () => {
-			// eslint-disable-next-line no-magic-numbers
-			expect.assertions(2);
-
-			const uriRegex = /\/api\/games\/(\w+)/;
-
-			const expectedGameName = "test";
-
-			let receivedGameName;
-
-			// eslint-disable-next-line no-magic-numbers
-			fetchMock.head(uriRegex, (url) => {
-				const matches = uriRegex.exec(url);
-
-				receivedGameName = matches[1];
-
-				return {
-					status: OK,
-				};
-			});
-
-			const nameExists = await checkName({ name: expectedGameName });
-
-			expect(receivedGameName).toBe(expectedGameName);
-
-			expect(nameExists).toBeTruthy();
-		});
-
-		it("should return false if the game does not already exist", async () => {
-			// eslint-disable-next-line no-magic-numbers
-			expect.assertions(2);
-
-			const uriRegex = /\/api\/games\/(\w+)/;
-
-			const expectedGameName = "test";
-
-			let receivedGameName;
-
-			// eslint-disable-next-line no-magic-numbers
-			fetchMock.head(uriRegex, (url) => {
-				const matches = uriRegex.exec(url);
-
-				receivedGameName = matches[1];
-
-				return {
-					status: NOT_FOUND,
-				};
-			});
-
-			const nameExists = await checkName({ name: expectedGameName });
-
-			expect(receivedGameName).toBe(expectedGameName);
-
-			expect(nameExists).toBeFalsy();
-		});
-
-		it("should reject on error", () => {
-			const error = "Test error";
-
-			fetchMock.head(/\/api\/games\/\w+/, () => {
-				return {
-					status: 500,
-					body: {
-						error: {
-							message: error,
-						},
-					},
-				};
-			});
-
-			const checkPromise = checkName({ name: "test" });
-
-			expect(checkPromise).rejects.toThrow();
-		});
-	});
-
 	describe("createGame", () => {
 		it("should return the created game", async () => {
 			// eslint-disable-next-line no-magic-numbers
@@ -656,17 +577,19 @@ describe("Games API", () => {
 			const gameData = {
 				width: 20,
 				height: 15,
-				name: "test",
 				playerLimit: 4,
 			};
 
 			let receivedGameData;
 
-			fetchMock.post(`/api/games/${gameData.name}`, (url, options) => {
+			const gameName = "test";
+
+			fetchMock.post("/api/games/", (url, options) => {
 				receivedGameData = JSON.parse(options.body);
 
 				return {
-					name: receivedGameData.name,
+					// game name generated server side
+					name: gameName,
 					board: {
 						width: receivedGameData.width,
 						height: receivedGameData.height,
@@ -681,7 +604,7 @@ describe("Games API", () => {
 			expect(receivedGameData).toEqual(gameData);
 
 			expect(returnedGame).toEqualImmutable(fromJS({
-				name: gameData.name,
+				name: gameName,
 				board: {
 					width: gameData.width,
 					height: gameData.height,
@@ -694,9 +617,7 @@ describe("Games API", () => {
 		it("should reject on error", () => {
 			const error = "Test error";
 
-			const gameName = "test";
-
-			fetchMock.post(`/api/games/${gameName}`, () => {
+			fetchMock.post("/api/games/", () => {
 				return {
 					status: 500,
 					body: {
@@ -710,7 +631,7 @@ describe("Games API", () => {
 			const gamePromise = createGame({
 				width: 10,
 				height: 10,
-				name: gameName,
+				name: "test",
 				playerLimit: 3,
 			});
 
