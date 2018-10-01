@@ -89,8 +89,6 @@ describe("AccountDialog container", () => {
 
 		store.dispatch = jest.fn();
 
-		jest.spyOn(document.location, "assign").mockImplementation(() => {});
-
 		const wrapper = mount(
 			(
 				<MemoryRouter>
@@ -119,8 +117,6 @@ describe("AccountDialog container", () => {
 
 		logoutButton.simulate("click");
 
-		expect(document.location.assign).toHaveBeenCalledWith("/auth/logout?redirectTo=%2F");
-
 		expect(store.dispatch).toHaveBeenCalledWith({
 			type: LOGOUT,
 		});
@@ -134,8 +130,6 @@ describe("AccountDialog container", () => {
 		}));
 
 		store.dispatch = jest.fn();
-
-		jest.spyOn(document.location, "assign").mockImplementation(() => {});
 
 		const wrapper = mount(
 			(
@@ -164,10 +158,11 @@ describe("AccountDialog container", () => {
 
 		loginButton.simulate("click");
 
-		expect(document.location.assign).toHaveBeenCalledWith("/auth/facebook?redirectTo=%2F");
-
 		expect(store.dispatch).toHaveBeenCalledWith({
 			type: LOGIN,
+			payload: {
+				provider: "facebook",
+			},
 		});
 	});
 });
