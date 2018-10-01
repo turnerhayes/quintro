@@ -1,12 +1,32 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { fromJS } from "immutable";
+import {
+	fromJS,
+	Map,
+	is
+} from "immutable";
 import classnames from "classnames";
+import localForage from "localforage";
 import { withStyles } from "@material-ui/core/styles";
+import Card from "@material-ui/core/Card";
+import CardHeader from "@material-ui/core/CardHeader";
+import CardContent from "@material-ui/core/CardContent";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Switch from "@material-ui/core/Switch";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import IconButton from "@material-ui/core/IconButton";
+import SpeedDial from "@material-ui/lab/SpeedDial";
+import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
+import SpeedDialIcon from "@material-ui/lab/SpeedDialIcon";
+import EditIcon from "@material-ui/icons/Edit";
+import ClearIcon from "@material-ui/icons/Clear";
+import SaveIcon from "@material-ui/icons/Save";
+import RestoreIcon from "@material-ui/icons/Restore";
+import DeleteIcon from "@material-ui/icons/Delete";
+import CloseIcon from "@material-ui/icons/Close";
+import NotShowingMoveListIcon from "@material-ui/icons/ViewList";
+import ShowingMoveListIcon from "@material-ui/icons/ViewListOutlined";
 
 import Board from "@app/components/Board";
 import PlayerIndicators from "@app/components/PlayerIndicators";
@@ -19,11 +39,32 @@ import BoardRecord from "@shared-lib/board";
 import gameSelectors from "@app/selectors/games/game";
 import Config from "@app/config";
 
-import "@fonts/icomoon/style.css";
-
 import MoveList from "./MoveList";
 
-const styles = {
+import "@fonts/icomoon/style.css";
+
+
+function filterPlayerIndicatorColorsForGame({ id }, game) {
+	return !game.get("players").map((player) => player.get("color")).includes(id);
+}
+
+function getDefaultColorPickerColorForGame({ game }) {
+	const colors = Config.game.colors.filter(
+		({ id }) => filterPlayerIndicatorColorsForGame({ id }, game)
+	);
+
+	return colors.length > 0 ? colors[0].id : undefined;
+}
+
+const STORAGE_KEY = "SANDBOX_game";
+
+const styles = (theme) => ({
+	root: {
+		display: "flex",
+		flexDirection: "column",
+		height: "100%",
+	},
+
 	dimensionSeparator: {
 		margin: "0 0.5em",
 		verticalAlign: "bottom",
@@ -31,10 +72,14 @@ const styles = {
 
 	boardContainer: {
 		display: "flex",
+		flex: 1,
+		// eslint-disable-next-line no-magic-numbers
+		padding: theme.spacing.unit * 2,
 	},
 
 	board: {
 		flex: 1,
+		overflow: "auto",
 	},
 
 	// Icomoon icons are off center in Material UI 
@@ -69,7 +114,56 @@ const styles = {
 	hiddenAddPlayerButton: {
 		visibility: "hidden",
 	},
-};
+
+	gameControlsContainer: {
+		position: "relative",
+		display: "flex",
+		flexDirection: "column",
+	},
+
+	gameControls: {
+		display: "flex",
+		flexDirection: "row",
+	},
+
+	gamePersistenceControlsContainer: {
+		flex: 1,
+	},
+
+	resetGameButton: {
+		position: "absolute",
+		right: 0,
+		top: 0,
+	},
+
+	speedDial: {
+		position: "absolute",
+		// eslint-disable-next-line no-magic-numbers
+		right: theme.spacing.unit * 2,
+		// eslint-disable-next-line no-magic-numbers
+		bottom: theme.spacing.unit * 2,
+	},
+
+	speedDialIcon: {
+		verticalAlign: "auto",
+	},
+});
+
+const emptyGame = fromJS({
+	board: new BoardRecord({
+		width: Config.game.board.width.min,
+		height: Config.game.board.height.min,
+		filledCells: [],
+	}),
+
+	players: [],
+
+	playerLimit: 6,
+
+	playerPresence: {},
+
+	isStarted: true,
+});
 
 class Sandbox extends React.PureComponent {
 	static propTypes = {
@@ -77,39 +171,49 @@ class Sandbox extends React.PureComponent {
 	}
 	
 	state = {
-		game: fromJS({
-			board: new BoardRecord({
-				width: Config.game.board.width.min,
-				height: Config.game.board.height.min,
-				filledCells: [],
-			}),
+		game: emptyGame,
 
-			players: [],
+		users: Map(),
 
-			playerLimit: 6,
+		storedGame: null,
 
-			playerPresence: {},
-
-			isStarted: true,
-		}),
-
-		users: fromJS({
-			1: {
-				name: {
-					first: "Test",
-					last: "Testerson",
-				},
-			},
-		}),
-
-		
 		keepRatio: true,
+
+		newPlayerColor: null,
 
 		contextMenuAnchorEl: null,
 		
 		contextMenuPlayerIndex: null,
 
-		submenuAnchorEl: null
+		submenuAnchorEl: null,
+		
+		isSpeedDialOpen: false,
+
+		shouldShowMoveList: false,
+
+		shouldShowGameControls: false,
+	}
+
+	static getDerivedStateFromProps(props, state) {
+		if (state.newPlayerColor === null) {
+			return {
+				newPlayerColor: getDefaultColorPickerColorForGame({ game: state.game })
+			};
+		}
+
+		return null;
+	}
+
+	constructor(...args) {
+		super(...args);
+
+		this.getStoredGame().then(
+			(game) => game && this.setState({
+				storedGame: game,
+			})
+		);
+
+		this.state.newPlayerColor = this.getDefaultColorPickerColor();
 	}
 	
 	handleDimensionChange = ({ width, height }) => {
@@ -132,10 +236,10 @@ class Sandbox extends React.PureComponent {
 			);
 
 			if (firstMoveIndex >= 0) {
-				game = game.updateIn(
-					["board", "filledCells"],
-					(filledCells) => filledCells.slice(0, firstMoveIndex)
-				);
+				game = this.sliceFilledCells({
+					index: firstMoveIndex,
+					game,
+				});
 			}
 
 			return {
@@ -244,59 +348,78 @@ class Sandbox extends React.PureComponent {
 	handleAddPlayerButtonClick = () => {
 		this.setState((prevState) => {
 			const color = prevState.newPlayerColor || this.getDefaultColorPickerColor();
-			const nextIndex = prevState.game.get("players").size;
+			let game = prevState.game;
+			const nextIndex = game.get("players").size;
 			const userID = (nextIndex + 1).toString();
+			const prevPlayer = game.get("players").last();
+
+			if (prevPlayer) {
+				const firstPrevPlayerMarbleIndex = game.getIn(["board", "filledCells"]).findIndex(
+					(cell) => cell.get("color") === prevPlayer.get("color")
+				);
+
+				if (firstPrevPlayerMarbleIndex >= 0) {
+					game = this.sliceFilledCells({
+						index: firstPrevPlayerMarbleIndex + 1,
+						game,
+					});
+				}
+			}
+
+			game = game.setIn(
+				["players", nextIndex],
+				fromJS({
+					userID,
+					color,
+				})
+			).setIn(
+				["playerPresence", color],
+				true
+			);
 
 			return {
-				game: prevState.game.setIn(
-					["players", nextIndex],
-					fromJS({
-						userID,
-						color,
-					})
-				).setIn(
-					["playerPresence", color],
-					true
-				),
+				game,
+
 				users: prevState.users.set(userID, fromJS({
 					id: userID,
 				})),
+
+				newPlayerColor: null,
 			};
 		});
 	}
 
 	handleRemovePlayerButtonClick = () => {
 		this.setState((prevState) => {
-			const player = prevState.game.get("players").last();
+			let game = prevState.game;
+			const player = game.get("players").last();
 			const userID = player.get("userID");
 
 			// eslint-disable-next-line no-magic-numbers
-			const prevPlayer = prevState.game.get("players").get(-2);
+			const prevPlayer = game.get("players").get(-2);
+
+			let endFilledCellIndex = prevPlayer === undefined ?
+				0 :
+				game.getIn(["board", "filledCells"]).findIndex((cell) => cell.get("color") === player.get("color"));
+			
+			if (endFilledCellIndex >= 0) {
+				game = this.sliceFilledCells({ index: endFilledCellIndex, game });
+			}
+
+			game = game.update(
+				"players",
+				(players) => players.slice(0, -1)
+			).update(
+				"playerPresence",
+				(presence) => presence.delete(player.get("color"))
+			).delete("winner");
 
 			return {
-				game: prevState.game.update(
-					"players",
-					(players) => players.slice(0, -1)
-				).updateIn(
-					["board", "filledCells"],
-					(filledCells) => {
-						let endIndex = prevPlayer === undefined ?
-							0 :
-							filledCells.findIndex((cell) => cell.get("color") === player.get("color"));
-							
-						endIndex = endIndex === -1 ?
-							filledCells.size :
-							endIndex;
-
-
-						return filledCells.slice(
-							0,
-							endIndex
-						);
-					}
-				),
+				game,
 
 				users: prevState.users.delete(userID),
+
+				newPlayerColor: null,
 			};
 		});
 	}
@@ -341,15 +464,24 @@ class Sandbox extends React.PureComponent {
 			return;
 		}
 
+		
 		this.setState((prevState) => {
+			let game = prevState.game.update(
+				"board",
+				(board) => board.fillCells({
+					position: cell.get("position"),
+					color: gameSelectors.getCurrentPlayerColor(this.state.game),
+				})
+			);
+			
+			const quintros = gameSelectors.getQuintros(game);
+
+			if (!quintros.isEmpty()) {
+				game = game.set("winner", quintros.first().get("color"));
+			}
+
 			return {
-				game: prevState.game.update(
-					"board",
-					(board) => board.fillCells({
-						position: cell.get("position"),
-						color: gameSelectors.getCurrentPlayerColor(this.state.game),
-					})
-				),
+				game,
 			};
 		});
 	}
@@ -361,15 +493,12 @@ class Sandbox extends React.PureComponent {
 			}
 
 			return {
-				game: prevState.game.updateIn(
-					["board", "filledCells"],
-					(filledCells) => filledCells.slice(
-						0,
-						index === null ?
-							0 :
-							index + 1
-					)
-				),
+				game: this.sliceFilledCells({
+					index: index === null ?
+						0 :
+						index + 1,
+					game: prevState.game,
+				}),
 			};
 		});
 	}
@@ -391,7 +520,7 @@ class Sandbox extends React.PureComponent {
 			});
 		}
 	}
-	;
+
 	handleToggleKeepRatio = () => {
 		this.setState((prevState) => {
 			return {
@@ -400,14 +529,122 @@ class Sandbox extends React.PureComponent {
 		});
 	}
 
+	handleSaveGameClick = () => {
+		const game = this.state.game;
+
+		localForage.setItem(STORAGE_KEY, game.toJS()).then(
+			() => this.setState({
+				storedGame: game,
+			})
+		);
+	}
+
+	handleRestoreGameClick = () => {
+		this.setState((prevState) => {
+			if (prevState.storedGame !== null) {
+				return {
+					game: prevState.storedGame,
+					users: this.getUsersForGame({ game: prevState.storedGame }),
+					newPlayerColor: getDefaultColorPickerColorForGame({ game: prevState.storedGame }),
+				};
+			}
+		});
+	}
+
+	handleClearGameButtonClick = () => {
+		localForage.removeItem(STORAGE_KEY).then(
+			() => this.setState({
+				storedGame: null,
+			})
+		);
+	}
+
+	handleResetGameButtonClick = () => {
+		this.setState({
+			game: emptyGame,
+			users: Map(),
+			newPlayerColor: getDefaultColorPickerColorForGame({ game: emptyGame }),
+		});
+	}
+
+	handleEditGameClick = () => {
+		this.setState({
+			shouldShowGameControls: true,
+		});
+	}
+
+	handleGameControlsCloseIconClick = () => {
+		this.setState({
+			shouldShowGameControls: false,
+		});
+	}
+
+	handleSpeedDialClick = () => {
+		this.setState((prevState) => {
+			return {
+				isSpeedDialOpen: !prevState.isSpeedDialOpen,
+			};
+		});
+	}
+
+	handleSpeedDialClickAway = () => {
+		this.setState({
+			isSpeedDialOpen: false,
+		});
+	}
+
+	handleShowMoveListClick = () => {
+		this.setState((prevState) => {
+			return {
+				shouldShowMoveList: !prevState.shouldShowMoveList,
+			};
+		});
+	}
+
+	sliceFilledCells = ({ index, game = this.state.game }) => {
+		if (index === game.getIn(["board", "filledCells"]).size) {
+			// if there's no change to be done, return game unchanged
+			return game;
+		}
+
+		return game.updateIn(
+			["board", "filledCells"],
+			(filledCells) => filledCells.slice(0, index)
+		).delete("winner");
+	}
+
+	getStoredGame = () => {
+		return localForage.getItem(STORAGE_KEY).then(
+			(game) => {
+				if (game) {
+					game.board = new BoardRecord(game.board);
+
+					return fromJS(game);
+				}
+
+				return null;
+			}
+		);
+	}
+
+	getUsersForGame = ({ game }) => {
+		return game.get("players").reduce(
+			(users, player) => users.set(
+				player.get("userID"),
+				Map({
+					id: player.userID,
+				})
+			),
+			Map()
+		);
+	}
+
 	filterPlayerIndicatorColors = ({ id }) => {
-		return !this.state.game.get("players").map((player) => player.get("color")).includes(id);
+		return filterPlayerIndicatorColorsForGame({ id }, this.state.game);
 	}
 
 	getDefaultColorPickerColor = () => {
-		const colors = Config.game.colors.filter(this.filterPlayerIndicatorColors);
-
-		return colors.length > 0 ? colors[0].id : undefined;
+		return getDefaultColorPickerColorForGame({ game: this.state.game });
 	}
 
 	renderPlayerControls = () => {
@@ -519,12 +756,16 @@ class Sandbox extends React.PureComponent {
 								className={`icon ${this.props.classes.icomoonIcon}`}
 							>add player</div>
 						</IconButton>
-						<ColorPicker
-							onColorChosen={this.handleNewPlayerColorChosen}
-							colorFilter={this.filterPlayerIndicatorColors}
-							getDefaultColor={this.getDefaultColorPickerColor}
-							selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
-						/>
+						{
+							this.getDefaultColorPickerColor() !== undefined && (
+								<ColorPicker
+									onColorChosen={this.handleNewPlayerColorChosen}
+									colorFilter={this.filterPlayerIndicatorColors}
+									getDefaultColor={this.getDefaultColorPickerColor}
+									selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
+								/>
+							)
+						}
 					</div>
 					{
 						!this.state.game.get("players").isEmpty() && (
@@ -546,28 +787,118 @@ class Sandbox extends React.PureComponent {
 	
 	renderGameControls = () => {
 		return (
-			<fieldset>
-				<legend>Game Controls</legend>
-			
-				<h3>Board</h3>
-				<DimensionInput
-					width={this.state.game.getIn(["board", "width"])}
-					height={this.state.game.getIn(["board", "height"])}
-					onWidthChange={this.handleWidthChange}
-					onHeightChange={this.handleHeightChange}
-					keepRatio={this.state.keepRatio}
-					onToggleKeepRatio={this.handleToggleKeepRatio}
+			<Card
+				className={this.props.classes.gameControlsContainer}
+			>
+				<CardHeader
+					action={(
+						<IconButton
+							onClick={this.handleGameControlsCloseIconClick}
+							title="Close edit pane"
+							aria-label="Close edit pane"
+						>
+							<CloseIcon />
+						</IconButton>
+					)}
+					title="Game Controls"
 				/>
+				<CardContent
+				>
+					<h3>Board</h3>
+					<div
+						className={this.props.classes.gameControls}
+					>
+						<DimensionInput
+							width={this.state.game.getIn(["board", "width"])}
+							height={this.state.game.getIn(["board", "height"])}
+							onWidthChange={this.handleWidthChange}
+							onHeightChange={this.handleHeightChange}
+							keepRatio={this.state.keepRatio}
+							onToggleKeepRatio={this.handleToggleKeepRatio}
+						/>
+					</div>
 
-				{this.renderPlayerControls()}
-			</fieldset>
+					{this.renderPlayerControls()}
+				</CardContent>
+			</Card>
 		);
 	}
 	
 	render() {
+		const quintros = gameSelectors.getQuintros(this.state.game);
+		const gameIsOver = gameSelectors.isOver(this.state.game);
+		const isStoredGame = this.state.storedGame && is(this.state.game, this.state.storedGame);
+		const isEmptyGame = is(this.state.game, emptyGame);
+		const isDirty = !isEmptyGame && !isStoredGame;
+
+		
+		const speedDialActions = [
+			{
+				name: "Edit game",
+				icon: (
+					<EditIcon />
+				),
+				handler: this.handleEditGameClick,
+			},
+
+			{
+				name: `${this.state.shouldShowMoveList ? "Hide" : "Show"} move list`,
+				icon: this.state.shouldShowMoveList ?
+					(
+						<ShowingMoveListIcon />
+					) :
+					(
+						<NotShowingMoveListIcon />
+					),
+				handler: this.handleShowMoveListClick,
+			},
+		];
+		
+		if (!isEmptyGame) {
+			speedDialActions.push({
+				name: "Reset game",
+				icon: (
+					<ClearIcon />
+				),
+				handler: this.handleResetGameButtonClick,
+			});
+		}
+
+		if (isDirty) {
+			speedDialActions.push({
+				name: "Store game",
+				icon: (
+					<SaveIcon />
+				),
+				handler: this.handleSaveGameClick,
+			});
+		}
+
+		if (this.state.storedGame !== null) {
+			if (!isStoredGame) {
+				speedDialActions.push({
+					name: "Restore stored game",
+					icon: (
+						<RestoreIcon />
+					),
+					handler: this.handleRestoreGameClick,
+				});
+			}
+
+			speedDialActions.push({
+				name: "Remove stored game",
+				icon: (
+					<DeleteIcon />
+				),
+				handler: this.handleClearGameButtonClick,
+			});
+		}
+
 		return (
-			<div>
-				{this.renderGameControls()}
+			<div
+				className={this.props.classes.root}
+			>
+				{this.state.shouldShowGameControls && this.renderGameControls()}
 				<div
 					className={this.props.classes.boardContainer}
 				>
@@ -576,17 +907,59 @@ class Sandbox extends React.PureComponent {
 					>
 						<Board
 							board={this.state.game.get("board")}
-							allowPlacement={!this.state.game.get("players").isEmpty() && this.state.game.get("isStarted")}
+							allowPlacement={
+								!this.state.game.get("players").isEmpty() &&
+								this.state.game.get("isStarted") &&
+								!gameIsOver
+							}
 							onCellClick={this.handleCellClick}
+							quintros={quintros}
+							gameIsOver={gameIsOver}
 						/>
 					</div>
-					<MoveList
-						classes={{
-							root: this.props.classes.moveList,
-						}}
-						game={this.state.game}
-						onSelectMove={this.handleSelectMove}
-					/>
+					<ClickAwayListener
+						onClickAway={this.handleSpeedDialClickAway}
+					>
+						<SpeedDial
+							classes={{
+								root: this.props.classes.speedDial,
+							}}
+							open={this.state.isSpeedDialOpen}
+							onClick={this.handleSpeedDialClick}
+							icon={(
+								<SpeedDialIcon
+									classes={{
+										root: this.props.classes.speedDialIcon,
+									}}
+								/>
+							)}
+							ariaLabel="Game actions"
+						>
+							{
+								speedDialActions.map(
+									(action) => (
+										<SpeedDialAction
+											key={action.name}
+											icon={action.icon}
+											tooltipTitle={action.name}
+											onClick={action.handler}
+										/>
+									)
+								)
+							}
+						</SpeedDial>
+					</ClickAwayListener>
+					{
+						this.state.shouldShowMoveList && (
+							<MoveList
+								classes={{
+									root: this.props.classes.moveList,
+								}}
+								game={this.state.game}
+								onSelectMove={this.handleSelectMove}
+							/>
+						)
+					}
 				</div>
 			</div>
 		);
