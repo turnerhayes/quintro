@@ -123,24 +123,6 @@ export function gameUpdated({ gameName, update }) {
 	};
 }
 
-export const CHECK_GAME_NAME = "@@QUINTRO/GAMES/CHECK_GAME_NAME";
-
-export function checkGameName({ name }) {
-	return {
-		type: CHECK_GAME_NAME,
-		payload: { name },
-	};
-}
-
-export const CHECKED_GAME_NAME = "@@QUINTRO/GAMES/CHECKED_GAME_NAME";
-
-export function checkedGameName({ result }) {
-	return {
-		type: CHECKED_GAME_NAME,
-		payload: { result },
-	};
-}
-
 export const JOIN_GAME = "@@QUINTRO/GAMES/JOIN";
 
 export function joinGame({ gameName, color }) {

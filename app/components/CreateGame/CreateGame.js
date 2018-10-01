@@ -1,4 +1,3 @@
-import debounce          from "lodash/debounce";
 import React             from "react";
 import PropTypes         from "prop-types";
 import {
@@ -6,7 +5,6 @@ import {
 	intlShape,
 	FormattedMessage
 }                        from "react-intl";
-import TextField         from "@material-ui/core/TextField";
 import Button            from "@material-ui/core/Button";
 import { withStyles }    from "@material-ui/core/styles";
 import qs                from "qs";
@@ -30,15 +28,10 @@ const styles = {
 	},
 };
 
-export const CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS = 500;
-
-
 const stateDefaults = {
-	name: "",
 	playerLimit: "" + Config.game.players.min,
 	width: "" + Config.game.board.width.min,
 	height: "" + Config.game.board.height.min,
-	nameError: "",
 	widthError: "",
 	heightError: "",
 	playerLimitError: ""
@@ -63,15 +56,9 @@ class CreateGame extends React.PureComponent {
 	 */
 	static propTypes = {
 		location: PropTypes.object,
-		isNameValid: PropTypes.bool.isRequired,
 		onCreateGame: PropTypes.func.isRequired,
-		onCheckName: PropTypes.func.isRequired,
 		intl: intlShape.isRequired,
 		classes: PropTypes.object.isRequired,
-	}
-
-	static defaultProps = {
-		isNameValid: false,
 	}
 
 	constructor(...args) {
@@ -94,14 +81,12 @@ class CreateGame extends React.PureComponent {
 	 * @member state
 	 * @type object
 	 *
-	 * @prop {string} name="" - the name to give the game
 	 * @prop {string} playerLimit=configuration minimum - the maximum number of players that will
 	 *	be able to play the	game
 	 * @prop {string} width=configuration minimum - the width of the game board. Defaults to the
 	 *	app-wide configured minimum.
 	 * @prop {string} height=configuration minimum - the height of the game board. Defaults to the
 	 *	app-wide configured minimum.
-	 * @prop {string} nameError="" - the error message to show for the entered name (if applicable)
 	 * @prop {string} widthError="" - the error message to show for the entered width (if applicable)
 	 * @prop {string} heightError="" - the error message to show for the entered height (if applicable)
 	 * @prop {string} playerLimitError="" - the error message to show for the entered player limit (if applicable)
@@ -149,24 +134,6 @@ class CreateGame extends React.PureComponent {
 		return null;
 	}
 
-	/**
-	 * Handles changes to the game name input field.
-	 *
-	 * @function
-	 *
-	 * @param {event} event - the change event
-	 *
-	 * @return {void}
-	 */
-	handleNameInputChange = (event) => {
-		this.setState({
-			name: event.target.value,
-			nameError: ""
-		});
-
-		this.debouncedCheckName();
-	}
-
 	handleWidthChange = ({ error, value }) => {
 		this.setState({
 			width: value,
@@ -182,17 +149,6 @@ class CreateGame extends React.PureComponent {
 	}
 
 	/**
-	 * Checks to see whether the name value in the current state is already being used.
-	 *
-	 * @function
-	 */
-	checkName = () => {
-		this.props.onCheckName({ name: this.state.name });
-	}
-
-	debouncedCheckName = debounce(this.checkName, CHECK_NAME_DEBOUCE_DURATION_IN_MILLISECONDS)
-
-	/**
 	 * Handles the game creation form being submitted.
 	 *
 	 * @function
@@ -204,11 +160,7 @@ class CreateGame extends React.PureComponent {
 	handleFormSubmit = (event) => {
 		event.preventDefault();
 
-		// Don't bother calling any debounced checkNames, since we're manually calling it again
-		this.debouncedCheckName.cancel();
-
 		this.props.onCreateGame({
-			name: this.state.name,
 			width: Number(this.state.width),
 			height: Number(this.state.height),
 			playerLimit: Number(this.state.playerLimit),
@@ -240,22 +192,6 @@ class CreateGame extends React.PureComponent {
 				<form
 					onSubmit={this.handleFormSubmit}
 				>
-					<div
-					>
-						<TextField
-							required
-							label={this.formatMessage(messages.form.name.label)}
-							error={this.state.name.length > 0 && !this.props.isNameValid}
-							helperText={
-								this.state.name.length === 0 || this.props.isNameValid ?
-									"" :
-									this.formatMessage(messages.form.errors.nameInUse)
-							}
-							name="name"
-							value={this.state.name}
-							onChange={this.handleNameInputChange}
-						/>
-					</div>
 					<fieldset>
 						<legend>
 							<FormattedMessage
@@ -279,7 +215,6 @@ class CreateGame extends React.PureComponent {
 					<Button
 						type="submit"
 						disabled={
-							!this.props.isNameValid ||
 							!!this.state.widthError ||
 							!!this.state.heightError ||
 							!!this.state.playerLimitError

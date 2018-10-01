@@ -73,6 +73,7 @@ const styles = (theme) => ({
 	boardContainer: {
 		display: "flex",
 		flex: 1,
+		// eslint-disable-next-line no-magic-numbers
 		padding: theme.spacing.unit * 2,
 	},
 
