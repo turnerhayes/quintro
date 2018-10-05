@@ -6,7 +6,7 @@ import {
 	fetchedGame,
 	findOpenGames,
 	gameUpdated,
-	addPlayer,
+	addPlayers,
 	updateWatchers,
 	setPlayerPresence,
 	leaveGame,
@@ -119,7 +119,7 @@ describe("Games reducer", () => {
 		expect(state.getIn([ "items", name, "players", 0, "color" ])).toBe(player1Color);
 	});
 
-	it("ADD_PLAYER", () => {
+	it("ADD_PLAYERS", () => {
 		const gameName = "test";
 
 		const game = fromJS({
@@ -148,9 +148,11 @@ describe("Games reducer", () => {
 			game,
 		}));
 
-		let state = reducer(initialState, addPlayer({
+		let state = reducer(initialState, addPlayers({
 			gameName,
-			player: player1,
+			players: [
+				player1,
+			],
 		}));
 
 		expect(state.getIn([ "items", gameName, "players" ])).toEqualImmutable(
@@ -171,9 +173,11 @@ describe("Games reducer", () => {
 			order: 1,
 		};
 
-		state = reducer(state, addPlayer({
+		state = reducer(state, addPlayers({
 			gameName,
-			player: player2,
+			players: [
+				player2,
+			],
 		}));
 
 		expect(state.getIn([ "items", gameName, "players" ])).toEqualImmutable(
@@ -319,9 +323,11 @@ describe("Games reducer", () => {
 			fetchedGame({
 				game,
 			}),
-			addPlayer({
+			addPlayers({
 				gameName: name,
-				player: player1,
+				players: [
+					player1,
+				],
 			})
 		].reduce(reducer, undefined);
 
@@ -365,9 +371,11 @@ describe("Games reducer", () => {
 			fetchedGame({
 				game,
 			}),
-			addPlayer({
+			addPlayers({
 				gameName: name,
-				player: player1,
+				players: [
+					player1,
+				],
 			})
 		].reduce(reducer, undefined);
 

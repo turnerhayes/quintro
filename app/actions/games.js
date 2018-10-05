@@ -125,12 +125,12 @@ export function gameUpdated({ gameName, update }) {
 
 export const JOIN_GAME = "@@QUINTRO/GAMES/JOIN";
 
-export function joinGame({ gameName, color }) {
+export function joinGame({ gameName, colors }) {
 	return {
 		type: JOIN_GAME,
 		payload: {
 			gameName,
-			color,
+			colors,
 		},
 	};
 }
@@ -189,12 +189,12 @@ export function updateWatchers({ gameName, watchers }) {
 	};
 }
 
-export const ADD_PLAYER = "@@QUINTRO/GAMES/PLAYERS/ADD";
+export const ADD_PLAYERS = "@@QUINTRO/GAMES/PLAYERS/ADD";
 
-export function addPlayer({ gameName, player }) {
+export function addPlayers({ gameName, players }) {
 	return {
-		type: ADD_PLAYER,
-		payload: { gameName, player },
+		type: ADD_PLAYERS,
+		payload: { gameName, players },
 	};
 }
 
@@ -213,10 +213,14 @@ export function setPlayerPresence({ gameName, presenceMap, setMissingPlayersTo }
 
 export const PLACE_MARBLE = "@@QUINTRO/GAME/PLACE_MARBLE";
 
-export function placeMarble({ gameName, position }) {
+export function placeMarble({ gameName, position, color }) {
 	return {
 		type: PLACE_MARBLE,
-		payload: { gameName, position },
+		payload: {
+			gameName,
+			position,
+			color,
+		},
 	};
 }
 

@@ -10,7 +10,7 @@ import {
 	setMarble,
 	getGame,
 	leaveGame,
-	addPlayer,
+	addPlayers,
 } from "@app/actions";
 import BoardRecord from "@shared-lib/board";
 
@@ -31,15 +31,17 @@ describe("PlayGame saga", () => {
 	const player1Color = "blue";
 	const player2Color = "red";
 
+	const player1user = {
+		id: "1",
+		isMe: true,
+		name: {
+			display: "Player One",
+		},
+	};
+
 	const player1 = fromJS({
 		color: player1Color,
-		user: {
-			id: "1",
-			isMe: true,
-			name: {
-				display: "Player One",
-			},
-		},
+		user: player1user,
 	});
 
 	const game = fromJS({
@@ -175,6 +177,85 @@ describe("PlayGame saga", () => {
 					state,
 					getSaga: async () => {
 						const module = await import ("./saga");
+
+						return module.setMarbleSaga;
+					},
+				},
+				action
+			);
+
+			await sagaPromise;
+
+			expect(show).not.toHaveBeenCalled();
+		});
+
+		it("should not display a notification if the previous player was the same user", async () => {
+			expect.assertions(1);
+
+			jest.resetModules();
+
+			let show = jest.fn();
+
+			jest.doMock(
+				"notifyjs",
+				() => {
+					class Notify {
+						static needsPermission = true
+
+						static requestPermission = (resolve) => resolve()
+
+						show = show
+					}
+
+					return Notify;
+				}
+			);
+
+			const player3Color = "green";
+
+			const action = setMarble({
+				gameName,
+				// eslint-disable-next-line no-magic-numbers
+				position: [2, 0],
+				color: player3Color,
+			});
+
+			const state = [
+				addPlayers({
+					gameName,
+					players: [
+						{
+							order: 2,
+							color: player3Color,
+							user: player1user,
+						},
+					],
+				}),
+
+				setMarble({
+					gameName,
+					position: [0, 0],
+					color: player1Color,
+				}),
+
+				setMarble({
+					gameName,
+					position: [1, 0],
+					color: player2Color,
+				}),
+
+				changeSetting({
+					enableNotifications: true,
+				}),
+
+				action,
+			].reduce(reducer, baseState);
+
+			const { sagaPromise } = await runSaga(
+				{
+					state,
+					getSaga: async () => {
+						const module = await import("./saga");
 
 						return module.setMarbleSaga;
 					},
@@ -503,13 +584,17 @@ describe("PlayGame saga", () => {
 
 			const state = [
 				fetchedGame({ game: otherGame }),
-				addPlayer({
+				addPlayers({
 					gameName,
-					player: player1.toJS(),
+					players: fromJS([
+						player1,
+					]),
 				}),
-				addPlayer({
+				addPlayers({
 					gameName: otherGameName,
-					player: player1.toJS(),
+					players: fromJS([
+						player1,
+					]),
 				}),
 			].reduce(reducer, baseState);
 

@@ -81,9 +81,18 @@ export function* setMarbleSaga({ payload }) {
 	if (notificationsEnabled) {
 		const newCurrentPlayer = yield select(selectors.games.getCurrentPlayer, { gameName: payload.gameName });
 		const currentPlayerUser = yield select(selectors.users.getUserByID, { userID: newCurrentPlayer.get("userID") });
-	
+		
 		if (currentPlayerUser.get("isMe")) {
-			yield call(showNotification);
+			const game = yield select(selectors.games.getGame, { gameName: payload.gameName });
+			
+			const playerIndex = game.get("players").findIndex((player) => player.get("color") === newCurrentPlayer.get("color"));
+			
+			const previousPlayer = game.get("players").get(playerIndex - 1);
+			const previousPlayerUser = yield select(selectors.users.getUserByID, { userID: previousPlayer.get("userID") });
+			
+			if (!previousPlayerUser.get("isMe")) {
+				yield call(showNotification);
+			}
 		}
 	}
 }
