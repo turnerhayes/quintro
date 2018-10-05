@@ -6,7 +6,7 @@ import {
 	FETCHED_GAME,
 	GAME_UPDATED,
 	GAME_STARTED,
-	ADD_PLAYER,
+	ADD_PLAYERS,
 	UPDATE_WATCHERS,
 	SET_PLAYER_PRESENCE,
 	LEAVE_GAME,
@@ -62,18 +62,25 @@ export default function gamesReducer(state = Map(), action) {
 			);
 		}
 
-		case ADD_PLAYER: {
+		case ADD_PLAYERS: {
 			const gameName = action.payload.gameName;
-			const player = fromJS(action.payload.player);
+			const players = fromJS(action.payload.players);
 
-			state = state.setIn(
-				["items", gameName, "players", player.get("order")],
-				player.set("userID", player.getIn(["user", "id"]))
-					.delete("user")
-					.delete("order")
+			let includesMe = false;
+
+			players.forEach(
+				(player) => {
+					state = state.setIn(
+						["items", gameName, "players", player.get("order")],
+						player.set("userID", player.getIn(["user", "id"]))
+							.delete("user")
+							.delete("order")
+					);
+
+					includesMe = includesMe || player.getIn(["user", "isMe"]);
+				}
 			);
-
-			if (player.getIn(["user", "isMe"])) {
+			if (includesMe) {
 				state = state.update(
 					"joinedGames",
 					(joined) => (joined || Set()).add(gameName)

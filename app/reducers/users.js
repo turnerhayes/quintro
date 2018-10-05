@@ -2,7 +2,7 @@ import { Map, fromJS } from "immutable";
 import {
 	FETCHED_USER_GAMES,
 	FETCHED_GAME,
-	ADD_PLAYER,
+	ADD_PLAYERS,
 	UPDATE_USER_PROFILE,
 }              from "@app/actions";
 
@@ -42,12 +42,18 @@ export default function usersReducer(state = Map(), action) {
 			);
 		}
 
-		case ADD_PLAYER: {
-			const player = fromJS(action.payload.player);
+		case ADD_PLAYERS: {
+			const players = fromJS(action.payload.players);
 
-			return state.setIn(
-				["items", player.getIn(["user", "id"])],
-				player.get("user")
+			return state.update(
+				"items",
+				(users) => players.reduce(
+					(users, player) => users.set(
+						player.getIn(["user", "id"]),
+						player.get("user")
+					),
+					users || Map()
+				)
 			);
 		}
 

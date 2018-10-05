@@ -1,6 +1,7 @@
 import React              from "react";
 import PropTypes          from "prop-types";
 import ImmutablePropTypes from "react-immutable-proptypes";
+import { Set }            from "immutable";
 import {
 	injectIntl,
 	intlShape,
@@ -16,6 +17,7 @@ import Board              from "@app/containers/Board";
 import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
+import AddPlayerPopup     from "@app/components/AddPlayerPopup";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import Config             from "@app/config";
 import gameSelectors      from "@app/selectors/games/game";
@@ -65,8 +67,8 @@ class PlayGame extends React.PureComponent {
 	 * @prop {external:Immutable.Map} [game] - the game record representing the game
 	 * @prop {external:Immutable.Map<external:Immutable.Map>} [playerUsers] - map of users
 	 *	corresponding to the players in this game, keyed by user ID
-	 * @prop {string} [currentUserPlayerColor] - if the player currently viewing the game is a player
-	 *	in the game, this is the color corresponding to that player. Otherwise, undefined.
+	 * @prop {external:Immutable.Set<external:Immutable.Map>} currentUserPlayers - if the user currently viewing the game is
+	 *	one or more players	in the game, this is the player(s) corresponding to that user. Otherwise, the empty set.
 	 */
 	static propTypes = {
 		gameName: PropTypes.string.isRequired,
@@ -75,7 +77,7 @@ class PlayGame extends React.PureComponent {
 			ImmutablePropTypes.map,
 			PropTypes.string,
 		),
-		currentUserPlayerColor: PropTypes.string,
+		currentUserPlayers: ImmutablePropTypes.setOf(ImmutablePropTypes.map).isRequired,
 		currentZoomLevel: PropTypes.number,
 		classes: PropTypes.object,
 		isInGame: PropTypes.bool,
@@ -128,7 +130,9 @@ class PlayGame extends React.PureComponent {
 		if (
 			this.props.game &&
 			this.props.playerUsers &&
-			this.props.playerUsers.size === this.props.game.get("players").size
+			this.props.playerUsers.size === Set(this.props.game.get("players").map(
+				(player) => player.get("userID"))
+			).size
 		) {
 			this.joinIfInGame();
 		}
@@ -146,6 +150,21 @@ class PlayGame extends React.PureComponent {
 		}
 	}
 
+	getMePlayers() {
+		const meUserIDs = this.props.playerUsers.reduce(
+			(ids, user) => user.get("isMe") ?
+				ids.add(user.get("id")) :
+				ids,
+			Set()
+		);
+		
+		return Set(
+			this.props.game.get("players").filter(
+				(player) => meUserIDs.includes(player.get("userID"))
+			)
+		);
+	}
+
 	/**
 	 * Joins the game using the specified color.
 	 *
@@ -155,17 +174,21 @@ class PlayGame extends React.PureComponent {
 	 * @function
 	 *
 	 * @param {object} [args] - the function arguments
-	 * @param {string} [args.color] - the ID of the color to use for the current player.
+	 * @param {string[]} [args.colors] - the IDs of the color to use for the current player(s).
 	 *	If not specified, the server will assign a color on joining.
 	 *
 	 * @return {void}
 	 */
-	joinGame = ({ color } = {}) => {
+	joinGame = ({ colors } = {}) => {
 		if (!this.props.game || this.props.hasJoinedGame) {
 			return;
 		}
+		
+		if (!colors && this.props.isInGame) {
+			colors = this.getMePlayers().map((player) => player.get("color"));
+		}
 
-		this.props.onJoinGame({ color });
+		this.props.onJoinGame({ colors });
 	}
 
 	/**
@@ -186,9 +209,16 @@ class PlayGame extends React.PureComponent {
 			return;
 		}
 
+		const currentPlayer = gameSelectors.getCurrentPlayer(this.props.game);
+
+		if (!this.props.currentUserPlayers.includes(currentPlayer)) {
+			return;
+		}
+
 		this.props.onPlaceMarble({
 			gameName: this.props.game.get("name"),
 			position: cell.get("position"),
+			color: currentPlayer.get("color"),
 		});
 	}
 
@@ -214,7 +244,7 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	handleJoinSubmit = ({ color }) => {
-		this.joinGame({ color });
+		this.joinGame({ colors: [ color ] });
 	}
 
 	/**
@@ -233,19 +263,6 @@ class PlayGame extends React.PureComponent {
 	}
 
 	/**
-	 * Toggles the player info popover open or closed for the specified color.
-	 *
-	 * @function
-	 *
-	 * @param {string} color - the color ID of the color for which to open the popover
-	 *
-	 * @return {void}
-	 */
-	togglePopoverOpened = (color) => {
-		this.setState({ selectedPlayerColor: color });
-	}
-
-	/**
 	 * Handles a click on a player indicator.
 	 *
 	 * @function
@@ -257,21 +274,58 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	handlePlayerIndicatorClick = ({ selectedPlayer, element }) => {
-		if (selectedPlayer === null) {
-			return;
-		}
-
 		this.setState({
 			selectedIndicatorEl: element,
+			selectedPlayerColor: selectedPlayer === null ?
+				null :
+				selectedPlayer.get("color"),
 		});
-		this.togglePopoverOpened(selectedPlayer.get("color"));
 	}
 
-	handlePlayerInfoPopoverClose = () => {
+	closePopover() {
 		this.setState({
 			selectedIndicatorEl: null,
 			selectedPlayerColor: null,
 		});
+	}
+
+	handlePlayerInfoPopoverClose = () => {
+		this.closePopover();
+	}
+
+	handleAddPlayerSubmit = ({ color }) => {
+		this.props.onJoinGame({
+			colors: [ color ],
+		});
+
+		this.closePopover();
+	}
+
+	renderPlayerInfoPopover() {
+		if (this.state.selectedIndicatorEl === null) {
+			return null;
+		}
+
+		if (this.state.selectedPlayerColor !== null) {
+			return (
+				<PlayerInfoPopup
+					game={this.props.game}
+					player={
+						this.props.game.get("players").find(
+							(player) => player.get("color") === this.state.selectedPlayerColor
+						)
+					}
+				/>
+			);
+		}
+		else {
+			return (
+				<AddPlayerPopup
+					onSubmit={this.handleAddPlayerSubmit}
+					game={this.props.game}
+				/>
+			);
+		}
 	}
 
 	/**
@@ -290,7 +344,7 @@ class PlayGame extends React.PureComponent {
 			playerUsers,
 		} = this.props;
 
-		const myTurn = this.props.currentUserPlayerColor === gameSelectors.getCurrentPlayerColor(game);
+		const myTurn = this.props.currentUserPlayers.includes(gameSelectors.getCurrentPlayer(game));
 		const gameIsOver = !!game.get("winner");
 		const gameIsStarted = game.get("isStarted") && !gameIsOver;
 
@@ -375,14 +429,7 @@ class PlayGame extends React.PureComponent {
 							horizontal: "left",
 						}}
 					>
-						{
-							this.state.selectedPlayerColor && (
-								<PlayerInfoPopup
-									game={game}
-									player={game.get("players").find((player) => player.get("color") === this.state.selectedPlayerColor)}
-								/>
-							)
-						}
+						{this.renderPlayerInfoPopover()}
 					</Popover>
 					<ZoomControls
 						onZoomLevelChange={this.handleZoomLevelChange}

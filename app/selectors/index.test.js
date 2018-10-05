@@ -1,4 +1,4 @@
-import { fromJS } from "immutable";
+import { fromJS, Set } from "immutable";
 import * as immutableMatchers from "jest-immutable-matchers";
 import selectors from "./index";
 
@@ -61,7 +61,7 @@ describe("selectors (root)", () => {
 			});
 		});
 
-		describe("getCurrentUserPlayer", () => {
+		describe("getCurrentUserPlayers", () => {
 			const gameName = "test";
 
 			const user1 = fromJS({
@@ -107,10 +107,10 @@ describe("selectors (root)", () => {
 				}
 			});
 
-			it("should return the correct player", () => {
-				const player = selectors.games.getCurrentUserPlayer(state, { gameName });
+			it("should return the correct players", () => {
+				const players = selectors.games.getCurrentUserPlayers(state, { gameName });
 
-				expect(player).toBeImmutable(player1);
+				expect(players).toEqualImmutable(Set.of(player1));
 			});
 		});
 	});
