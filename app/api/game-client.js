@@ -1,7 +1,7 @@
 import SocketClient from "@app/api/socket-client";
 import {
 	setMarble,
-	addPlayer,
+	addPlayers,
 	updateWatchers,
 	setPlayerPresence,
 	setWinner,
@@ -22,8 +22,8 @@ class GameClient extends SocketClient {
 
 		const handlers = {
 			"board:marble:placed": this.onMarblePlaced,
-			"game:player:joined": this.onPlayerJoined,
-			"game:player:left": this.onPlayerLeft,
+			"game:players:joined": this.onPlayersJoined,
+			"game:players:left": this.onPlayersLeft,
 			"game:watchers:updated": this.onWatchersUpdated,
 			"game:started": this.onGameStarted,
 			"game:over": this.onGameOver,
@@ -75,44 +75,54 @@ class GameClient extends SocketClient {
 		);
 	}
 
-	onPlayerJoined = ({ gameName, player }) => {
+	onPlayersJoined = ({ gameName, players }) => {
 		this.dispatch(
-			addPlayer({
+			addPlayers({
 				gameName,
-				player,
+				players,
 			})
 		);
 		this.dispatch(
 			setPlayerPresence({
 				gameName,
-				presenceMap: {
-					[player.color]: true,
-				},
+				presenceMap: players.reduce(
+					(map, player) => {
+						map[player.color] = true;
+
+						return map;
+					},
+					{}
+				),
 			})
 		);
 	}
 
-	onPlayerLeft = ({ gameName, player }) => {
+	onPlayersLeft = ({ gameName, players }) => {
 		this.dispatch(
 			setPlayerPresence({
 				gameName,
-				presenceMap: {
-					[player.color]: false
-				}
+				presenceMap: players.reduce(
+					(map, player) => {
+						map[player.color] = false;
+
+						return map;
+					},
+					{}
+				),
 			})
 		);
 	}
 
-	joinGame = ({ gameName, color }) => {
+	joinGame = ({ gameName, colors }) => {
 		return this.emit(
 			"game:join",
 			{
 				gameName,
-				color
+				colors
 			}
 		).then(
-			({ player }) => {
-				this.onPlayerJoined({ gameName, player });
+			({ players }) => {
+				this.onPlayersJoined({ gameName, players });
 			}
 		).then(
 			() => this.updateGame({ gameName })
@@ -162,13 +172,14 @@ class GameClient extends SocketClient {
 		);
 	}
 
-	placeMarble = ({ gameName, position }) => {
+	placeMarble = ({ gameName, position, color }) => {
 		this.setGamePlayError({ gameName, error: null });
 		return this.emit(
 			"board:place-marble",
 			{
 				gameName,
 				position,
+				color,
 			}
 		).catch(
 			(error) => this.setGamePlayError({ gameName, error })

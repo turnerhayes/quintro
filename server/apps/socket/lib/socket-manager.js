@@ -29,8 +29,6 @@ const LOG_LEVELS   = {
 	ERROR: "error"
 };
 
-const VALID_COLOR_IDS = Config.game.colors.map((color) => color.id);
-
 const WATCHERS = {};
 
 function _log({ message, level = LOG_LEVELS.INFO }) {
@@ -102,9 +100,8 @@ function removeWatcher({ gameName, socket }) {
 	return false;
 }
 
-function _getPlayer({game, user, sessionID}) {
-	return _.find(
-		game.players,
+function _getPlayers({game, user, sessionID}) {
+	return game.players.filter(
 		(player) => user ?
 			player.user.id === user.id :
 			player.user.sessionID === sessionID
@@ -137,7 +134,7 @@ function addPlayerToGame({ socket, game, color }) {
 	}
 
 	if (!Config.game.colors.get(color)) {
-		const err = new Error(`Color ${util.inspect(color)} is not a valid color. Must be one of the following: ${VALID_COLOR_IDS.join(", ")}`);
+		const err = new Error(`Color ${util.inspect(color)} is not a valid color. Must be one of the following: ${Config.game.colors.ids.join(", ")}`);
 		err.code = ErrorCodes.INVALID_COLOR;
 
 		throw err;
@@ -178,15 +175,17 @@ function addPlayerToGame({ socket, game, color }) {
 	);
 }
 
-function getSocketPlayer({ socket, game }) {
+function getSocketPlayer({ socket, game, color }) {
 	const playerIndex = _.findIndex(
 		game.players,
 		(player) => (
-			socket.request.user ?
-				player.user.id === socket.request.user.id :
-				(
-					player.user.sessionID === socket.request.session.id
-				)
+			player.color === color && (
+				socket.request.user ?
+					player.user.id === socket.request.user.id :
+					(
+						player.user.sessionID === socket.request.session.id
+					)
+			)
 		)
 	);
 
@@ -201,34 +200,95 @@ function getSocketPlayer({ socket, game }) {
 	return null;
 }
 
-function _resolvePlayerJoinData({ socket, gameName, color }) {
+function getSocketPlayers({ socket, game }) {
+	const playerIndexes = {};
+	const players = [];
+
+	let user;
+
+	game.players.forEach(
+		(player, index) => {
+			if (
+				(
+					socket.request.user && 
+					player.user.id === socket.request.user.id
+				) ||
+				player.user.sessionID === socket.request.session.id
+			) {
+				playerIndexes[player.color] = index;
+				players.push(player);
+				if (!user) {
+					user = player.user;
+				}
+			}
+		}
+	);
+
+	return {
+		players,
+		playerIndexes,
+		game,
+		user,
+	};
+}
+
+function _resolvePlayerJoinData({ socket, gameName, colors }) {
 	return GameStore.getGame({
 		name: gameName
 	}).then(
 		(game) => {
-			const result = getSocketPlayer({ socket, game });
+			const players = getSocketPlayers({ socket, game });
+
+			const missingColors = colors.reduce(
+				(missing, color) => {
+					if (!(color in players.playerIndexes)) {
+						missing.push(color);
+					}
+
+					return missing;
+				},
+				[]
+			);
+
+			if (missingColors.length === 0) {
+				return players;
+			}
+
+			// This *should* never happen; the UI does not currently allow it, but this is here for sanity
+			// checking/preventing malicious socket requests
+			if (missingColors.length > 1) {
+				const error = new Error("Cannot join more than one new player to a game at a time");
+				error.code = ErrorCodes.TOO_MANY_JOINERS;
+
+				throw error;
+			}
+
+			const color = missingColors[0];
 
 			return Promise.resolve(
-				result === null ?
-					addPlayerToGame({ socket, game, color }) :
-					result
+				addPlayerToGame({ socket, game, color })
 			).then(
-				({ player, playerIndex, game }) => ({
-					game,
-					player,
-					order: playerIndex
-				})
+				(addedPlayerData) => {
+					players.playerIndexes[color] = addedPlayerData.playerIndex;
+					players.players.push(addedPlayerData.player);
+
+					if (!players.user) {
+						players.user = addedPlayerData.player.user;
+					}
+
+					return players;
+				}
 			);
 		}
 	).then(
 		(data) => {
 			if (
-				!data.player.user.isAnonymous &&
+				!data.user.isAnonymous &&
 				!socket.request.user
 			) {
 				return new Promise(
 					(resolve, reject) => {
-						socket.request.logIn(data.player.user, (err) => {
+						socket.request.logIn(data.user, (err) => {
 							if (err) {
 								reject(err);
 								return;
@@ -317,14 +377,14 @@ class SocketManager {
 			})
 		);
 
-		socket.on("board:place-marble", function({ gameName, position }, fn) {
+		socket.on("board:place-marble", function({ gameName, position, color }, fn) {
 			ensureGame(gameName, this.request);
-			SocketManager._onPlaceMarble(this, { gameName, position }, fn);
+			SocketManager._onPlaceMarble(this, { gameName, position, color }, fn);
 		});
 
-		socket.on("game:join", function({ gameName, color }, fn) {
+		socket.on("game:join", function({ gameName, colors }, fn) {
 			ensureGame(gameName, this.request);
-			SocketManager._onJoinGame(this, gameName, color, fn);
+			SocketManager._onJoinGame(this, gameName, colors, fn);
 		});
 
 		socket.on("game:leave", function({ gameName }, fn) {
@@ -515,27 +575,46 @@ class SocketManager {
 		});
 	}
 
-	static _onJoinGame(socket, gameName, color, fn) {
+	static _onJoinGame(socket, gameName, colors, fn) {
 		if (!gameName) {
+			const error = new Error("No game name provided for join message");
+			error.code = ErrorCodes.INVALID_SOCKET_REQUEST;
+
+			_logError({ error });
+
+			fn && fn({
+				error: true,
+				message: error.message,
+				code: error.code,
+			});
+
 			return;
 		}
 
 		_resolvePlayerJoinData({
 			socket,
 			gameName,
-			color
+			colors,
 		}).then(
-			(data) => {
-				if (_.isUndefined(data.player.color)) {
-					_logGameEvent({gameName, message: "Color not found for player"});
-					throw new Error("Color is undefined");
+			(playerData) => {
+				if (!socket.request.session.games[gameName].colors) {
+					socket.request.session.games[gameName].colors = {};
 				}
 
-				socket.request.session.games[gameName].color = data.player.color;
-				socket.request.session.games[gameName].order = data.order;
+				if (!socket.request.session.games[gameName].order) {
+					socket.request.session.games[gameName].order = {};
+				}
+
+				Object.keys(playerData.playerIndexes).forEach(
+					(color) => {
+						socket.request.session.games[gameName].colors[color] = true;
+						socket.request.session.games[gameName].order[color] = playerData.playerIndexes[color];
+					}
+				);
+
 				socket.request.session.save();
 
-				return data;
+				return playerData;
 			}
 		).then(
 			(data) => {
@@ -549,39 +628,47 @@ class SocketManager {
 
 				_logGameEvent({
 					gameName,
-					message: `Player ${data.player.color} joined`,
+					message: `Players ${Object.keys(data.playerIndexes).join(",")} joined`,
 				});
 
-				const playerData = {
-					color: data.player.color,
-					user: data.player.user ?
-						prepareUserForFrontend({ user: data.player.user, request: socket.request }) :
-						undefined,
-					isAnonymous: data.player.user.isAnonymous,
-					order: data.order
-				};
+				const playerData = data.players.map(
+					(player) => (
+						{
+							color: player.color,
+							user: player.user ?
+								prepareUserForFrontend({ user: player.user, request: socket.request }) :
+								undefined,
+							isAnonymous: player.user.isAnonymous,
+							order: data.playerIndexes[player.color],
+						}
+					)
+				);
 
-				socket.player = playerData;
+				socket.players = playerData;
 
 				// A player is not a watcher
 				SocketManager.stopWatching({ gameName, socket });
 
 				const joinResults = {
 					gameName,
-					player: playerData,
+					players: playerData,
 				};
 
 				// Remove isMe for the broadcast to other players, so they don't think this
 				// player is them
-				delete joinResults.player.user.isMe;
+				joinResults.players.forEach(
+					(player) => delete player.user.isMe
+				);
 
 				socket.broadcast.to(gameName).emit(
-					"game:player:joined",
+					"game:players:joined",
 					joinResults
 				);
 
 				// Add it back for the callback so that the socket client knows this is them
-				joinResults.player.user.isMe = true;
+				joinResults.players.forEach(
+					(player) => player.user.isMe = true
+				);
 
 				fn && fn(joinResults);
 			}
@@ -589,7 +676,7 @@ class SocketManager {
 			(err) => {
 				_logGameEvent({
 					gameName,
-					message: `Player failed to join game: ${err.message}`,
+					message: `Players failed to join game: ${err.message}`,
 					stack: err.stack,
 					level: LOG_LEVELS.ERROR
 				});
@@ -641,24 +728,26 @@ class SocketManager {
 			name: gameName,
 		}).then(
 			(game) => {
-				const player = _getPlayer({
+				const players = _getPlayers({
 					game,
 					user: socket.request.user,
 					sessionID: socket.request.sessionID
 				});
 
-				_logGameEvent({gameName, message: `Player ${player.color} left`});
+				_logGameEvent({gameName, message: `Players ${players.map((player) => player.color).join(", ")} left`});
 
 				socket.broadcast.to(gameName).emit(
-					"game:player:left",
+					"game:players:left",
 					{
 						gameName,
-						player: Object.assign(
-							player.toObject(),
-							{
-								user: prepareUserForFrontend({ user: player.user, request: socket.request })
-							}
-						)
+						players: players.map(
+							(player) => Object.assign(
+								player.toObject(),
+								{
+									user: prepareUserForFrontend({ user: player.user, request: socket.request })
+								}
+							)
+						),
 					}
 				);
 			}
@@ -672,9 +761,7 @@ class SocketManager {
 		fn && fn();
 	}
 
-	static _onPlaceMarble(socket, { gameName, position }, fn) {
-		const color = socket.request.session.games[gameName].color;
-
+	static _onPlaceMarble(socket, { gameName, position, color }, fn) {
 		GameStore.getGame({
 			name: gameName,
 		}).then(
@@ -687,6 +774,17 @@ class SocketManager {
 				
 				if (color !== game.getCurrentPlayerColor()) {
 					const err = new Error(`Not ${color}'s turn`);
+					err.code = ErrorCodes.NOT_PLAYERS_TURN;
+
+					throw err;
+				}
+
+				const socketPlayer = getSocketPlayer({ socket, game, color });
+
+				// If socketPlayer is null, that means the socket user is not the color's
+				// user; attempt at illegal placement
+				if (socketPlayer === null) {
+					const err = new Error(`Cannot place marbles for ${color}`);
 					err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
 					throw err;

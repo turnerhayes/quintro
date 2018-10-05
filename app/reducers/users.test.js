@@ -4,7 +4,7 @@ import * as immutableMatchers from "jest-immutable-matchers";
 import {
 	fetchedUserGames,
 	fetchedGame,
-	addPlayer,
+	addPlayers,
 	updateUserProfile,
 } from "@app/actions";
 
@@ -144,7 +144,7 @@ describe("users reducer", () => {
 		}));
 	});
 
-	it("ADD_PLAYER", () => {
+	it("ADD_PLAYERS", () => {
 		const player1 = fromJS({
 			color: "red",
 			user: {
@@ -188,9 +188,11 @@ describe("users reducer", () => {
 			[player1.getIn([ "user", "id" ])]: player1.get("user"),
 		}));
 
-		state = reducer(state, addPlayer({
+		state = reducer(state, addPlayers({
 			gameName: game.get("name"),
-			player: player2,
+			players: [
+				player2,
+			],
 		}));
 
 		expect(state.get("items")).toEqualImmutable(fromJS({

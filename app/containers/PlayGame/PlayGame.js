@@ -24,7 +24,7 @@ const withRedux = connect(
 	function mapStateToProps(state, ownProps) {
 		const selectorProps = { gameName: ownProps.gameName };
 		const game = selectors.games.getGame(state, selectorProps);
-		const currentUserPlayer = selectors.games.getCurrentUserPlayer(state, selectorProps);
+		const currentUserPlayers = selectors.games.getCurrentUserPlayers(state, selectorProps);
 		const currentZoomLevel = selectors.ui.getSetting(state, {
 			section: uiSection,
 			settingName: zoomLevelSettingName,
@@ -41,7 +41,9 @@ const withRedux = connect(
 
 			hasJoinedGame: selectors.games.hasJoinedGame(state, selectorProps),
 
-			currentUserPlayerColor: currentUserPlayer && currentUserPlayer.get("color"),
+			currentUserPlayers,
+
+			currentPlayerColor: selectors.games.getCurrentPlayerColor(state, selectorProps),
 
 			currentZoomLevel,
 			
@@ -66,17 +68,30 @@ const withRedux = connect(
 				dispatch(startGame({ gameName: ownProps.gameName }));
 			},
 
-			onJoinGame({ color }) {
-				dispatch(joinGame({ gameName: ownProps.gameName, color }));
+			onJoinGame({ colors }) {
+				if (!colors) {
+					dispatch(joinGame({
+						gameName: ownProps.gameName,
+						colors: undefined,
+					}));
+					return;
+				}
+
+				dispatch(joinGame({
+					gameName: ownProps.gameName,
+					colors,
+				}));
 			},
 
 			onPlaceMarble({
 				gameName,
 				position,
+				color,
 			}) {
 				dispatch(placeMarble({
 					gameName,
 					position,
+					color,
 				}));
 			},
 

@@ -58,22 +58,30 @@ const colors = [
 
 // Cache a mapping of color ID to index within the colors array so that
 // we can quickly look up the color definition in the `get` method below
-const colorIndexMap = colors.reduce(
-	(mapping, colorDefinition, index) => {
-		mapping[colorDefinition.id] = index;
+const colorIndexMap = {};
 
-		return mapping;
-	},
-	{}
+const colorIDs = [];
+
+colors.forEach(
+	(colorDefinition, index) => {
+		colorIndexMap[colorDefinition.id] = index;
+
+		colorIDs.push(colorDefinition.id);
+	}
 );
 
-Object.defineProperty(
+Object.defineProperties(
 	colors,
-	// Utility method to fetch a color definition from a color ID
-	"get",
 	{
-		value: function getColorDefinition(colorID) {
-			return colors[colorIndexMap[colorID]];
+		// Utility method to fetch a color definition from a color ID
+		get: {
+			value: function getColorDefinition(colorID) {
+				return colors[colorIndexMap[colorID]];
+			},
+		},
+
+		ids: {
+			value: colorIDs,
 		},
 	}
 );
