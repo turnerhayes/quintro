@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { fromJS, Map } from "immutable";
+import { fromJS, Map, Set } from "immutable";
 import { shallow, mount } from "enzyme";
 import { intlShape } from "react-intl";
 import { MemoryRouter } from "react-router-dom";
@@ -15,11 +15,12 @@ import BoardRecord from "@shared-lib/board";
 import { intl, mockStore } from "@app/utils/test-utils";
 import createReducer from "@app/reducers";
 import selectors from "@app/selectors";
-import { fetchedGame } from "@app/actions/games";
+import { fetchedGame, addPlayers, gameStarted, setMarble } from "@app/actions";
 import Cell from "@app/components/Board/Cell";
 import ZoomControls from "@app/components/Board/ZoomControls";
 import GameJoinDialog from "@app/components/GameJoinDialog";
 import PlayerIndicators from "@app/components/PlayerIndicators";
+import AddPlayerPopup from "@app/components/AddPlayerPopup/index";
 
 import { Unwrapped as PlayGame } from "./PlayGame";
 import StartGameOverlay from "./StartGameOverlay";
@@ -36,6 +37,7 @@ function getProps({
 	onPlaceMarble = NO_OP,
 	onGetGame = NO_OP,
 	onCancelJoin = NO_OP,
+	currentUserPlayers = Set(),
 	onZoomLevelChange = NO_OP,
 	watcherCount,
 	hasJoinedGame,
@@ -53,6 +55,7 @@ function getProps({
 		onPlaceMarble,
 		onGetGame,
 		onCancelJoin,
+		currentUserPlayers,
 		onZoomLevelChange,
 		watcherCount,
 		hasJoinedGame,
@@ -178,16 +181,46 @@ describe("PlayGame component", () => {
 	});
 
 	describe("onPlaceMarble", () => {
-		const state = fromJS({
-			games: {
-				items: {
-					[name]: game,
-				},
-			},
-		});
+		const reducer = createReducer();
+		const state = reducer(undefined, fetchedGame({
+			game,
+		}));
 
-		it("should call onPlaceMarble when a cell is clicked", () => {
-			const store = mockStore(state);
+		it("should call onPlaceMarble when a cell is clicked and the current player is one of the user's players", () => {
+			const player = fromJS({
+				color: "red",
+				user: {
+					id: "1",
+					isMe: true,
+				},
+				order: 0,
+			});
+
+			const stateWithPlayer = [
+				addPlayers({
+					gameName: name,
+					players: [
+						player,
+					],
+				}),
+
+				gameStarted({
+					gameName: name,
+				}),
+			].reduce(reducer, state);
+
+			const game = selectors.games.getGame(stateWithPlayer, {
+				gameName: name,
+			});
+			
+			const currentUserPlayers = selectors.games.getCurrentUserPlayers(
+				stateWithPlayer,
+				{
+					gameName: name,
+				}
+			);
+			
+			const store = mockStore(stateWithPlayer);
 
 			const onPlaceMarble = jest.fn();
 
@@ -198,6 +231,7 @@ describe("PlayGame component", () => {
 						gameName: name,
 						onPlaceMarble,
 						hasJoinedGame: true,
+						currentUserPlayers,
 					})}
 				/>
 			).find("BoardContainer").shallow({
@@ -206,18 +240,17 @@ describe("PlayGame component", () => {
 				},
 			}).shallow().shallow();
 
-			const cell = {
-				gameName: game.get("name"),
-				position: fromJS([0, 0]),
-			};
-
 			const firstCell = wrapper.find(Cell).first();
 
 			firstCell.simulate("click", {
 				cell: firstCell.prop("cell"),
 			});
 
-			expect(onPlaceMarble).toHaveBeenCalledWith(cell);
+			expect(onPlaceMarble).toHaveBeenCalledWith({
+				gameName: name,
+				position: fromJS([0, 0]),
+				color: player.get("color"),
+			});
 		});
 
 		it("should not call onPlaceMarble when an occupied cell is clicked", () => {
@@ -264,6 +297,86 @@ describe("PlayGame component", () => {
 
 			expect(onPlaceMarble).not.toHaveBeenCalled();
 		});
+
+		it("should not call onPlaceMarble when the current player is not one of the user's players", () => {
+			const newState = [
+				addPlayers({
+					gameName: game.get("name"),
+					players: fromJS([
+						{
+							order: 0,
+							color: "red",
+							user: {
+								id: "1",
+								isMe: true,
+							},
+						},
+						{
+							order: 1,
+							color: "blue",
+							user: {
+								id: "2",
+								isMe: false,
+							},
+						},
+
+						{
+							order: 2,
+							color: "green",
+							user: {
+								id: "1",
+								isMe: true,
+							},
+						},
+					])
+				}),
+
+				setMarble({
+					gameName: game.get("name"),
+					// eslint-disable-next-line no-magic-numbers
+					position: [7, 7],
+					color: "red",
+				}),
+
+				gameStarted({
+					gameName: game.get("name"),
+				}),
+			].reduce(reducer, state);
+
+			const modifiedGame = selectors.games.getGame(newState, { gameName: game.get("name") });
+
+			const store = mockStore(newState);
+
+			const onPlaceMarble = jest.fn();
+
+			const currentUserPlayers = selectors.games.getCurrentUserPlayers(newState, { gameName: game.get("name") });
+
+			const wrapper = shallow(
+				<PlayGame
+					{...getProps({
+						game: modifiedGame,
+						gameName: name,
+						onPlaceMarble,
+						hasJoinedGame: true,
+						currentUserPlayers,
+						isInGame: true,
+					})}
+				/>
+			).find("BoardContainer").shallow({
+				context: {
+					store,
+				},
+			}).shallow().shallow();
+
+
+			const firstCell = wrapper.find(Cell).first();
+
+			firstCell.simulate("click", {
+				cell: firstCell.prop("cell"),
+			});
+
+			expect(onPlaceMarble).not.toHaveBeenCalled();
+		});
 	});
 
 	it("should not render anything if no game is provided", () => {
@@ -279,11 +392,13 @@ describe("PlayGame component", () => {
 	});
 
 	it("should call onJoinGame when a game prop is set if the user is in the game", () => {
+		const firstColor = "blue";
+
 		const gameWithPlayers = game.set(
 			"players",
 			fromJS([
 				{
-					color: "blue",
+					color: firstColor,
 					userID: "1",
 				},
 				{
@@ -328,7 +443,7 @@ describe("PlayGame component", () => {
 		});
 
 		expect(onJoinGame).toHaveBeenCalledWith({
-			color: undefined,
+			colors: Set.of(firstColor),
 		});
 	});
 
@@ -346,7 +461,7 @@ describe("PlayGame component", () => {
 			/>
 		);
 
-		expect(onJoinGame).toHaveBeenCalledWith({ color: undefined });
+		expect(onJoinGame).toHaveBeenCalledWith({ colors: Set() });
 	});
 
 	it("should not attempt to join the game if the player is already joined", () => {
@@ -660,7 +775,7 @@ describe("PlayGame component", () => {
 			expect(wrapper.find(Popover)).toHaveProp("open", false);
 		});
 	
-		it("should not open a player info dialog when clicking on an empty indicator", () => {
+		it("should open an add player dialog when clicking on an empty indicator", () => {
 			const gameName = "test";
 
 			let game = fromJS({
@@ -686,31 +801,152 @@ describe("PlayGame component", () => {
 				fetchedGame({ game }),
 			].reduce(reducer, undefined);
 
+			const store = mockStore(state);
+
 			game = selectors.games.getGame(state, { gameName });
 
 			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
 
-			const wrapper = shallow(
-				<PlayGame
-					{...getProps({
-						game,
-						gameName,
-						playerUsers,
-					})}
-				/>
+			// Need access to the DOM node for the click handler, so we need to mount
+			const wrapper = mount(
+				(
+					<PlayGame
+						{...getProps({
+							game,
+							gameName,
+							playerUsers,
+						})}
+					/>
+				),
+				{
+					context: {
+						intl,
+						store,
+					},
+
+					childContextTypes: {
+						intl: intlShape,
+						store: PropTypes.object,
+					},
+				}
 			);
 			
 			expect(wrapper).toHaveState("selectedIndicatorEl", null);
 			
-			wrapper.find(PlayerIndicators).simulate("indicatorClick", {
-				selectedPlayer: null,
-				index: 1,
-				element: null,
+			const playerIndicators = wrapper.find("PlayerIndicators");
+
+			const classes = playerIndicators.prop("classes");
+
+			const firstEmptyIndicator = playerIndicators.find(`.${classes.item}`)
+				.filterWhere(
+					(el) => el.find("Marble").filterWhere((marble) => marble.prop("color") === null).exists()
+				).first();
+
+			firstEmptyIndicator.simulate("click", {
+				target: firstEmptyIndicator.getDOMNode(),
 			});
 
-			// Should not have changed the indicator el because the popover should not be open
+			const popover = wrapper.find(Popover).filterWhere((el) => el.key() === "player indicator popover");
+			
+			expect(wrapper.state("selectedIndicatorEl")).toBe(firstEmptyIndicator.getDOMNode());
+			expect(popover).toHaveProp("open", true);
+			expect(popover.find(AddPlayerPopup)).toExist();
+		});
+
+		it("should have a player join the game when the add dialog is submitted", () => {
+			const gameName = "test";
+
+			const onJoinGame = jest.fn().mockName("mock_onJoinGame");
+
+			let game = fromJS({
+				name: gameName,
+				board: new BoardRecord({
+					width: 10,
+					height: 10,
+				}),
+				players: [
+					{
+						user: {
+							id: "1",
+						},
+						color: "blue",
+					},
+				],
+				playerLimit: 4,
+			});
+
+			const reducer = createReducer();
+
+			const state = [
+				fetchedGame({ game }),
+			].reduce(reducer, undefined);
+
+			const store = mockStore(state);
+
+			game = selectors.games.getGame(state, { gameName });
+
+			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
+
+			// Need access to the DOM node for the click handler, so we need to mount
+			const wrapper = mount(
+				(
+					<PlayGame
+						{...getProps({
+							game,
+							gameName,
+							playerUsers,
+							onJoinGame,
+						})}
+					/>
+				),
+				{
+					context: {
+						intl,
+						store,
+					},
+
+					childContextTypes: {
+						intl: intlShape,
+						store: PropTypes.object,
+					},
+				}
+			);
+			
 			expect(wrapper).toHaveState("selectedIndicatorEl", null);
-			expect(wrapper.find(Popover).filterWhere((el) => el.key() === "player indicator popover")).toHaveProp("open", false);
+			
+			const playerIndicators = wrapper.find("PlayerIndicators");
+
+			const classes = playerIndicators.prop("classes");
+
+			const firstEmptyIndicator = playerIndicators.find(`.${classes.item}`)
+				.filterWhere(
+					(el) => el.find("Marble").filterWhere((marble) => marble.prop("color") === null).exists()
+				).first();
+
+			firstEmptyIndicator.simulate("click", {
+				target: firstEmptyIndicator.getDOMNode(),
+			});
+
+			const color = "green";
+
+			let popover = wrapper.find(Popover).filterWhere((el) => el.key() === "player indicator popover");
+			
+			popover.find(AddPlayerPopup).prop("onSubmit")({
+				color,
+			});
+			
+			expect(wrapper).toHaveState("selectedIndicatorEl", null);
+			expect(wrapper).toHaveState("selectedPlayerColor", null);
+
+			wrapper.update();
+			
+			popover = wrapper.find(Popover).filterWhere((el) => el.key() === "player indicator popover");
+			
+			expect(popover).toHaveProp("open", false);
+			
+			expect(onJoinGame).toHaveBeenCalledWith({
+				colors: [ color ],
+			});
 		});
 	});
 });
