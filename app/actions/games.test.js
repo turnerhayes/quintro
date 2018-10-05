@@ -208,7 +208,7 @@ describe("games action creators", () => {
 			...actionsToTest.JOIN_GAME,
 			args: {
 				gameName: "test",
-				color: "green",
+				colors: ["green", "red"],
 			},
 		},
 		{
@@ -240,15 +240,21 @@ describe("games action creators", () => {
 			},
 		},
 		{
-			...actionsToTest.ADD_PLAYER,
+			...actionsToTest.ADD_PLAYERS,
 			args: {
 				gameName: "test",
-				player: {
-					id: "1",
-					name: {
-						display: "Test Testerson",
-					},
-				},
+				players: [
+					{
+						order: 0,
+						color: "blue",
+						user: {
+							id: "1",
+							name: {
+								display: "Test Testerson",
+							},
+						},
+					}
+				],
 			},
 		},
 

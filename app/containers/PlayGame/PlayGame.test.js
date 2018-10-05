@@ -1,5 +1,5 @@
 import React from "react";
-import { fromJS } from "immutable";
+import { fromJS, Set } from "immutable";
 import { shallow, mount } from "enzyme";
 import { intlShape } from "react-intl";
 import { goBack } from "connected-react-router";
@@ -9,7 +9,7 @@ import createReducer from "@app/reducers";
 import selectors from "@app/selectors";
 import {
 	fetchedGame,
-	addPlayer,
+	addPlayers,
 	getGame,
 	watchGame,
 	startGame,
@@ -51,7 +51,7 @@ describe("PlayGame container", () => {
 		expect(wrapper.prop("playerUsers")).toEqualImmutable(
 			selectors.games.getPlayerUsers(state, { gameName })
 		);
-		expect(wrapper).toHaveProp("currentUserPlayerColor", player1.color);
+		expect(wrapper.prop("currentUserPlayers")).toEqualImmutable(Set.of(player1));
 		expect(wrapper).toHaveProp("isInGame", isInGame);
 		expect(wrapper).toHaveProp("isWatchingGame", isWatchingGame);
 		expect(wrapper).toHaveProp("hasJoinedGame", hasJoinedGame);
@@ -127,15 +127,24 @@ describe("PlayGame container", () => {
 			},
 		);
 
+		let player1State = selectors.games.getPlayers(state, {
+			gameName
+		}).first();
+
 		propExpectations({
-			player1,
+			player1: player1State,
 			gameName,
 			wrapper,
 			state,
 		});
 
 		const joinedGameState = [
-			addPlayer({ gameName, player: Object.assign({ order: 0 }, player1) }),
+			addPlayers({
+				gameName,
+				players: [
+					Object.assign({ order: 0 }, player1)
+				],
+			}),
 		].reduce(reducer, state);
 
 		store = mockStore(joinedGameState);
@@ -152,10 +161,14 @@ describe("PlayGame container", () => {
 				},
 			},
 		);
+		
+		player1State = selectors.games.getPlayers(state, {
+			gameName
+		}).first();
 
 		propExpectations({
 			gameName,
-			player1,
+			player1: player1State,
 			wrapper,
 			state: joinedGameState,
 			hasJoinedGame: true,
@@ -293,11 +306,11 @@ describe("PlayGame container", () => {
 
 		expect(store.dispatch).toHaveBeenCalledWith(joinGame({ gameName }));
 
-		const color = "blue";
+		const colors = ["blue", "red"];
 
-		wrapper.prop("onJoinGame")({ color });
+		wrapper.prop("onJoinGame")({ colors });
 
-		expect(store.dispatch).toHaveBeenCalledWith(joinGame({ gameName, color }));
+		expect(store.dispatch).toHaveBeenCalledWith(joinGame({ gameName, colors }));
 	});
 
 	it("should dispatch a placeMarble action", () => {

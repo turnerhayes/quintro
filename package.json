@@ -38,7 +38,7 @@
     "pretest": "npm run lint",
     "test:clean": "rimraf ./coverage",
     "test": "cross-env NODE_ENV=test jest --coverage",
-    "test:watch": "cross-env NODE_ENV=test jest --watchAll",
+    "test:watch": "cross-env jest --watchAll",
     "coverage": "cross-env NODE_ENV=test jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "heroku-postbuild": "npm run build",

@@ -9,7 +9,7 @@ import {
 	gameUpdated,
 	setWinner,
 	setMarble,
-	addPlayer,
+	addPlayers,
 	setPlayerPresence,
 	setGamePlayError,
 } from "@app/actions";
@@ -84,12 +84,12 @@ describe("Game client API", () => {
 			client.onMarblePlaced
 		);
 		expect(client.off).toHaveBeenCalledWith(
-			"game:player:joined",
-			client.onPlayerJoined
+			"game:players:joined",
+			client.onPlayersJoined
 		);
 		expect(client.off).toHaveBeenCalledWith(
-			"game:player:left",
-			client.onPlayerLeft
+			"game:players:left",
+			client.onPlayersLeft
 		);
 		expect(client.off).toHaveBeenCalledWith(
 			"game:watchers:updated",
@@ -178,56 +178,72 @@ describe("Game client API", () => {
 			}));
 		});
 
-		it("should dispatch addPlayer and setPlayerPresence actions on a game:player:joined socket message", async () => {
+		it("should dispatch addPlayers and setPlayerPresence actions on a game:players:joined socket message", async () => {
 			expect.assertions(1);
 
 			await connectPromise;
 
 			const gameName = "test";
 
-			const player = {
-				color: "blue",
-				user: {},
-			};
+			const players = [
+				{
+					color: "blue",
+					user: {},
+				},
 
-			server.emit("game:player:joined", { gameName, player });
+				{
+					color: "red",
+					user: {},
+				},
+			];
+
+			server.emit("game:players:joined", { gameName, players });
 
 			expect(dispatch.mock.calls).toEqual([
 				[
-					addPlayer({
+					addPlayers({
 						gameName,
-						player,
+						players,
 					}),
 				],
 				[
 					setPlayerPresence({
 						gameName,
 						presenceMap: {
-							[player.color]: true,
+							blue: true,
+							red: true,
 						},
 					}),
 				],
 			]);
 		});
 
-		it("should dispatch an setPlayerPresence action on a game:player:left socket message", async () => {
+		it("should dispatch an setPlayerPresence action on a game:players:left socket message", async () => {
 			expect.assertions(1);
 
 			await connectPromise;
 
 			const gameName = "test";
 
-			const player = {
-				color: "blue",
-				user: {},
-			};
+			const players = [
+				{
+					color: "blue",
+					user: {},
+				},
 
-			server.emit("game:player:left", { gameName, player });
+				{
+					color: "red",
+					user: {},
+				},
+			];
+
+			server.emit("game:players:left", { gameName, players });
 
 			expect(dispatch).toHaveBeenCalledWith(setPlayerPresence({
 				gameName,
 				presenceMap: {
-					[player.color]: false,
+					blue: false,
+					red: false,
 				},
 			}));
 		});
@@ -255,10 +271,20 @@ describe("Game client API", () => {
 
 			const gameName = "test";
 
-			const color = "blue";
+			const colors = ["blue", "red"];
 
-			const player = {
-				color,
+			const player1 = {
+				color: colors[0],
+				user: {
+					id: "1",
+					name: {
+						display: "Test Tester",
+					},
+				},
+			};
+
+			const player2 = {
+				color: colors[1],
 				user: {
 					id: "1",
 					name: {
@@ -284,7 +310,10 @@ describe("Game client API", () => {
 						messageData = data;
 
 						callback({
-							player,
+							players: [
+								player1,
+								player2,
+							],
 						});
 						resolve();
 					});
@@ -293,14 +322,14 @@ describe("Game client API", () => {
 
 			const joinGamePromise = client.joinGame({
 				gameName,
-				color,
+				colors,
 			});
 
 			await joinMessagePromise;
 
 			expect(messageData).toEqual({
 				gameName,
-				color,
+				colors,
 			});
 
 			await joinGamePromise;
@@ -308,16 +337,20 @@ describe("Game client API", () => {
 			expect(dispatch.mock.calls).toEqual(
 				[
 					[
-						addPlayer({
+						addPlayers({
 							gameName,
-							player,
+							players: [
+								player1,
+								player2,
+							],
 						}),
 					],
 					[
 						setPlayerPresence({
 							gameName,
 							presenceMap: {
-								[color]: true,
+								[colors[0]]: true,
+								[colors[1]]: true,
 							},
 						}),
 					],
