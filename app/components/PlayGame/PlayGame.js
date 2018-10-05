@@ -39,6 +39,7 @@ const styles = {
 
 	boardContainer: {
 		position: "relative",
+		display: "inline-block"
 	},
 
 	watcherIcon: {
