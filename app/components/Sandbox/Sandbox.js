@@ -42,19 +42,8 @@ import Config from "@app/config";
 import MoveList from "./MoveList";
 
 import "@fonts/icomoon/style.css";
+import AddPlayerButton from "@app/components/AddPlayerButton";
 
-
-function filterPlayerIndicatorColorsForGame({ id }, game) {
-	return !game.get("players").map((player) => player.get("color")).includes(id);
-}
-
-function getDefaultColorPickerColorForGame({ game }) {
-	const colors = Config.game.colors.filter(
-		({ id }) => filterPlayerIndicatorColorsForGame({ id }, game)
-	);
-
-	return colors.length > 0 ? colors[0].id : undefined;
-}
 
 const STORAGE_KEY = "SANDBOX_game";
 
@@ -145,7 +134,7 @@ const styles = (theme) => ({
 	},
 
 	speedDialIcon: {
-		verticalAlign: "auto",
+		verticalAlign: "baseline",
 	},
 });
 
@@ -179,8 +168,6 @@ class Sandbox extends React.PureComponent {
 
 		keepRatio: true,
 
-		newPlayerColor: null,
-
 		contextMenuAnchorEl: null,
 		
 		contextMenuPlayerIndex: null,
@@ -194,16 +181,6 @@ class Sandbox extends React.PureComponent {
 		shouldShowGameControls: false,
 	}
 
-	static getDerivedStateFromProps(props, state) {
-		if (state.newPlayerColor === null) {
-			return {
-				newPlayerColor: getDefaultColorPickerColorForGame({ game: state.game })
-			};
-		}
-
-		return null;
-	}
-
 	constructor(...args) {
 		super(...args);
 
@@ -212,8 +189,6 @@ class Sandbox extends React.PureComponent {
 				storedGame: game,
 			})
 		);
-
-		this.state.newPlayerColor = this.getDefaultColorPickerColor();
 	}
 	
 	handleDimensionChange = ({ width, height }) => {
@@ -339,15 +314,8 @@ class Sandbox extends React.PureComponent {
 		});
 	}
 
-	handleNewPlayerColorChosen = ({ color }) => {
-		this.setState({
-			newPlayerColor: color,
-		});
-	}
-
-	handleAddPlayerButtonClick = () => {
+	handleAddPlayer = ({ color }) => {
 		this.setState((prevState) => {
-			const color = prevState.newPlayerColor || this.getDefaultColorPickerColor();
 			let game = prevState.game;
 			const nextIndex = game.get("players").size;
 			const userID = (nextIndex + 1).toString();
@@ -383,8 +351,6 @@ class Sandbox extends React.PureComponent {
 				users: prevState.users.set(userID, fromJS({
 					id: userID,
 				})),
-
-				newPlayerColor: null,
 			};
 		});
 	}
@@ -418,8 +384,6 @@ class Sandbox extends React.PureComponent {
 				game,
 
 				users: prevState.users.delete(userID),
-
-				newPlayerColor: null,
 			};
 		});
 	}
@@ -545,7 +509,6 @@ class Sandbox extends React.PureComponent {
 				return {
 					game: prevState.storedGame,
 					users: this.getUsersForGame({ game: prevState.storedGame }),
-					newPlayerColor: getDefaultColorPickerColorForGame({ game: prevState.storedGame }),
 				};
 			}
 		});
@@ -563,7 +526,6 @@ class Sandbox extends React.PureComponent {
 		this.setState({
 			game: emptyGame,
 			users: Map(),
-			newPlayerColor: getDefaultColorPickerColorForGame({ game: emptyGame }),
 		});
 	}
 
@@ -639,14 +601,6 @@ class Sandbox extends React.PureComponent {
 		);
 	}
 
-	filterPlayerIndicatorColors = ({ id }) => {
-		return filterPlayerIndicatorColorsForGame({ id }, this.state.game);
-	}
-
-	getDefaultColorPickerColor = () => {
-		return getDefaultColorPickerColorForGame({ game: this.state.game });
-	}
-
 	renderPlayerControls = () => {
 		const contextMenuPlayer = this.state.contextMenuPlayerIndex !== null &&
 			this.state.game.getIn(["players", this.state.contextMenuPlayerIndex]);
@@ -710,10 +664,9 @@ class Sandbox extends React.PureComponent {
 								button={false}
 							>
 								<ColorPicker
+									game={this.state.game}
 									onColorChosen={this.handleColorChosen}
 									selectedColor={contextMenuPlayer.get("color")}
-									colorFilter={this.filterPlayerIndicatorColors}
-									getDefaultColor={this.getDefaultColorPickerColor}
 								/>
 							</MenuItem>
 						</Menu>
@@ -742,31 +695,13 @@ class Sandbox extends React.PureComponent {
 				<div
 					className={this.props.classes.addRemovePlayerContainer}
 				>
-					<div
+					<AddPlayerButton
+						game={this.state.game}
 						className={classnames({
 							[this.props.classes.hiddenAddPlayerButton]: this.state.game.get("players").size >= this.state.game.get("playerLimit"),
 						})}
-					>
-						<IconButton
-							onClick={this.handleAddPlayerButtonClick}
-							aria-label="Add player"
-							title="Add player"
-						>
-							<div
-								className={`icon ${this.props.classes.icomoonIcon}`}
-							>add player</div>
-						</IconButton>
-						{
-							this.getDefaultColorPickerColor() !== undefined && (
-								<ColorPicker
-									onColorChosen={this.handleNewPlayerColorChosen}
-									colorFilter={this.filterPlayerIndicatorColors}
-									getDefaultColor={this.getDefaultColorPickerColor}
-									selectedColor={this.state.newPlayerColor || this.getDefaultColorPickerColor()}
-								/>
-							)
-						}
-					</div>
+						onAdd={this.handleAddPlayer}
+					/>
 					{
 						!this.state.game.get("players").isEmpty() && (
 							<IconButton
@@ -929,7 +864,7 @@ class Sandbox extends React.PureComponent {
 							icon={(
 								<SpeedDialIcon
 									classes={{
-										root: this.props.classes.speedDialIcon,
+										icon: this.props.classes.speedDialIcon,
 									}}
 								/>
 							)}

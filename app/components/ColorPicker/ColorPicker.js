@@ -1,13 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
+import ImmutablePropTypes from "react-immutable-proptypes";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 
 import Config from "@app/config";
+import gameSelectors from "@app/selectors/games/game";
 
 import ColorSwatch from "./ColorSwatch";
+
+
+function colorFilterForGame({ color, game }) {
+	return !gameSelectors.getPlayerColors(game).includes(color.id);
+}
 
 const styles = {
 	root: {
@@ -17,19 +24,32 @@ const styles = {
 class ColorPicker extends React.PureComponent {
 	static propTypes = {
 		classes: PropTypes.object.isRequired,
-		getDefaultColor: PropTypes.func,
-		colorFilter: PropTypes.func,
+		game: ImmutablePropTypes.map,
 		onColorChosen: PropTypes.func.isRequired,
 		selectedColor: PropTypes.oneOf(Config.game.colors.map(({ id }) => id)),
-	}
-
-	static defaultProps = {
-		getDefaultColor: () => Config.game.colors[0].id,
 	}
 
 	state = {
 		colorDisplayEl: null,
 		isColorPickerOpen: false,
+	}
+
+	static getDefaultColorForGame({ game }) {
+		const colors = Config.game.colors.filter(
+			(color) => colorFilterForGame({ color, game })
+		);
+
+		return colors.length > 0 ? colors[0].id : undefined;
+	}
+
+	getDefaultColor() {
+		// If there's no game and no default color getter prop, just take the first
+		if (!this.props.game) {
+			return Config.game.colors[0].id;
+		}
+
+		// if there's a game, use it to find the first unclaimed color
+		return ColorPicker.getDefaultColorForGame({ game: this.props.game });
 	}
 
 	handleCurrentColorClicked = (event) => {
@@ -90,12 +110,17 @@ class ColorPicker extends React.PureComponent {
 	}
 
 	render() {
-		const defaultColor = this.props.getDefaultColor();
+		const defaultColor = this.getDefaultColor();
 
 		let colors = Config.game.colors;
 		
-		if (typeof this.props.colorFilter === "function") {
-			colors = colors.filter(this.props.colorFilter);
+		if (this.props.game) {
+			colors = colors.filter(
+				(color) => colorFilterForGame({
+					color,
+					game: this.props.game,
+				})
+			);
 		}
 
 		return (
@@ -141,4 +166,8 @@ class ColorPicker extends React.PureComponent {
 	}
 }
 
-export default withStyles(styles)(ColorPicker);
+const WrappedComponent = withStyles(styles)(ColorPicker);
+
+WrappedComponent.getDefaultColorForGame = ColorPicker.getDefaultColorForGame;
+
+export default WrappedComponent;

@@ -7,7 +7,6 @@ exports = module.exports = {
 		"express",
 		"ip",
 		"minimist",
-		"sanitize.css",
 		"rfr",
 		"mongoose",
 		"mongodb",

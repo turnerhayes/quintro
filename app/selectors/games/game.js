@@ -1,5 +1,12 @@
 import { List, Map } from "immutable";
-import { createSelector } from "reselect";
+import {
+	createSelector,
+	createSelectorCreator,
+	defaultMemoize
+} from "reselect";
+import isEqual from "lodash/isEqual";
+
+const createDeepSelector = createSelectorCreator(defaultMemoize, isEqual);
 
 import * as quintroSelectors from "./quintros";
 
@@ -10,6 +17,17 @@ const getWinner = (game) => game.get("winner");
 const getPlayers = (game) => game.get("players", List());
 
 const getWatchers = (game) => game.get("watchers", Map());
+
+const getPlayerColors = createSelector(
+	getPlayers,
+	(players) => players.map((player) => player.get("color"))
+);
+
+const canAddPlayerColor = createDeepSelector(
+	getPlayerColors,
+	(state, props) => props.color,
+	(existingColors, newColor) => newColor && !existingColors.includes(newColor)
+);
 
 const isWatchingGame = createSelector(
 	getWatchers,
@@ -32,10 +50,12 @@ const getCurrentPlayer = createSelector(
 export default {
 	getWinner,
 	getPlayers,
+	getPlayerColors,
 	getWatchers,
 	getCurrentPlayer,
 	isWatchingGame,
 	getWatcherCount,
+	canAddPlayerColor,
 	...quintroSelectors,
 	...sharedGameSelectors,
 };

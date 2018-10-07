@@ -16,8 +16,6 @@ import GameJoinDialog     from "@app/components/GameJoinDialog";
 import Board              from "@app/containers/Board";
 import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
-import LoadingSpinner     from "@app/components/LoadingSpinner";
-import AddPlayerPopup     from "@app/components/AddPlayerPopup";
 import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import Config             from "@app/config";
 import gameSelectors      from "@app/selectors/games/game";
@@ -25,6 +23,7 @@ import gameSelectors      from "@app/selectors/games/game";
 import messages           from "./messages";
 import StartGameOverlay   from "./StartGameOverlay";
 import WinnerBanner       from "./WinnerBanner";
+import AddPlayerButton    from "@app/components/AddPlayerButton";
 
 
 const styles = {
@@ -37,6 +36,21 @@ const styles = {
 		justifyContent: "space-between",
 	},
 
+	playerControls: {
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+
+	addPlayerButton: {
+		marginLeft: "2em",
+	},
+
+	zoomControls: {
+		marginLeft: "auto",
+	},
+
 	boardContainer: {
 		position: "relative",
 		display: "inline-block"
@@ -45,7 +59,6 @@ const styles = {
 	watcherIcon: {
 		fontSize: "1.7em",
 	},
-
 
 	watcherBadge: {
 		marginRight: "1em",
@@ -274,11 +287,13 @@ class PlayGame extends React.PureComponent {
 	 * @return {void}
 	 */
 	handlePlayerIndicatorClick = ({ selectedPlayer, element }) => {
+		if (selectedPlayer === null) {
+			return;
+		}
+
 		this.setState({
 			selectedIndicatorEl: element,
-			selectedPlayerColor: selectedPlayer === null ?
-				null :
-				selectedPlayer.get("color"),
+			selectedPlayerColor: selectedPlayer.get("color"),
 		});
 	}
 
@@ -293,12 +308,10 @@ class PlayGame extends React.PureComponent {
 		this.closePopover();
 	}
 
-	handleAddPlayerSubmit = ({ color }) => {
+	handleAddPlayer = ({ color }) => {
 		this.props.onJoinGame({
 			colors: [ color ],
 		});
-
-		this.closePopover();
 	}
 
 	renderPlayerInfoPopover() {
@@ -306,26 +319,16 @@ class PlayGame extends React.PureComponent {
 			return null;
 		}
 
-		if (this.state.selectedPlayerColor !== null) {
-			return (
-				<PlayerInfoPopup
-					game={this.props.game}
-					player={
-						this.props.game.get("players").find(
-							(player) => player.get("color") === this.state.selectedPlayerColor
-						)
-					}
-				/>
-			);
-		}
-		else {
-			return (
-				<AddPlayerPopup
-					onSubmit={this.handleAddPlayerSubmit}
-					game={this.props.game}
-				/>
-			);
-		}
+		return (
+			<PlayerInfoPopup
+				game={this.props.game}
+				player={
+					this.props.game.get("players").find(
+						(player) => player.get("color") === this.state.selectedPlayerColor
+					)
+				}
+			/>
+		);
 	}
 
 	/**
@@ -403,18 +406,25 @@ class PlayGame extends React.PureComponent {
 				<div
 					className={this.props.classes.gameControls}
 				>
-					{
-						game.get("players").isEmpty() ?
-							(<LoadingSpinner/>) :
-							(
-								<PlayerIndicators
+					<div
+						className={this.props.classes.playerControls}
+					>
+						<PlayerIndicators
+							game={game}
+							markActive={gameIsStarted}
+							playerUsers={playerUsers}
+							onIndicatorClick={this.handlePlayerIndicatorClick}
+						/>
+						{
+							game.get("players").size < game.get("playerLimit") && (
+								<AddPlayerButton
+									className={this.props.classes.addPlayerButton}
 									game={game}
-									markActive={gameIsStarted}
-									playerUsers={playerUsers}
-									onIndicatorClick={this.handlePlayerIndicatorClick}
+									onAdd={this.handleAddPlayer}
 								/>
 							)
-					}
+						}
+					</div>
 					<Popover
 						key="player indicator popover"
 						open={!!this.state.selectedIndicatorEl}
@@ -432,6 +442,7 @@ class PlayGame extends React.PureComponent {
 						{this.renderPlayerInfoPopover()}
 					</Popover>
 					<ZoomControls
+						className={this.props.classes.zoomControls}
 						onZoomLevelChange={this.handleZoomLevelChange}
 						currentZoomLevel={this.props.currentZoomLevel}
 						minZoomLevel={0.2}

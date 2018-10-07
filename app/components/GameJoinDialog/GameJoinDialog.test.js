@@ -5,6 +5,9 @@ import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 
+import BoardRecord from "@shared-lib/board";
+
+import Config from "@app/config";
 import { intl } from "@app/utils/test-utils";
 import ColorPicker from "@app/components/ColorPicker";
 
@@ -23,11 +26,10 @@ describe("GameJoinDialog component", () => {
 
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: color1,
@@ -64,11 +66,10 @@ describe("GameJoinDialog component", () => {
 	it("should remove a color from the list if it is taken while the dialog is open", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [],
 			playerLimit: 3,
 		});
@@ -83,17 +84,15 @@ describe("GameJoinDialog component", () => {
 			/>
 		);
 
-		const defaultColor = wrapper.instance().getDefaultColor();
-		
 		let colorPicker = getColorPickerFromDialogWrapper(wrapper).shallow();
 
 		colorPicker.find(Button).filterWhere(
 			(button) => button.key() === "color-change-button"
 		).simulate("click", {});
 
-		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toExist();
+		expect(colorPicker.find(MenuItem).filter(`[data-color='blue']`)).toExist();
 		// Default color should start out selected
-		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).toHaveProp("selected", true);
+		expect(colorPicker.find(MenuItem).filter(`[data-color='blue']`)).toHaveProp("selected", true);
 
 		const gameWithPlayer = game.setIn(
 			[
@@ -101,7 +100,7 @@ describe("GameJoinDialog component", () => {
 				0,
 			],
 			fromJS({
-				color: defaultColor,
+				color: "blue",
 			})
 		);
 
@@ -109,13 +108,11 @@ describe("GameJoinDialog component", () => {
 
 		colorPicker = getColorPickerFromDialogWrapper(wrapper);
 
-		const getDefaultColor = colorPicker.prop("getDefaultColor");
-
 		colorPicker = colorPicker.shallow();
 
-		expect(colorPicker.find(MenuItem).filter(`[data-color='${defaultColor}']`)).not.toExist();
+		expect(colorPicker.find(MenuItem).filter(`[data-color='blue']`)).not.toExist();
 		// Former default color was taken; should have different default color
-		expect(getDefaultColor()).not.toBe(defaultColor);
+		expect(colorPicker.find(MenuItem).first()).toHaveProp("data-color", Config.game.colors[1].id);
 		// Should automatically select the first non-taken color
 		expect(colorPicker.find(MenuItem).first()).toHaveProp("selected", true);
 	});
@@ -123,11 +120,10 @@ describe("GameJoinDialog component", () => {
 	it("should not show color picker if the game is full", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: "blue",
@@ -162,11 +158,10 @@ describe("GameJoinDialog component", () => {
 	it("should allow user to watch game if the game is full", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: "blue",
@@ -197,11 +192,10 @@ describe("GameJoinDialog component", () => {
 	it("should not show color picker if the game is started", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: "blue",
@@ -234,11 +228,10 @@ describe("GameJoinDialog component", () => {
 	it("should allow user to watch game if the game is started", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: "blue",
@@ -267,11 +260,10 @@ describe("GameJoinDialog component", () => {
 	it("should call the onWatchGame callback", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [
 				{
 					color: "blue",
@@ -308,13 +300,12 @@ describe("GameJoinDialog component", () => {
 	it("should call the onCancel callback", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
 				filledCells: [],
-			},
-			players: [
-			],
+			}),
+			players: [],
 			playerLimit: 3,
 		});
 
@@ -338,11 +329,10 @@ describe("GameJoinDialog component", () => {
 	it("should call the onSubmit callback with the default color if no color was selected", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [],
 			playerLimit: 3,
 		});
@@ -359,23 +349,20 @@ describe("GameJoinDialog component", () => {
 			/>
 		);
 
-		const defaultColor = wrapper.instance().getDefaultColor();
-
 		wrapper.find("form").simulate("submit", {
 			preventDefault() {}
 		});
 
-		expect(onSubmit).toHaveBeenCalledWith({ color: defaultColor });
+		expect(onSubmit).toHaveBeenCalledWith({ color: "blue" });
 	});
 
 	it("should call the onSubmit callback with the selected color if a color was selected", () => {
 		const game = fromJS({
 			name: "testgame",
-			board: {
+			board: new BoardRecord({
 				width: 15,
 				height: 15,
-				filledCells: [],
-			},
+			}),
 			players: [],
 			playerLimit: 3,
 		});
