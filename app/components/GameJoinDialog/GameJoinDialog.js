@@ -13,12 +13,10 @@ import {
 	FormattedMessage,
 }                    from "react-intl";
 
+import gameSelectors from "@app/selectors/games/game";
 import ColorPicker   from "@app/components/ColorPicker";
-import Config        from "@app/config";
 
 import messages      from "./messages";
-
-const getPlayerColors = (game) => game.get("players").map((player) => player.get("color"));
 
 /**
  * @callback client.react-components.GameJoinDialog~onSubmitCallback
@@ -79,20 +77,19 @@ class GameJoinDialog extends React.Component {
 		selectedColor: null
 	}
 
+	static getDerivedStateFromProps(props, state) {
+		if (!gameSelectors.canAddPlayerColor(props.game, { color: state.selectedColor })) {
+			return {
+				selectedColor: ColorPicker.getDefaultColorForGame({ game: props.game }),
+			};
+		}
+
+		return null;
+	}
+
 	formatMessage = (...args) => {
 		return this.props.intl.formatMessage(...args);
 	}
-
-	getDefaultColor = () => {
-		const playerColors = getPlayerColors(this.props.game);
-		const colors = Config.game.colors.filter(
-			(colorDefinition) => playerColors.indexOf(colorDefinition.id) < 0
-		);
-			
-		return colors[0].id;
-	}
-
-	colorFilter = ({ id }) => getPlayerColors(this.props.game).indexOf(id) < 0
 
 	/**
 	 * Handles the cancel button being clicked.
@@ -127,7 +124,7 @@ class GameJoinDialog extends React.Component {
 		event.preventDefault();
 
 		this.props.onSubmit({
-			color: this.state.selectedColor || this.getDefaultColor(),
+			color: this.state.selectedColor,
 		});
 	}
 
@@ -210,8 +207,7 @@ class GameJoinDialog extends React.Component {
 							{...messages.color}
 						/>:
 						<ColorPicker
-							getDefaultColor={this.getDefaultColor}
-							colorFilter={this.colorFilter}
+							game={this.props.game}
 							selectedColor={this.state.selectedColor}
 							onColorChosen={this.handleColorChosen}
 						/>

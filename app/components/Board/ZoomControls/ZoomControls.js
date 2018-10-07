@@ -26,6 +26,7 @@ class ZoomControls extends React.PureComponent {
 		maxZoomLevel: PropTypes.number,
 		stepSize: PropTypes.number,
 		classes: PropTypes.object.isRequired,
+		className: PropTypes.string,
 	}
 
 	static defaultProps = {
@@ -79,7 +80,9 @@ class ZoomControls extends React.PureComponent {
 
 	render() {
 		return (
-			<div>
+			<div
+				className={this.props.className}
+			>
 				<IconButton
 					onClick={this.handleZoomOutClicked}
 				>

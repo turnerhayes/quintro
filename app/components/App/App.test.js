@@ -107,6 +107,7 @@ describe("App component", () => {
 				filledCells: [],
 			}),
 			players: [],
+			playerLimit: 3,
 		});
 
 		const initialState = fromJS({

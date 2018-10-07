@@ -75,19 +75,19 @@ export function fetchedUserGames({ games }) {
 
 export const GET_GAME = "@@QUINTRO/GAMES/GET";
 
-export function getGame({ name }) {
+export function getGame({ gameName }) {
 	return {
 		type: GET_GAME,
-		payload: { name },
+		payload: { gameName },
 	};
 }
 
 export const FETCHING_GAME = "@@QUINTRO/GAMES/FETCHING";
 
-export function fetchingGame({ name }) {
+export function fetchingGame({ gameName }) {
 	return {
 		type: FETCHING_GAME,
-		payload: { name },
+		payload: { gameName },
 	};
 }
 
