@@ -57,7 +57,7 @@ const withRedux = connect(
 	function mapDispatchToProps(dispatch, ownProps) {
 		return {
 			onGetGame() {
-				dispatch(getGame({ name: ownProps.gameName }));
+				dispatch(getGame({ gameName: ownProps.gameName }));
 			},
 
 			onWatchGame() {

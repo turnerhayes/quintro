@@ -51,7 +51,7 @@ describe("Games API", () => {
 				};
 			});
 
-			const returnedGame = await getGame({ name: gameName });
+			const returnedGame = await getGame({ gameName });
 
 			expect(receivedGameName).toBe(gameName);
 
@@ -72,7 +72,7 @@ describe("Games API", () => {
 				};
 			});
 
-			const gamePromise = getGame({ name: "123" });
+			const gamePromise = getGame({ gameName: "123" });
 
 			expect(gamePromise).rejects.toThrow(new Error(error));
 		});

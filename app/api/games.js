@@ -20,9 +20,9 @@ function processGamesResponse(response) {
 	);
 }
 
-export function getGame({ name }) {
+export function getGame({ gameName }) {
 	return fetch(
-		`/api/games/${name}`,
+		`/api/games/${gameName}`,
 	).then(processGamesResponse);
 }
 

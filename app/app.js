@@ -21,7 +21,7 @@ import { jssPreset } from "@material-ui/core";
 import JssProvider from "react-jss/lib/JssProvider";
 import nestedJSS from "jss-nested";
 import IntlContextExposer from "./components/IntlContextExposer";
-import "sanitize.css/sanitize.css";
+import "./global.css";
 
 // Import root app
 import App from "@app/components/App";
