@@ -168,11 +168,11 @@ describe("games action creators", () => {
 		},
 		{
 			...actionsToTest.GET_GAME,
-			args: { name: "test" },
+			args: { gameName: "test" },
 		},
 		{
 			...actionsToTest.FETCHING_GAME,
-			args: { name: "test" },
+			args: { gameName: "test" },
 		},
 		{
 			...actionsToTest.FETCHED_GAME,
