@@ -307,15 +307,6 @@ function _resolvePlayerJoinData({ socket, gameName, colors }) {
 
 const _games = {};
 
-function ensureGame(gameName, req) {
-	if (_.get(req, ["session", "games", gameName])) {
-		return;
-	}
-
-	req.session.games = req.session.games || {};
-	req.session.games[gameName] = req.session.games[gameName] || {};				
-}
-
 let _managerInitialized = false;
 
 class SocketManager {
@@ -378,42 +369,34 @@ class SocketManager {
 		);
 
 		socket.on("board:place-marble", function({ gameName, position, color }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onPlaceMarble(this, { gameName, position, color }, fn);
 		});
 
 		socket.on("game:join", function({ gameName, colors }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onJoinGame(this, gameName, colors, fn);
 		});
 
 		socket.on("game:leave", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onLeaveGame(this, gameName, fn);
 		});
 
 		socket.on("game:watch", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onWatchGame(this, gameName, fn);
 		});
 
 		socket.on("game:watchers", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._getWatchers(this, gameName, fn);
 		});
 
 		socket.on("game:update", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onUpdateGame(this, gameName, fn);
 		});
 
 		socket.on("game:players:presence", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onGetPlayerPresence(this, gameName, fn);
 		});
 
 		socket.on("game:start", function({ gameName }, fn) {
-			ensureGame(gameName, this.request);
 			SocketManager._onGameStart(this, gameName, fn);
 		});
 
@@ -596,27 +579,6 @@ class SocketManager {
 			gameName,
 			colors,
 		}).then(
-			(playerData) => {
-				if (!socket.request.session.games[gameName].colors) {
-					socket.request.session.games[gameName].colors = {};
-				}
-
-				if (!socket.request.session.games[gameName].order) {
-					socket.request.session.games[gameName].order = {};
-				}
-
-				Object.keys(playerData.playerIndexes).forEach(
-					(color) => {
-						socket.request.session.games[gameName].colors[color] = true;
-						socket.request.session.games[gameName].order[color] = playerData.playerIndexes[color];
-					}
-				);
-
-				socket.request.session.save();
-
-				return playerData;
-			}
-		).then(
 			(data) => {
 				socket.join(gameName);
 
