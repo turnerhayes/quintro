@@ -1,5 +1,8 @@
 import React                        from "react";
+import PropTypes                    from "prop-types";
 import { Switch, Route }            from "react-router-dom";
+import { withStyles }               from "@material-ui/core/styles";
+
 import { Loadable as NotFoundPage } from "@app/components/NotFoundPage";
 import { Loadable as HomePage }     from "@app/components/HomePage";
 import FindGame                     from "@app/containers/FindGame";
@@ -9,7 +12,37 @@ import HowToPlay                    from "@app/components/HowToPlay";
 import UserGamesList                from "@app/containers/UserGamesList";
 import TopNavigation                from "@app/containers/TopNavigation";
 import Sandbox                      from "@app/containers/Sandbox";
-import                                   "./App.less";
+
+const styles = {
+	mainContainer: {
+		display: "flex",
+		flexDirection: "column",
+		height: "100%",
+	},
+	
+	mainHeader: {
+		width: "100%",
+	},
+	
+	mainContentContainer: {
+		display: "flex",
+		flexDirection: "row",
+		flex: 1,
+		overflow: "auto",
+	},
+	
+	mainContent: {
+		flex: 1,
+		order: 1,
+		height: "100%",
+	},
+	
+	leftPanel: {
+		width: "33%",
+		order: 0,
+		borderRight: "1px solid black",
+	},
+};
 
 /**
  * Root application component.
@@ -18,6 +51,10 @@ import                                   "./App.less";
  * @extends external:React.Component
  */
 class App extends React.Component { // Do not use PureComponent; messes with react-router
+	static propTypes = {
+		classes: PropTypes.object.isRequired,
+	}
+
 	/**
 	 * Generates a Route component for the sidebar that renders the specified
 	 * component and is bound to the specified path.
@@ -54,19 +91,19 @@ class App extends React.Component { // Do not use PureComponent; messes with rea
 	render() {
 		return (
 			<section
-				className="page-layout__main-container"
+				className={this.props.classes.mainContainer}
 			>
 				<header
-					className="page-layout__main-header"
+					className={this.props.classes.mainHeader}
 				>
 					<TopNavigation
 					/>
 				</header>
 				<div
-					className="page-layout__main-content-container"
+					className={this.props.classes.mainContentContainer}
 				>
 					<article
-						className="page-layout__main-content"
+						className={this.props.classes.mainContent}
 					>
 						<Switch>
 							<Route exact path="/" component={HomePage} />
@@ -91,4 +128,4 @@ class App extends React.Component { // Do not use PureComponent; messes with rea
 	}
 }
 
-export default App;
+export default withStyles(styles)(App);

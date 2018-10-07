@@ -1,15 +1,43 @@
 import React             from "react";
+import PropTypes         from "prop-types";
+import classnames        from "classnames";
+import { withStyles }    from "@material-ui/core/styles";
 import Icon              from "@material-ui/core/Icon";
+
 import                        "@app/fonts/icomoon/style.less";
-import                        "./LoadingSpinner.less";
 
+const styles = {
+	"@keyframes quintro-loading-spinner--spin": {
+		from: {
+			transform: "rotateZ(0deg)",
+		},
 
-export default function LoadingSpinner() {
+		to: {
+			transform: "rotateZ(-359deg)",
+		},
+	},
+
+	root: {
+		display: "inline-block",
+		animation: "quintro-loading-spinner--spin 1s infinite linear",
+	},
+};
+
+function LoadingSpinner({ classes }) {
 	return (
 		<Icon
-			className="qc-loading-spinner icon"
+			className={classnames(
+				"icon",
+				classes.root
+			)}
 		>
 			loading
 		</Icon>
 	);
 }
+
+LoadingSpinner.propTypes = {
+	classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(LoadingSpinner);
