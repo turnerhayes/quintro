@@ -533,7 +533,9 @@ describe("PlayGame saga", () => {
 				],
 			});
 
-			const getGameMock = jest.fn().mockResolvedValue(game);
+			const getGameMock = jest.fn()
+				.mockName("mock_getGame")
+				.mockResolvedValue(game);
 
 			jest.doMock("@app/api/games", () => {
 				return {
@@ -551,13 +553,13 @@ describe("PlayGame saga", () => {
 					},
 				},
 				getGame({
-					name: gameName,
+					gameName,
 				})
 			);
 
 			await sagaPromise;
 
-			expect(getGameMock).toHaveBeenCalledWith({ name: gameName });
+			expect(getGameMock).toHaveBeenCalledWith({ gameName });
 		});
 	});
 

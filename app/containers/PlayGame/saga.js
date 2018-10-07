@@ -58,7 +58,7 @@ function showNotification() {
 }
 
 export function* getGameSaga({ payload }) {
-	const game = yield call(getGame, { name: payload.name });
+	const game = yield call(getGame, { gameName: payload.gameName });
 	yield put(fetchedGame({ game }));
 }
 

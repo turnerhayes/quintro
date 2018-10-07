@@ -205,7 +205,7 @@ describe("PlayGame container", () => {
 			},
 		);
 
-		expect(store.dispatch).toHaveBeenCalledWith(getGame({ name: gameName }));
+		expect(store.dispatch).toHaveBeenCalledWith(getGame({ gameName }));
 	});
 
 	it("should dispatch a watchGame action", () => {
