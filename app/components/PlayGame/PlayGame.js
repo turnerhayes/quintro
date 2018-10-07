@@ -29,6 +29,8 @@ import AddPlayerButton    from "@app/components/AddPlayerButton";
 const styles = {
 	root: {
 		margin: "1em",
+		display: "flex",
+		flexDirection: "column",
 	},
 
 	gameControls: {
@@ -53,7 +55,8 @@ const styles = {
 
 	boardContainer: {
 		position: "relative",
-		display: "inline-block"
+		display: "inline-block",
+		alignSelf: "center",
 	},
 
 	watcherIcon: {
