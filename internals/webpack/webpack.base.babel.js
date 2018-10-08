@@ -4,7 +4,6 @@
 
 require("dotenv").config();
 const webpack = require("webpack");
-const LessListsPlugin = require("less-plugin-lists");
 const aliases = require("./aliases");
 const rfr = require("rfr");
 const Config = rfr("server/lib/config");
@@ -24,7 +23,7 @@ module.exports = (options) => ({
 	module: {
 		rules: [
 			{
-				test: /\.js$/, // Transform all .js files required somewhere with Babel
+				test: /\.js$/,
 				exclude: /node_modules/,
 				use: [
 					{
@@ -35,10 +34,7 @@ module.exports = (options) => ({
 			},
 			
 			{
-				// Preprocess our own .css files
-				// This is the place to add your own loaders (e.g. sass/less etc.)
-				// for a list of loaders, see https://webpack.js.org/loaders/#styling
-				test: /\.(le|c)ss$/,
+				test: /\.css$/,
 				exclude: /node_modules/,
 				use: [
 					"style-loader",
@@ -53,22 +49,6 @@ module.exports = (options) => ({
 						loader: "postcss-loader",
 						options: {
 							sourceMap: true,
-						}
-					},
-					{
-						loader: "less-loader",
-						options: {
-							sourceMap: true,
-							globalVars: {
-								// Converts the list of valid colors into a format that
-								// LESS can iterate over (using the LessListsPlugin)
-								_marbleColors: Config.game.colors.map(
-									(colorInfo) => `${colorInfo.id} ${colorInfo.hex}`
-								).join(", ")
-							},
-							plugins: [
-								new LessListsPlugin()
-							]
 						}
 					},
 				],
@@ -166,7 +146,6 @@ module.exports = (options) => ({
 			".js",
 			".jsx",
 			".react.js",
-			".less",
 		],
 		mainFields: [
 			"browser",

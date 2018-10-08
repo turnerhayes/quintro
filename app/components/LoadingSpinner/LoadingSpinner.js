@@ -4,7 +4,7 @@ import classnames        from "classnames";
 import { withStyles }    from "@material-ui/core/styles";
 import Icon              from "@material-ui/core/Icon";
 
-import                        "@app/fonts/icomoon/style.less";
+import                        "@app/fonts/icomoon/style.css";
 
 const styles = {
 	"@keyframes quintro-loading-spinner--spin": {
