@@ -10,7 +10,7 @@ The game is quite simple: players go around in a set order, placing marbles of t
 
 Anyone can create a game, with some configurable parameters like board width/height and maximum number of players. Users connect to a created game and communicate with a [Socket.io](https://socket.io) server that tracks game state, storing it in a [MongoDB](https://mongodb.com) database. The server uses [Express](http://expressjs.com/) and builds its static content (CSS/JS) via [Webpack](https://webpack.github.io/).
 
-The frontend is a [ReactJS](https://facebook.github.io/react/)/[Redux](http://redux.js.org/) web application and uses [Less](http://lesscss.org/) for styling.
+The frontend is a [ReactJS](https://facebook.github.io/react/)/[Redux](http://redux.js.org/) web application and uses [CSS-in-JS](http://cssinjs.org) for styling.
 
 The socket server can either be run as a standalone Express application or inline as part of the same server that serves the website. The static content can be served either from a directory on the filesystem that Webpack writes its results into, or via [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html) (the latter is better for development, as it contains some usefule features like hot module reloading, filesystem watching and linting.
 
@@ -49,6 +49,10 @@ In addition to the `SESSION_DB_URL` setting, you must also set the `SESSION_SECR
 ## Static content
 
 "Static content" refers to things like Javascript files, CSS stylesheets, images, sound files, etc. It can be served from the same server that serves the rest of the application, or from a separate server, such as a CDN. If you don't want to bother with that, you can leave the `STATIC_CONTENT_URL` setting empty. Otherwise, set it to the base URL for your static content server.
+
+## Sockets app
+
+The game interactions (players joining, placing marbles, etc.) are done via Websockets, using [Socket.IO](https://socket.io/). The server side component is implemented as a separate sub-app (see /server/apps/socket). This is so that (in theory) the socket app can be run as a separate server (this is currently untested). If you don't want to run it as a separate app, it will be run as part of the HTTP server (you don't need to do anything to enable this). If you run it on a separate server, set the `WEB_SOCKETS_URI` variable to the root of the socket server (the URL to which to connect the Socket.IO client).
 
 ## Running the app
 
