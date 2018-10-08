@@ -5,6 +5,7 @@
 require("dotenv").config();
 const argv = require("./argv");
 const debug = require("debug");
+const fs = require("fs");
 
 // This should go before basically everything else, in case a dependency
 // instantiates require("debug")("mynamespace")--debug instances don't seem
@@ -14,7 +15,6 @@ if (argv.debug) {
 	debug.enable("quintro:*");
 }
 
-const http = require("http");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const HTTPStatusCodes = require("http-status-codes");
@@ -34,7 +34,22 @@ require("./persistence/db-connection");
 
 const app = express();
 
-const server = http.createServer(app);
+let server;
+
+if (Config.app.address.isSecure) {
+	const spdy = require("spdy");
+
+	const options = {
+		key: fs.readFileSync(Config.app.ssl.key),
+		cert: fs.readFileSync(Config.app.ssl.cert),
+	};
+
+	server = spdy.createServer(options, app);
+}
+else {
+	const http = require("http");
+	server = http.createServer(app);
+}
 
 app.use(Loggers.http);
 
@@ -99,6 +114,9 @@ app.use(function(err, req, res, next) {
 });
 
 function logAppStarted(port, host, tunnelStarted) {
+	const schema = Config.app.address.isSecure ?
+		"https" :
+		"http";
 	const divider = chalk.gray("\n-----------------------------------");
 
 	// eslint-disable-next-line no-console
@@ -113,8 +131,8 @@ function logAppStarted(port, host, tunnelStarted) {
 	// eslint-disable-next-line no-console
 	console.log(`
 ${chalk.bold("Access URLs:")}${divider}
-Localhost: ${chalk.magenta(`http://${host}:${port}`)}
-      LAN: ${chalk.magenta(`http://${ip.address()}:${port}`) +
+Localhost: ${chalk.magenta(`${schema}://${host}:${port}`)}
+      LAN: ${chalk.magenta(`${schema}://${ip.address()}:${port}`) +
 (tunnelStarted ? `\n    Proxy: ${chalk.magenta(tunnelStarted)}` : "")}${divider}
 ${chalk.blue(`Press ${chalk.italic("CTRL-C")} to stop`)}
     `);
