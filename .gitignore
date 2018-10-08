@@ -6,6 +6,9 @@ node_modules
 stats.json
 .env
 
+*.crt
+*.key
+
 # Cruft
 .DS_Store
 npm-debug.log
