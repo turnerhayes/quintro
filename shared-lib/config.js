@@ -101,7 +101,7 @@ exports = module.exports = {
 		},
 		players: {
 			min: 3,
-			max: 6,
+			max: 8,
 		},
 		colors,
 	},
