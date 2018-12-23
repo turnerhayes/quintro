@@ -60,7 +60,7 @@ describe("DimensionInput component", () => {
 
 			expect(onPlayerLimitChange).toHaveBeenCalledWith({
 				value: "100",
-				error: "100 is greater than the maximum number of players (6)",
+				error: "100 is greater than the maximum number of players (8)",
 			});
 		});
 
