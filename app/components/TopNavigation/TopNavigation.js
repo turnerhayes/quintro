@@ -143,6 +143,7 @@ class TopNavigation extends React.PureComponent {
 					</Button>
 
 					<IconButton
+						key="account popup button"
 						className={this.props.classes.accountButton}
 						onClick={this.onAccountButtonClick}
 					>
@@ -166,6 +167,7 @@ class TopNavigation extends React.PureComponent {
 						/>
 					</Popover>
 					<IconButton
+						key="quick settings button"
 						onClick={this.onQuickSettingsButtonClick}
 					>
 						<SettingsIcon />

@@ -1,17 +1,14 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Map } from "immutable";
 import { shallow, mount } from "enzyme";
 import { MemoryRouter } from "react-router";
 import Loadable from "react-loadable";
-import { intlShape } from "react-intl";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import SettingsIcon from "@material-ui/icons/Settings";
+import SimpleBackdrop from "@material-ui/core/Modal/SimpleBackdrop";
 
 import AccountDialog from "@app/components/AccountDialog";
-import { intl, mockStore } from "@app/utils/test-utils";
+import { intl, mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import { Unwrapped as TopNavigation } from "./TopNavigation";
 
@@ -29,30 +26,22 @@ describe("TopNavigation component", () => {
 			const store = mockStore();
 
 			const wrapper = mount(
-				(
-					<MemoryRouter>
+				wrapWithProviders(
+					(
 						<TopNavigation
 							classes={{}}
 							intl={intl}
 							store={store}
 						/>
-					</MemoryRouter>
-				),
-				{
-					context: {
-						intl,
+					),
+					{
 						store,
-					},
-
-					childContextTypes: {
-						store: PropTypes.object,
-						intl: intlShape,
-					},
-				}
+					}
+				)
 			);
 
 			const iconButton = wrapper.find(IconButton).filterWhere(
-				(button) => button.find(AccountCircleIcon).exists()
+				(button) => button.key() === "account popup button"
 			);
 
 			iconButton.simulate("click");
@@ -64,7 +53,7 @@ describe("TopNavigation component", () => {
 			expect(accountDialog).toExist();
 			expect(accountDialog.closest("Popover")).toHaveProp("open", true);
 
-			wrapper.find("Backdrop").simulate("click");
+			wrapper.find(SimpleBackdrop).simulate("click");
 
 			expect(wrapper.find("AccountDialog").closest("Popover")).toHaveProp("open", false);
 		});
@@ -80,29 +69,21 @@ describe("TopNavigation component", () => {
 			const store = mockStore(Map());
 
 			const wrapper = mount(
-				(
-					<MemoryRouter>
+				wrapWithProviders(
+					(
 						<TopNavigation
 							classes={{}}
 							intl={intl}
 						/>
-					</MemoryRouter>
-				),
-				{
-					context: {
-						intl,
+					),
+					{
 						store,
-					},
-
-					childContextTypes: {
-						store: PropTypes.object,
-						intl: intlShape,
-					},
-				}
+					}
+				)
 			);
 
-			wrapper.find("IconButton").filterWhere(
-				(button) => button.find(SettingsIcon).exists()
+			wrapper.find(IconButton).filterWhere(
+				(button) => button.key() === "quick settings button"
 			).simulate("click");
 
 			const settingsDialog = wrapper.find("QuickSettingsDialog");
@@ -110,7 +91,7 @@ describe("TopNavigation component", () => {
 			expect(settingsDialog).toExist();
 			expect(settingsDialog.closest("Popover")).toHaveProp("open", true);
 
-			wrapper.find("Backdrop").simulate("click");
+			wrapper.find(SimpleBackdrop).simulate("click");
 
 			expect(wrapper.find("QuickSettingsDialog").closest("Popover")).toHaveProp("open", false);
 		});

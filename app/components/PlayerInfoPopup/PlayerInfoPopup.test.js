@@ -3,8 +3,8 @@ import { fromJS } from "immutable";
 import { shallow, mount } from "enzyme";
 import CardHeader from "@material-ui/core/CardHeader";
 import IconButton from "@material-ui/core/IconButton";
+import TextField from "@material-ui/core/TextField";
 import EditIcon from "@material-ui/icons/Edit";
-import CloseIcon from "@material-ui/icons/Close";
 
 import { intl } from "@app/utils/test-utils";
 
@@ -16,7 +16,7 @@ function getEditIconFromShallowWrapper(wrapper) {
 	return wrapper.find(CardHeader)
 		.shallow().dive().find(IconButton)
 		.filterWhere(
-			(button) => button.find(EditIcon).exists()
+			(button) => button.key() === "edit icon"
 		);
 }
 
@@ -147,20 +147,32 @@ describe("PlayerInfoPopup component", () => {
 
 		wrapper.find(IconButton)
 			.filterWhere(
-				(button) => button.find(EditIcon).exists()
-			).simulate("click", {});
+				(button) => button.key() === "edit icon"
+			).simulate("click");
 
 		wrapper.update();
 
-		expect(wrapper.find(EditIcon)).not.toExist();
+		expect(
+			wrapper.find(IconButton)
+				.filterWhere(
+					(button) => button.key() === "edit icon"
+				)
+		).not.toExist();
 
 		expect(wrapper.find("form")).toExist();
 
 		wrapper.find(
-			IconButton).filterWhere((button) => button.find(CloseIcon).exists()
+			IconButton
+		).filterWhere(
+			(button) => button.key() === "close icon"
 		).simulate("click");
 
-		expect(wrapper.find(EditIcon)).toExist();
+		expect(
+			wrapper.find(IconButton)
+				.filterWhere(
+					(button) => button.key() === "edit icon"
+				)
+		).toExist();
 
 		expect(wrapper.find("form")).not.toExist();
 	});
@@ -236,7 +248,7 @@ describe("PlayerInfoPopup component", () => {
 
 		expect(wrapper.find("form")).toExist();
 
-		wrapper.find("TextField[name='name']").simulate("change", { target: { value: testName } });
+		wrapper.find(TextField).filter("[name='name']").simulate("change", { target: { value: testName } });
 
 		wrapper.find("form").simulate("submit", {
 			preventDefault() {},
