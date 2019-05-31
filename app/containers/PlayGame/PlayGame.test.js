@@ -1,7 +1,6 @@
 import React from "react";
 import { fromJS, Set } from "immutable";
-import { shallow, mount } from "enzyme";
-import { intlShape } from "react-intl";
+import { mount } from "enzyme";
 import { goBack } from "connected-react-router";
 import * as immutableMatchers from "jest-immutable-matchers";
 
@@ -17,7 +16,7 @@ import {
 	placeMarble,
 	setUIState,
 } from "@app/actions";
-import { mockStore, intl } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import PlayGame from "./PlayGame";
 
@@ -114,18 +113,18 @@ describe("PlayGame container", () => {
 
 		let store = mockStore(state);
 
-		let wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		let player1State = selectors.games.getPlayers(state, {
 			gameName
@@ -149,18 +148,18 @@ describe("PlayGame container", () => {
 
 		store = mockStore(joinedGameState);
 
-		wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 		
 		player1State = selectors.games.getPlayers(state, {
 			gameName
@@ -189,20 +188,16 @@ describe("PlayGame container", () => {
 		// Need to mount this so that the actual component gets rendered and
 		// runs its lifecycle callbacks
 		mount(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
+				}
+			)
 		);
 
 		expect(store.dispatch).toHaveBeenCalledWith(getGame({ gameName }));
@@ -219,22 +214,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		wrapper.prop("onWatchGame")();
 
@@ -252,22 +243,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		wrapper.prop("onStartGame")();
 
@@ -285,22 +272,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		wrapper.prop("onJoinGame")({});
 
@@ -324,22 +307,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		// eslint-disable-next-line no-magic-numbers
 		const position = fromJS([ 1, 2 ]);
@@ -366,22 +345,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		wrapper.prop("onCancelJoin")();
 
@@ -399,22 +374,18 @@ describe("PlayGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayGame
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
-					intl,
-				},
-				childContextTypes: {
-					intl: intlShape,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayGame");
 
 		// eslint-disable-next-line no-magic-numbers
 		wrapper.prop("onZoomLevelChange")(1.4);

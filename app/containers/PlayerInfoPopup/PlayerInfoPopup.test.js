@@ -1,6 +1,6 @@
 import React from "react";
 import { fromJS } from "immutable";
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";
@@ -11,7 +11,7 @@ import {
 import {
 	fetchedGame,
 } from "@app/actions";
-import { mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import PlayerInfoPopup from "./PlayerInfoPopup";
 
@@ -54,19 +54,19 @@ describe("PlayerInfoPopup container", () => {
 
 		const store = mockStore(state);
 
-		const wrapper = shallow(
-			(
-				<PlayerInfoPopup
-					player={player}
-					game={selectors.games.getGame(state, { gameName: game.get("name") })}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayerInfoPopup
+						player={player}
+						game={selectors.games.getGame(state, { gameName: game.get("name") })}
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("PlayerInfoPopup");
 
 		expect(wrapper.prop("playerUser")).toEqualImmutable(user);
 		expect(wrapper.prop("onDisplayNameChange")).toEqual(expect.any(Function));
@@ -108,19 +108,19 @@ describe("PlayerInfoPopup container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<PlayerInfoPopup
-					player={player}
-					game={selectors.games.getGame(state, { gameName: game.get("name") })}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayerInfoPopup
+						player={player}
+						game={selectors.games.getGame(state, { gameName: game.get("name") })}
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("PlayerInfoPopup");
 
 		const displayName = "Test Guy";
 

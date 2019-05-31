@@ -129,7 +129,7 @@ class UserGamesList extends React.PureComponent {
 				<Tabs
 					key="tabs"
 					value={selectedTabIndex}
-					fullWidth
+					// fullWidth
 					onChange={this.handleTabChange}
 				>
 					{

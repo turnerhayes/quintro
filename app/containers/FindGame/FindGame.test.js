@@ -1,11 +1,11 @@
 import React from "react";
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 import { fromJS } from "immutable";
 import { push } from "connected-react-router";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";
-import { mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 import {
 	findOpenGames,
 	setFindOpenGamesResults,
@@ -50,17 +50,17 @@ describe("FindGame container", () => {
 
 		let store = mockStore(state);
 
-		let wrapper = shallow(
-			(
-				<FindGame
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<FindGame
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("FindGame");
 
 		expect(wrapper.prop("results")).toEqualImmutable(results);
 		expect(wrapper).toHaveProp("findGameError", undefined);
@@ -82,17 +82,17 @@ describe("FindGame container", () => {
 			]
 		));
 
-		wrapper = shallow(
-			(
-				<FindGame
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<FindGame
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("FindGame");
 
 		expect(wrapper).toHaveProp("results", undefined);
 		expect(wrapper).toHaveProp("findGameError", error);
@@ -101,17 +101,17 @@ describe("FindGame container", () => {
 
 		store = mockStore(reducer(undefined, {}));
 
-		wrapper = shallow(
-			(
-				<FindGame
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<FindGame
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("FindGame");
 
 		expect(wrapper).toHaveProp("results", undefined);
 		expect(wrapper).toHaveProp("findGameError", undefined);
@@ -126,17 +126,17 @@ describe("FindGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		let wrapper = shallow(
-			(
-				<FindGame
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<FindGame
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("FindGame");
 
 		wrapper.prop("onFindOpenGames")({
 			numberOfPlayers: undefined,
@@ -166,17 +166,17 @@ describe("FindGame container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<FindGame
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<FindGame
+					/>
+				),
+				{
 					store,
-				},
-			}
-		);
+				}
+			)
+		).find("FindGame");
 
 		const gameName = "test";
 

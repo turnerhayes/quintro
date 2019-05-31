@@ -206,18 +206,18 @@ describe("UserGamesList component", () => {
 
 		let tabLabel = formatMessage(messages.tabs.inProgress);
 
-		expect(wrapper.find(`Tab[label="${tabLabel}"]`)).toExist();
+		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
 
 		tabLabel = formatMessage(messages.tabs.finished);
 
-		expect(wrapper.find(`Tab[label="${tabLabel}"]`)).toExist();
+		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
 		// Switch to finished games tab
-		wrapper.find(`Tab[label="${tabLabel}"]`).simulate("click");
+		wrapper.find(Tab).filter(`[label="${tabLabel}"]`).simulate("click");
 
-		expect(wrapper.find("ListItemText")).toHaveLength(1);
-		expect(wrapper.find("ListItemText")).toHaveText(game2.get("name"));
+		expect(wrapper.find(ListItemText)).toHaveLength(1);
+		expect(wrapper.find(ListItemText)).toHaveText(game2.get("name"));
 	});
 
 	it("should render null if the games have not yet loaded", () => {
