@@ -21,7 +21,7 @@
     "express-session": "^1.15.3",
     "immutable": "^3.8.2",
     "log4js": "^0.6.26",
-    "morgan": "^1.6.1",
+    "morgan": "^1.9.1",
     "socket.io": "^2.0.2",
     "spdy": "^3.4.7"
   },
