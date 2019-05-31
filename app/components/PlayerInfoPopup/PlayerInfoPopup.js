@@ -145,6 +145,7 @@ class PlayerInfoPopup extends React.PureComponent {
 									<CheckIcon />
 								</IconButton>
 								<IconButton
+									key="close icon"
 									onClick={this.makeFormHidden}
 									title={cancelButtonTitle}
 									aria-label={cancelButtonTitle}
@@ -206,6 +207,7 @@ class PlayerInfoPopup extends React.PureComponent {
 								this.props.playerUser.get("isAnonymous") &&
 								this.props.playerUser.get("isMe") && (
 									<IconButton
+										key="edit icon"
 										title={showFormButtonTitle}
 										aria-label={showFormButtonTitle}
 										onClick={this.makeFormVisible}

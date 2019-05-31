@@ -9,7 +9,7 @@ const HTTPS_DEFAULT_PORT = 443;
 
 const PORT = Number(process.env.PORT) || DEFAULT_PORT;
 
-const HOST = process.env.APP_ADDRESS_HOST;
+const HOST = process.env.APP_ADDRESS_HOST || "localhost";
 const EXTERNAL_PORT = Number(process.env.APP_ADDRESS_EXTERNAL_PORT) || PORT;
 
 const IS_SECURE = process.env.APP_ADDRESS_IS_SECURE ||

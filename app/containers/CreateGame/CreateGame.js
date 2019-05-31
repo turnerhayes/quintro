@@ -1,15 +1,53 @@
-import { compose } from "redux";
-import { connect } from "react-redux";
-import CreateGame  from "@app/components/CreateGame";
-import injectSaga  from "@app/utils/injectSaga";
+import { compose }     from "redux";
+import { connect }     from "react-redux";
+import injectSaga      from "@app/utils/injectSaga";
+
 import {
 	createGame,
-}                  from "@app/actions";
-import saga        from "./saga";
+	setUIState,
+}                      from "@app/actions";
+import selectors       from "@app/selectors";
+import LocationHandler from "./LocationHandler";
+import saga            from "./saga";
+
+export const SECTION_NAME = "CreateGame";
 
 const withRedux = connect(
-	null,
-	function mapDispatchToProps(dispatch) {
+	function mapStateToProps(state) {
+		const propValues = [
+			"width",
+			"height",
+			"playerLimit",
+			"keepRatio",
+			"widthError",
+			"heightError",
+			"playerLimitError",
+			"location",
+		].reduce(
+			(values, settingName) => {
+				values[settingName] = selectors.ui.getSetting(
+					state,
+					{
+						section: SECTION_NAME,
+						settingName,
+					}
+				);
+
+				return values;
+			},
+			{}
+		);
+
+		const storedLocation = propValues.location;
+
+		delete propValues.location;
+		
+		return {
+			...propValues,
+			storedLocation,
+		};
+	},
+	function mapDispatchToProps(dispatch, ) {
 		return {
 			onCreateGame({
 				width,
@@ -22,6 +60,64 @@ const withRedux = connect(
 					playerLimit,
 				}));
 			},
+
+			onWidthChange({ value, error }) {
+				dispatch(
+					setUIState({
+						section: SECTION_NAME,
+						settings: {
+							width: value,
+							widthError: error,
+						},
+					})
+				);
+			},
+
+			onHeightChange({ value, error }) {
+				dispatch(
+					setUIState({
+						section: SECTION_NAME,
+						settings: {
+							height: value,
+							heightError: error,
+						},
+					})
+				);
+			},
+
+			onPlayerLimitChange({ value, error }) {
+				dispatch(
+					setUIState({
+						section: SECTION_NAME,
+						settings: {
+							playerLimit: value,
+							playerLimitError: error,
+						},
+					})
+				);
+			},
+
+			onToggleKeepRatio({ currentValue }) {
+				dispatch(
+					setUIState({
+						section: SECTION_NAME,
+						settings: {
+							keepRatio: !currentValue,
+						},
+					})
+				);
+			},
+
+			updateSearchString({ searchString }) {
+				dispatch(
+					setUIState({
+						section: SECTION_NAME,
+						settings: {
+							searchString,
+						},
+					})
+				);
+			}
 		};
 	}
 );
@@ -31,7 +127,7 @@ const withSaga = injectSaga({ key: "CreateGameContainer", saga });
 const CreateGameContainer = compose(
 	withSaga,
 	withRedux,
-)(CreateGame);
+)(LocationHandler);
 
 CreateGameContainer.displayName = "CreateGameContainer";
 

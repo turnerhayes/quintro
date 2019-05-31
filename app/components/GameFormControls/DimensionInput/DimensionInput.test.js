@@ -7,6 +7,8 @@ import { intl } from "@app/utils/test-utils";
 
 import { Unwrapped as DimensionInput } from "./DimensionInput";
 
+const NO_OP = () => {};
+
 describe("DimensionInput component", () => {
 	describe("validation", () => {
 		it("should throw an error if the width is changed to be too small", () => {
@@ -20,6 +22,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onWidthChange={onWidthChange}
+						onHeightChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -49,6 +53,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onWidthChange={onWidthChange}
+						onHeightChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -78,6 +84,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onHeightChange={onHeightChange}
+						onWidthChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -107,6 +115,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onHeightChange={onHeightChange}
+						onWidthChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -136,6 +146,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onHeightChange={onHeightChange}
+						onWidthChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -165,6 +177,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onWidthChange={onWidthChange}
+						onHeightChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -194,6 +208,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onHeightChange={onHeightChange}
+						onWidthChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -223,6 +239,8 @@ describe("DimensionInput component", () => {
 						classes={{}}
 						intl={intl}
 						onHeightChange={onHeightChange}
+						onWidthChange={NO_OP}
+						onToggleKeepRatio={NO_OP}
 					/>
 				)
 			);
@@ -245,6 +263,8 @@ describe("DimensionInput component", () => {
 					classes={{}}
 					intl={intl}
 					onToggleKeepRatio={onToggleKeepRatio}
+					onWidthChange={NO_OP}
+					onHeightChange={NO_OP}
 				/>
 			)
 		);

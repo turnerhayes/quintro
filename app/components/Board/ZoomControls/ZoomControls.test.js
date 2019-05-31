@@ -1,6 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import IconButton from "@material-ui/core/IconButton";
+import TextField from "@material-ui/core/TextField";
 import ZoomOutIcon from "@material-ui/icons/ZoomOut";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 
@@ -20,7 +21,7 @@ describe("ZoomControls component", () => {
 
 		const zoomLevel = 2.3;
 
-		wrapper.find("TextField").simulate("change", { target: { valueAsNumber: zoomLevel }});
+		wrapper.find(TextField).simulate("change", { target: { valueAsNumber: zoomLevel }});
 
 		expect(onZoomLevelChange).toHaveBeenCalledWith(zoomLevel);
 	});
@@ -81,7 +82,7 @@ describe("ZoomControls component", () => {
 			/>
 		);
 
-		wrapper.find("TextField").simulate(
+		wrapper.find(TextField).simulate(
 			"change",
 			{
 				target: {
@@ -109,7 +110,7 @@ describe("ZoomControls component", () => {
 			/>
 		);
 
-		wrapper.find("TextField").simulate(
+		wrapper.find(TextField).simulate(
 			"change",
 			{
 				target: {

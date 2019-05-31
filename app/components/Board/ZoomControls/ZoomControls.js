@@ -41,7 +41,12 @@ class ZoomControls extends React.PureComponent {
 
 		// istanbul ignore else
 		if (!Number.isNaN(value)) {
-			value = Number(value.toFixed(1));
+			const digitsToRight = Math.floor(Math.log10(this.props.stepSize));
+
+			const roundFactor = digitsToRight < 0 ?
+				-1 * digitsToRight :
+				0;
+			value = Number(value.toFixed(roundFactor));
 		}
 
 		// istanbul ignore else

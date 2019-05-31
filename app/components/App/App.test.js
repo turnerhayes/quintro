@@ -1,16 +1,13 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { fromJS } from "immutable";
 import { mount } from "enzyme";
-import { MemoryRouter } from "react-router";
-import { intlShape } from "react-intl";
 import fetchMock from "fetch-mock";
 import Loadable from "react-loadable";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import BoardRecord from "@shared-lib/board";
 
-import { intl, mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import App from "./index";
 
@@ -37,25 +34,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/" ],
+				}
+			)
 		);
 
 		expect(wrapper.find("HomePage")).toExist();
@@ -72,25 +60,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/" ],
+				}
+			)
 		);
 
 		expect(wrapper.find(".page-layout__left-panel").find("UserGamesList")).toExist();
@@ -122,25 +101,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ `/play/${gameName}` ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ `/play/${gameName}` ],
+				}
+			)
 		);
 
 		const component = wrapper.find("PlayGame");
@@ -161,25 +131,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/game/create" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/game/create" ],
+				}
+			)
 		);
 
 		expect(wrapper.find("CreateGame")).toExist();
@@ -196,25 +157,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/game/find" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/game/find" ],
+				}
+			)
 		);
 
 		expect(wrapper.find("FindGame")).toExist();
@@ -231,25 +183,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/how-to-play" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/how-to-play" ],
+				}
+			)
 		);
 
 		expect(wrapper.find("HowToPlay")).toExist();
@@ -266,25 +209,16 @@ describe("App component", () => {
 		});
 
 		const wrapper = mount(
-			(
-				<MemoryRouter
-					initialEntries={[ "/this-is-not-a-real-route-dude" ]}
-				>
+			wrapWithProviders(
+				(
 					<App
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store: mockStore(initialState),
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+					initialEntries: [ "/this-is-not-a-real-route-dude" ],
+				}
+			)
 		);
 
 		expect(wrapper.find("NotFoundPage")).toExist();

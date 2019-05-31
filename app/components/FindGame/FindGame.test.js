@@ -2,8 +2,13 @@ import React from "react";
 import { shallow } from "enzyme";
 import { fromJS } from "immutable";
 import sinon from "sinon";
-import { Unwrapped as FindGame } from "./FindGame";
-import { SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS } from "./FindGame";
+import TextField from "@material-ui/core/TextField";
+
+import {
+	Unwrapped as FindGame,
+	SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS,
+} from "./FindGame";
+
 import { intl } from "@app/utils/test-utils";
 
 const NO_OP = () => {};
@@ -31,7 +36,7 @@ describe("FindGame component", () => {
 			/>
 		);
 
-		expect(wrapper.find("TextField[name='playerLimit']")).toExist();
+		expect(wrapper.find(TextField).filter("[name='playerLimit']")).toExist();
 	});
 
 	it("should call onFindOpenGames handler with null numberOfPlayers when no player limit is specified", () => {
@@ -63,7 +68,7 @@ describe("FindGame component", () => {
 			/>
 		);
 
-		wrapper.find("TextField[name='playerLimit']").simulate(
+		wrapper.find(TextField).filter("[name='playerLimit']").simulate(
 			"change",
 			{
 				target: {

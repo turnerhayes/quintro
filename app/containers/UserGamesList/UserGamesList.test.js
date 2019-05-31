@@ -1,6 +1,6 @@
 import React from "react";
 import { List, Map, fromJS } from "immutable";
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import createReducer from "@app/reducers";
@@ -9,7 +9,7 @@ import {
 	fetchedGame,
 	getUserGames,
 } from "@app/actions";
-import { mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import UserGamesList from "./UserGamesList";
 
@@ -31,17 +31,17 @@ describe("UserGamesList container", () => {
 
 		let store = mockStore(state);
 
-		let wrapper = shallow(
-			(
-				<UserGamesList
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<UserGamesList
+					/>
+				),
+				{
 					store,
-				},
-			},
-		).dive();
+				}
+			)
+		).find("UserGamesList");
 
 		expect(wrapper).toHaveProp("userGames", List());
 		expect(wrapper).toHaveProp("users", Map());
@@ -113,17 +113,17 @@ describe("UserGamesList container", () => {
 
 		store = mockStore(state);
 
-		wrapper = shallow(
-			(
-				<UserGamesList
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<UserGamesList
+					/>
+				),
+				{
 					store,
-				},
-			},
-		).dive();
+				}
+			)
+		).find("UserGamesList");
 
 		const stateGame2 = selectors.games.getGame(state, { gameName: game2.get("name") });
 
@@ -150,17 +150,17 @@ describe("UserGamesList container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		const wrapper = shallow(
-			(
-				<UserGamesList
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<UserGamesList
+					/>
+				),
+				{
 					store,
-				},
-			},
-		).dive();
+				}
+			)
+		).find("UserGamesList");
 
 		wrapper.prop("onGetUserGames")();
 
