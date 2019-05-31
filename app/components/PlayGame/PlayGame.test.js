@@ -1,18 +1,15 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { fromJS, Map, Set } from "immutable";
 import { shallow, mount } from "enzyme";
-import { intlShape } from "react-intl";
-import { MemoryRouter } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import Badge from "@material-ui/core/Badge";
 import TextField from "@material-ui/core/TextField";
 import Popover from "@material-ui/core/Popover";
-import Backdrop from "@material-ui/core/Backdrop";
+import SimpleBackdrop from "@material-ui/core/Modal/SimpleBackdrop";
 
 import BoardRecord from "@shared-lib/board";
 
-import { intl, mockStore } from "@app/utils/test-utils";
+import { intl, mockStore, wrapWithProviders } from "@app/utils/test-utils";
 import createReducer from "@app/reducers";
 import selectors from "@app/selectors";
 import { fetchedGame, addPlayers, gameStarted, setMarble } from "@app/actions";
@@ -24,7 +21,7 @@ import PlayerIndicators from "@app/components/PlayerIndicators";
 import { Unwrapped as PlayGame } from "./PlayGame";
 import StartGameOverlay from "./StartGameOverlay";
 import WinnerBanner from "./WinnerBanner";
-import AddPlayerButton from "@app/components/AddPlayerButton";
+// import AddPlayerButton from "@app/components/AddPlayerButton";
 
 const NO_OP = () => {};
 
@@ -114,46 +111,75 @@ describe("PlayGame component", () => {
 	});
 
 	it("should call onStartGame when the start button is clicked", () => {
-		const gameWithPlayers = game.set(
-			"players",
-			fromJS([
-				{
-					color: "blue",
-					userID: "1",
-				},
-				{
-					color: "red",
-					userID: "2",
-				},
-				{
-					color: "green",
-					userID: "3",
-				},
-			])
+		const reducer = createReducer();
+		
+		const state = reducer(undefined, fetchedGame({
+			game: game.set(
+				"players",
+				fromJS([
+					{
+						color: "blue",
+						user: {
+							id: "1",
+						},
+					},
+					{
+						color: "red",
+						user: {
+							id: "2",
+						},
+					},
+					{
+						color: "green",
+						user: {
+							id: "3",
+						},
+					},
+				])
+			),
+		}));
+
+		const gameWithPlayers = selectors.games.getGame(
+			state,
+			{
+				gameName: game.get("name"),
+			}
 		);
 
-		const playerUsers = fromJS({
-			1: {},
-			2: {},
-			3: {},
-		});
+		const playerUsers = selectors.games.getPlayerUsers(
+			state,
+			{
+				gameName: game.get("name"),
+			}
+		);
+
+		const store = mockStore(state);
 
 		const onStartGame = jest.fn();
 
-		const wrapper = shallow(
-			<PlayGame
-				{...getProps({
-					game: gameWithPlayers,
-					gameName: name,
-					onStartGame,
-					playerUsers,
-				})}
-			/>
-		).find(StartGameOverlay).shallow();
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<PlayGame
+						{...getProps({
+							game: gameWithPlayers,
+							gameName: name,
+							onStartGame,
+							playerUsers,
+						})}
+					/>
+				),
+				{
+					store,
+				}
+			)
+		).find("StartGameOverlay");
 
 		const classes = wrapper.prop("classes");
 
-		const startButton = wrapper.shallow().findWhere((el) => el.is(Button) && el.hasClass(classes.startButton));
+		const startButton = wrapper.findWhere(
+			(el) => el.is(Button) && el.hasClass(classes.startButton)
+		);
 
 		expect(startButton).not.toBeDisabled();
 
@@ -219,26 +245,37 @@ describe("PlayGame component", () => {
 					gameName: name,
 				}
 			);
+
+			const playerUsers = selectors.games.getPlayerUsers(
+				stateWithPlayer,
+				{
+					gameName: name,
+				}
+			);
 			
 			const store = mockStore(stateWithPlayer);
 
 			const onPlaceMarble = jest.fn();
 
-			const wrapper = shallow(
-				<PlayGame
-					{...getProps({
-						game,
-						gameName: name,
-						onPlaceMarble,
-						hasJoinedGame: true,
-						currentUserPlayers,
-					})}
-				/>
-			).find("BoardContainer").shallow({
-				context: {
-					store,
-				},
-			}).shallow().shallow();
+			const wrapper = mount(
+				wrapWithProviders(
+					(
+						<PlayGame
+							{...getProps({
+								game,
+								gameName: name,
+								onPlaceMarble,
+								hasJoinedGame: true,
+								currentUserPlayers,
+								playerUsers,
+							})}
+						/>
+					),
+					{
+						store,
+					}
+				)
+			).find("BoardContainer");
 
 			const firstCell = wrapper.find(Cell).first();
 
@@ -273,20 +310,23 @@ describe("PlayGame component", () => {
 
 			const onPlaceMarble = jest.fn();
 
-			const wrapper = shallow(
-				<PlayGame
-					{...getProps({
-						game,
-						gameName: name,
-						onPlaceMarble,
-						hasJoinedGame: true
-					})}
-				/>
-			).find("BoardContainer").shallow({
-				context: {
-					store,
-				},
-			}).shallow().shallow();
+			const wrapper = mount(
+				wrapWithProviders(
+					(
+						<PlayGame
+							{...getProps({
+								game,
+								gameName: name,
+								onPlaceMarble,
+								hasJoinedGame: true
+							})}
+						/>
+					),
+					{
+						store,
+					}
+				)
+			).find("BoardContainer");
 
 
 			const firstCell = wrapper.find(Cell).first();
@@ -349,24 +389,40 @@ describe("PlayGame component", () => {
 
 			const onPlaceMarble = jest.fn();
 
-			const currentUserPlayers = selectors.games.getCurrentUserPlayers(newState, { gameName: game.get("name") });
+			const currentUserPlayers = selectors.games.getCurrentUserPlayers(
+				newState,
+				{
+					gameName: game.get("name"),
+				}
+			);
 
-			const wrapper = shallow(
-				<PlayGame
-					{...getProps({
-						game: modifiedGame,
-						gameName: name,
-						onPlaceMarble,
-						hasJoinedGame: true,
-						currentUserPlayers,
-						isInGame: true,
-					})}
-				/>
-			).find("BoardContainer").shallow({
-				context: {
-					store,
-				},
-			}).shallow().shallow();
+			const playerUsers = selectors.games.getPlayerUsers(
+				newState,
+				{
+					gameName: game.get("name"),
+				}
+			);
+
+			const wrapper = mount(
+				wrapWithProviders(
+					(
+						<PlayGame
+							{...getProps({
+								game: modifiedGame,
+								gameName: name,
+								onPlaceMarble,
+								hasJoinedGame: true,
+								currentUserPlayers,
+								playerUsers,
+								isInGame: true,
+							})}
+						/>
+					),
+					{
+						store,
+					}
+				)
+			).find("BoardContainer");
 
 
 			const firstCell = wrapper.find(Cell).first();
@@ -798,8 +854,8 @@ describe("PlayGame component", () => {
 			// Can't use shallow() because we need access to the Backdrop component, and
 			// shallow() rendering doesn't seem to provide access to components in a Portal.
 			const wrapper = mount(
-				(
-					<MemoryRouter>
+				wrapWithProviders(
+					(
 						<PlayGame
 							{...getProps({
 								game,
@@ -808,19 +864,11 @@ describe("PlayGame component", () => {
 								isInGame: true,
 							})}
 						/>
-					</MemoryRouter>
-				),
-				{
-					context: {
-						intl,
-						store,
-					},
-	
-					childContextTypes: {
-						intl: intlShape,
-						store: PropTypes.object,
-					},
-				}
+					),
+					{
+						store, 
+					}
+				)
 			);
 	
 			const playerIndicators = wrapper.find("PlayerIndicators");
@@ -828,17 +876,16 @@ describe("PlayGame component", () => {
 			const indicatorClasses = playerIndicators.prop("classes");
 	
 			const firstIndicator = playerIndicators.find(`.${indicatorClasses.item}`).first();
-	
-			firstIndicator.simulate("click", {
-				target: firstIndicator.getDOMNode(),
-			});
 			
+			firstIndicator.simulate("click");
+
 			let popover = wrapper.find(Popover).findWhere(
 				(el) => el.key() === "player indicator popover"
 			);
-	
+
 			expect(popover).toHaveProp("open", true);
-			wrapper.find(Backdrop).simulate("click");
+
+			wrapper.find(SimpleBackdrop).simulate("click");
 
 			popover = wrapper.find(Popover).findWhere(
 				(el) => el.key() === "player indicator popover"
@@ -880,35 +927,32 @@ describe("PlayGame component", () => {
 			const reducer = createReducer();
 	
 			const state = actions.reduce(reducer, undefined);
+
+			const store = mockStore(state);
 			
 			const playerUsers = selectors.games.getPlayerUsers(state, { gameName });
 	
-			const wrapper = shallow(
-				(
-					<PlayGame
-						{...getProps({
-							game: selectors.games.getGame(state, { gameName }),
-							gameName,
-							playerUsers,
-							onJoinGame,
-						})}
-					/>
-				),
+			const wrapper = mount(
+				wrapWithProviders(
+					(
+						<PlayGame
+							{...getProps({
+								game: selectors.games.getGame(state, { gameName }),
+								gameName,
+								playerUsers,
+								onJoinGame,
+							})}
+						/>
+					),
+					{
+						store,
+					}
+				)
 			);
 				
-			const addPlayerButton = wrapper.find(AddPlayerButton).shallow(
-				{
-					context: {
-						intl,
-					},
+			const addPlayerButton = wrapper.find("AddPlayerButton");
 
-					childContextTypes: {
-						intl: intlShape,
-					},
-				}
-			).dive();
-
-			const color = addPlayerButton.dive().state("color");
+			const color = addPlayerButton.state("color");
 
 			addPlayerButton.prop("onAdd")({
 				color,

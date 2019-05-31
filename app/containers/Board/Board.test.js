@@ -1,11 +1,11 @@
 import React from "react";
 import { fromJS, Set } from "immutable";
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 import * as immutableMatchers from "jest-immutable-matchers";
 
 import BoardRecord from "@shared-lib/board";
 import Quintro from "@shared-lib/quintro";
-import { mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 import {
 	fetchedGame,
 } from "@app/actions";
@@ -52,18 +52,18 @@ describe("Board container", () => {
 		const state = reducer(undefined, fetchedGame({ game }));
 		const store = mockStore(state);
 
-		const wrapper = shallow(
-			(
-				<BoardContainer
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<BoardContainer
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
 				}
-			}
-		);
+			)
+		).find("Board");
 
 		expect(wrapper).toHaveProp("gameIsOver", false);
 		expect(wrapper).toHaveProp("quintros", undefined);
@@ -124,18 +124,18 @@ describe("Board container", () => {
 		const state = reducer(undefined, fetchedGame({ game }));
 		const store = mockStore(state);
 
-		const wrapper = shallow(
-			(
-				<BoardContainer
-					gameName={gameName}
-				/>
-			),
-			{
-				context: {
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<BoardContainer
+						gameName={gameName}
+					/>
+				),
+				{
 					store,
 				}
-			}
-		);
+			)
+		).find("Board");
 
 		expect(wrapper.prop("quintros")).toEqualImmutable(Set.of(
 			new Quintro({

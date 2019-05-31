@@ -17,13 +17,12 @@ export default function createReducer({
 	injectedReducers,
 	history = createHistory(),
 } = {}) {
-	return connectRouter(history)(
-		combineReducers({
-			users: usersReducer,
-			games: gamesReducer,
-			settings: settingsReducer,
-			ui: uiReducer,
-			...injectedReducers,
-		})
-	);
+	return combineReducers({
+		router: connectRouter(history),
+		users: usersReducer,
+		games: gamesReducer,
+		settings: settingsReducer,
+		ui: uiReducer,
+		...injectedReducers,
+	});
 }

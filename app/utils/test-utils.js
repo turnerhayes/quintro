@@ -2,6 +2,8 @@ import React from "react";
 import { IntlProvider } from "react-intl";
 import configureStore from "redux-mock-store";
 import { runSaga as realRunSaga } from "redux-saga";
+import { Provider } from "react-redux";
+import { MemoryRouter } from "react-router";
 
 import { translationMessages } from "@app/i18n";
 
@@ -33,6 +35,34 @@ export const mockStore = (initialState, ...args) => {
 
 	return store;
 };
+
+export function wrapWithProviders(
+	children,
+	{
+		store = mockStore(),
+		locale = "en",
+		initialEntries,
+		initialIndex,
+	} = {}
+) {
+
+	return (
+		<Provider store={store}>
+			<IntlProvider
+				locale={locale}
+				messages={translationMessages[locale]}
+				textComponent={React.Fragment}
+			>
+				<MemoryRouter
+					initialEntries={initialEntries}
+					initialIndex={initialIndex}
+				>
+					{children}
+				</MemoryRouter>
+			</IntlProvider>
+		</Provider>
+	);
+}
 
 export async function runSaga({
 	state,
