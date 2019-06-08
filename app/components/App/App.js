@@ -13,6 +13,8 @@ import UserGamesList                from "@app/containers/UserGamesList";
 import TopNavigation                from "@app/containers/TopNavigation";
 import Sandbox                      from "@app/containers/Sandbox";
 
+import "./app.css";
+
 const styles = {
 	mainContainer: {
 		display: "flex",
@@ -27,14 +29,14 @@ const styles = {
 	mainContentContainer: {
 		display: "flex",
 		flexDirection: "row",
-		flex: 1,
+		flex: "1 1 auto",
 		overflow: "auto",
 	},
 	
 	mainContent: {
 		flex: 1,
 		order: 1,
-		height: "100%",
+		overflow: "hidden",
 	},
 	
 	leftPanel: {

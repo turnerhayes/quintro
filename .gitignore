@@ -6,6 +6,10 @@ node_modules
 stats.json
 .env
 
+# local SSH credentials
+*.crt
+*.key
+
 # Cruft
 .DS_Store
 npm-debug.log

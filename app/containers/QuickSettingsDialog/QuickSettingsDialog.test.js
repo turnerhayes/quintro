@@ -1,11 +1,11 @@
 import React from "react";
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 
 import createReducer from "@app/reducers";
 import {
 	changeSetting,
 } from "@app/actions";
-import { mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import QuickSettingsDialog from "./QuickSettingsDialog";
 
@@ -17,17 +17,17 @@ describe("QuickSettingsDialog container", () => {
 
 		let store =  mockStore(state);
 
-		let wrapper = shallow(
-			(
-				<QuickSettingsDialog
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<QuickSettingsDialog
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("QuickSettingsDialog");
 
 		expect(wrapper).toHaveProp("enableSoundEffects", false);
 		expect(wrapper).toHaveProp("enableNotifications", false);
@@ -44,17 +44,17 @@ describe("QuickSettingsDialog container", () => {
 
 		store = mockStore(state);
 
-		wrapper = shallow(
-			(
-				<QuickSettingsDialog
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<QuickSettingsDialog
+					/>
+				),
+				{
 					store,
 				},
-			},
-		);
+			)
+		).find("QuickSettingsDialog");
 
 		expect(wrapper).toHaveProp("enableSoundEffects", true);
 		expect(wrapper).toHaveProp("enableNotifications", false);
@@ -69,17 +69,17 @@ describe("QuickSettingsDialog container", () => {
 
 		store = mockStore(state);
 
-		wrapper = shallow(
-			(
-				<QuickSettingsDialog
-				/>
-			),
-			{
-				context: {
+		wrapper = mount(
+			wrapWithProviders(
+				(
+					<QuickSettingsDialog
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("QuickSettingsDialog");
 
 		expect(wrapper).toHaveProp("enableSoundEffects", false);
 		expect(wrapper).toHaveProp("enableNotifications", true);
@@ -96,17 +96,17 @@ describe("QuickSettingsDialog container", () => {
 
 		jest.spyOn(store, "dispatch");
 
-		let wrapper = shallow(
-			(
-				<QuickSettingsDialog
-				/>
-			),
-			{
-				context: {
+		let wrapper = mount(
+			wrapWithProviders(
+				(
+					<QuickSettingsDialog
+					/>
+				),
+				{
 					store,
-				},
-			},
-		);
+				}
+			)
+		).find("QuickSettingsDialog");
 
 		wrapper.prop("onChangeSetting")({
 			enableSoundEffects: true,

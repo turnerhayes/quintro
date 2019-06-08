@@ -1,15 +1,13 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { fromJS } from "immutable";
-import { shallow, mount } from "enzyme";
+import { mount } from "enzyme";
 import * as immutableMatchers from "jest-immutable-matchers";
-import { MemoryRouter } from "react-router";
-import { intlShape } from "react-intl";
 import Icon from "@material-ui/core/Icon";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 
 import { LOGOUT, LOGIN } from "@app/actions";
-import { intl, mockStore } from "@app/utils/test-utils";
+import { mockStore, wrapWithProviders } from "@app/utils/test-utils";
 
 import AccountDialog from "./AccountDialog";
 
@@ -22,6 +20,7 @@ describe("AccountDialog container", () => {
 		const user = fromJS({
 			id: "1",
 			isMe: true,
+			provider: "facebook",
 		});
 
 		const store = mockStore(fromJS({
@@ -33,20 +32,19 @@ describe("AccountDialog container", () => {
 			},
 		}));
 
-		const wrapper = shallow(
-			(
-				<AccountDialog
-				/>
-			),
-			{
-				context: {
-					intl,
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<AccountDialog
+					/>
+				),
+				{
 					store,
-				},
-			}
+				}
+			)
 		);
 
-		expect(wrapper.dive().dive().prop("loggedInUser")).toEqualImmutable(user);
+		expect(wrapper.find("AccountDialog").prop("loggedInUser")).toEqualImmutable(user);
 	});
 
 	it("should pass undefined for the logged in user if user is not logged in", () => {
@@ -55,20 +53,19 @@ describe("AccountDialog container", () => {
 			},
 		}));
 
-		const wrapper = shallow(
-			(
-				<AccountDialog
-				/>
-			),
-			{
-				context: {
-					intl,
+		const wrapper = mount(
+			wrapWithProviders(
+				(
+					<AccountDialog
+					/>
+				),
+				{
 					store,
-				},
-			}
+				}
+			)
 		);
 
-		expect(wrapper.dive().prop("loggedInUser")).toBeUndefined();
+		expect(wrapper.find("AccountDialog").prop("loggedInUser")).toBeUndefined();
 	});
 
 	it("should dispatch a logout action", () => {
@@ -90,23 +87,15 @@ describe("AccountDialog container", () => {
 		store.dispatch = jest.fn();
 
 		const wrapper = mount(
-			(
-				<MemoryRouter>
+			wrapWithProviders(
+				(
 					<AccountDialog
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store,
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+				}
+			)
 		);
 
 		const logoutButton = wrapper.find(Button).filterWhere(
@@ -132,29 +121,21 @@ describe("AccountDialog container", () => {
 		store.dispatch = jest.fn();
 
 		const wrapper = mount(
-			(
-				<MemoryRouter>
+			wrapWithProviders(
+				(
 					<AccountDialog
 						enabledProviders={[ "facebook" ]}
 					/>
-				</MemoryRouter>
-			),
-			{
-				context: {
-					intl,
+				),
+				{
 					store,
-				},
-
-				childContextTypes: {
-					intl: intlShape,
-					store: PropTypes.object,
-				},
-			}
+				}
+			)
 		);
 
 		const classes = wrapper.find("AccountDialog").prop("classes");
-
-		const loginButton = wrapper.find(`IconButton.${classes.loginLink}`).first();
+		
+		const loginButton = wrapper.find(IconButton).filter(`.${classes.loginLink}`).first();
 
 		loginButton.simulate("click");
 

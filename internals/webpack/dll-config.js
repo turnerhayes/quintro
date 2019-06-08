@@ -31,6 +31,7 @@ exports = module.exports = {
 		// Lodash is pretty big and few parts of it are used. Exclude it so that we don't need to
 		// download the entire thing whenever we request the dll.
 		"lodash",
+		"spdy",
 	],
 	include: [
 		"core-js",

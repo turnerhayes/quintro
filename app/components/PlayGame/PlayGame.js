@@ -31,6 +31,8 @@ const styles = {
 		margin: "1em",
 		display: "flex",
 		flexDirection: "column",
+		width: "100%",
+		height: "100%",
 	},
 
 	gameControls: {
@@ -51,6 +53,11 @@ const styles = {
 
 	zoomControls: {
 		marginLeft: "auto",
+	},
+
+	gameArea: {
+		flex: 1,
+		overflow: "auto",
 	},
 
 	boardContainer: {
@@ -350,7 +357,8 @@ class PlayGame extends React.PureComponent {
 			playerUsers,
 		} = this.props;
 
-		const myTurn = this.props.currentUserPlayers.includes(gameSelectors.getCurrentPlayer(game));
+		const myPlayer = gameSelectors.getCurrentPlayer(game);
+		const myTurn = this.props.currentUserPlayers.includes(myPlayer);
 		const gameIsOver = !!game.get("winner");
 		const gameIsStarted = game.get("isStarted") && !gameIsOver;
 
@@ -367,6 +375,15 @@ class PlayGame extends React.PureComponent {
 				}
 			) :
 			null;
+		
+		const boardContainerStyles = {
+			fontSize: this.props.currentZoomLevel + "em",
+		};
+
+		if (myTurn) {
+			boardContainerStyles.border = `7px solid ${myPlayer.get("color")}`;
+			boardContainerStyles.outline = "1px solid black";
+		}
 
 		return (
 			<div
@@ -454,31 +471,33 @@ class PlayGame extends React.PureComponent {
 					/>
 				</div>
 				<div
-					className={this.props.classes.boardContainer}
-					style={{
-						fontSize: (this.props.currentZoomLevel) + "em",
-					}}
+					className={this.props.classes.gameArea}
 				>
-					{
-						!gameIsStarted && !gameIsOver && !isWatchingGame && (
-							<StartGameOverlay
-								canStart={game.get("players").size >= Config.game.players.min}
-								onStartClick={this.handleStartGameButtonClick}
-							/>
-						)
-					}
-					{
-						gameIsOver && (
-							<WinnerBanner
-								winnerColor={game.get("winner")}
-							/>
-						)
-					}
-					<Board
-						gameName={this.props.game.get("name")}
-						allowPlacement={myTurn && gameIsStarted}
-						onCellClick={this.handleCellClick}
-					/>
+					<div
+						className={this.props.classes.boardContainer}
+						style={boardContainerStyles}
+					>
+						{
+							!gameIsStarted && !gameIsOver && !isWatchingGame && (
+								<StartGameOverlay
+									canStart={game.get("players").size >= Config.game.players.min}
+									onStartClick={this.handleStartGameButtonClick}
+								/>
+							)
+						}
+						{
+							gameIsOver && (
+								<WinnerBanner
+									winnerColor={game.get("winner")}
+								/>
+							)
+						}
+						<Board
+							gameName={this.props.game.get("name")}
+							allowPlacement={myTurn && gameIsStarted}
+							onCellClick={this.handleCellClick}
+						/>
+					</div>
 				</div>
 			</div>
 		);

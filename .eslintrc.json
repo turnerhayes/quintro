@@ -43,6 +43,11 @@
 		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"no-debugger": "warn"
 	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	},
 	"overrides": [
 		{
 			"files": ["**/*.test.js", "**/__test__/**/*.js"],

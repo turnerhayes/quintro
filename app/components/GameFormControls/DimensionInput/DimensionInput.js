@@ -90,9 +90,9 @@ class DimensionInput extends React.PureComponent {
 		widthError: PropTypes.string,
 		heightError: PropTypes.string,
 		keepRatio: PropTypes.bool,
-		onWidthChange: PropTypes.func,
-		onHeightChange: PropTypes.func,
-		onToggleKeepRatio: PropTypes.func,
+		onWidthChange: PropTypes.func.isRequired,
+		onHeightChange: PropTypes.func.isRequired,
+		onToggleKeepRatio: PropTypes.func.isRequired,
 	}
 
 	static defaultProps = {
@@ -126,11 +126,39 @@ class DimensionInput extends React.PureComponent {
 		});
 
 		if (dimension === "width") {
-			this.props.onWidthChange && this.props.onWidthChange({ value, error });
+			this.props.onWidthChange({ value, error });
+
+			if (this.props.keepRatio && !error) {
+				const currentWidthNumber = Number(this.props.width);
+				const currentHeightNumber = Number(this.props.height);
+
+				if (!Number.isNaN(currentWidthNumber) && !Number.isNaN(currentHeightNumber)) {
+					const valueNumber = Number(value);
+					const newHeight = Math.round((valueNumber / currentWidthNumber) * currentHeightNumber);
+	
+					if (newHeight !== currentHeightNumber) {
+						this.props.onHeightChange({ value: newHeight + "", error: null });
+					}
+				}
+			}
 		}
 
 		if (dimension === "height") {
-			this.props.onHeightChange && this.props.onHeightChange({ value, error });
+			this.props.onHeightChange({ value, error });
+
+			if (this.props.keepRatio && !error) {
+				const currentWidthNumber = Number(this.props.width);
+				const currentHeightNumber = Number(this.props.height);
+
+				if (!Number.isNaN(currentWidthNumber) && !Number.isNaN(currentHeightNumber)) {
+					const valueNumber = Number(value);
+					const newWidth = Math.round((valueNumber / currentHeightNumber) * currentHeightNumber);
+	
+					if (newWidth !== currentWidthNumber) {
+						this.props.onWidthChange({ value: newWidth + "", error: null });
+					}
+				}
+			}
 		}
 	}
 
