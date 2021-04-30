@@ -9,7 +9,7 @@ import {
 	createGame
 }                          from "@app/api/games";
 
-import { SECTION_NAME }    from "./CreateGame";
+import { SECTION_NAME }    from "./constants";
 
 function* createGameSaga({ payload }) {
 	try {

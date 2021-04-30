@@ -9,8 +9,7 @@ import {
 import selectors       from "@app/selectors";
 import LocationHandler from "./LocationHandler";
 import saga            from "./saga";
-
-export const SECTION_NAME = "CreateGame";
+import { SECTION_NAME } from "./constants";
 
 const withRedux = connect(
 	function mapStateToProps(state) {
