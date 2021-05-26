@@ -93,7 +93,7 @@ class CreateGameLocationHandler extends React.PureComponent {
 			updateSearchString,
 			// eslint-disable-next-line no-unused-vars
 			searchString,
-			...props,
+			...props
 		} = this.props;
 		
 		return (

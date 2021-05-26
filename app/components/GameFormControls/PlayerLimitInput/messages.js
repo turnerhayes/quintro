@@ -5,21 +5,17 @@ export default defineMessages({
 		id: "quintro.components.GameFormControls.PlayerLimitInput.label",
 	},
 
-	errors: {
-		general: {
-			isRequired: {
-				id: "quintro.general.form.isRequired",
-			},
-		},
+	isRequiredError: {
+		id: "quintro.general.form.isRequired",
+	},
 		
-		invalid: {
-			id: "quintro.components.GameFormControls.PlayerLimitInput.errors.invalid",
-		},
-		tooSmall: {
-			id: "quintro.components.GameFormControls.PlayerLimitInput.errors.tooSmall",
-		},
-		tooLarge: {
-			id: "quintro.components.GameFormControls.PlayerLimitInput.errors.tooLarge",
-		},
+	invalidError: {
+		id: "quintro.components.GameFormControls.PlayerLimitInput.invalidError",
+	},
+	tooSmallError: {
+		id: "quintro.components.GameFormControls.PlayerLimitInput.tooSmallError",
+	},
+	tooLargeError: {
+		id: "quintro.components.GameFormControls.PlayerLimitInput.tooLargeError",
 	},
 });

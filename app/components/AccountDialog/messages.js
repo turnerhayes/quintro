@@ -1,15 +1,13 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	actions: {
-		logIn: {
-			id: "quintro.general.actions.logIn",
-		},
-		logOut: {
-			id: "quintro.general.actions.logOut",
-		},
-		logInWith: {
-			id: "quintro.components.AccountDialog.actions.logInWith",
-		},
+	logInAction: {
+		id: "quintro.general.actions.logIn",
+	},
+	logOutAction: {
+		id: "quintro.general.actions.logOut",
+	},
+	logInWithAction: {
+		id: "quintro.components.AccountDialog.logInWithAction",
 	},
 });

@@ -624,7 +624,7 @@ describe("PlayGame component", () => {
 		expect(wrapper.find(Badge).filter(`[badgeContent=${watcherCount}]`)).toExist();
 		expect(intl.formatMessage).toHaveBeenCalledWith(
 			{
-				id: "quintro.components.PlayGame.watchers.summary.withoutYou"
+				id: "quintro.components.PlayGame.watchersWithoutYouSummary"
 			},
 			{
 				watcherCount,
@@ -646,7 +646,7 @@ describe("PlayGame component", () => {
 		expect(wrapper.find(Badge).filter(`[badgeContent=${watcherCount}]`)).toExist();
 		expect(intl.formatMessage).toHaveBeenCalledWith(
 			{
-				id: "quintro.components.PlayGame.watchers.summary.withYou"
+				id: "quintro.components.PlayGame.watchersWithYouSummary"
 			},
 			{
 				watcherCount: watcherCount - 1,

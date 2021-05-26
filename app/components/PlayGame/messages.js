@@ -4,14 +4,10 @@ export default defineMessages({
 	loadingErrorMessage: {
 		id: "quintro.components.PlayGame.loadingErrorMessage",
 	},
-	watchers: {
-		summary: {
-			withYou: {
-				id: "quintro.components.PlayGame.watchers.summary.withYou",
-			},
-			withoutYou: {
-				id: "quintro.components.PlayGame.watchers.summary.withoutYou",
-			},
-		},
+	watchersWithYouSummary: {
+		id: "quintro.components.PlayGame.watchersWithYouSummary",
+	},
+	watchersWithoutYouSummary: {
+		id: "quintro.components.PlayGame.watchersWithoutYouSummary",
 	},
 });

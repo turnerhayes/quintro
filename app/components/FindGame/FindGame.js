@@ -235,7 +235,7 @@ class FindGame extends React.PureComponent {
 					<TextField
 						type="number"
 						name="playerLimit"
-						label={this.formatMessage(messages.form.playerLimit.label)}
+						label={this.formatMessage(messages.playerLimitLabel)}
 						inputProps={{
 							min: Config.game.players.min,
 							max: Config.game.players.max,
@@ -249,7 +249,7 @@ class FindGame extends React.PureComponent {
 					<Typography
 						type="caption"
 					>
-						{this.formatMessage(messages.form.playerLimit.details)}
+						{this.formatMessage(messages.playerLimitDetails)}
 					</Typography>
 				</div>
 
@@ -259,7 +259,7 @@ class FindGame extends React.PureComponent {
 						color="primary"
 						disabled={!!this.state.numberOfPlayers && Number.isNaN(Number(this.state.numberOfPlayers))}
 					>
-						{this.formatMessage(messages.form.submitButton.label)}
+						{this.formatMessage(messages.submitButtonLabel)}
 					</Button>
 				</div>
 			</form>

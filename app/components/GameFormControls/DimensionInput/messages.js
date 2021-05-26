@@ -1,52 +1,37 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	width: {
-		label: {
-			id: "quintro.components.GameFormControls.DimensionInput.width.label",
-		},
+	widthLabel: {
+		id: "quintro.components.GameFormControls.DimensionInput.widthLabel",
 	},
-	height: {
-		label: {
-			id: "quintro.components.GameFormControls.DimensionInput.height.label",
-		},
+	heightLabel: {
+		id: "quintro.components.GameFormControls.DimensionInput.heightLabel",
 	},
-	errors: {
-		general: {
-			isRequired: {
-				id: "quintro.general.form.isRequired",
-			},
-		},
-		width: {
-			invalid: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.width.invalid",
-			},
-			tooSmall: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.width.tooSmall",
-			},
-			tooLarge: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.width.tooLarge",
-			},
-		},
-		height: {
-			invalid: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.height.invalid",
-			},
-			tooSmall: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.height.tooSmall",
-			},
-			tooLarge: {
-				id: "quintro.components.GameFormControls.DimensionInput.errors.height.tooLarge",
-			},
-		},
+	isRequiredError: {
+		id: "quintro.general.form.isRequired",
 	},
-	keepRatio: {
-		unlock: {
-			id: "quintro.components.GameFormControls.DimensionInput.keepRatio.unlock",
-		},
-		
-		lock: {
-			id: "quintro.components.GameFormControls.DimensionInput.keepRatio.lock",
-		},
+	widthInvalidError: {
+		id: "quintro.components.GameFormControls.DimensionInput.widthInvalidError",
+	},
+	widthTooSmallError: {
+		id: "quintro.components.GameFormControls.DimensionInput.widthTooSmallError",
+	},
+	widthTooLargeError: {
+		id: "quintro.components.GameFormControls.DimensionInput.widthTooLargeError",
+	},
+	heightInvalidError: {
+		id: "quintro.components.GameFormControls.DimensionInput.heightInvalidError",
+	},
+	heightTooSmallError: {
+		id: "quintro.components.GameFormControls.DimensionInput.heightTooSmallError",
+	},
+	heightTooLargeError: {
+		id: "quintro.components.GameFormControls.DimensionInput.heightTooLargeError",
+	},
+	unlockKeepRatio: {
+		id: "quintro.components.GameFormControls.DimensionInput.unlockKeepRatio",
+	},	
+	lockKeepRatio: {
+		id: "quintro.components.GameFormControls.DimensionInput.lockKeepRatio",
 	},
 });

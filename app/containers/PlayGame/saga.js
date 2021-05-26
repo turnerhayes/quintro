@@ -44,8 +44,8 @@ function showNotification() {
 		!Notify.needsPermission || new Promise(Notify.requestPermission)
 	).then(
 		() => {
-			const notification = new Notify(formatMessage(messages.notification.title), {
-				body: formatMessage(messages.notification.message),
+			const notification = new Notify(formatMessage(messages.notificationTitle), {
+				body: formatMessage(messages.notificationMessage),
 				notifyClick: () => {
 					window.focus();
 					notification.close();

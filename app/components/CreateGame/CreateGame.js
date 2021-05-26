@@ -120,7 +120,7 @@ class CreateGame extends React.PureComponent {
 					<fieldset>
 						<legend>
 							<FormattedMessage
-								{...messages.form.dimensions.label}
+								{...messages.dimensionsLabel}
 							/>
 						</legend>
 						<DimensionInput
@@ -147,7 +147,7 @@ class CreateGame extends React.PureComponent {
 							!!this.props.playerLimitError
 						}
 					>
-						{this.formatMessage(messages.form.submitButton.label)}
+						{this.formatMessage(messages.submitButtonLabel)}
 					</Button>
 				</form>
 			</div>

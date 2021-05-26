@@ -121,15 +121,15 @@ class PlayerInfoPopup extends React.PureComponent {
 	 * @return {external:React.Component} the component to render
 	 */
 	renderDisplayNameForm = () => {
-		const submitButtonTitle = this.formatMessage(messages.displayNameInput.submitButtonTitle);
-		const cancelButtonTitle = this.formatMessage(messages.displayNameInput.cancelButtonTitle);
+		const submitButtonTitle = this.formatMessage(messages.displayNameInputSubmitButtonTitle);
+		const cancelButtonTitle = this.formatMessage(messages.displayNameInputCancelButtonTitle);
 
 		return (
 			<form
 				onSubmit={this.handleChangeDisplayNameFormSubmit}
 			>
 				<TextField
-					label={this.formatMessage(messages.displayNameInput.label)}
+					label={this.formatMessage(messages.displayNameInputLabel)}
 					name="name"
 					inputRef={this.textFieldRef}
 					value={this.state.displayNameValue}

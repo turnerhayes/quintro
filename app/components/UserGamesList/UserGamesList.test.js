@@ -60,7 +60,7 @@ describe("UserGamesList component", () => {
 		);
 
 
-		const tabLabel = formatMessage(messages.tabs.inProgress);
+		const tabLabel = formatMessage(messages.inProgressTab);
 
 		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
@@ -117,7 +117,7 @@ describe("UserGamesList component", () => {
 			/>
 		);
 
-		const tabLabel = formatMessage(messages.tabs.finished);
+		const tabLabel = formatMessage(messages.finishedTab);
 
 		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
@@ -204,12 +204,12 @@ describe("UserGamesList component", () => {
 			}
 		);
 
-		let tabLabel = formatMessage(messages.tabs.inProgress);
+		let tabLabel = formatMessage(messages.inProgressTab);
 
 		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
 
-		tabLabel = formatMessage(messages.tabs.finished);
+		tabLabel = formatMessage(messages.finishedTab);
 
 		expect(wrapper.find(Tab).filter(`[label="${tabLabel}"]`)).toExist();
 
