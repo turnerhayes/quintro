@@ -51,27 +51,27 @@ function HowToPlay({ classes }) {
 			<div>
 				<p>
 					<FormattedMessage
-						{...messages.sections.intro.text}
+						{...messages.introSectionText}
 					/>
 				</p>
 				<h2>
 					<FormattedMessage
-						{...messages.sections.turns.header}
+						{...messages.turnsSectionHeader}
 					/>
 				</h2>
 				<p>
 					<FormattedMessage
-						{...messages.sections.turns.text}
+						{...messages.turnsSectionText}
 					/>
 				</p>
 				<h2>
 					<FormattedMessage
-						{...messages.sections.winning.header}
+						{...messages.winningSectionHeader}
 					/>
 				</h2>
 				<p>
 					<FormattedMessage
-						{...messages.sections.winning.text}
+						{...messages.winningSectionText}
 					/>
 				</p>
 				<figure
@@ -85,7 +85,7 @@ function HowToPlay({ classes }) {
 						className={classes.figureCaption}
 					>
 						<FormattedMessage
-							{...messages.figure.caption}
+							{...messages.figureCaption}
 						/>
 					</figcaption>
 				</figure>

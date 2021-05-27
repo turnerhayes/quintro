@@ -5,28 +5,16 @@ export default defineMessages({
 		id: "quintro.components.CreateGame.header",
 		defaultMessage: "Create A Game",
 	},
-	form: {
-		dimensions: {
-			label: {
-				id: "quintro.components.CreateGame.form.dimensions.label",
-			},
-		},
-		playerLimit: {
-			label: {
-				id: "quintro.components.CreateGame.form.playerLimit.label",
-			},
-		},
-		submitButton: {
-			label: {
-				id: "quintro.components.CreateGame.form.submitButton.label",
-			},
-		},
-		errors: {
-			general: {
-				isRequired: {
-					id: "quintro.general.form.isRequired",
-				},
-			},
-		},
+	dimensionsLabel: {
+		id: "quintro.components.CreateGame.dimensionsLabel",
+	},
+	playerLimitLabel: {
+		id: "quintro.components.CreateGame.playerLimitLabel",
+	},
+	submitButtonLabel: {
+		id: "quintro.components.CreateGame.submitButtonLabel",
+	},
+	isRequiredError: {
+		id: "quintro.general.form.isRequired",
 	},
 });

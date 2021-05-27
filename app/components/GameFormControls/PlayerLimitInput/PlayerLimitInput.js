@@ -28,7 +28,7 @@ const styles = {
  */
 const validatePlayerLimit = ({ playerLimit, intl }) => {
 	if (playerLimit === "") {
-		return intl.formatMessage(messages.errors.general.isRequired);
+		return intl.formatMessage(messages.isRequiredError);
 	}
 
 	const playerLimitAsNumber = Number(playerLimit);
@@ -36,19 +36,19 @@ const validatePlayerLimit = ({ playerLimit, intl }) => {
 	let error;
 
 	if (Number.isNaN(playerLimitAsNumber)) {
-		error = intl.formatMessage(messages.errors.invalid, {
+		error = intl.formatMessage(messages.invalidError, {
 			value: playerLimit,
 		});
 	}
 	else {
 		if (playerLimitAsNumber < Config.game.players.min) {
-			error = intl.formatMessage(messages.errors.tooSmall, {
+			error = intl.formatMessage(messages.tooSmallError, {
 				value: playerLimit,
 				min: Config.game.players.min,
 			});
 		}
 		else if (playerLimitAsNumber > Config.game.players.max) {
-			error = intl.formatMessage(messages.errors.tooLarge, {
+			error = intl.formatMessage(messages.tooLargeError, {
 				value: playerLimit,
 				max: Config.game.players.max,
 			});

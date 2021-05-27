@@ -11,7 +11,8 @@
   "license": "ISC",
   "private": true,
   "engines": {
-    "node": "6.9.4"
+    "npm": ">=7",
+    "node": ">=15"
   },
   "dependencies": {
     "bluebird": "^3.5.0",

@@ -142,7 +142,7 @@ class AccountDialog extends React.PureComponent {
 								this.loginMethods[provider] = this.handleLoginClicked.bind(this, { provider });
 							}
 
-							const logInWithMessage = this.formatMessage(messages.actions.logInWith, {
+							const logInWithMessage = this.formatMessage(messages.logInWithAction, {
 								provider: PROVIDER_INFO[provider].name
 							});
 
@@ -196,8 +196,7 @@ class AccountDialog extends React.PureComponent {
 					{this.props.loggedInUser.getIn(["name", "display"])}
 				</Link>
 			</div>
-		) :
-			this.formatMessage(messages.actions.logIn);
+		) :	this.formatMessage(messages.logInAction);
 
 		return (
 			<Card>
@@ -226,7 +225,7 @@ class AccountDialog extends React.PureComponent {
 								>
 									log out
 								</Icon>
-								{this.formatMessage(messages.actions.logOut)}
+								{this.formatMessage(messages.logOutAction)}
 							</Button>
 						</CardActions>
 					)

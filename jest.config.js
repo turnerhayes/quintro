@@ -35,7 +35,9 @@ module.exports = exports = {
 		"<rootDir>/internals/testing/shim.js",
 		"<rootDir>/internals/testing/setup.js",
 	],
-	setupTestFrameworkScriptFile: "<rootDir>/internals/testing/test-bundler.js",
+	setupFilesAfterEnv: [
+		"<rootDir>/internals/testing/test-bundler.js",
+	],
 	testRegex: ".*\\.test\\.js$",
 	resolver: "./internals/jest-resolver",
 	testEnvironment: "jsdom",

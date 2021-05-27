@@ -5,37 +5,27 @@ export default defineMessages({
 		id: "quintro.components.HowToPlay.header",
 	},
 
-	sections: {
-		intro: {
-			text: {
-				id: "quintro.components.HowToPlay.sections.intro.text",
-			},
-		},
+	introSectionText: {
+		id: "quintro.components.HowToPlay.introSectionText",
+	},
 
-		turns: {
-			header: {
-				id: "quintro.components.HowToPlay.sections.turns.header",
-			},
+	turnsSectionHeader: {
+		id: "quintro.components.HowToPlay.turnsSectionHeader",
+	},
 
-			text: {
-				id: "quintro.components.HowToPlay.sections.turns.text",
-			},
-		},
+	turnsSectionText: {
+		id: "quintro.components.HowToPlay.turnsSectionText",
+	},
 
-		winning: {
-			header: {
-				id: "quintro.components.HowToPlay.sections.winning.header",
-			},
+	winningSectionHeader: {
+		id: "quintro.components.HowToPlay.winningSectionHeader",
+	},
 
-			text: {
-				id: "quintro.components.HowToPlay.sections.winning.text",
-			},
-		},
+	winningSectionText: {
+		id: "quintro.components.HowToPlay.winningSectionText",
 	},
 	
-	figure: {
-		caption: {
-			id: "quintro.components.HowToPlay.figure.caption", 
-		},
+	figureCaption: {
+		id: "quintro.components.HowToPlay.figureCaption",
 	},
 });

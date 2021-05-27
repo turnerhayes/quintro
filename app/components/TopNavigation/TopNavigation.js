@@ -119,7 +119,7 @@ class TopNavigation extends React.PureComponent {
 				<Toolbar>
 					<Link
 						to="/"
-						title={this.formatMessage(messages.links.home)}
+						title={this.formatMessage(messages.homeLink)}
 					>
 						<HomeIcon/>
 					</Link>
@@ -127,19 +127,19 @@ class TopNavigation extends React.PureComponent {
 						component={Link}
 						to="/game/find"
 					>
-						{this.formatMessage(messages.links.findGame)}
+						{this.formatMessage(messages.findGameLink)}
 					</Button>
 					<Button
 						component={Link}
 						to="/how-to-play"
 					>
-						{this.formatMessage(messages.links.howToPlay)}
+						{this.formatMessage(messages.howToPlayLink)}
 					</Button>
 					<Button
 						component={Link}
 						to="/game/create"
 					>
-						{this.formatMessage(messages.links.startGame)}
+						{this.formatMessage(messages.startGameLink)}
 					</Button>
 
 					<IconButton

@@ -83,6 +83,7 @@ module.exports = (options) => ({
 								interlaced: false,
 							},
 							pngquant: {
+								// eslint-disable-next-line no-magic-numbers
 								quality: [0.65, 0.90],
 								speed: 4,
 							},

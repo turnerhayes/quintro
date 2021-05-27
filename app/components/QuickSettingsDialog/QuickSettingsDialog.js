@@ -130,10 +130,10 @@ class QuickSettingsDialog extends React.PureComponent {
 									checked={this.props.enableNotifications}
 									onChange={this.handleChangeNotifications}
 									disabled={this.props.isLoadingStoredSettings || !NOTIFICATIONS_SUPPORTED}
-									aria-label={this.formatMessage(messages.settingLabels.notifications)}
+									aria-label={this.formatMessage(messages.notificationsSettingLabel)}
 								/>
 
-								{this.formatMessage(messages.settingNames.notifications)}
+								{this.formatMessage(messages.notificationsSettingName)}
 							</label>
 						</div>
 						<div
@@ -144,10 +144,10 @@ class QuickSettingsDialog extends React.PureComponent {
 									checked={this.props.enableSoundEffects}
 									onChange={this.handleChangeSoundEffects}
 									disabled={this.props.isLoadingStoredSettings}
-									aria-label={this.formatMessage(messages.settingLabels.soundEffects)}
+									aria-label={this.formatMessage(messages.soundEffectsSettingLabel)}
 								/>
 
-								{this.formatMessage(messages.settingNames.soundEffects)}
+								{this.formatMessage(messages.soundEffectsSettingName)}
 							</label>
 						</div>
 					</form>

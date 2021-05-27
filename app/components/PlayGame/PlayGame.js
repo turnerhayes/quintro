@@ -363,7 +363,9 @@ class PlayGame extends React.PureComponent {
 
 		const watcherSummary = watcherCount > 0 ?
 			this.formatMessage(
-				messages.watchers.summary[isWatchingGame ? "withYou" : "withoutYou"],
+				isWatchingGame ?
+					messages.watchersWithYouSummary :
+					messages.watchersWithoutYouSummary,
 				{
 					// If user is watching the game, they are included in the watcherCount.
 					// The message says something to the effect of "You and X others", so we

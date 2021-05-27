@@ -181,7 +181,7 @@ class GameJoinDialog extends React.Component {
 					onClick={this.handleWatchGameButtonClicked}
 				>
 					<FormattedMessage
-						{...messages.buttons.watchGame.label}
+						{...messages.watchGameButtonLabel}
 					/>
 				</Button>
 			</div>
@@ -221,7 +221,7 @@ class GameJoinDialog extends React.Component {
 						color="primary"
 					>
 						<FormattedMessage
-							{...messages.buttons.join.label}
+							{...messages.joinButtonLabel}
 						/>
 					</Button>
 					<Button
@@ -230,7 +230,7 @@ class GameJoinDialog extends React.Component {
 						onClick={this.handleCancelButtonClicked}
 					>
 						<FormattedMessage
-							{...messages.buttons.cancel.label}
+							{...messages.cancelButtonLabel}
 						/>
 					</Button>
 				</div>
@@ -257,12 +257,12 @@ class GameJoinDialog extends React.Component {
 
 		if (isFull) {
 			body = this.renderCannotJoinGame({
-				reason: this.formatMessage(messages.cannotJoinReasons.gameIsFull),
+				reason: this.formatMessage(messages.gameIsFullCannotJoinReason),
 			});
 		}
 		else if (this.props.game.get("isStarted")) {
 			body = this.renderCannotJoinGame({
-				reason: this.formatMessage(messages.cannotJoinReasons.gameIsInProgress),
+				reason: this.formatMessage(messages.gameIsInProgressCannotJoinReason),
 			});
 		}
 		else {

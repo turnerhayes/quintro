@@ -1,32 +1,22 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	buttons: {
-		watchGame: {
-			label: {
-				id: "quintro.components.GameJoinDialog.buttons.watchGame.label",
-			},
-		},
-		join: {
-			label: {
-				id: "quintro.components.GameJoinDialog.buttons.join.label",
-			},
-		},
-		cancel: {
-			label: {
-				id: "quintro.components.GameJoinDialog.buttons.cancel.label",
-			},
-		},
+	watchGameButtonLabel: {
+		id: "quintro.components.GameJoinDialog.watchGameButtonLabel",
+	},
+	joinButtonLabel: {
+		id: "quintro.components.GameJoinDialog.joinButtonLabel",
+	},
+	cancelButtonLabel: {
+		id: "quintro.components.GameJoinDialog.cancelButtonLabel",
 	},
 
-	cannotJoinReasons: {
-		gameIsFull: {
-			id: "quintro.components.GameJoinDialog.cannotJoinReasons.gameIsFull",
-		},
+	gameIsFullCannotJoinReason: {
+		id: "quintro.components.GameJoinDialog.gameIsFullCannotJoinReason",
+	},
 
-		gameIsInProgress: {
-			id: "quintro.components.GameJoinDialog.cannotJoinReasons.gameIsInProgress",
-		},
+	gameIsInProgressCannotJoinReason: {
+		id: "quintro.components.GameJoinDialog.gameIsInProgressCannotJoinReason",
 	},
 
 	cannotJoinActions: {

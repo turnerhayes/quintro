@@ -1,21 +1,19 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	links: {
-		home: {
-			id: "quintro.components.TopNavigation.links.home",
-		},
+	homeLink: {
+		id: "quintro.components.TopNavigation.homeLink",
+	},
 
-		findGame: {
-			id: "quintro.components.TopNavigation.links.findGame",
-		},
+	findGameLink: {
+		id: "quintro.components.TopNavigation.findGameLink",
+	},
 
-		howToPlay: {
-			id: "quintro.components.TopNavigation.links.howToPlay",
-		},
+	howToPlayLink: {
+		id: "quintro.components.TopNavigation.howToPlayLink",
+	},
 
-		startGame: {
-			id: "quintro.components.TopNavigation.links.startGame",
-		},
+	startGameLink: {
+		id: "quintro.components.TopNavigation.startGameLink",
 	},
 });

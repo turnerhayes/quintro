@@ -13,20 +13,14 @@ export default defineMessages({
 		id: "quintro.components.FindGame.cancelSearchLabel",
 	},
 
-	form: {
-		playerLimit: {
-			label: {
-				id: "quintro.components.FindGame.form.playerLimit.label",
-			},
-			details: {
-				id: "quintro.components.FindGame.form.playerLimit.details",
-			},
-		},
+	playerLimitLabel: {
+		id: "quintro.components.FindGame.playerLimitLabel",
+	},
+	playerLimitDetails: {
+		id: "quintro.components.FindGame.playerLimitDetails",
+	},
 
-		submitButton: {
-			label: {
-				id: "quintro.components.FindGame.form.submitButton.label",
-			},
-		},
+	submitButtonLabel: {
+		id: "quintro.components.FindGame.submitButtonLabel",
 	},
 });

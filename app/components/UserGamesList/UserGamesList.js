@@ -87,7 +87,7 @@ class UserGamesList extends React.PureComponent {
 	}
 
 	getGameBadgeTooltip = (game) => {
-		return this.formatMessage(messages.badge.tooltip, {
+		return this.formatMessage(messages.badgeTooltip, {
 			playerCount: game.get("players").size,
 		});
 	}
@@ -136,7 +136,7 @@ class UserGamesList extends React.PureComponent {
 						hasGamesInProgress && (
 							<Tab
 								key="in-progress-tab"
-								label={this.formatMessage(messages.tabs.inProgress)}
+								label={this.formatMessage(messages.inProgressTab)}
 							/>
 						)
 					}
@@ -144,7 +144,7 @@ class UserGamesList extends React.PureComponent {
 						hasFinishedGames && (
 							<Tab
 								key="finished-tab"
-								label={this.formatMessage(messages.tabs.finished)}
+								label={this.formatMessage(messages.finishedTab)}
 							/>
 						)
 					}
@@ -191,7 +191,7 @@ class UserGamesList extends React.PureComponent {
 												!game.get("isStarted") &&
 												(
 													<div
-														title={this.formatMessage(messages.list.item.notStarted)}
+														title={this.formatMessage(messages.notStartedListItem)}
 													>
 														<StopIcon />
 													</div>
@@ -201,7 +201,7 @@ class UserGamesList extends React.PureComponent {
 												isWaitingForYou &&
 												(
 													<div
-														title={this.formatMessage(messages.list.item.waitingForYou)}
+														title={this.formatMessage(messages.waitingForYouListItem)}
 													>
 														<WarningIcon />
 													</div>
@@ -264,12 +264,12 @@ class UserGamesList extends React.PureComponent {
 		return (
 			<p>
 				<FormattedMessage
-					{...messages.noGamesActions.message}
+					{...messages.noGamesActionsMessage}
 					values={{
 						findGameLink: (
 							<Link to="/game/find">
 								<FormattedMessage
-									{...messages.noGamesActions.findGameLinkText}
+									{...messages.noGamesActionsFindGameLinkText}
 								/>
 							</Link>
 						),
@@ -277,7 +277,7 @@ class UserGamesList extends React.PureComponent {
 						createGameLink: (
 							<Link to="/game/create">
 								<FormattedMessage
-									{...messages.noGamesActions.createGameLinkText}
+									{...messages.noGamesActionsCreateGameLinkText}
 								/>
 							</Link>
 						),

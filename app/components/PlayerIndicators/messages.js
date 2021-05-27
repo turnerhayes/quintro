@@ -1,33 +1,27 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	indicatorMessages: {
-		you: {
-			id: "quintro.components.PlayerIndicators.indicatorMessages.you",
-		},
+	youIndicator: {
+		id: "quintro.components.PlayerIndicators.youIndicator",
+	},
 
-		namedPlayer: {
-			present: {
-				id: "quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.present",
-			},
+	presentNamedPlayerIndicator: {
+		id: "quintro.components.PlayerIndicators.presentNamedPlayerIndicator",
+	},
+	
+	absentNamedPlayerIndicator: {
+		id: "quintro.components.PlayerIndicators.absentNamedPlayerIndicator",
+	},
 
-			absent: {
-				id: "quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.absent",
-			},
-		},
+	presentAnonymousPlayerIndicator: {
+		id: "quintro.components.PlayerIndicators.presentAnonymousPlayerIndicator",
+	},
 
-		anonymousPlayer: {
-			present: {
-				id: "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.present",
-			},
+	absentAnonymousPlayerIndicator: {
+		id: "quintro.components.PlayerIndicators.absentAnonymousPlayerIndicator",
+	},
 
-			absent: {
-				id: "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.absent",
-			},
-		},
-
-		availableSlot: {
-			id: "quintro.components.PlayerIndicators.indicatorMessages.availableSlot",
-		},
+	availableSlotIndicator: {
+		id: "quintro.components.PlayerIndicators.availableSlotIndicator",
 	},
 });

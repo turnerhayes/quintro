@@ -43,20 +43,26 @@ const styles = {
  */
 const validateDimension = ({ dimension, value, intl }) => {
 	if (value === "") {
-		return intl.formatMessage(messages.errors.general.isRequired);
+		return intl.formatMessage(messages.isRequiredError);
 	}
 
 	const valueAsNumber = Number(value);
 
 	if (Number.isNaN(valueAsNumber)) {
-		return intl.formatMessage(messages.errors[dimension].invalid, {
+		const messageId = dimension === "height" ?
+			messages.heightInvalidError :
+			messages.widthInvalidError;
+		return intl.formatMessage(messageId, {
 			dimension,
 			value,
 		});
 	}
 
 	if (valueAsNumber < Config.game.board[dimension].min) {
-		return intl.formatMessage(messages.errors[dimension].tooSmall, {
+		const messageId = dimension === "height" ?
+			messages.heightTooSmallError :
+			messages.widthTooSmallError;
+		return intl.formatMessage(messageId, {
 			dimension,
 			value: valueAsNumber,
 			min: Config.game.board[dimension].min,
@@ -64,7 +70,10 @@ const validateDimension = ({ dimension, value, intl }) => {
 	}
 	
 	if (valueAsNumber > Config.game.board[dimension].max) {
-		return intl.formatMessage(messages.errors[dimension].tooLarge, {
+		const messageId = dimension === "height" ?
+			messages.heightTooLargeError :
+			messages.widthTooLargeError;
+		return intl.formatMessage(messageId, {
 			dimension,
 			value: valueAsNumber,
 			max: Config.game.board[dimension].max,
@@ -181,7 +190,7 @@ class DimensionInput extends React.PureComponent {
 			>
 				<TextField
 					type="number"
-					label={this.formatMessage(messages.width.label)}
+					label={this.formatMessage(messages.widthLabel)}
 					required
 					error={!!this.props.widthError}
 					helperText={this.props.widthError}
@@ -203,7 +212,7 @@ class DimensionInput extends React.PureComponent {
 	
 				<TextField
 					type="number"
-					label={this.formatMessage(messages.height.label)}
+					label={this.formatMessage(messages.heightLabel)}
 					required
 					error={!!this.props.heightError}
 					helperText={this.props.heightError}
@@ -226,8 +235,8 @@ class DimensionInput extends React.PureComponent {
 					onClick={this.toggleKeepRatio}
 					title={this.formatMessage(
 						this.props.keepRatio ?
-							messages.keepRatio.unlock :
-							messages.keepRatio.lock
+							messages.unlockKeepRatio :
+							messages.lockKeepRatio
 					)}
 				>
 					<LinkIcon />

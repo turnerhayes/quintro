@@ -151,23 +151,26 @@ class PlayerIndicators extends React.Component {
 								const messageArgs = {};
 
 								if (playerUser.get("isMe")) {
-									message = messages.indicatorMessages.you;
+									message = messages.youIndicator;
 								}
 								else {
 									if (playerUser.getIn(["name", "display"])) {
-										message = messages.indicatorMessages.namedPlayer;
+										if (isPresent) {
+											message = messages.presentNamedPlayerIndicator;
+										}
+										else {
+											message = messages.absentNamedPlayerIndicator;
+										}
 										messageArgs.playerName = playerUser.getIn(["name", "display"]);
 									}
 									else {
-										message = messages.indicatorMessages.anonymousPlayer;
+										if (isPresent) {
+											message = messages.presentAnonymousPlayerIndicator;
+										}
+										else {
+											message = messages.absentAnonymousPlayerIndicator;
+										}
 										messageArgs.playerColor = player.get("color");
-									}
-
-									if (isPresent) {
-										message = message.present;
-									}
-									else {
-										message = message.absent;
 									}
 								}
 
@@ -229,7 +232,7 @@ class PlayerIndicators extends React.Component {
 									<li
 										key={`not-filled-player-${index}`}
 										className={classes.item}
-										title={this.formatMessage(messages.indicatorMessages.availableSlot)}
+										title={this.formatMessage(messages.availableSlotIndicator)}
 										onClick={(event) => this.handlePlayerIndicatorClick({
 											player: null,
 											index,

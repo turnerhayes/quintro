@@ -1,16 +1,16 @@
 {
 	"plugins": [
-		"transform-undefined-to-void"
+		"transform-undefined-to-void",
+		"formatjs"
 	],
 	"presets": [
 		[
-			"env",
+			"@babel/preset-env",
 			{
-				"modules": false
+				"modules": "auto"
 			}
 		],
-		"react",
-		"stage-0"
+		"@babel/preset-react"
 	],
 	"env": {
 		"production": {

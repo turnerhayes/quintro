@@ -1,18 +1,16 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-	displayNameInput: {
-		label: {
-			id: "quintro.components.PlayerInfoPopup.displayNameInput.label",
-		},
+	displayNameInputLabel: {
+		id: "quintro.components.PlayerInfoPopup.displayNameInputLabel",
+	},
 
-		submitButtonTitle: {
-			id: "quintro.components.PlayerInfoPopup.displayNameInput.submitButtonTitle",
-		},
+	displayNameInputSubmitButtonTitle: {
+		id: "quintro.components.PlayerInfoPopup.displayNameInputSubmitButtonTitle",
+	},
 
-		cancelButtonTitle: {
-			id: "quintro.components.PlayerInfoPopup.displayNameInput.cancelButtonTitle",
-		},
+	displayNameInputCancelButtonTitle: {
+		id: "quintro.components.PlayerInfoPopup.displayNameInputCancelButtonTitle",
 	},
 
 	profileLink: {

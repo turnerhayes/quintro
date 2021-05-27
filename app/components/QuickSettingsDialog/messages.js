@@ -5,23 +5,19 @@ export default defineMessages({
 		id: "quintro.components.QuickSettingsDialog.dialogTitle",
 	},
 
-	settingLabels: {
-		notifications: {
-			id: "quintro.components.QuickSettingsDialog.settingLabels.notifications",
-		},
-
-		soundEffects: {
-			id: "quintro.components.QuickSettingsDialog.settingLabels.soundEffects",
-		},
+	notificationsSettingLabel: {
+		id: "quintro.components.QuickSettingsDialog.notificationsSettingLabel",
 	},
 
-	settingNames: {
-		notifications: {
-			id: "quintro.components.QuickSettingsDialog.settingNames.notifications",
-		},
+	soundEffectsSettingLabel: {
+		id: "quintro.components.QuickSettingsDialog.soundEffectsSettingLabel",
+	},
 
-		soundEffects: {
-			id: "quintro.components.QuickSettingsDialog.settingNames.soundEffects",
-		},
+	notificationsSettingName: {
+		id: "quintro.components.QuickSettingsDialog.notificationsSettingName",
+	},
+
+	soundEffectsSettingName: {
+		id: "quintro.components.QuickSettingsDialog.soundEffectsSettingName",
 	},
 });

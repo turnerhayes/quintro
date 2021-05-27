@@ -5,45 +5,35 @@ export default defineMessages({
 		id: "quintro.components.UserGamesList.title",
 	},
 
-	badge: {
-		tooltip: {
-			id: "quintro.components.UserGamesList.badge.tooltip",
-		},
+	badgeTooltip: {
+		id: "quintro.components.UserGamesList.badgeTooltip",
 	},
 
-	tabs: {
-		inProgress: {
-			id: "quintro.components.UserGamesList.tabs.inProgress",
-		},
-
-		finished: {
-			id: "quintro.components.UserGamesList.tabs.finished",
-		},
+	inProgressTab: {
+		id: "quintro.components.UserGamesList.inProgressTab",
 	},
 
-	list: {
-		item: {
-			notStarted: {
-				id: "quintro.components.UserGamesList.list.item.notStarted",
-			},
-
-			waitingForYou: {
-				id: "quintro.components.UserGamesList.list.item.waitingForYou",
-			},
-		},
+	finishedTab: {
+		id: "quintro.components.UserGamesList.finishedTab",
 	},
 
-	noGamesActions: {
-		message: {
-			id: "quintro.components.UserGamesList.noGamesActions.message",
-		},
+	notStartedListItem: {
+		id: "quintro.components.UserGamesList.notStartedListItem",
+	},
 
-		findGameLinkText: {
-			id: "quintro.components.UserGamesList.noGamesActions.findGameLinkText",
-		},
+	waitingForYouListItem: {
+		id: "quintro.components.UserGamesList.waitingForYouListItem",
+	},
 
-		createGameLinkText: {
-			id: "quintro.components.UserGamesList.noGamesActions.createGameLinkText",
-		},
+	noGamesActionsMessage: {
+		id: "quintro.components.UserGamesList.noGamesActionsMessage",
+	},
+
+	noGamesActionsFindGameLinkText: {
+		id: "quintro.components.UserGamesList.noGamesActionsFindGameLinkText",
+	},
+
+	noGamesActionsCreateGameLinkText: {
+		id: "quintro.components.UserGamesList.noGamesActionsCreateGameLinkText",
 	},
 });
