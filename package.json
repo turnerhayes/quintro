@@ -189,7 +189,7 @@
     "react-test-renderer": "^16.8.6",
     "redux-mock-store": "^1.5.3",
     "rimraf": "2.6.1",
-    "shelljs": "^0.7.8",
+    "shelljs": "^0.8.5",
     "sinon": "^4.5.0",
     "style-loader": "0.18.1",
     "url-loader": "^1.1.2",
