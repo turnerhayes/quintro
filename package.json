@@ -176,7 +176,7 @@
     "jest-enzyme": "^6.1.2",
     "jest-immutable-matchers": "^2.0.1",
     "jsdoc": "^3.6.2",
-    "jsdom": "^15.1.0",
+    "jsdom": "^16.5.0",
     "lint-staged": "3.5.1",
     "mock-socket": "^7.1.0",
     "ngrok": "2.2.9",
