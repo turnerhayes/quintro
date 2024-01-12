@@ -1,0 +1,18 @@
+{
+	"extends": "../.eslintrc.json",
+	"parserOptions": {
+		"sourceType": "script"
+	},
+	"env": {
+		"shared-node-browser": true,
+		"es6": true
+	},
+    "overrides": [
+        {
+            "files": "*.test.js",
+            "parserOptions": {
+                "sourceType": "module"
+            }
+        }
+    ]
+}
