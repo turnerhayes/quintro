@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
 import { List }            from "immutable";
 import classnames         from "classnames";
@@ -9,15 +11,13 @@ import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
 import PlayerInfoPopup from "@app/components/PlayerInfoPopup";
 import Config             from "@app/config";
-import ImmutableBoard from "@shared/board";
-import {selectors} from "@lib/redux/selectors";
 
 import StartGameOverlay   from "./StartGameOverlay";
 import WinnerBanner       from "./WinnerBanner";
 import AddPlayerButton    from "@app/components/AddPlayerButton";
-import { Player, PlayerUser } from "@shared/quintro";
+import { Player, PlayerUser } from "@shared/quintro.d";
 import { Game } from "@shared/game";
-import { useGetGameQuery } from "@lib/services/games-service";
+import { useGetGamesQuery } from "@lib/services/games-service";
 
 
 type OnJoinGameCallback = ({colors}: {colors: any[]}) => void;
@@ -203,7 +203,7 @@ const PlayGame = ({
 		isLoading,
 		isSuccess,
 		error,
-	} = useGetGameQuery(gameName);
+	} = useGetGamesQuery({gameName});
 
 	console.log("Game:", game);
 	console.log("isError:", isError);
