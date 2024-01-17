@@ -1,5 +1,4 @@
 import React, { useCallback }              from "react";
-import PropTypes          from "prop-types";
 import classnames         from "classnames";
 import Button             from "@mui/material/Button";
 import Icon               from "@mui/material/Icon";
@@ -8,11 +7,11 @@ import Card               from "@mui/material/Card";
 import CardContent        from "@mui/material/CardContent";
 import CardHeader         from "@mui/material/CardHeader";
 import CardActions        from "@mui/material/CardActions";
+import Link from "next/link";
 import Config             from "@app/config";
-import messages           from "./messages";
 import                         "@app/fonts/icomoon/style.css";
 import { User } from "@shared/user";
-import Link from "next/link";
+
 
 const PROVIDER_INFO = {
 	facebook: {
@@ -40,10 +39,6 @@ const styles = {
 		marginRight: "1em",
 		fontSize: "2em",
 	},
-};
-
-const formatMessage = ({id}: {id: string;}, values?: {[key: string]: unknown}) => {
-	return id;
 };
 
 interface AccountDialogProps {
@@ -78,6 +73,7 @@ const AccountDialog = ({
 		buttonIcon: "buttonIcon",
 	},
 }: AccountDialogProps) => {
+	const intl = useIntl();
 	const loginMethods = {};
 
 	/**
@@ -125,8 +121,13 @@ const AccountDialog = ({
 				{loggedInUser.name.display}
 			</Link>
 		</div>
-	) :
-		formatMessage(messages.actions.logIn);
+	) : (
+		<FormattedMessage
+			id="quintro.general.actions.logIn"
+			description="Title for the login link on the account dialog"
+			defaultMessage="Log in"
+		/>
+	)
 
 	return (
 		<Card>
@@ -152,7 +153,11 @@ const AccountDialog = ({
 												loginMethods[provider] = handleLoginClicked.bind(this, { provider });
 											}
 				
-											const logInWithMessage = formatMessage(messages.actions.logInWith, {
+											const logInWithMessage = intl.formatMessage({
+												id: "quintro.components.AccountDialog.actions.logInWith",
+												description: "Title for the icon button used to log in with a particular authentication provider",
+												defaultMessage: "Log in with {provider}",
+											}, {
 												provider: PROVIDER_INFO[provider].name
 											});
 				
@@ -192,7 +197,11 @@ const AccountDialog = ({
 							>
 								log out
 							</Icon>
-							{formatMessage(messages.actions.logOut)}
+							<FormattedMessage
+								id="quintro.general.actions.logOut"
+								description="Button text for the log out button"
+								defaultMessage="Log out"
+							/>
 						</Button>
 					</CardActions>
 				)
@@ -200,7 +209,5 @@ const AccountDialog = ({
 		</Card>
 	);
 }
-
-export { AccountDialog as Unwrapped };
 
 export default AccountDialog;

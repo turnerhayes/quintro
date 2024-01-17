@@ -1,44 +1,37 @@
-/* global Promise */
-
 import React, { useCallback }        from "react";
 import Switch       from "@mui/material/Switch";
-import Notify       from "notifyjs";
-
-import messages     from "./messages";
+import {useIntl, FormattedMessage} from "react-intl";
 
 
-const NOTIFICATIONS_SUPPORTED = !Notify.needsPermission || Notify.isSupported();
+const notificationsSupported = () => "Notification" in window;
 
+const requestNotificationPermissions = async () => {
+	if (!notificationsSupported()) {
+		return false;
+	}
 
-	/**
-	 * @member {object} - Component prop types
-	 *
-	 * @prop {function} onChangeSetting - function called when settings are changed
-	 * @prop {boolean} [enableSoundEffects] - whether or not sound effects are enabled
-	 * @prop {boolean} [enableNotifications] - whether or not browser notifications are enabled
-	 * @prop {boolean} [isLoadingStoredSettings] - whether or not the component is currently loading
-	 *	settings from a local store
-	 */
-	//  static propTypes = {
-	// 	intl: intlShape.isRequired,
-	// 	onChangeSetting: PropTypes.func.isRequired,
-	// 	enableSoundEffects: PropTypes.bool.isRequired,
-	// 	enableNotifications: PropTypes.bool.isRequired,
-	// 	isLoadingStoredSettings: PropTypes.bool,
-	// };
+	if (Notification.permission === "granted") {
+		return true;
+	}
 
-//TODO: FIX
-const formatMessage = ({id}: {id: string}, values?: {[key: string]: unknown}) => {
-	return id;
-};
+	if (Notification.permission === "denied") {
+		return false;
+	}
 
-interface QuickSettingsDialogProps {
-	onChangeSetting?: (args: {
+	const result = await Notification.requestPermission();
+
+	return result === "granted";
+}
+
+const needsPermission = () => Notification.permission !== "granted" && Notification.permission !== "denied";
+
+export interface QuickSettingsDialogProps {
+	onChangeSetting: (args: {
 		enableSoundEffects?: boolean;
 		enableNotifications?: boolean;
 	}) => void;
-	enableSoundEffects?: boolean;
-	enableNotifications?: boolean;
+	soundEffectsEnabled?: boolean;
+	notificationsEnabled?: boolean;
 	isLoadingStoredSettings?: boolean;
 }
 
@@ -49,10 +42,12 @@ interface QuickSettingsDialogProps {
  */
 const QuickSettingsDialog = ({
 	onChangeSetting,
-	enableSoundEffects = false,
-	enableNotifications = false,
+	soundEffectsEnabled: enableSoundEffects = false,
+	notificationsEnabled: enableNotifications = false,
 	isLoadingStoredSettings = false,
 }: QuickSettingsDialogProps) => {
+	const intl = useIntl();
+
 	/**
 	 * Toggles whether or not the sound effects setting is enabled.
 	 *
@@ -79,12 +74,8 @@ const QuickSettingsDialog = ({
 	 */
 	const toggleEnableNotifications = useCallback(async (status) => {
 		// Turning on notifications
-		if (!enableNotifications && status && Notify.needsPermission) {
-			const gotPermission = await new Promise(
-				(resolve, reject) => {
-					Notify.requestPermission(resolve, reject);
-				}
-			);
+		if (!enableNotifications && status && needsPermission()) {
+			const gotPermission = await requestNotificationPermissions();
 			if (!gotPermission) {
 				return;
 			}
@@ -102,10 +93,26 @@ const QuickSettingsDialog = ({
 		toggleEnableSoundEffects(event.target.checked);
 	}, [toggleEnableSoundEffects]);
 
+	const notificationsSwitchLabel = intl.formatMessage({
+		id: "quintro.components.QuickSettingsDialog.settingLabels.notifications",
+		description: "Label for the switch to enable notifications in the Quick Settings dialog",
+		defaultMessage: "Enable Browser Notifications",
+	});
+
+	const soundEffectsSwitchLabel = intl.formatMessage({
+		id: "quintro.components.QuickSettingsDialog.settingLabels.soundEffects",
+		description: "Label for the switch to enable sound effects in the Quick Settings dialog",
+		defaultMessage: "Enable Sound Effects",
+	});
+
 	return (
 		<div>
 			<h4>
-				{formatMessage(messages.dialogTitle)}
+				<FormattedMessage
+					id="quintro.components.QuickSettingsDialog.dialogTitle"
+					description="Header for the Quick Settings dialog"
+					defaultMessage="Quick Settings"
+				/>
 			</h4>
 			<div
 			>
@@ -118,11 +125,16 @@ const QuickSettingsDialog = ({
 								className="notifications-switch"
 								checked={enableNotifications}
 								onChange={handleChangeNotifications}
-								disabled={isLoadingStoredSettings || !NOTIFICATIONS_SUPPORTED}
-								aria-label={formatMessage(messages.settingLabels.notifications)}
+								disabled={isLoadingStoredSettings || !notificationsSupported()}
+								aria-label={notificationsSwitchLabel}
+								title={notificationsSwitchLabel}
 							/>
 
-							{formatMessage(messages.settingNames.notifications)}
+							<FormattedMessage
+								id="quintro.components.QuickSettingsDialog.settingNames.notifications"
+								description="Notifications setting name in the Quick Settings dialog."
+								defaultMessage="Notifications"
+							/>
 						</label>
 					</div>
 					<div
@@ -133,10 +145,15 @@ const QuickSettingsDialog = ({
 								checked={enableSoundEffects}
 								onChange={handleChangeSoundEffects}
 								disabled={isLoadingStoredSettings}
-								aria-label={formatMessage(messages.settingLabels.soundEffects)}
+								title={soundEffectsSwitchLabel}
+								aria-label={soundEffectsSwitchLabel}
 							/>
 
-							{formatMessage(messages.settingNames.soundEffects)}
+							<FormattedMessage
+								id="quintro.components.QuickSettingsDialog.settingNames.soundEffects"
+								description="Sound Effects setting name in the Quick Settings dialog."
+								defaultMessage="Sound Effects"
+							/>
 						</label>
 					</div>
 				</form>
@@ -144,7 +161,5 @@ const QuickSettingsDialog = ({
 		</div>
 	);
 }
-
-export { QuickSettingsDialog as Unwrapped };
 
 export default QuickSettingsDialog;

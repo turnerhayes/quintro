@@ -1,22 +1,21 @@
-'use client';
-
 import PlayGame from "@app/components/PlayGame";
-import { selectors } from "@lib/redux/selectors";
-import { useAppStore } from "@app/redux/hooks";
-import { actions as gameActions } from "@lib/redux/slices/games";
-import { Player } from "@shared/quintro";
+import { Player } from "@shared/quintro.d";
 import { useCallback } from "react";
 
 
-const PlayGamePage = () => {
-
+const PlayGameContainer = ({
+    gameName,
+}: {
+    gameName: string;
+}) => {
     const handleJoinGame = useCallback(() => {
 
     }, []);
 
+
     return (
         <PlayGame
-            gameName="test1"
+            gameName={gameName}
             playerUsers={[]}
             hasJoinedGame={false}
             currentUserPlayers={new Set<Player>()}
@@ -25,7 +24,7 @@ const PlayGamePage = () => {
             watcherCount={0}
             onJoinGame={handleJoinGame}
         />
-    )
+    );
 };
 
-export default PlayGamePage;
+export default PlayGameContainer;

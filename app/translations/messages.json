@@ -1,0 +1,172 @@
+{
+  "quintro.components.AccountDialog.actions.logInWith": {
+    "defaultMessage": "Log in with {provider}",
+    "description": "Title for the icon button used to log in with a particular authentication provider"
+  },
+  "quintro.components.AddPlayerButton.buttonTitle": {
+    "defaultMessage": "Add Player",
+    "description": "Title of the Add Player button"
+  },
+  "quintro.components.FindGame.cancelSearchLabel": {
+    "defaultMessage": "Stop searching",
+    "description": "Button text to cancel searching for open games"
+  },
+  "quintro.components.FindGame.form.playerLimit.details": {
+    "defaultMessage": "Leave blank if you don't care how many players the game has",
+    "description": "Additional instructions for the player limit input on the Find Game page"
+  },
+  "quintro.components.FindGame.form.playerLimit.label": {
+    "defaultMessage": "Number of players",
+    "description": "Label for the input field to specify max number of players allowed in games in the Find Games page"
+  },
+  "quintro.components.FindGame.form.submitButton.label": {
+    "defaultMessage": "Find",
+    "description": "Label for the button to start searching for games on the Find Game page"
+  },
+  "quintro.components.FindGame.header": {
+    "defaultMessage": "Find a Game",
+    "description": "Header for the Find Game page"
+  },
+  "quintro.components.FindGame.searchingText": {
+    "defaultMessage": "Searching for open games, please wait",
+    "description": "Message shown while searching for open games"
+  },
+  "quintro.components.GameJoinDialog.buttons.cancel.label": {
+    "defaultMessage": "Cancel",
+    "description": "Button text to cancel joining the game."
+  },
+  "quintro.components.GameJoinDialog.buttons.join.label": {
+    "defaultMessage": "Join",
+    "description": "Button text to join the game."
+  },
+  "quintro.components.GameJoinDialog.buttons.watchGame.label": {
+    "defaultMessage": "I want to watch this game",
+    "description": "Label for the button for the user to watch a game"
+  },
+  "quintro.components.GameJoinDialog.cannotJoinActions": {
+    "defaultMessage": "{findGameLink} or {createGameLink}",
+    "description": "Message giving links to find or create a game in the case that the user cannot join a game"
+  },
+  "quintro.components.GameJoinDialog.cannotJoinReasons.gameIsFull": {
+    "defaultMessage": "Sorry, this game is full",
+    "description": "Message shown when a user cannot join a game because it is full."
+  },
+  "quintro.components.GameJoinDialog.cannotJoinReasons.gameIsInProgress": {
+    "defaultMessage": "Sorry, this game is already in progress",
+    "description": "Message shown when a user cannot join a game because it is already in progress."
+  },
+  "quintro.components.GameJoinDialog.color": {
+    "defaultMessage": "Color",
+    "description": "Label for the color picker in the game joining dialog"
+  },
+  "quintro.components.GameJoinDialog.createGameLinkText": {
+    "defaultMessage": "create your own!",
+    "description": "Text for link to create game page when the user can't join a game. Used in message quintro.components.GameJoinDialog.cannotJoinActions."
+  },
+  "quintro.components.GameJoinDialog.findGameLinkText": {
+    "defaultMessage": "Find another game",
+    "description": "Text for link to find game page when the user can't join a game. Used in message quintro.components.GameJoinDialog.cannotJoinActions."
+  },
+  "quintro.components.GameJoinDialog.joinThisGamePrompt": {
+    "defaultMessage": "Join this game",
+    "description": "Header for the dialog to join a game."
+  },
+  "quintro.components.PlayGame.WinnerBanner.winMessage": {
+    "defaultMessage": "{winnerColor} wins!",
+    "description": "Message declaring the winning color"
+  },
+  "quintro.components.PlayGame.watchers.summary.withYou": {
+    "defaultMessage": "You {watcherCount, plural, =0 {} one {and 1 other person} other {and {watcherCount} other people} } are watching this game."
+  },
+  "quintro.components.PlayGame.watchers.summary.withoutYou": {
+    "defaultMessage": "{watcherCount, plural, one {1 person is} other {{watcherCount} people are} } watching this game."
+  },
+  "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.absent": {
+    "defaultMessage": "Player {playerColor} is absent",
+    "description": "Label for a player indicator for an anonymous player that is not present in the game."
+  },
+  "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.present": {
+    "defaultMessage": "Player {playerColor}",
+    "description": "Label for a player indicator for an anonymous player"
+  },
+  "quintro.components.PlayerIndicators.indicatorMessages.availableSlot": {
+    "defaultMessage": "This spot is open for another player",
+    "description": "Label for a player indicator representing an open spot in the game."
+  },
+  "quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.absent": {
+    "defaultMessage": "{playerName} is absent",
+    "description": "Label for a player indicator for a player that is not present in the game"
+  },
+  "quintro.components.PlayerIndicators.indicatorMessages.you": {
+    "defaultMessage": "This is you",
+    "description": "Label for a player indicator that represents the user"
+  },
+  "quintro.components.PlayerInfoPopup.anonymousUserTitle": {
+    "defaultMessage": "Anonymous User",
+    "description": "Title for the player info popup when the user is anonymous"
+  },
+  "quintro.components.PlayerInfoPopup.displayNameInput.cancelButtonTitle": {
+    "defaultMessage": "Cancel",
+    "description": "Button label to cancel changes to player's display name"
+  },
+  "quintro.components.PlayerInfoPopup.displayNameInput.label": {
+    "defaultMessage": "My name",
+    "description": "Label for the player display name input"
+  },
+  "quintro.components.PlayerInfoPopup.displayNameInput.submitButtonTitle": {
+    "defaultMessage": "Change",
+    "description": "Button label to commit changes to player's display name"
+  },
+  "quintro.components.PlayerInfoPopup.profileLink": {
+    "defaultMessage": "Profile",
+    "description": "Text for the link to the player's profile"
+  },
+  "quintro.components.PlayerInfoPopup.showFormButtonTitle": {
+    "defaultMessage": "Change display name",
+    "description": "Button text to show the form for changing a player's display name"
+  },
+  "quintro.components.QuickSettingsDialog.dialogTitle": {
+    "defaultMessage": "Quick Settings",
+    "description": "Header for the Quick Settings dialog"
+  },
+  "quintro.components.QuickSettingsDialog.settingLabels.notifications": {
+    "defaultMessage": "Enable Browser Notifications",
+    "description": "Label for the switch to enable notifications in the Quick Settings dialog"
+  },
+  "quintro.components.QuickSettingsDialog.settingLabels.soundEffects": {
+    "defaultMessage": "Enable Sound Effects",
+    "description": "Label for the switch to enable sound effects in the Quick Settings dialog"
+  },
+  "quintro.components.QuickSettingsDialog.settingNames.notifications": {
+    "defaultMessage": "Notifications",
+    "description": "Notifications setting name in the Quick Settings dialog."
+  },
+  "quintro.components.QuickSettingsDialog.settingNames.soundEffects": {
+    "defaultMessage": "Sound Effects",
+    "description": "Sound Effects setting name in the Quick Settings dialog."
+  },
+  "quintro.components.TopNavigation.links.findGame": {
+    "defaultMessage": "Find a Game",
+    "description": "Find Game page link text"
+  },
+  "quintro.components.TopNavigation.links.home": {
+    "defaultMessage": "Home",
+    "description": "Home page link text"
+  },
+  "quintro.components.TopNavigation.links.howToPlay": {
+    "defaultMessage": "How to Play",
+    "description": "How to Play page link text"
+  },
+  "quintro.components.TopNavigation.links.startGame": {
+    "defaultMessage": "Start a Game",
+    "description": "Start Game page link text"
+  },
+  "quintro.general.actions.logIn": {
+    "defaultMessage": "Log in",
+    "description": "Title for the login link on the account dialog"
+  },
+  "quintro.general.actions.logOut": {
+    "defaultMessage": "Log out",
+    "description": "Button text for the log out button"
+  }
+}

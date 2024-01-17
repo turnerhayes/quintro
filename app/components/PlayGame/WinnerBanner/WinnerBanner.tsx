@@ -1,16 +1,8 @@
 import React from "react";
-import PropTypes from "prop-types";
-// import { withStyles } from "@mui/material/styles";
-// import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import Config from "@app/config";
 
-import messages from "./messages";
-
-
-const FormattedMessage = ({id, values}: {id: string; values: any}) => {
-	return (<>id</>);
-};
 
 interface WinnerBannerProps {
 	winnerColor: string;
@@ -41,7 +33,13 @@ const styles = {
 	},
 };
 
-function WinnerBanner({ winnerColor, classes }) {
+function WinnerBanner({
+	winnerColor,
+	classes = {
+		root: "",
+		winMessage: "",
+	},
+}: WinnerBannerProps) {
 	return (
 		<div
 			className={classes.root}
@@ -50,7 +48,9 @@ function WinnerBanner({ winnerColor, classes }) {
 				className={classes.winMessage}
 			>
 				<FormattedMessage
-					{...messages.winMessage}
+					id="quintro.components.PlayGame.WinnerBanner.winMessage"
+					description="Message declaring the winning color"
+					defaultMessage="{winnerColor} wins!"
 					values={{
 						winnerColor: Config.game.colors.get(winnerColor).name,
 					}}
@@ -60,13 +60,4 @@ function WinnerBanner({ winnerColor, classes }) {
 	);
 }
 
-WinnerBanner.propTypes = {
-	winnerColor: PropTypes.oneOf(Config.game.colors.map((color) => color.id)),
-	classes: PropTypes.object.isRequired,
-};
-
-export { WinnerBanner as Unwrapped };
-
 export default WinnerBanner;
-
-// export default withStyles(styles)(WinnerBanner);

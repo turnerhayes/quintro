@@ -1,5 +1,4 @@
 import React, { useCallback, useState }              from "react";
-import PropTypes          from "prop-types";
 import {
 	Card,
 	CardHeader,
@@ -13,33 +12,10 @@ import {
 	Close as CloseIcon,
 	Check as CheckIcon
 } from "@mui/icons-material";
-
-import messages           from "./messages";
-import { Player, PlayerUser } from "@shared/quintro";
 import Link from "next/link";
 
-/**
- * @callback client.react-components.PlayerInfoPopup~onDisplayNameChange
- *
- * @param {object} args - the function arguments
- * @param {client.records.PlayerRecord} player - the player whose display name is being changed
- * @param {string} displayName - the display name entered
- *
- * @return {void}
- */
+import { Player, PlayerUser } from "@shared/quintro";
 
-/**
- * @callback client.react-components.PlayerInfoPopup~toggle
- *
- * @return {void}
- */
-
-
-
-//TODO: FIX
-const formatMessage = (messageDescriptor: {id: string;}, values?: {[key: string]: unknown}) => {
-	return messageDescriptor.id;
-};
 
 interface PlayerInfoPopupProps {
 	player: Player;
@@ -53,9 +29,6 @@ interface PlayerInfoPopupProps {
 /**
  * Component representing a popup displaying information about a player.
  *
- * @class
- * @extends external:React.PureComponent
- *
  * @memberof client.react-components
  */
 const PlayerInfoPopup = ({
@@ -63,6 +36,7 @@ const PlayerInfoPopup = ({
 	playerUser,
 	onDisplayNameChange,
 }: PlayerInfoPopupProps) => {
+	const intl = useIntl();
 	const [isFormVisible, setIsFormVisible] = useState(false);
 	const [displayNameValue, setDisplayNameValue] = useState<string>(
 		(playerUser.getIn(["name", "display"]) as string) || ""
@@ -111,14 +85,26 @@ const PlayerInfoPopup = ({
 	let content = null;
 	if (playerUser.get("isAnonymous")) {
 		if (playerUser.get("isMe") && isFormVisible) {
-			const submitButtonTitle = formatMessage(messages.displayNameInput.submitButtonTitle);
-			const cancelButtonTitle = formatMessage(messages.displayNameInput.cancelButtonTitle);
+			const submitButtonTitle = intl.formatMessage({
+				id: "quintro.components.PlayerInfoPopup.displayNameInput.submitButtonTitle",
+				description: "Button label to commit changes to player's display name",
+				defaultMessage: "Change"
+			});
+			const cancelButtonTitle = intl.formatMessage({
+				id: "quintro.components.PlayerInfoPopup.displayNameInput.cancelButtonTitle",
+				description: "Button label to cancel changes to player's display name",
+				defaultMessage: "Cancel"
+			});
 			content = (
 				<form
 					onSubmit={handleChangeDisplayNameFormSubmit}
 				>
 					<TextField
-						label={formatMessage(messages.displayNameInput.label)}
+						label={<FormattedMessage
+							id="quintro.components.PlayerInfoPopup.displayNameInput.label"
+							description="Label for the player display name input"
+							defaultMessage="My name"
+						/>}
 						name="name"
 						inputRef={textFieldRef}
 						value={displayNameValue}
@@ -155,12 +141,20 @@ const PlayerInfoPopup = ({
 				href={`/profile/${playerUser.get("username")}`}
 				target="_blank"
 			>
-				{formatMessage(messages.profileLink)}
+				<FormattedMessage
+					id="quintro.components.PlayerInfoPopup.profileLink"
+					description="Text for the link to the player's profile"
+					defaultMessage="Profile"
+				/>
 			</Link>
 		);
 	}
 
-	const showFormButtonTitle = formatMessage(messages.showFormButtonTitle);
+	const showFormButtonTitle = intl.formatMessage({
+		id: "quintro.components.PlayerInfoPopup.showFormButtonTitle",
+		description: "Button text to show the form for changing a player's display name",
+		defaultMessage: "Change display name",
+	});
 
 	return (
 		<Card>
@@ -169,8 +163,13 @@ const PlayerInfoPopup = ({
 					<div>
 						<span>
 							{
-								(playerUser.getIn(["name", "display"]) as string) ||
-								formatMessage(messages.anonymousUserTitle)
+								(playerUser.getIn(["name", "display"]) as string) || (
+									<FormattedMessage
+										id="quintro.components.PlayerInfoPopup.anonymousUserTitle"
+										description="Title for the player info popup when the user is anonymous"
+										defaultMessage="Anonymous User"
+									/>
+								)
 							}
 						</span>
 						{
@@ -202,8 +201,5 @@ const PlayerInfoPopup = ({
 	);
 }
 
-export { PlayerInfoPopup as Unwrapped };
 
 export default PlayerInfoPopup;
-
-// export default injectIntl(PlayerInfoPopup);

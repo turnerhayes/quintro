@@ -1,25 +1,17 @@
 import React, { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
 import { List }            from "immutable";
-// import {
-// 	injectIntl,
-// 	intlShape,
-// }                         from "react-intl";
 import classnames         from "classnames";
 import {Icon, Badge, Popover} from "@mui/material";
-// import { withStyles }     from "@mui/material/styles";
 
 import GameJoinDialog     from "@app/components/GameJoinDialog";
-// import Board              from "@app/containers/Board";
 import Board from "@app/components/Board"
 import ZoomControls       from "@app/components/Board/ZoomControls";
 import PlayerIndicators   from "@app/components/PlayerIndicators";
-// import PlayerInfoPopup    from "@app/containers/PlayerInfoPopup";
 import PlayerInfoPopup from "@app/components/PlayerInfoPopup";
 import Config             from "@app/config";
 import ImmutableBoard from "@shared/board";
 import {selectors} from "@lib/redux/selectors";
 
-import messages           from "./messages";
 import StartGameOverlay   from "./StartGameOverlay";
 import WinnerBanner       from "./WinnerBanner";
 import AddPlayerButton    from "@app/components/AddPlayerButton";
@@ -27,11 +19,6 @@ import { Player, PlayerUser } from "@shared/quintro";
 import { Game } from "@shared/game";
 import { useGetGameQuery } from "@lib/services/games-service";
 
-
-//TODO: FIX
-const formatMessage = ({id}: {id: string;}, values: {[key: string]: any}) => {
-	return id;
-};
 
 type OnJoinGameCallback = ({colors}: {colors: any[]}) => void;
 
@@ -405,26 +392,39 @@ const PlayGame = ({
 	const gameIsOver = !!game.winner;
 	const gameIsStarted = game.isStarted && !gameIsOver;
 
-	
-	const watcherSummary = watcherCount > 0 ?
-		formatMessage(
-			messages.watchers.summary[isWatchingGame ? "withYou" : "withoutYou"],
-			{
-				// If user is watching the game, they are included in the watcherCount.
-				// The message says something to the effect of "You and X others", so we
-				// need to decrement it if the current user is watching
-				watcherCount: isWatchingGame ?
-					watcherCount - 1 :
-					watcherCount,
-			}
-		) :
-		null;
+	let watcherSummary: ReactNode|null = null;
 
-	//TODO: FIX
-	const board = new ImmutableBoard({
-		width: 10,
-		height: 10,
-	});
+	if (watcherCount > 0) {
+		if (isWatchingGame) {
+			watcherSummary = (
+				<FormattedMessage
+					id="quintro.components.PlayGame.watchers.summary.withYou"
+					defaultMessage={`You {watcherCount, plural,
+						=0 {}
+						one {and 1 other person}
+						other {and {watcherCount} other people}
+					} are watching this game.`}
+					values={{
+						watcherCount: watcherCount - 1,
+					}}
+				/>
+			);
+		}
+		else {
+			watcherSummary = (
+				<FormattedMessage
+					id="quintro.components.PlayGame.watchers.summary.withoutYou"
+					defaultMessage={`{watcherCount, plural,
+						one {1 person is}
+						other {{watcherCount} people are}
+					} watching this game.`}
+					values={{
+						watcherCount,
+					}}
+				/>
+			);
+		}
+	}
 		
 	const boardContainerStyles: CSSProperties = {
 		fontSize: currentZoomLevel + "em",
@@ -570,8 +570,4 @@ const PlayGame = ({
 	);
 }
 
-export { PlayGame as Unwrapped };
-
 export default PlayGame;
-
-// export default injectIntl(withStyles(styles)(PlayGame));

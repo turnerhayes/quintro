@@ -4,8 +4,8 @@ import IconButton from "@mui/material/IconButton";
 // import gameSelectors from "@app/selectors/games/game";
 import ColorPicker from "@app/components/ColorPicker";
 
-import messages from "./messages";
 import {Game} from "@shared/game";
+import { useIntl } from "react-intl";
 
 
 
@@ -44,6 +44,7 @@ const AddPlayerButton = ({
 		icomoonIcon: "",
 	},
 }: AddPlayerButtonProps) => {
+	const intl = useIntl();
 	const [color, setColor] = useState<string|null>(null);
 
 	const ref = useRef();
@@ -70,9 +71,11 @@ const AddPlayerButton = ({
 		setColor(color);
 	}, [setColor]);
 
-	// const title = this.props.intl.formatMessage(messages.buttonTitle);
-	// TODO: FIX
-	const title = "Add Player";
+	const title = intl.formatMessage({
+		id: "quintro.components.AddPlayerButton.buttonTitle",
+		description: "Title of the Add Player button",
+		defaultMessage: "Add Player",
+	});
 
 	return (
 		<div

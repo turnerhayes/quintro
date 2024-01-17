@@ -1,14 +1,12 @@
 import React, { useCallback }              from "react";
-// import { withStyles }     from "@mui/material/styles";
 import classnames         from "classnames";
 
 import Marble             from "@app/components/Marble";
 // import gameSelectors      from "@app/selectors/games/game";
 
-import messages           from "./messages";
-import { List } from "immutable";
-import { Player, PlayerUser } from "@shared/quintro";
+import { Player, PlayerUser } from "@shared/quintro.d";
 import {Game} from "@shared/game";
+import { useIntl } from "react-intl";
 
 const gameSelectors = {
 	getCurrentPlayerColor(game) {
@@ -53,20 +51,6 @@ const styles = {
 		},
 	},
 };
-
-//TODO: FIX
-const formatMessage = ({id}: {id: string;}, values?: {[key: string]: unknown}) => {
-	return id;
-};
-
-/**
- * @callback client.react-components.PlayerIndicators~onIndicatorClick
- *
- * @param {object} args - the function arguments
- * @param {external:Immutable.Map} args.selectedPlayer - the player whose indicator was clicked
- *
- * @return {void}
- */
 
 interface PlayerIndicatorsProps {
 	game: Game;
@@ -118,6 +102,8 @@ const PlayerIndicators = ({
 		activeItem: "",
 	},
 }: PlayerIndicatorsProps) => {
+	const intl = useIntl();
+
 	/**
 	 * Handles a click on a player indicator.
 	 *
@@ -149,34 +135,53 @@ const PlayerIndicators = ({
 							const active = player.color === gameSelectors.getCurrentPlayerColor(game);
 							const isPresent = !!game.playerPresence[player.color];
 
-							let message;
-							const messageArgs: {
-								playerName?: string;
-								playerColor?: string;
-							} = {};
+							let label: string;
 
 							if (playerUser.isMe) {
-								message = messages.indicatorMessages.you;
+								label = intl.formatMessage({
+									id: "quintro.components.PlayerIndicators.indicatorMessages.you",
+									description: "Label for a player indicator that represents the user",
+									defaultMessage: "This is you",
+								});
 							}
 							else {
 								if (playerUser.name.display) {
-									message = messages.indicatorMessages.namedPlayer;
-									messageArgs.playerName = playerUser.name.display;
+									const playerName = playerUser.name.display;
+									if (isPresent) {
+										label = playerName;
+									}
+									else {
+										label = intl.formatMessage({
+											id: "quintro.components.PlayerIndicators.indicatorMessages.namedPlayer.absent",
+											description: "Label for a player indicator for a player that is not present in the game",
+											defaultMessage: "{playerName} is absent",
+										}, {
+											playerName,
+										});
+									}
 								}
 								else {
-									message = messages.indicatorMessages.anonymousPlayer;
-									messageArgs.playerColor = player.color;
-								}
-
-								if (isPresent) {
-									message = message.present;
-								}
-								else {
-									message = message.absent;
+									const playerColor = player.color;
+									if (isPresent) {
+										label = intl.formatMessage({
+											id: "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.present",
+											description: "Label for a player indicator for an anonymous player",
+											defaultMessage: "Player {playerColor}",
+										}, {
+											playerColor,
+										});
+									}
+									else {
+										label = intl.formatMessage({
+											id: "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.absent",
+											description: "Label for a player indicator for an anonymous player that is not present in the game.",
+											defaultMessage: "Player {playerColor} is absent",
+										}, {
+											playerColor,
+										});
+									}
 								}
 							}
-
-							const label = formatMessage(message, messageArgs);
 
 							return (
 								<li
@@ -234,7 +239,11 @@ const PlayerIndicators = ({
 								<li
 									key={`not-filled-player-${index}`}
 									className={classes.item}
-									title={formatMessage(messages.indicatorMessages.availableSlot)}
+									title={intl.formatMessage({
+										id: "quintro.components.PlayerIndicators.indicatorMessages.availableSlot",
+										description: "Label for a player indicator representing an open spot in the game.",
+										defaultMessage: "This spot is open for another player",
+									})}
 									onClick={(event) => handlePlayerIndicatorClick({
 										player: null,
 										index,
@@ -268,8 +277,4 @@ const PlayerIndicators = ({
 	);
 }
 
-export { PlayerIndicators as Unwrapped };
-
 export default PlayerIndicators;
-
-// export default injectIntl(withStyles(styles)(PlayerIndicators));

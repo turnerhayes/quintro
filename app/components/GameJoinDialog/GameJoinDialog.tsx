@@ -1,27 +1,32 @@
-import React, { useCallback, useEffect, useState }         from "react";
-import PropTypes     from "prop-types";
-import {Map} from "immutable";
-// import ImmutablePropTypes from "react-immutable-proptypes";
-// import { Link }      from "react-router-dom";
-import Dialog        from "@mui/material/Dialog";
-import Card          from "@mui/material/Card";
-import CardHeader    from "@mui/material/CardHeader";
-import CardContent   from "@mui/material/CardContent";
-import Button        from "@mui/material/Button";
-// import {`
-// 	injectIntl,
-// 	intlShape,
-// 	FormattedMessage,
-// }                    from "reac`t-intl";
-
-// import gameSelectors from "@app/selectors/games/game";
-import ColorPicker   from "@app/components/ColorPicker";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import {
+	Dialog,
+	Card,
+	CardHeader,
+	CardContent,
+	Button,
+	Link as MUILink
+} from "@mui/material";
+import { FormattedMessage } from "react-intl";
+import NextLink from "next/link";
+import ColorPicker from "@app/components/ColorPicker";
 import { useJoinGameMutation } from "@lib/services/game-socket";
 
-import messages      from "./messages";
-import Link from "next/link";
 import {Game} from "@shared/game";
 
+const Link = ({
+	href,
+	children,
+}: {
+	href: string;
+	children: ReactNode;
+}) => (
+	<MUILink
+		component={NextLink}
+		href={href}
+	>
+		{children}
+	</MUILink>);
 
 //TODO: FIX
 const gameSelectors = {
@@ -30,63 +35,58 @@ const gameSelectors = {
 	}
 };
 
-//TODO: FIX
-const formatMessage = ({id}: {id: string;}, values?: {[key: string]: any}) => {
-	return id;
-};
 
 const CannotJoinGame = ({
 	reason,
 	handleWatchGameButtonClicked,
 }: {
-	reason: string;
+	reason: ReactNode;
 	handleWatchGameButtonClicked: () => void;
 }) => {
 	return (
 		<div>
 			{reason}.
 			<div>
-				{
-					formatMessage(messages.cannotJoinActions, {
+				<FormattedMessage
+					id="quintro.components.GameJoinDialog.cannotJoinActions"
+					description="Message giving links to find or create a game in the case that the user cannot join a game"
+					defaultMessage="{findGameLink} or {createGameLink}"
+					values={{
 						findGameLink: (
-							<Link href="/game/find">
-								{formatMessage(messages.findGameLinkText)}
+							<Link
+								href="/game/find"
+							>
+								<FormattedMessage
+									id="quintro.components.GameJoinDialog.findGameLinkText"
+									description="Text for link to find game page when the user can't join a game. Used in message quintro.components.GameJoinDialog.cannotJoinActions."
+									defaultMessage="Find another game"
+								/>
 							</Link>
-							// <Link
-							// 	to="/game/find"
-							// >
-							// 	<FormattedMessage
-							// 		{...messages.findGameLinkText}
-							// 	/>
-							// </Link>
 						),
-
 						createGameLink: (
-							<Link href="/game/create">
-								{formatMessage(messages.createGameLinkText)}
+							<Link
+								href="/game/create"
+							>
+								<FormattedMessage
+									id="quintro.components.GameJoinDialog.createGameLinkText"
+									description="Text for link to create game page when the user can't join a game. Used in message quintro.components.GameJoinDialog.cannotJoinActions."
+									defaultMessage="create your own!"
+								/>
 							</Link>
-							// <Link
-							// 	to="/game/create"
-							// >
-							// 	<FormattedMessage
-							// 		{...messages.createGameLinkText}
-							// 	/>
-							// </Link>
 						),
-					})
-				}
+					}}
+				/>
 			</div>
 			<Button
 				className="watch-game-button"
 				color="secondary"
 				onClick={handleWatchGameButtonClicked}
 			>
-				{
-					formatMessage(messages.buttons.watchGame.label)
-				}
-				{/* <FormattedMessage
-					{...messages.buttons.watchGame.label}
-				/> */}
+				<FormattedMessage
+					id="quintro.components.GameJoinDialog.buttons.watchGame.label"
+					description="Label for the button for the user to watch a game"
+					defaultMessage="I want to watch this game"
+				/>
 			</Button>
 		</div>
 	);
@@ -210,7 +210,13 @@ const GameJoinDialog = ({
 	if (isFull) {
 		body = (
 			<CannotJoinGame
-				reason={formatMessage(messages.cannotJoinReasons.gameIsFull)}
+				reason={
+					<FormattedMessage
+						id="quintro.components.GameJoinDialog.cannotJoinReasons.gameIsFull"
+						description="Message shown when a user cannot join a game because it is full."
+						defaultMessage="Sorry, this game is full"
+					/>
+				}
 				handleWatchGameButtonClicked={handleWatchGameButtonClicked}
 			/>
 		);
@@ -218,7 +224,13 @@ const GameJoinDialog = ({
 	else if (game.isStarted) {
 		body = (
 			<CannotJoinGame
-				reason={formatMessage(messages.cannotJoinReasons.gameIsInProgress)}
+				reason={
+					<FormattedMessage
+						id="quintro.components.GameJoinDialog.cannotJoinReasons.gameIsInProgress"
+						description="Message shown when a user cannot join a game because it is already in progress."
+						defaultMessage="Sorry, this game is already in progress"
+					/>
+				}
 				handleWatchGameButtonClicked={handleWatchGameButtonClicked}
 			/>
 		);
@@ -231,10 +243,11 @@ const GameJoinDialog = ({
 					<div>
 						<label
 						>
-							{formatMessage(messages.color)}
-							{/* <FormattedMessage
-								{...messages.color}
-							/>: */}
+							<FormattedMessage
+								id="quintro.components.GameJoinDialog.color"
+								description="Label for the color picker in the game joining dialog"
+								defaultMessage="Color"
+							/>:
 							<ColorPicker
 								game={game}
 								selectedColor={selectedColor}
@@ -249,20 +262,22 @@ const GameJoinDialog = ({
 							type="submit"
 							color="primary"
 						>
-							{formatMessage(messages.buttons.join.label)}
-							{/* <FormattedMessage
-								{...messages.buttons.join.label}
-							/> */}
+							<FormattedMessage
+								id="quintro.components.GameJoinDialog.buttons.join.label"
+								description="Button text to join the game."
+								defaultMessage="Join"
+							/>
 						</Button>
 						<Button
 							className="cancel-button"
 							type="button"
 							onClick={handleCancelButtonClicked}
 						>
-							{formatMessage(messages.buttons.cancel.label)}
-							{/* <FormattedMessage
-								{...messages.buttons.cancel.label}
-							/> */}
+							<FormattedMessage
+								id="quintro.components.GameJoinDialog.buttons.cancel.label"
+								description="Button text to cancel joining the game."
+								defaultMessage="Cancel"
+							/>
 						</Button>
 					</div>
 				</form>
@@ -277,7 +292,11 @@ const GameJoinDialog = ({
 			<Card>
 				{ canJoin && (
 					<CardHeader
-						title={formatMessage(messages.joinThisGamePrompt)}
+						title={<FormattedMessage
+							id="quintro.components.GameJoinDialog.joinThisGamePrompt"
+							description="Header for the dialog to join a game."
+							defaultMessage="Join this game"
+						/>}
 					/>
 				) }
 				<CardContent>
@@ -288,8 +307,5 @@ const GameJoinDialog = ({
 	);
 }
 
-export { GameJoinDialog as Unwrapped };
-
 export default GameJoinDialog;
 
-// export default injectIntl(GameJoinDialog);

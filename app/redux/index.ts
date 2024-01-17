@@ -1,1 +1,1 @@
-export {store} from "@lib/redux/store";
+export {makeStore} from "@lib/redux/store";

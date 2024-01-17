@@ -1,5 +1,6 @@
 import React, { useCallback, useState }                from "react";
 import Link from "next/link";
+import {useIntl} from "react-intl";
 import AppBar               from "@mui/material/AppBar";
 import Toolbar              from "@mui/material/Toolbar";
 import Popover              from "@mui/material/Popover";
@@ -11,9 +12,9 @@ import HomeIcon             from "@mui/icons-material/Home";
 import AccountCircleIcon    from "@mui/icons-material/AccountCircle";
 import SettingsIcon         from "@mui/icons-material/Settings";
 import AccountDialog        from "@app/components/AccountDialog";
-import QuickSettingsDialog  from "@app/components/QuickSettingsDialog";
-import messages             from "./messages";
+import QuickSettingsDialog  from "@app/containers/QuickSettingsDialog";
 import { User } from "@shared/user";
+
 
 const styles = {
 	accountButton: {
@@ -21,31 +22,10 @@ const styles = {
 	},
 };
 
-//TODO: FIX
-const formatMessage = ({id}: {id: string}, values?: {[key: string]: unknown}) => {
-	return id;
-};
-
-
-	/**
-	 * @member {object} - Component prop types
-	 *
-	 * @prop {!external:Immutable.Map} [loggedInUser] - the logged in user, if any
-	 * @prop {string} [className] - any extra class names to add to the root element
-	 * @prop {object} intl - an Intl object from the react-intl package
-	 */
-	// static propTypes = {
-	// 	loggedInUser: ImmutablePropTyps.map,
-	// 	className: PropTypes.string,
-	// 	intl: PropTypes.obj.isRequired,
-	// 	classes: PropTypes.object.isRequired,
-	// };
-
 interface TopNavigationProps {
 	loggedInUser: User;
 	className: string;
 	classes: {
-		root: string;
 		accountButton: string;
 	};
 }
@@ -61,8 +41,11 @@ interface TopNavigationProps {
 const TopNavigation = ({
 	loggedInUser,
 	className,
-	classes,
+	classes = {
+		accountButton: "account-button",
+	},
 }: TopNavigationProps) => {
+	const intl = useIntl();
 	const [accountButtonEl, setAccountButtonEl] = useState<Element|null>(null);
 	const [quickSettingsButtonEl, setQuickSettingsButtonEl] = useState<Element|null>(null);
 
@@ -83,6 +66,7 @@ const TopNavigation = ({
 	const closeAccountDialog = useCallback(() => {
 		setAccountButtonEl(null);
 	}, [setAccountButtonEl]);
+
 
 	/**
 	 * Handles a click of the Quick Settings button.
@@ -110,7 +94,11 @@ const TopNavigation = ({
 			<Toolbar>
 				<Link
 					href="/"
-					title={formatMessage(messages.links.home)}
+					title={intl.formatMessage({
+						id: "quintro.components.TopNavigation.links.home",
+						description: "Home page link text",
+						defaultMessage: "Home",
+					})}
 				>
 					<HomeIcon/>
 				</Link>
@@ -118,19 +106,31 @@ const TopNavigation = ({
 					component={Link}
 					href="/game/find"
 				>
-					{formatMessage(messages.links.findGame)}
+					{intl.formatMessage({
+						id: "quintro.components.TopNavigation.links.findGame",
+						description: "Find Game page link text",
+						defaultMessage: "Find a Game",
+					})}
 				</Button>
 				<Button
 					component={Link}
 					href="/how-to-play"
 				>
-					{formatMessage(messages.links.howToPlay)}
+					{intl.formatMessage({
+						id: "quintro.components.TopNavigation.links.howToPlay",
+						description: "How to Play page link text",
+						defaultMessage: "How to Play",
+					})}
 				</Button>
 				<Button
 					component={Link}
 					href="/game/create"
 				>
-					{formatMessage(messages.links.startGame)}
+					{intl.formatMessage({
+						id: "quintro.components.TopNavigation.links.startGame",
+						description: "Start Game page link text",
+						defaultMessage: "Start a Game",
+					})}
 				</Button>
 
 				<IconButton
