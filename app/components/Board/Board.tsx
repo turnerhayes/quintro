@@ -7,8 +7,8 @@ import { List, fromJS }         from "immutable";
 import classnames         from "classnames";
 
 // import BoardRecord        from "@shared-lib/board";
-import Cell               from "./Cell";
-import ImmutableBoard from "@shared/board";
+import CellComponent               from "./Cell";
+import { Board, Cell, Quintro } from "@shared/board";
 
 const styles = {
 	root: {
@@ -18,11 +18,11 @@ const styles = {
 };
 
 interface BoardProps {
-	board: ImmutableBoard;
-	quintros: List<any>;
+	board: Board;
+	quintros: Array<Quintro>;
 	allowPlacement?: boolean;
 	gameIsOver?: boolean;
-	onCellClick?: ({cell}: {cell: any;}) => void;
+	onCellClick?: ({cell}: {cell: Cell;}) => void;
 	classes?: {
 		root: string;
 	};
@@ -73,7 +73,7 @@ const Board = ({
 		quintros.reduce(
 			(cells, quintro) => {
 				quintro.cells.forEach(
-					cell => cells[JSON.stringify(cell.get("position"))] = true
+					cell => cells[JSON.stringify(cell.position)] = true
 				);
 
 				return cells;
@@ -83,7 +83,7 @@ const Board = ({
 
 	const filledMap = board.filledCells.reduce(
 		(filledCells, cell) => {
-			const stringPosition = JSON.stringify(cell.get("position"));
+			const stringPosition = JSON.stringify(cell.position);
 
 			filledCells[stringPosition] = {
 				...cell,
@@ -118,7 +118,7 @@ const Board = ({
 											const filledCells = filledMap[JSON.stringify(position)];
 
 											return (
-												<Cell
+												<CellComponent
 													key={`${columnIndex}-${rowIndex}`}
 													cell={filledCells || fromJS({
 														position,
@@ -146,8 +146,4 @@ const Board = ({
 	);
 }
 
-export { Board as Unwrapped };
-
 export default Board;
-
-// export default withStyles(styles)(Board);

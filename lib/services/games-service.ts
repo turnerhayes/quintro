@@ -16,6 +16,19 @@ export const gameApiSlice = createApi({
 
                 return url;
             },
+            transformResponse(games: Game|Game[]) {
+                if (!Array.isArray(games)) {
+                    games = [games];
+                }
+
+                for (const game of games) {
+                    if (!game.playerPresence) {
+                        game.playerPresence = {};
+                    }
+                }
+
+                return games;
+            }
         }),
 
         findOpenGames: builder.query<Game[], number|null>({

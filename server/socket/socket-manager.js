@@ -1,10 +1,8 @@
 "use strict";
 
 const assert             = require("assert");
-const path               = require("path");
 const util               = require("util");
 const {Server}           = require("socket.io");
-const passport           = require("passport");
 
 const Config             = require("../config");
 const {
@@ -14,11 +12,12 @@ const GameStore          = require("../persistence/stores/game");
 const UserStore          = require("../persistence/stores/user");
 const ErrorCodes         = require("../../shared-lib/error-codes");
 const Loggers            = require("../lib/loggers");
-const session            = require("../lib/session");
 const { getQuintros }    = require("../../shared-lib/dist/selectors/quintro");
 const {
 	getNextColor
 }                        = require("../../shared-lib/dist/players");
+const session = require("../lib/session");
+const passport = require("passport");
 
 const LOG_LEVELS = {
 	INFO: "info",
@@ -64,6 +63,23 @@ function getWatchers({ gameName, socket }) {
 	};
 }
 
+async function _getUserForSocket(socket) {
+	if (socket.request.user) {
+		return socket.request.user;
+	}
+	
+	const user = await UserStore.findBySessionID(socket.request.session.id);
+
+	if (user) {
+		return user;
+	}
+	else {
+		return await UserStore.createUser({
+			sessionID: socket.request.session.id
+		});
+	}
+}
+
 /**
  * Removes a watcher from the list of watchers for the specified game.
  *
@@ -105,7 +121,7 @@ function _getPlayers({game, user, sessionID}) {
 	);
 }
 
-function addPlayerToGame({ socket, game, color }) {
+async function addPlayerToGame({ socket, game, color }) {
 	// If the game is full, throw error
 	if (game.isFull) {
 		const err = new Error("Game is full");
@@ -137,40 +153,32 @@ function addPlayerToGame({ socket, game, color }) {
 		throw err;
 	}
 
-	console.log("Socket session:", socket.request.session);
-	return Promise.resolve(
-		socket.request.user ||
-			UserStore.findBySessionID(socket.request.session.id).then(
-				(user) => {
-					if (user) {
-						return user;
-					}
-					else {
-						return UserStore.createUser({
-							sessionID: socket.request.session.id
-						});
-					}
-				}
-			)
-	).then(
-		(user) => GameStore.addPlayerToGame({
-			gameName: game.name,
-			player: {
-				color,
-				user
-			}
-		})
-	).then(
-		(game) => {
-			const playerIndex = _.findIndex(game.players, (player) => player.color === color);
-
-			return {
-				player: game.players[playerIndex],
-				playerIndex,
-				game
-			};
+	const user = await _getUserForSocket(socket);
+	game = await GameStore.addPlayerToGame({
+		gameName: game.name,
+		player: {
+			color,
+			user
 		}
-	);
+	});
+
+	let playerIndex = -1;
+	for (let i = 0; i < game.players.length; i++) {
+		if (game.players[i].color === color) {
+			playerIndex = i;
+			break;
+		}
+	}
+
+	if (playerIndex < 0) {
+		throw new Error("Unable to find player in game after adding it.");
+	}
+
+	return {
+		player: game.players[playerIndex],
+		playerIndex,
+		game
+	};
 }
 
 function getSocketPlayer({ socket, game, color }) {
@@ -230,99 +238,82 @@ function getSocketPlayers({ socket, game }) {
 	};
 }
 
-function _resolvePlayerJoinData({ socket, gameName, colors }) {
-	return GameStore.getGame({
-		name: gameName
-	}).then(
-		(game) => {
-			const players = getSocketPlayers({ socket, game });
+const getAugmentedPlayersForGame = async (socket, game, colors) => {
+	const players = getSocketPlayers({ socket, game });
 
-			const missingColors = colors.reduce(
-				(missing, color) => {
-					if (!(color in players.playerIndexes)) {
-						missing.push(color);
-					}
-
-					return missing;
-				},
-				[]
-			);
-
-			if (missingColors.length === 0) {
-				return players;
+	const missingColors = colors.reduce(
+		(missing, color) => {
+			if (!(color in players.playerIndexes)) {
+				missing.push(color);
 			}
 
-			// This *should* never happen; the UI does not currently allow it, but this is here for sanity
-			// checking/preventing malicious socket requests
-			if (missingColors.length > 1) {
-				const error = new Error("Cannot join more than one new player to a game at a time");
-				error.code = ErrorCodes.TOO_MANY_JOINERS;
-
-				throw error;
-			}
-
-			const color = missingColors[0];
-
-			return Promise.resolve(
-				addPlayerToGame({ socket, game, color })
-			).then(
-				(addedPlayerData) => {
-					players.playerIndexes[color] = addedPlayerData.playerIndex;
-					players.players.push(addedPlayerData.player);
-
-					if (!players.user) {
-						players.user = addedPlayerData.player.user;
-					}
-
-					return players;
-				}
-			);
-		}
-	).then(
-		(data) => {
-			if (
-				!data.user.isAnonymous &&
-				!socket.request.user
-			) {
-				return new Promise(
-					(resolve, reject) => {
-						socket.request.logIn(data.user, (err) => {
-							if (err) {
-								reject(err);
-								return;
-							}
-
-							resolve(data);
-						});
-					}
-				);
-			}
-
-			return data;
-		}
+			return missing;
+		},
+		[]
 	);
+
+	if (missingColors.length === 0) {
+		return players;
+	}
+
+	// This *should* never happen; the UI does not currently allow it, but this is here for sanity
+	// checking/preventing malicious socket requests
+	if (missingColors.length > 1) {
+		const error = new Error("Cannot join more than one new player to a game at a time");
+		error.code = ErrorCodes.TOO_MANY_JOINERS;
+
+		throw error;
+	}
+
+	const color = missingColors[0];
+
+	const addedPlayerData = await addPlayerToGame({ socket, game, color });
+	players.playerIndexes[color] = addedPlayerData.playerIndex;
+	players.players.push(addedPlayerData.player);
+
+	if (!players.user) {
+		players.user = addedPlayerData.player.user;
+	}
+
+	return players;
+};
+
+const logInIfNeeded = async (data) => {
+	if (
+		!data.user.isAnonymous &&
+		!socket.request.user
+	) {
+		return new Promise(
+			(resolve, reject) => {
+				socket.request.logIn(data.user, (err) => {
+					if (err) {
+						reject(err);
+						return;
+					}
+
+					resolve(data);
+				});
+			}
+		);
+	}
+
+	return data;
+};
+
+async function _resolvePlayerJoinData({ socket, gameName, colors }) {
+	const game = await GameStore.getGame({
+		name: gameName
+	});
+	const playerData = await getAugmentedPlayersForGame(socket, game, colors);
+	return await logInIfNeeded(playerData);
 }
 
 const _games = {};
 
-let _managerInitialized = false;
-
 class SocketManager {
-	static initialize({ server }) {
-		if (_managerInitialized) {
-			return;
-		}
-
-		let origins;
-
+	attachTo(httpServer) {
 		const origin = Config.app.address.origin;
-
-		if (!Config.websockets.inline) {
-			origins = [Config.app.address.origin.replace(/^http(s)?:\/\//, "")];
-		}
-
-		const serverConfigOptions = {
-			origins,
+		this._server = new Server(httpServer, {
 			path: Config.websockets.path,
 			cookie: {
 			  name: "io",
@@ -332,147 +323,29 @@ class SocketManager {
 			},
 			cors: {
 				origin,
+				credentials: true,
 			},
-		};
+		});
 
-		SocketManager._isStandaloneServer = !server;
+		this._server.engine.use(session);
+		this._server.engine.use(passport.initialize());
+		this._server.engine.use(passport.session());
 
-		if (SocketManager._isStandaloneServer) {
-			const {createServer} = require("node:http");
-			server = createServer();
-			SocketManager._server = new Server(server, serverConfigOptions);
-		}
-		else {
-			SocketManager._server = new Server(server, serverConfigOptions);
-		}
-
-		SocketManager._server.engine.use(session);
-
-		SocketManager._server.engine.use(passport.initialize());
-		SocketManager._server.engine.use(passport.session());
-
-		SocketManager._server.on("connection", SocketManager._onConnect);
-
-		_managerInitialized = true;
-	}
-
-	static listen(port) {
-		if (!_managerInitialized) {
-			throw new Error("Socket manager not yet initialized");
-		}
-
-		if (!SocketManager._isStandaloneServer) {
-			throw new Error("listen cannot be called if not " +
-				"initialized on a standalone server; listen on " +
-				"the underlying server instead");
-		}
-
-		return new Promise((resolve) => {
-			SocketManager._server.listen(port, () => {
-				resolve();
-			});
+		this._server.on("connection", (socket) => {
+			this._onConnect(socket);
 		});
 	}
 
-	static _onConnect(socket) {
-		Loggers.websockets.info(
-			"socket connected: " +
-			JSON.stringify({
-				id: socket.id,
-				sessionID: socket.request.sessionID,
-				remoteAddress: socket.client.conn.remoteAddress
-			})
-		);
-
-		socket.on("board:place-marble", function({ gameName, position, color }, fn) {
-			SocketManager._onPlaceMarble(this, { gameName, position, color }, fn);
-		});
-
-		socket.on("game:join", function({ gameName, colors }, fn) {
-			console.log("Received a game:join event for game ", gameName);
-			SocketManager._onJoinGame(this, gameName, colors, fn);
-		});
-
-		socket.on("game:leave", function({ gameName }, fn) {
-			SocketManager._onLeaveGame(this, gameName, fn);
-		});
-
-		socket.on("game:watch", function({ gameName }, fn) {
-			SocketManager._onWatchGame(this, gameName, fn);
-		});
-
-		socket.on("game:watchers", function({ gameName }, fn) {
-			SocketManager._getWatchers(this, gameName, fn);
-		});
-
-		socket.on("game:update", function({ gameName }, fn) {
-			SocketManager._onUpdateGame(this, gameName, fn);
-		});
-
-		socket.on("game:players:presence", function({ gameName }, fn) {
-			SocketManager._onGetPlayerPresence(this, gameName, fn);
-		});
-
-		socket.on("game:start", function({ gameName }, fn) {
-			SocketManager._onGameStart(this, gameName, fn);
-		});
-
-		socket.on("users:change-profile", function({ userID, updates }, fn) {
-			if (userID === undefined) {
-				userID = this.request.user;
-			}
-
-			let sessionID;
-
-			if (!userID) {
-				sessionID = this.req.session.id;
-			}
-
-			UserStore.updateUser({
-				userID,
-				sessionID,
-				updates
-			}).then(
-				(user) => {
-					user = prepareUserForFrontend({ user, request: this.request });
-
-					delete user.isMe;
-
-					SocketManager._server.emit("users:profile-changed", {
-						user
-					});
-				}
-			).catch(
-				(err) => {
-					_logError({
-						error: err
-					});
-					fn && fn({
-						error: true,
-						message: err.message,
-						code: err.code
-					});
-				}
-			);
-		});
-
-		socket.on("disconnect", function() {
-			SocketManager._onDisconnect(this);
-		});
-	}
-
-	static _onUpdateGame(socket, gameName, fn) {
-		const update = {
+	_onUpdateGame(socket, gameName, fn) {
+		fn && fn({
 			watchers: getWatchers({ gameName, socket }),
-			playerPresence: SocketManager.getPresentPlayers({ socket, gameName }),
-		};
-
-		fn && fn({ update });
+			playerPresence: this.getPresentPlayers({ socket, gameName }),
+		});
 	}
 
-	static getPresentPlayers({ gameName }) {
+	getPresentPlayers({ gameName }) {
 		return _.map(
-			SocketManager._server.to(gameName).connected,
+			this._server.to(gameName).connected,
 			"player"
 		).reduce(
 			(presenceMap, player) => {
@@ -486,7 +359,7 @@ class SocketManager {
 		);
 	}
 
-	static _onWatchGame(socket, gameName, fn) {
+	async _onWatchGame(socket, gameName, fn) {
 		if (!gameName) {
 			const error = new Error("No gameName specified");
 			_logError({
@@ -502,61 +375,60 @@ class SocketManager {
 
 		socket.join(gameName);
 		
-		GameStore.getGame({
-			name: gameName,
-		}).then(
-			(game) => {
-				// Don't add player as a watcher if they're already a player;
-				// just add their socket to the game's room
-				if (!getSocketPlayer({ socket, game })) {
-					if (!WATCHERS[gameName]) {
-						WATCHERS[gameName] = [];
-					}
+		try {
+			const game = await GameStore.getGame({
+				name: gameName,
+			});
 
-					WATCHERS[gameName].push({
-						user: socket.request.user,
-						sessionID: socket.request.user ?
-							undefined :
-							socket.request.sessionID,
-					});
-
-					const watchers = {
-						count: WATCHERS[gameName].length,
-						includesMe: true,
-					};
-
-					const args = [
-						"game:watchers:updated",
-						{
-							gameName,
-							watchers,
-						},
-					];
-
-					socket.emit(...args);
-
-					// For other connected sockets, don't change the includesMe value,
-					// because this user being included won't change whether those other users
-					// are included
-					delete watchers.includesMe;
-
-					socket.broadcast.to(gameName).emit(...args);
+			// Don't add player as a watcher if they're already a player;
+			// just add their socket to the game's room
+			if (!getSocketPlayer({ socket, game })) {
+				if (!WATCHERS[gameName]) {
+					WATCHERS[gameName] = [];
 				}
 
-				fn && fn({});
-			}
-		).catch(
-			(error) => {
-				fn && fn({
-					error: true,
-					message: error.message,
-					code: error.code,
+				WATCHERS[gameName].push({
+					user: socket.request.user,
+					sessionID: socket.request.user ?
+						undefined :
+						socket.request.sessionID,
 				});
+
+				const watchers = {
+					count: WATCHERS[gameName].length,
+					includesMe: true,
+				};
+
+				const args = [
+					"game:watchers:updated",
+					{
+						gameName,
+						watchers,
+					},
+				];
+
+				socket.emit(...args);
+
+				// For other connected sockets, don't change the includesMe value,
+				// because this user being included won't change whether those other users
+				// are included
+				delete watchers.includesMe;
+
+				socket.broadcast.to(gameName).emit(...args);
 			}
-		);
+
+			fn && fn({});
+		}
+		catch(error) {
+			fn && fn({
+				error: true,
+				message: error.message,
+				code: error.code,
+			});
+		}
 	}
 
-	static _getWatchers(socket, gameName, fn) {
+	_getWatchers(socket, gameName, fn) {
 		if (!gameName) {
 			const error = new Error("No gameName specified");
 			_logError({
@@ -575,7 +447,7 @@ class SocketManager {
 		});
 	}
 
-	static _onJoinGame(socket, gameName, colors, fn) {
+	async _onJoinGame(socket, gameName, colors, fn) {
 		if (!gameName) {
 			const error = new Error("No game name provided for join message");
 			error.code = ErrorCodes.INVALID_SOCKET_REQUEST;
@@ -591,84 +463,82 @@ class SocketManager {
 			return;
 		}
 
-		_resolvePlayerJoinData({
-			socket,
-			gameName,
-			colors,
-		}).then(
-			(data) => {
-				socket.join(gameName);
+		try {
+			const data = await _resolvePlayerJoinData({
+				socket,
+				gameName,
+				colors,
+			});
+			socket.join(gameName);
 
-				if (!_games[socket.id]) {
-					_games[socket.id] = [];
-				}
-
-				_games[socket.id].push(gameName);
-
-				_logGameEvent({
-					gameName,
-					message: `Players ${Object.keys(data.playerIndexes).join(",")} joined`,
-				});
-
-				const playerData = data.players.map(
-					(player) => (
-						{
-							color: player.color,
-							user: player.user ?
-								prepareUserForFrontend({ user: player.user, request: socket.request }) :
-								undefined,
-							isAnonymous: player.user.isAnonymous,
-							order: data.playerIndexes[player.color],
-						}
-					)
-				);
-
-				socket.players = playerData;
-
-				// A player is not a watcher
-				SocketManager.stopWatching({ gameName, socket });
-
-				const joinResults = {
-					gameName,
-					players: playerData,
-				};
-
-				// Remove isMe for the broadcast to other players, so they don't think this
-				// player is them
-				joinResults.players.forEach(
-					(player) => delete player.user.isMe
-				);
-
-				socket.broadcast.to(gameName).emit(
-					"game:players:joined",
-					joinResults
-				);
-
-				// Add it back for the callback so that the socket client knows this is them
-				joinResults.players.forEach(
-					(player) => player.user.isMe = true
-				);
-
-				fn && fn(joinResults);
+			if (!_games[socket.id]) {
+				_games[socket.id] = [];
 			}
-		).catch(
-			(err) => {
-				_logGameEvent({
-					gameName,
-					message: `Players failed to join game: ${err.message}`,
-					stack: err.stack,
-					level: LOG_LEVELS.ERROR
-				});
-				fn && fn({
-					error: true,
-					message: err.message,
-					code: err.code,
-				});
-			}
-		);
+
+			_games[socket.id].push(gameName);
+
+			_logGameEvent({
+				gameName,
+				message: `Players ${Object.keys(data.playerIndexes).join(",")} joined`,
+			});
+
+			const playerData = data.players.map(
+				(player) => (
+					{
+						color: player.color,
+						user: player.user ?
+							prepareUserForFrontend({ user: player.user, request: socket.request }) :
+							undefined,
+						isAnonymous: player.user.isAnonymous,
+						order: data.playerIndexes[player.color],
+					}
+				)
+			);
+
+			socket.players = playerData;
+
+			// A player is not a watcher
+			this.stopWatching({ gameName, socket });
+
+			const joinResults = {
+				gameName,
+				players: playerData,
+			};
+
+			// Remove isMe for the broadcast to other players, so they don't think this
+			// player is them
+			joinResults.players.forEach(
+				(player) => delete player.user.isMe
+			);
+
+			socket.broadcast.to(gameName).emit(
+				"game:players:joined",
+				joinResults
+			);
+
+			// Add it back for the callback so that the socket client knows this is them
+			joinResults.players.forEach(
+				(player) => player.user.isMe = true
+			);
+
+			fn && fn(joinResults);
+		}
+		catch(err) {
+			_logGameEvent({
+				gameName,
+				message: `Players failed to join game: ${err.message}`,
+				stack: err.stack,
+				level: LOG_LEVELS.ERROR
+			});
+			fn && fn({
+				error: true,
+				message: err.message,
+				code: err.code,
+			});
+		}
 	}
 
-	static stopWatching({ socket, gameName, }) {
+	stopWatching({ socket, gameName, }) {
 		if (!WATCHERS[gameName]) {
 			return;
 		}
@@ -700,165 +570,152 @@ class SocketManager {
 		}
 	}
 
-	static leaveGame({ socket, gameName }) {
-		SocketManager.stopWatching({ socket, gameName });
+	async leaveGame({ socket, gameName }) {
+		this.stopWatching({ socket, gameName });
 
-		return GameStore.getGame({
+		const game = await GameStore.getGame({
 			name: gameName,
-		}).then(
-			(game) => {
-				const players = _getPlayers({
-					game,
-					user: socket.request.user,
-					sessionID: socket.request.sessionID
-				});
+		});
+		const players = _getPlayers({
+			game,
+			user: socket.request.user,
+			sessionID: socket.request.sessionID
+		});
 
-				_logGameEvent({gameName, message: `Players ${players.map((player) => player.color).join(", ")} left`});
+		_logGameEvent({gameName, message: `Players ${players.map((player) => player.color).join(", ")} left`});
 
-				socket.broadcast.to(gameName).emit(
-					"game:players:left",
-					{
-						gameName,
-						players: players.map(
-							(player) => Object.assign(
-								player.toObject(),
-								{
-									user: prepareUserForFrontend({ user: player.user, request: socket.request })
-								}
-							)
-						),
-					}
-				);
+		socket.broadcast.to(gameName).emit(
+			"game:players:left",
+			{
+				gameName,
+				players: players.map(
+					(player) => Object.assign(
+						player.toObject(),
+						{
+							user: prepareUserForFrontend({ user: player.user, request: socket.request })
+						}
+					)
+				),
 			}
 		);
 	}
 
-	static _onLeaveGame(socket, gameName, fn) {
-		SocketManager.leaveGame({ socket, gameName });
-		SocketManager.stopWatching({ socket, gameName });
+	_onLeaveGame(socket, gameName, fn) {
+		this.leaveGame({ socket, gameName });
+		this.stopWatching({ socket, gameName });
 
 		fn && fn();
 	}
 
-	static _onPlaceMarble(socket, { gameName, position, color }, fn) {
-		GameStore.getGame({
+	async _onPlaceMarble(socket, { gameName, position, color }, fn) {
+		let game = await GameStore.getGame({
 			name: gameName,
-		}).then(
-			(game) =>  {
-				assert(!game.isOver, "Game is over");
-				assert(gameName, 'Property "gameName" is required');
-				assert(position, 'Property "position" is required');
+		});
+		assert(!game.isOver, "Game is over");
+		assert(gameName, 'Property "gameName" is required');
+		assert(position, 'Property "position" is required');
 
-				const [column, row] = position;
-				
-				if (color !== game.getCurrentPlayerColor()) {
-					const err = new Error(`Not ${color}'s turn`);
-					err.code = ErrorCodes.NOT_PLAYERS_TURN;
+		const [column, row] = position;
+		
+		if (color !== game.getCurrentPlayerColor()) {
+			const err = new Error(`Not ${color}'s turn`);
+			err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
-					throw err;
-				}
+			throw err;
+		}
 
-				const socketPlayer = getSocketPlayer({ socket, game, color });
+		const socketPlayer = getSocketPlayer({ socket, game, color });
 
-				// If socketPlayer is null, that means the socket user is not the color's
-				// user; attempt at illegal placement
-				if (socketPlayer === null) {
-					const err = new Error(`Cannot place marbles for ${color}`);
-					err.code = ErrorCodes.NOT_PLAYERS_TURN;
+		// If socketPlayer is null, that means the socket user is not the color's
+		// user; attempt at illegal placement
+		if (socketPlayer === null) {
+			const err = new Error(`Cannot place marbles for ${color}`);
+			err.code = ErrorCodes.NOT_PLAYERS_TURN;
 
-					throw err;
-				}
+			throw err;
+		}
 
-				if (game.cellIsFilled(position)) {
-					throw new Error(`Position ${JSON.stringify(position)} is already occupied by color ${game.getCell(position)}`);
-				}
+		if (game.cellIsFilled(position)) {
+			throw new Error(`Position ${JSON.stringify(position)} is already occupied by color ${game.getCell(position)}`);
+		}
 
-				const cell = {
-					position,
-					color,
-				};
+		const cell = {
+			position,
+			color,
+		};
 
-				game.fillCell(cell);
+		game.fillCell(cell);
 
-				const gameState = fromJS(game.toFrontendObject());
+		const gameState = fromJS(game.toFrontendObject());
 
-				const quintros = getQuintros(gameState.get("board"), {
-					startCell: cell,
-				});
+		const quintros = getQuintros(gameState.get("board"), {
+			startCell: cell,
+		});
 
-				if (quintros.size > 0) {
-					game.winner = color;
-				}
+		if (quintros.size > 0) {
+			game.winner = color;
+		}
 
-				return GameStore.saveGameState(game).then(
-					(game) => {
-						const data = {
-							game,
-							row,
-							column,
-							color,
-						};
+		try {
+			game = await GameStore.saveGameState(game);
+			const data = {
+				game,
+				row,
+				column,
+				color,
+			};
 
-						if (quintros.size > 0) {
-							data.quintros = quintros.toJS();
-						}
-
-						return data;
-					}
-				);
+			if (quintros.size > 0) {
+				data.quintros = quintros.toJS();
 			}
-		).then(
-			(data) => {
-				_logGameEvent({
+			_logGameEvent({
+				gameName: data.game.name,
+				message: `Player ${data.color} placed a marble at [${data.row}, ${data.column}]`
+			});
+
+			this._server.to(data.game.name).emit("board:marble:placed", {
+				gameName: data.game.name,
+				position: [data.column, data.row],
+				color: data.color
+			});
+
+			if (data.game.isOver) {
+				this._server.to(data.game.name).emit("game:over", {
 					gameName: data.game.name,
-					message: `Player ${data.color} placed a marble at [${data.row}, ${data.column}]`
-				});
-
-				SocketManager._server.to(data.game.name).emit("board:marble:placed", {
-					gameName: data.game.name,
-					position: [data.column, data.row],
-					color: data.color
-				});
-
-				if (data.game.isOver) {
-					SocketManager._server.to(data.game.name).emit("game:over", {
-						gameName: data.game.name,
-						winner: data.game.winner,
-						quintros: data.quintros,
-					});
-				}
-			}
-		).catch(
-			(err) => {
-				let validationErrors = "";
-
-				if (err.name === "ValidationError") {
-					validationErrors = "Validation errors:\n" +
-						err.errors.map(
-							(error) =>  `${error.path}: ${error.message}`
-						).join("\n\n");
-				}
-
-				_logGameEvent({
-					gameName,
-					message: `Error placing a marble by player ${color} at position ${JSON.stringify(position)}: ${err.message}\n${validationErrors}`,
-					stack: err.stack,
-					level: LOG_LEVELS.ERROR
-				});
-
-				fn && fn({
-					error: true,
-					message: err.message,
-					code: err.code
+					winner: data.game.winner,
+					quintros: data.quintros,
 				});
 			}
-		);
+		}
+		catch(err) {
+			let validationErrors = "";
+
+			if (err.name === "ValidationError") {
+				validationErrors = "Validation errors:\n" +
+					err.errors.map(
+						(error) =>  `${error.path}: ${error.message}`
+					).join("\n\n");
+			}
+
+			_logGameEvent({
+				gameName,
+				message: `Error placing a marble by player ${color} at position ${JSON.stringify(position)}: ${err.message}\n${validationErrors}`,
+				stack: err.stack,
+				level: LOG_LEVELS.ERROR
+			});
+
+			fn && fn({
+				error: true,
+				message: err.message,
+				code: err.code
+			});
+		}
 	}
 
-	static _onDisconnect(socket) {
+	_onDisconnect(socket) {
 		// Leave games that the user is a player in
 		_games[socket.id] && _games[socket.id].forEach(
-			(gameName) => SocketManager.leaveGame({ socket, gameName }).catch(
+			(gameName) => this.leaveGame({ socket, gameName }).catch(
 				(err) => {
 					_logGameEvent({
 						gameName,
@@ -871,51 +728,133 @@ class SocketManager {
 		);
 
 		// Leave games that the user is watching
-		for(let gameName in WATCHERS) {
+		for (let gameName in WATCHERS) {
 			if (Object.prototype.hasOwnProperty.call(WATCHERS, gameName)) {
-				SocketManager.stopWatching({ gameName, socket });
+				this.stopWatching({ gameName, socket });
 			}
 		}
 	}
 
-	static _onGetPlayerPresence(socket, { gameName }, fn) {
+	_onGetPlayerPresence(socket, { gameName }, fn) {
 		fn && fn({
-			presentPlayers: SocketManager.getPresentPlayers({ socket, gameName }),
+			presentPlayers: this.getPresentPlayers({ socket, gameName }),
 		});
 	}
 
-	static _onGameStart(socket, gameName, fn) {
-		GameStore.getGame({
-			name: gameName,
-		}).then(
-			(game) => {
-				return game.start();
-			}
-		).then(
-			() => {
-				SocketManager._server.to(gameName).emit(
-					"game:started",
-					{
-						gameName
-					}
-				);
-			}
-		).catch(
-			(err) => {
-				_logGameEvent({
-					gameName,
-					message: `Error starting game ${gameName}: ${err.message}`,
-					stack: err.stack,
-					level: LOG_LEVELS.ERROR
-				});
+	async _onGameStart(socket, gameName, fn) {
+		try {
+			const game = await GameStore.getGame({
+				name: gameName,
+			});
+	
+			game.start();
+			this._server.to(gameName).emit(
+				"game:started",
+				{
+					gameName
+				}
+			);
+		}
+		catch(err) {
+			_logGameEvent({
+				gameName,
+				message: `Error starting game ${gameName}: ${err.message}`,
+				stack: err.stack,
+				level: LOG_LEVELS.ERROR
+			});
 
+			fn && fn({
+				error: true,
+				message: err.message,
+				code: err.code
+			});
+		}
+	}
+
+	_onConnect(socket) {
+		Loggers.websockets.info(
+			"socket connected: " +
+			JSON.stringify({
+				id: socket.id,
+				sessionID: socket.request.session.id,
+				remoteAddress: socket.client.conn.remoteAddress
+			})
+		);
+
+		const manager = this;
+
+		socket.on("board:place-marble", function({ gameName, position, color }, fn) {
+			manager._onPlaceMarble(this, { gameName, position, color }, fn);
+		});
+
+		socket.on("game:join", function({ gameName, colors }, fn) {
+			manager._onJoinGame(this, gameName, colors, fn);
+		});
+
+		socket.on("game:leave", function({ gameName }, fn) {
+			manager._onLeaveGame(this, gameName, fn);
+		});
+
+		socket.on("game:watch", function({ gameName }, fn) {
+			manager._onWatchGame(this, gameName, fn);
+		});
+
+		socket.on("game:watchers", function({ gameName }, fn) {
+			manager._getWatchers(this, gameName, fn);
+		});
+
+		socket.on("game:update", function({ gameName }, fn) {
+			manager._onUpdateGame(this, gameName, fn);
+		});
+
+		socket.on("game:players:presence", function({ gameName }, fn) {
+			manager._onGetPlayerPresence(this, gameName, fn);
+		});
+
+		socket.on("game:start", function({ gameName }, fn) {
+			manager._onGameStart(this, gameName, fn);
+		});
+
+		socket.on("users:change-profile", async function({ userID, updates }, fn) {
+			if (userID === undefined) {
+				userID = this.request.user;
+			}
+
+			let sessionID;
+
+			if (!userID) {
+				sessionID = this.request.session.id;
+			}
+
+			try {
+				const user = await UserStore.updateUser({
+					userID,
+					sessionID,
+					updates
+				});
+				user = prepareUserForFrontend({ user, request: this.request });
+
+				delete user.isMe;
+
+				manager._server.emit("users:profile-changed", {
+					user
+				});
+			}
+			catch(err) {
+				_logError({
+					error: err
+				});
 				fn && fn({
 					error: true,
 					message: err.message,
 					code: err.code
 				});
 			}
-		);
+		});
+
+		socket.on("disconnect", function() {
+			manager._onDisconnect(this);
+		});
 	}
 }
 

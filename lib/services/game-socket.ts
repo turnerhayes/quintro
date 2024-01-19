@@ -1,12 +1,22 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import Config from "@app/config";
 import {io} from "socket.io-client";
+import Config from "@app/config";
+import { useAppDispatch } from "@app/redux/hooks";
+import { gameApiSlice } from "./games-service";
+
+
+interface JoinGameArgs {
+    gameName: string;
+    colors: string[];
+}
 
 let client: ReturnType<typeof io>|null = null;
 
 const getSocketClient = () => {
     if (client == null) {
-        client = io(Config.websockets.url);
+        client = io(Config.websockets.url, {
+            withCredentials: true,
+        });
     }
 
     return client;
@@ -19,7 +29,44 @@ export const GameSocketService = createApi({
     }),
     endpoints: (builder) => ({
         joinGame: builder.mutation({
-            queryFn: ({gameName, colors,}: {gameName: string; colors: string[];}) => {
+            async onQueryStarted({gameName}: JoinGameArgs, api) {
+                const {
+                    data: {players},
+                } = await api.queryFulfilled;
+                api.dispatch(
+                    gameApiSlice.util.updateQueryData(
+                        "getGames",
+                        {
+                            gameName,
+                        },
+                        (draft: Game[]) => {
+                            const game = draft.find((game) => game.name === gameName);
+                            if (!game) {
+                                throw new Error(`Could not find game with name ${gameName}`);
+                            }
+                            game.players.push(players);
+                        }
+                    )
+                    // addPlayers({
+                    //     gameName,
+                    //     players,
+                    // })
+                );
+                api.dispatch(
+                    setPlayerPresence({
+                        gameName,
+                        presenceMap: players.reduce(
+                            (map, player) => {
+                                map[player.color] = true;
+    
+                                return map;
+                            },
+                            {}
+                        ),
+                    })
+                );
+            },
+            queryFn: ({gameName, colors,}: JoinGameArgs) => {
                 const socket = getSocketClient();
                 return new Promise((resolve, reject) => {
                     console.log("emitting game:join", gameName);
@@ -37,7 +84,24 @@ export const GameSocketService = createApi({
                 });
             },
         }),
+
+        watchGame: builder.mutation({
+            queryFn({gameName}: {gameName: string;}) {
+                const socket = getSocketClient();
+                return new Promise((resolve, reject) => {
+                    socket.emit(
+                        "game:watch",
+                        {
+                            gameName,
+                        },
+                        () => {
+                            resolve({data: {}});
+                        }
+                    );
+                });
+            },
+        }),
     }),
 });
 
-export const { useJoinGameMutation } = GameSocketService;
+export const { useJoinGameMutation, useWatchGameMutation } = GameSocketService;

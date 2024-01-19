@@ -1,11 +1,5 @@
 import {Map, List, Record} from "immutable";
 
-
-export interface Player {
-	userID: number;
-	color: string;
-}
-
 export interface PlayerUser {
     id: string;
     isMe: boolean;
@@ -15,6 +9,11 @@ export interface PlayerUser {
         display: string;
     };
     color: string;
+}
+
+export interface Player {
+	user: PlayerUser;
+	color: string;
 }
 
 export type ImmutablePlayerUser = Record<PlayerUser>;

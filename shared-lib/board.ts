@@ -28,6 +28,11 @@ export interface Board {
 	filledCells: Cell[];
 }
 
+export interface Quintro {
+    cells: Cell[];
+    color: string;
+}
+
 export type ImmutableCell = Record<Omit<Cell, "position"> & {
 	position: List<number>;
 }>;

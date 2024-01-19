@@ -25,14 +25,11 @@ class GamesStore {
 			filter._id = id;
 		}
 
-		console.log("Filter: ", filter);
-
-		let promise = GameModel.findOne(filter, {__v: false}).select("-_id");
+		let promise = GameModel.findOne(filter, {__v: false});
 
 		if (populate) {
 			promise = promise.populate("players.user");
 		}
-
 
 		const game = await promise;
 		if (game) {

@@ -10,7 +10,6 @@ import {
 import { FormattedMessage } from "react-intl";
 import NextLink from "next/link";
 import ColorPicker from "@app/components/ColorPicker";
-import { useJoinGameMutation } from "@lib/services/game-socket";
 
 import {Game} from "@shared/game";
 
@@ -116,7 +115,7 @@ interface GameJoinDialogProps {
 	game: Game;
 	onSubmit: ({color}: {color: string; }) => void;
 	onCancel: () => void;
-	onWatchGame?: () => void;
+	onWatchGame: () => void;
 }
 
 /**
@@ -134,8 +133,6 @@ const GameJoinDialog = ({
 	onWatchGame,
 }: GameJoinDialogProps) => {
 	const [selectedColor, setSelectedColor] = useState<string|null>(null);
-
-	const [joinGame, {isLoading: isJoiningGame}] = useJoinGameMutation();
 
 	useEffect(() => {
 		if (!gameSelectors.canAddPlayerColor(game, { color: selectedColor })) {
@@ -177,14 +174,10 @@ const GameJoinDialog = ({
 	const handleSubmit = useCallback((event) => {
 		event.preventDefault();
 
-		joinGame({
-			gameName: game.name,
-			colors: [selectedColor],
-		});
 		onSubmit({
 			color: selectedColor,
 		});
-	}, [onSubmit, selectedColor, joinGame, game]);
+	}, [onSubmit, selectedColor, game]);
 
 	const handleColorChosen = useCallback(({ color }) => {
 		setSelectedColor(color);

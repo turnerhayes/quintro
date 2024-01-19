@@ -24,8 +24,8 @@ const styles = {
 
 interface TopNavigationProps {
 	loggedInUser: User;
-	className: string;
-	classes: {
+	className?: string;
+	classes?: {
 		accountButton: string;
 	};
 }

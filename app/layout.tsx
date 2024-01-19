@@ -4,7 +4,7 @@
 
 import {IntlProvider} from "react-intl";
 import StoreProvider from "@app/redux/StoreProvider";
-import TopNavigation from "@app/components/TopNavigation";
+import TopNavigation from "@app/containers/TopNavigation";
 import en from "./translations/en.json";
 
 import '@fontsource/roboto/300.css';
@@ -18,14 +18,15 @@ export default function RootLayout({
   }: {
     children: React.ReactNode;
   }) {
+    const locale = global.navigator?.language || "en-US";
     return (
       <StoreProvider>
         <IntlProvider
           messages={en}
-          locale={navigator.language}
+          locale={locale}
           defaultLocale="en"
         >
-          <html lang="en">
+          <html lang={locale}>
             <body>
               <header
                 className={"main-header"}

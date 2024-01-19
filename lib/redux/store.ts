@@ -1,8 +1,13 @@
-import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
+import { Middleware, configureStore } from "@reduxjs/toolkit";
 import { gameApiSlice } from "@lib/services/games-service";
 import {reducer as settingsReducer, actions as settingsActions} from "@lib/redux/slices/settings";
 
-export const makeStore = () => {
+
+interface MakeStoreArgs {
+    extraMiddleware?: Middleware[];
+}
+
+export const makeStore = ({extraMiddleware}: MakeStoreArgs = {}) => {
     return configureStore({
         reducer: {
             [gameApiSlice.reducerPath]: gameApiSlice.reducer,
@@ -10,8 +15,19 @@ export const makeStore = () => {
         },
         middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(
             gameApiSlice.middleware,
+            ...extraMiddleware,
         )
     });
+};
+
+let instance: ReturnType<typeof makeStore>|null = null;
+
+export const makeOrGetStore = (args: MakeStoreArgs = {}) => {
+    if (instance === null) {
+        instance = makeStore(args);
+    }
+
+    return instance;
 };
 
 export type AppStore = ReturnType<typeof makeStore>;

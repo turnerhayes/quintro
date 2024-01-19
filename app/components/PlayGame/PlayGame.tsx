@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
-import { List }            from "immutable";
+import React, { useEffect, useState, useRef, useCallback, CSSProperties, ReactNode } from "react";
 import classnames         from "classnames";
 import {Icon, Badge, Popover} from "@mui/material";
 
@@ -17,13 +16,12 @@ import WinnerBanner       from "./WinnerBanner";
 import AddPlayerButton    from "@app/components/AddPlayerButton";
 import { Player, PlayerUser } from "@shared/quintro.d";
 import { Game } from "@shared/game";
-import { useGetGamesQuery } from "@lib/services/games-service";
+import { FormattedMessage } from "react-intl";
 
-
-type OnJoinGameCallback = ({colors}: {colors: any[]}) => void;
+type OnJoinGameCallback = ({colors}: {colors: string[]}) => void;
 
 interface PlayGameProps {
-	gameName: string;
+	game: Game;
 	playerUsers: PlayerUser[];
 	currentUserPlayers: Set<Player>;
 	currentZoomLevel?: number;
@@ -120,7 +118,7 @@ const getMePlayers = ({
 	
 	return new Set(
 		game.players.filter(
-			(player: Player) => meUserIDs.has(player.userID)
+			(player: Player) => meUserIDs.has(player.user.id)
 		)
 	);
 };
@@ -171,7 +169,7 @@ const joinGame = ({
  * @memberof client.react-components
  */
 const PlayGame = ({
-	gameName,
+	game,
 	currentUserPlayers,
 	hasJoinedGame,
 	isInGame,
@@ -197,20 +195,6 @@ const PlayGame = ({
 		zoomControls: "",
 	},
 }: PlayGameProps) => {
-	const {
-		data: game,
-		isError,
-		isLoading,
-		isSuccess,
-		error,
-	} = useGetGamesQuery({gameName});
-
-	console.log("Game:", game);
-	console.log("isError:", isError);
-	console.log("isLoading:", isLoading);
-	console.log("isSuccess:", isSuccess);
-	console.log("error:", error);
-
 	const [selectedPlayerColor, setSelectedPlayerColor] = useState<string|null>(null);
 	const [selectedIndicatorEl, setSelectedIndicatorEl] = useState<Element|null>(null);
 
@@ -239,7 +223,7 @@ const PlayGame = ({
 			game &&
 			playerUsers &&
 			playerUsers.length === new Set(game.players.map(
-				(player) => player.userID)
+				(player) => player.user.id)
 			).size &&
 			isInGame
 		) {
@@ -558,8 +542,8 @@ const PlayGame = ({
 						)
 					}
 					<Board
-						board={board}
-						quintros={List()}
+						board={game.board}
+						quintros={[]}
 						// gameName={game.get("name")}
 						allowPlacement={myTurn && gameIsStarted}
 						onCellClick={handleCellClick}
