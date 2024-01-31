@@ -1,5 +1,3 @@
-"use server";
-
 // Largely taken from https://blog.geogo.in/setting-up-socket-io-with-next-js-13-real-time-communication-in-your-web-application-8c95cf17e0c
 
 import {Server as HTTPServer} from "node:http";
