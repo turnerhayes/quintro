@@ -30,22 +30,19 @@ const UserSchema = new mongoose.Schema({
 		// Session users don't have a provider ID
 		sparse: true
 	},
-	name: {
+	names: {
 		default: null,
 		type: {
-			first: {
+			given: {
 				type: String
 			},
-			middle: {
-				type: String,
-			},
-			last: {
+			family: {
 				type: String,
 			},
 			display: {
 				type: String,
-			}
-		}
+			},
+		},
 	},
 	profilePhotoURL: {
 		type: String,

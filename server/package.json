@@ -4,8 +4,6 @@
   "description": "Server component for Quintro game. Does not include websocket server.",
   "main": "index.js",
   "scripts": {
-    "build:shared": "tsc -p ../shared-lib/tsconfig.json",
-    "prebuild": "npm run build:shared",
     "api": "node ./api/index.js",
     "api:dev": "nodemon ./api/index.js",
     "socket": "node ./socket/index.js",
@@ -14,6 +12,7 @@
   "author": "Turner Hayes <dev@turnerhayes.com>",
   "license": "ISC",
   "dependencies": {
+    "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "debug": "^4.3.4",

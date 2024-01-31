@@ -6,9 +6,18 @@
       "esnext"
     ],
     "paths": {
-      "@app/*": ["./app/*"],
-      "@shared/*": ["./shared-lib/*"],
-      "@lib/*": ["./lib/*"]
+      "@app/*": [
+        "./app/*"
+      ],
+      "@shared/*": [
+        "./shared-lib/*"
+      ],
+      "@lib/*": [
+        "./lib/*"
+      ],
+      "@server/*": [
+        "./server/*"
+      ]
     },
     "target": "ES2022",
     "allowJs": true,
@@ -26,13 +35,15 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "app/api/socket/route.ts.bak"
   ],
   "exclude": [
     "node_modules"

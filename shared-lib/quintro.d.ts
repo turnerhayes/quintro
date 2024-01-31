@@ -1,14 +1,14 @@
-import {Map, List, Record} from "immutable";
+import { QuintroUser } from "./config";
 
-export interface PlayerUser {
-    id: string;
+
+export interface ServerQuintroUser extends QuintroUser {
+    sessionID?: string;
+    providerID?: string;
+}
+
+export interface PlayerUser extends QuintroUser {
     isMe: boolean;
     isAnonymous: boolean;
-    username: string;
-    name: {
-        display: string;
-    };
-    color: string;
 }
 
 export interface Player {
@@ -16,6 +16,6 @@ export interface Player {
 	color: string;
 }
 
-export type ImmutablePlayerUser = Record<PlayerUser>;
-
-export type ImmutablePlayer = Record<Player>;
+export interface ServerPlayer extends Omit<Player, "user"> {
+    user: ServerQuintroUser;
+}

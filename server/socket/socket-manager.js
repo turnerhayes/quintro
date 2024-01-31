@@ -3,7 +3,7 @@
 const assert             = require("assert");
 const util               = require("util");
 const {Server}           = require("socket.io");
-
+const cookie = require("cookie");
 const Config             = require("../config");
 const {
 	prepareUserForFrontend,
@@ -16,8 +16,10 @@ const { getQuintros }    = require("../../shared-lib/dist/selectors/quintro");
 const {
 	getNextColor
 }                        = require("../../shared-lib/dist/players");
-const session = require("../lib/session");
-const passport = require("passport");
+// const session = require("../lib/session");
+// const passport = require("passport");
+const SessionStore = require("../persistence/stores/session");
+
 
 const LOG_LEVELS = {
 	INFO: "info",
@@ -310,6 +312,14 @@ async function _resolvePlayerJoinData({ socket, gameName, colors }) {
 
 const _games = {};
 
+const sessionMiddleware = async (socket, next) => {
+	const cookies = cookie.parse(socket.request.headers.cookie || "");
+	const sessionID = cookies["next-auth.session-token"];
+	const session = sessionID ? await SessionStore.findBySessionToken(sessionID) : null;
+	socket.session = session;
+	next();
+};
+
 class SocketManager {
 	attachTo(httpServer) {
 		const origin = Config.app.address.origin;
@@ -327,9 +337,11 @@ class SocketManager {
 			},
 		});
 
-		this._server.engine.use(session);
-		this._server.engine.use(passport.initialize());
-		this._server.engine.use(passport.session());
+		// this._server.engine.use(session);
+		// this._server.engine.use(passport.initialize());
+		// this._server.engine.use(passport.session());
+
+		this._server.use(sessionMiddleware);
 
 		this._server.on("connection", (socket) => {
 			this._onConnect(socket);
@@ -771,7 +783,7 @@ class SocketManager {
 		}
 	}
 
-	_onConnect(socket) {
+	async _onConnect(socket) {
 		Loggers.websockets.info(
 			"socket connected: " +
 			JSON.stringify({

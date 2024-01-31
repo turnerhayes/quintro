@@ -1,10 +1,14 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {api as APIConfig} from "@shared/config";
 import { Game } from "@shared/game";
+
+
+export interface FindOpenGamesArgs {
+    numberOfPlayers?: number|null;
+}
 
 export const gameApiSlice = createApi({
     reducerPath: "games",
-    baseQuery: fetchBaseQuery({baseUrl: APIConfig.root}),
+    baseQuery: fetchBaseQuery({baseUrl: "/api"}),
     endpoints: (builder) => ({
         getGames: builder.query<Game[], {gameName?: string}>({
             query: ({gameName}) => {
@@ -31,8 +35,8 @@ export const gameApiSlice = createApi({
             }
         }),
 
-        findOpenGames: builder.query<Game[], number|null>({
-            query: (numberOfPlayers?: number) => {
+        findOpenGames: builder.query<Game[], FindOpenGamesArgs>({
+            query: ({numberOfPlayers}: FindOpenGamesArgs) => {
                 const searchParams: {
                     onlyOpenGames: "true";
                     numberOfPlayers?: string;

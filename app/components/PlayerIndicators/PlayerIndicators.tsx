@@ -8,8 +8,9 @@ import { Player, PlayerUser } from "@shared/quintro.d";
 import {Game} from "@shared/game";
 import { useIntl } from "react-intl";
 
+// TODO: FIX
 const gameSelectors = {
-	getCurrentPlayerColor(game) {
+	getCurrentPlayerColor(game: Game) {
 		return null;
 	}
 }
@@ -54,7 +55,6 @@ const styles = {
 
 interface PlayerIndicatorsProps {
 	game: Game;
-	playerUsers: PlayerUser[];
 	markActive: boolean;
 	onIndicatorClick?: (args: {
 		selectedPlayer: Player;
@@ -83,14 +83,10 @@ interface PlayerIndicatorsProps {
  * Component representing a set of indicators for visualizing the state of the
  * players in the game.
  *
- * @class
- * @extends external:React.Component
- *
  * @memberof client.react-components
  */
 const PlayerIndicators = ({
 	game,
-	playerUsers,
 	markActive,
 	onIndicatorClick,
 	indicatorProps,
@@ -103,16 +99,13 @@ const PlayerIndicators = ({
 	},
 }: PlayerIndicatorsProps) => {
 	const intl = useIntl();
+	console.log("Game:", game);
 
 	/**
 	 * Handles a click on a player indicator.
 	 *
-	 * @function
-	 *
-	 * @param {client.records.PlayerRecord} selectedPlayer - the player whose indicator was clicked
-	 * @param {DOMElement} element - the DOM element corresponding to the indicator selected
-	 *
-	 * @return {void}
+	 * @param selectedPlayer - the player whose indicator was clicked
+	 * @param element - the DOM element corresponding to the indicator selected
 	 */
 	const handlePlayerIndicatorClick = useCallback(({ player, index, element }) => {
 		if(onIndicatorClick) {
@@ -130,14 +123,12 @@ const PlayerIndicators = ({
 				{
 					game.players.map(
 						(player, index) => {
-							const playerUser = playerUsers[player.userID];
-
 							const active = player.color === gameSelectors.getCurrentPlayerColor(game);
 							const isPresent = !!game.playerPresence[player.color];
 
 							let label: string;
 
-							if (playerUser.isMe) {
+							if (player.user.isMe) {
 								label = intl.formatMessage({
 									id: "quintro.components.PlayerIndicators.indicatorMessages.you",
 									description: "Label for a player indicator that represents the user",
@@ -145,8 +136,8 @@ const PlayerIndicators = ({
 								});
 							}
 							else {
-								if (playerUser.name.display) {
-									const playerName = playerUser.name.display;
+								if (player.user.names?.display) {
+									const playerName = player.user.names.display;
 									if (isPresent) {
 										label = playerName;
 									}
@@ -189,7 +180,7 @@ const PlayerIndicators = ({
 									className={classnames([
 										classes.item,
 										{
-											[classes.currentPlayerItem]: playerUser.isMe,
+											[classes.currentPlayerItem]: player.user.isMe,
 											[classes.activeItem]: active && markActive,
 											[classes[`activeItem-color-${player.color}`]]: active && markActive,
 										}
@@ -201,7 +192,7 @@ const PlayerIndicators = ({
 											typeof indicatorProps === "function" ?
 												indicatorProps({
 													player,
-													user: playerUser,
+													user: player.user,
 													index,
 													active,
 													isPresent,

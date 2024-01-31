@@ -1,29 +1,29 @@
 import React, { useCallback }              from "react";
-import classnames         from "classnames";
-import Button             from "@mui/material/Button";
-import Icon               from "@mui/material/Icon";
-import IconButton         from "@mui/material/IconButton";
-import Card               from "@mui/material/Card";
-import CardContent        from "@mui/material/CardContent";
-import CardHeader         from "@mui/material/CardHeader";
-import CardActions        from "@mui/material/CardActions";
+import { FormattedMessage, useIntl } from "react-intl";
 import Link from "next/link";
-import Config             from "@app/config";
+import classnames         from "classnames";
+import {
+	Button,
+	Icon,
+	IconButton,
+	Card,
+	CardContent,
+	CardHeader,
+	CardActions,
+} from "@mui/material";
+import {
+	Facebook as FacebookIcon,
+	Google as GoogleIcon
+} from "@mui/icons-material";
 import                         "@app/fonts/icomoon/style.css";
-import { User } from "@shared/user";
+import { AuthProvider, QuintroUser, ProviderInfo } from "@shared/config";
 
 
-const PROVIDER_INFO = {
-	facebook: {
-		id: "facebook",
-		name: "Facebook",
-		ligature: "facebook",
-	},
-	google: {
-		id: "google",
-		name: "Google+",
-		ligature: "google plus"
-	},
+type OnLoginCallback = ({provider}: {provider: ProviderInfo;}) => void;
+
+const PROVIDER_ICONS = {
+	[AuthProvider.GOOGLE]: (<GoogleIcon />),
+	[AuthProvider.FACEBOOK]: (<FacebookIcon />),
 };
 
 const styles = {
@@ -41,12 +41,39 @@ const styles = {
 	},
 };
 
+const LoginButton = ({
+	provider,
+	title,
+	onLogin,
+}: {
+	provider: ProviderInfo;
+	title: string;
+	onLogin: OnLoginCallback;
+}) => {
+	const handleClick = useCallback(() => {
+		onLogin({provider});
+	}, [onLogin, provider]);
+
+	return (
+		<IconButton
+			title={title}
+			aria-label={title}
+			onClick={handleClick}
+		>
+			<Icon
+				className="icon"
+			>
+				{PROVIDER_ICONS[provider.id]}
+			</Icon>
+		</IconButton>
+	);
+};
+
 interface AccountDialogProps {
-	onLogin?: ({provider}: {provider: string;}) => void;
-	onLogout?: () => void;
-	loggedInUser?: User;
-	enabledProviders?: Array<keyof typeof PROVIDER_INFO>;
-	className?: string;
+	onLogin: OnLoginCallback;
+	onLogout: () => void;
+	loggedInUser?: QuintroUser;
+	enabledProviders: ProviderInfo[];
 	classes?: {
 		loginLink: string;
 		providerIcon: string;
@@ -63,10 +90,7 @@ const AccountDialog = ({
 	onLogin,
 	onLogout,
 	loggedInUser,
-	enabledProviders = Object.keys(PROVIDER_INFO).filter(
-		(provider) => Config.auth[provider] && Config.auth[provider].isEnabled
-	) as Array<keyof typeof PROVIDER_INFO>,
-	className,
+	enabledProviders,
 	classes = {
 		loginLink: "loginLink",
 		providerIcon: "providerIcon",
@@ -74,6 +98,7 @@ const AccountDialog = ({
 	},
 }: AccountDialogProps) => {
 	const intl = useIntl();
+
 	const loginMethods = {};
 
 	/**
@@ -105,6 +130,10 @@ const AccountDialog = ({
 		}
 	}, [onLogin]);
 
+	const userProvider = loggedInUser ?
+		enabledProviders.find(({id}) => id === loggedInUser.id) :
+		null;
+
 	const title = loggedInUser ? (
 		<div>
 			<Icon
@@ -113,12 +142,12 @@ const AccountDialog = ({
 					classes.providerIcon,
 				)}
 			>
-				{PROVIDER_INFO[loggedInUser.provider].ligature}
+				{PROVIDER_ICONS[userProvider!.id]}
 			</Icon>
 			<Link
 				href={`/profile/${loggedInUser.username}`}
 			>
-				{loggedInUser.name.display}
+				{loggedInUser.names?.display ?? "Unnamed User"}
 			</Link>
 		</div>
 	) : (
@@ -142,15 +171,15 @@ const AccountDialog = ({
 						(
 							<div>
 								{
-									Object.keys(PROVIDER_INFO).map(
-										(provider: keyof typeof PROVIDER_INFO) => {
-											if (!enabledProviders.includes(provider)) {
+									enabledProviders.map(
+										(provider) => {
+											if (!enabledProviders.map(({id}) => id).includes(provider.id)) {
 												return null;
 											}
 				
 											/* istanbul ignore else */
-											if (!loginMethods[provider]) {
-												loginMethods[provider] = handleLoginClicked.bind(this, { provider });
+											if (!loginMethods[provider.id]) {
+												loginMethods[provider.id] = handleLoginClicked.bind(this, { provider });
 											}
 				
 											const logInWithMessage = intl.formatMessage({
@@ -158,23 +187,16 @@ const AccountDialog = ({
 												description: "Title for the icon button used to log in with a particular authentication provider",
 												defaultMessage: "Log in with {provider}",
 											}, {
-												provider: PROVIDER_INFO[provider].name
+												provider: provider.name
 											});
 				
 											return (
-												<IconButton
-													key={provider}
-													className={classes.loginLink}
+												<LoginButton
+													key={provider.id}
+													provider={provider}
 													title={logInWithMessage}
-													aria-label={logInWithMessage}
-													onClick={loginMethods[provider]}
-												>
-													<Icon
-														className="icon"
-													>
-														{PROVIDER_INFO[provider].ligature}
-													</Icon>
-												</IconButton>
+													onLogin={onLogin}
+												></LoginButton>
 											);
 										}
 									)

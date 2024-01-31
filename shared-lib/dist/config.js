@@ -1,6 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.websockets = exports.staticContent = exports.game = exports.ColorList = exports.api = void 0;
+exports.websockets = exports.staticContent = exports.game = exports.providerAuth = exports.ColorList = exports.api = exports.facebookProviderInfo = exports.googleProviderInfo = exports.AuthProvider = void 0;
+var AuthProvider;
+(function (AuthProvider) {
+    AuthProvider["GOOGLE"] = "google";
+    AuthProvider["FACEBOOK"] = "facebook";
+})(AuthProvider || (exports.AuthProvider = AuthProvider = {}));
+exports.googleProviderInfo = {
+    id: AuthProvider.FACEBOOK,
+    name: "Facebook",
+    isEnabled: Boolean(process.env.NEXT_PUBLIC_CREDENTIALS_GOOGLE_ENABLED),
+};
+exports.facebookProviderInfo = {
+    id: AuthProvider.GOOGLE,
+    name: "Google",
+    isEnabled: Boolean(process.env.NEXT_PUBLIC_CREDENTIALS_GOOGLE_ENABLED),
+};
+const PROVIDERS = [
+    exports.googleProviderInfo,
+    exports.facebookProviderInfo,
+];
+const enabledProviders = PROVIDERS.filter(({ isEnabled }) => isEnabled);
 const port = process.env.PORT || process.env.NEXT_PUBLIC_PORT;
 const host = process.env.APP_ADDRESS_HOST || process.env.NEXT_PUBLIC_APP_ADDRESS_HOST;
 const webSocketPort = process.env.WEB_SOCKETS_PORT ||
@@ -88,6 +108,10 @@ const colors = new ColorList({
     name: "Black",
     hex: "#000000",
 });
+exports.providerAuth = {
+    allProviders: PROVIDERS,
+    enabledProviders,
+};
 exports.game = {
     board: {
         width: {

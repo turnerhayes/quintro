@@ -4,7 +4,7 @@ import { gameApiSlice } from "@lib/services/games-service";
 import { Player } from "@shared/quintro.d";
 
 
-export const enum EventName {
+export enum EventName {
     JOIN_GAME = "game:join",
     WATCH_GAME = "game:watch",
     PLAYERS_JOINED = "game:players:joined",
@@ -28,11 +28,27 @@ type EventToReturnDataTypeMapping = {
     },
     [EventName.WATCH_GAME]: void,
     [EventName.PLAYERS_JOINED]: {
+        gameName: string;
         players: unknown[];
     }
 }
 
-export type ListenerCallback<T extends EventName> = (error: ErrorResponse|null, data?: EventToReturnDataTypeMapping[T]) => void;
+export type ListenableEvent = keyof EventToReturnDataTypeMapping;
+
+type TriggerListenersArgs<E extends ListenableEvent> = {
+    eventName: E;
+    error: null;
+    data: EventToReturnDataTypeMapping[E];
+} | {
+    eventName: E;
+    error: ErrorResponse;
+    data: null;
+};
+
+export type ListenerCallback<T extends EventName> = (
+    error: ErrorResponse|null,
+    data?: EventToReturnDataTypeMapping[T]|null
+) => void;
 
 export interface ErrorResponse {
     message: string;
@@ -46,17 +62,39 @@ interface InternalErrorResponse extends ErrorResponse {
 class GameSocketClient {
     private readonly client: Socket;
 
-    private listeners: {[eventName in EventName]: ListenerCallback<EventName>[]};
+    private static _instance: GameSocketClient;
+
+    private readonly listeners: {[event in ListenableEvent]: ListenerCallback<ListenableEvent>[]} = {
+        [EventName.JOIN_GAME]: [] as ListenerCallback<typeof EventName.JOIN_GAME>[],
+        [EventName.PLAYERS_JOINED]: [] as ListenerCallback<typeof EventName.PLAYERS_JOINED>[],
+        [EventName.WATCH_GAME]: [] as ListenerCallback<typeof EventName.WATCH_GAME>[],
+    };
 
     constructor() {
-        this.client = io(Config.websockets.url, {
+        // const url = Config.websockets.url;
+        const url = "/";
+
+        this.client = io(url, {
             withCredentials: true,
+            path: "/pages-api/socket",
         });
         this.addListeners();
     }
 
+    static get instance() {
+        if (!GameSocketClient._instance) {
+            GameSocketClient._instance = new GameSocketClient();
+        }
+
+        return GameSocketClient._instance;
+    }
+
     private handlePlayersJoined(gameName: string, players: Player[]) {
-        this.triggerListeners(EventName.PLAYERS_JOINED, null, {players});
+        this.triggerListeners({
+            eventName: EventName.PLAYERS_JOINED,
+            error: null,
+            data: {players, gameName},
+        });
         gameApiSlice.util.updateQueryData("getGames", {
             gameName,
         },
@@ -101,6 +139,7 @@ class GameSocketClient {
         args: EventToArgsDataTypeMapping[E]
     ): Promise<EventToReturnDataTypeMapping[E]|ErrorResponse> {
         return new Promise((resolve, reject) => {
+            console.info("Socket client emitting event ", event);
             this.client.emit(
                 event,
                 args,
@@ -115,29 +154,32 @@ class GameSocketClient {
                             message,
                             code,
                         });
-                        this.triggerListeners(event, response, null);
+                        this.triggerListeners({
+                            eventName: event,
+                            error: {
+                                message: response.message,
+                                code: response.code,
+                            } as ErrorResponse,
+                            data: null,
+                        });
                         return;
                     }
-                    this.triggerListeners(
-                        event,
-                        null,
-                        response as EventToReturnDataTypeMapping[E]
-                    );
+                    this.triggerListeners({
+                        eventName: event,
+                        error: null,
+                        data: response as EventToReturnDataTypeMapping[E]
+                    });
                     resolve(response);
                 }
             )
         })
     }
 
-    listen<E extends EventName>(eventName: E, handler: ListenerCallback<E>) {
-        if (!this.listeners[eventName]) {
-            this.listeners[eventName] = [];
-        }
-
+    listen<E extends ListenableEvent>(eventName: E, handler: ListenerCallback<E>) {
         this.listeners[eventName].push(handler);
     }
 
-    stopListening<E extends EventName>(eventName: E, handler: ListenerCallback<E>) {
+    stopListening<E extends ListenableEvent>(eventName: E, handler: ListenerCallback<E>) {
         if (!this.listeners[eventName]) {
             return;
         }
@@ -148,18 +190,16 @@ class GameSocketClient {
         this.listeners[eventName].splice(index, 1);
     }
 
-    private triggerListeners<E extends EventName>(
-        eventName: E,
-        error: ErrorResponse|null,
-        data: EventToReturnDataTypeMapping[E]
-    ) {
+    private triggerListeners<E extends ListenableEvent>({
+        eventName,
+        error,
+        data,
+    }: TriggerListenersArgs<E>) {
         const handlers = this.listeners[eventName];
-        if (handlers && handlers.length > 0) {
-            handlers.map((handler) => handler(error, data));
+        for (const handler of handlers) {
+            handler(error, data);
         }
     }
 }
 
-export default GameSocketClient;
-
-export const clientInstance = new GameSocketClient();
+export {GameSocketClient};

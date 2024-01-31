@@ -1,20 +1,37 @@
-import debounce           from "lodash.debounce";
+import React, { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useCallback, useEffect, useMemo, useRef, useState }              from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import React, { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useCallback, useEffect, useState }              from "react";
 import {
 	TextField,
 	Button,
 	Typography,
 	Card,
 	CardHeader,
-	CardContent
+	CardContent,
+	Stack,
+	List,
+	ListItem,
+	ListItemText,
 } from "@mui/material"
-import {List} from "immutable";
+import {
+	Group as PlayersIcon
+} from "@mui/icons-material";
 import LoadingSpinner     from "@app/components/LoadingSpinner";
 import Config             from "@app/config";
+import { Game } from "@shared/game";
 
 
-export const SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS = 10000;
+type OnJoinGameCallback = (args: {gameName: string;}) => void;
+
+interface FindGameProps {
+	isSearching: boolean;
+	numberOfPlayers: string;
+	onChangeNumberOfPlayers: (numberOfPlayers: string) => void;
+	onFindOpenGames: () => void;
+	onJoinGame: OnJoinGameCallback;
+	onCancelSearch: () => void;
+	findGameError?: {};
+	results?: Game[];
+}
 
 const styles = {
 	playerLimitLabel: {
@@ -26,25 +43,91 @@ const styles = {
 	cancelButton: {},
 };
 
+const JoinGameButton = ({
+	gameName,
+	isInGame,
+	onJoinGame,
+}: {
+	gameName: string;
+	isInGame: boolean;
+	onJoinGame: OnJoinGameCallback;
+}) => {
+	const callback = useCallback(() => {
+		onJoinGame({gameName});
+	}, [gameName, onJoinGame]);
 
-/**
- * Executes the search.
- *
- * This function is debounced.
- */
-const debouncedRunSearch = debounce(
-	(numberOfPlayers, onFindOpenGames, setIsSearching) => {
-		onFindOpenGames({
-			numberOfPlayers: Number(numberOfPlayers) || null,
-		});
+	return (
+		<Button
+			onClick={callback}
+		>
+			{isInGame ?
+				(
+					<FormattedMessage
+						id="quintro.components.FindGame.goToGameButton"
+						description="Button text to go to a particular game found in the Find Game page which they are already a participant in"
+						defaultMessage="Go to Game"
+					/>
+				) : (
+					<FormattedMessage
+						id="quintro.components.FindGame.joinGameButton"
+						description="Button text to join a particular game found in the Find Game page"
+						defaultMessage="Join"
+					/>
+				)
+			}
+		</Button>
+	);
+};
 
-		setIsSearching(true);
-	},
-	SEARCH_DEBOUNCE_PERIOD_IN_MILLISECONDS,
-	{
-		leading: true
-	}
-);
+const ResultsList = ({
+	results,
+	onJoinGame,
+}: {
+	results: Game[];
+	onJoinGame: OnJoinGameCallback;
+}) => {
+	console.log("results:", results);
+	return results.length > 0 ? (
+		<List>
+			{results.map((game) => (
+				<ListItem
+					key={game.name}
+					secondaryAction={
+						<JoinGameButton
+							gameName={game.name}
+							onJoinGame={onJoinGame}
+							isInGame={game.players.find(
+								(player) => player.user.isMe
+							) !== undefined}
+						/>
+					}
+				>
+					<ListItemText>
+						<Stack direction="column">
+							<Typography variant="h6">
+								{game.name}
+							</Typography>
+							<Stack direction="row" spacing={2}>
+								<PlayersIcon />
+								<Typography variant="subtitle1">
+									{game.players.length}/{game.playerLimit}
+								</Typography>
+							</Stack>
+						</Stack>
+					</ListItemText>
+				</ListItem>
+			))}
+		</List>
+	) : (
+		<Typography>
+			<FormattedMessage
+				id="quintro.components.FindGame.noResults"
+				description="Message shown when no games were found in the Find Game page"
+				defaultMessage="No results found. You can change your search parameters, create a new game, or try again later."
+			/>
+		</Typography>
+	);
+};
 
 /**
  * Renders the searching UI.
@@ -106,37 +189,37 @@ const SearchForm = ({
 		<form
 			onSubmit={handleSearchFormSubmit}
 		>
-			<div>
-				<TextField
-					type="number"
-					name="playerLimit"
-					label={intl.formatMessage({
-						id: "quintro.components.FindGame.form.playerLimit.label",
-						description: "Label for the input field to specify max number of players allowed in games in the Find Games page",
-						defaultMessage: "Number of players",
-					})}
-					inputProps={{
-						min: Config.game.players.min,
-						max: Config.game.players.max,
-					}}
-					InputLabelProps={{
-						className: classes.playerLimitLabel,
-					}}
-					onChange={handleNumberOfPlayersChanged}
-					value={numberOfPlayers}
-				/>
-				<Typography
-					variant="caption"
-				>
-					<FormattedMessage
-						id="quintro.components.FindGame.form.playerLimit.details"
-						description="Additional instructions for the player limit input on the Find Game page"
-						defaultMessage="Leave blank if you don't care how many players the game has"
+			<Stack direction="column">
+				<Stack direction="column">
+					<TextField
+						type="number"
+						name="playerLimit"
+						label={intl.formatMessage({
+							id: "quintro.components.FindGame.form.playerLimit.label",
+							description: "Label for the input field to specify max number of players allowed in games in the Find Games page",
+							defaultMessage: "Number of players",
+						})}
+						inputProps={{
+							min: Config.game.players.min,
+							max: Config.game.players.max,
+						}}
+						InputLabelProps={{
+							className: classes.playerLimitLabel,
+						}}
+						onChange={handleNumberOfPlayersChanged}
+						value={numberOfPlayers}
 					/>
-				</Typography>
-			</div>
+					<Typography
+						variant="caption"
+					>
+						<FormattedMessage
+							id="quintro.components.FindGame.form.playerLimit.details"
+							description="Additional instructions for the player limit input on the Find Game page"
+							defaultMessage="Leave blank if you don't care how many players the game has"
+						/>
+					</Typography>
+				</Stack>
 
-			<div>
 				<Button
 					type="submit"
 					color="primary"
@@ -148,7 +231,7 @@ const SearchForm = ({
 						defaultMessage="Find"
 					/>
 				</Button>
-			</div>
+			</Stack>
 		</form>
 	);
 }
@@ -159,21 +242,15 @@ const SearchForm = ({
  * @memberof client.react-components
  */
 const FindGame = ({
+	isSearching,
+	numberOfPlayers,
+	onChangeNumberOfPlayers,
 	onFindOpenGames,
 	onJoinGame,
-	onCancelFind,
+	onCancelSearch,
 	findGameError,
 	results,
-}: {
-	onFindOpenGames: (args: {numberOfPlayers: number|null;}) => void;
-	onJoinGame: (args: {gameName: string;}) => void;
-	onCancelFind: () => void;
-	findGameError?: {};
-	results?: List<unknown>;
-}) => {
-	const [numberOfPlayers, setNumberOfPlayers] = useState("");
-	const [isSearching, setIsSearching] = useState(false);
-
+}: FindGameProps) => {
 	/**
 	 * Joins the first game in the results.
 	 *
@@ -182,14 +259,10 @@ const FindGame = ({
 	 * @return {void}
 	 */
 	const joinGame = useCallback(() => {
-		const gameName = results.getIn([ 0, "name" ]) as string;
+		const gameName = results[0].name;
 
 		onJoinGame({ gameName });
 	}, [results, onJoinGame]);
-
-	const runSearch = useCallback(() => {
-		debouncedRunSearch(numberOfPlayers, onFindOpenGames, setIsSearching);
-	}, [numberOfPlayers, onFindOpenGames, setIsSearching]);
 
 	/**
 	 * Handles the case when the component has been updated with search results.
@@ -200,35 +273,26 @@ const FindGame = ({
 	 * @return {void}
 	 */
 	const handleGamesFound = useCallback(() => {
-		if (results.isEmpty()) {
+		if (results?.length === 0) {
 			// Found nothing; try until we do
-			runSearch();
+			// onFindOpenGames();
 		} else {
-			joinGame();
+			// joinGame();
 		}
-	}, [runSearch, numberOfPlayers, onFindOpenGames, setIsSearching, results, joinGame]);
+	}, [onFindOpenGames, results, joinGame]);
 
 	useEffect(() => {
 		// istanbul ignore else
 		if (isSearching) {
-			if (findGameError) {
-				// TODO: display error notification
-				setIsSearching(false);
-			}
-			else {
-				// istanbul ignore else
-				if (results) {
-					handleGamesFound();
-				}
+			if (results) {
+				handleGamesFound();
 			}
 		}
-	}, [findGameError, setIsSearching, results, handleGamesFound]);
+	}, [results, handleGamesFound]);
 
 	const cancelSearch = useCallback(() => {
-		debouncedRunSearch.cancel();
-		setIsSearching(false);
-		onCancelFind();
-	}, [setIsSearching, onCancelFind]);
+		onCancelSearch();
+	}, [onCancelSearch]);
 
 	/**
 	 * Handles the search form being submitted.
@@ -242,12 +306,12 @@ const FindGame = ({
 	const handleSearchFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		runSearch();
-	}, [runSearch]);
+		onFindOpenGames();
+	}, [onFindOpenGames, numberOfPlayers]);
 
 	const handleNumberOfPlayersChanged = useCallback((event: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
-		setNumberOfPlayers(event.target.value);
-	}, [setNumberOfPlayers]);
+		onChangeNumberOfPlayers(event.target.value);
+	}, [onChangeNumberOfPlayers]);
 
 	return (
 		<Card>
@@ -272,12 +336,19 @@ const FindGame = ({
 							handleSearchFormSubmit={handleSearchFormSubmit}
 						/>)
 				}
+				{
+					results ? (
+						<ResultsList
+							results={results}
+							onJoinGame={onJoinGame}
+						>
+						</ResultsList>
+					) : null
+				}
 			</CardContent>
 		</Card>
 	);
 
 }
-
-export { FindGame as Unwrapped };
 
 export default FindGame;

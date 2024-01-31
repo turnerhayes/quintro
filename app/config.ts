@@ -10,10 +10,10 @@ export default {
 	...config,
 	auth: {
 		facebook: {
-			isEnabled: process.env.CREDENTIALS_FACEBOOK_IS_ENABLED,
+			isEnabled: Boolean(process.env.NEXT_PUBLIC_CREDENTIALS_FACEBOOK_ENABLED),
 		},
 		google: {
-			isEnabled: process.env.CREDENTIALS_GOOGLE_IS_ENABLED,
+			isEnabled: Boolean(process.env.NEXT_PUBLIC_GOOGLE_CREDENTIALS_ENABLED),
 		},
 	},
 };

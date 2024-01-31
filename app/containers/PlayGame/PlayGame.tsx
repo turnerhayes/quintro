@@ -6,7 +6,6 @@ import PlayGame from "@app/components/PlayGame";
 import { useAppDispatch } from "@app/redux/hooks";
 import { useGetGamesQuery } from "@lib/services/games-service";
 import { Player } from "@shared/quintro.d";
-import { useWatchGameMutation } from "@lib/services/game-socket";
 import { joinGame, watchGame } from "@lib/redux/actions/games";
 
 
@@ -32,17 +31,10 @@ const PlayGameContainer = ({
     
 	const {
 		data: games,
-		isError,
 		isLoading,
 		isSuccess,
 		error,
 	} = useGetGamesQuery({gameName});
-    
-	console.log("Games:", games);
-	console.log("isError:", isError);
-	console.log("isLoading:", isLoading);
-	console.log("isSuccess:", isSuccess);
-	console.log("error:", error);
     
     if (isSuccess) {
         if (games.length > 0) {
@@ -50,7 +42,6 @@ const PlayGameContainer = ({
             return (
                 <PlayGame
                     game={game}
-                    playerUsers={[]}
                     hasJoinedGame={false}
                     currentUserPlayers={new Set<Player>()}
                     isInGame={false}

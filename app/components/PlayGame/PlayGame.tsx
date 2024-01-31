@@ -22,7 +22,6 @@ type OnJoinGameCallback = ({colors}: {colors: string[]}) => void;
 
 interface PlayGameProps {
 	game: Game;
-	playerUsers: PlayerUser[];
 	currentUserPlayers: Set<Player>;
 	currentZoomLevel?: number;
 	isInGame: boolean;
@@ -103,15 +102,13 @@ const styles = {
 
 
 const getMePlayers = ({
-	playerUsers,
 	game,
 }: {
-	playerUsers: PlayerUser[];
 	game: Game;
 }) => {
-	const meUserIDs = playerUsers.reduce(
-		(ids, user: PlayerUser) => user.isMe ?
-			ids.add(user.id) :
+	const meUserIDs = game.players.reduce(
+		(ids, player: Player) => player.user.isMe ?
+			ids.add(player.user.id) :
 			ids,
 		new Set()
 	);
@@ -134,14 +131,12 @@ const joinGame = ({
 	game,
 	hasJoinedGame,
 	isInGame,
-	playerUsers,
 	onJoinGame,
 }: {
 	colors?: string[];
 	game: Game;
 	hasJoinedGame: boolean;
 	isInGame: boolean;
-	playerUsers: PlayerUser[];
 	onJoinGame?: OnJoinGameCallback;
 }): void => {
 	if (!game || hasJoinedGame) {
@@ -150,7 +145,6 @@ const joinGame = ({
 	
 	if (!colors && isInGame) {
 		colors = [...getMePlayers({
-			playerUsers,
 			game,
 		})].map((player: Player) => player.color);
 	}
@@ -174,7 +168,6 @@ const PlayGame = ({
 	hasJoinedGame,
 	isInGame,
 	isWatchingGame,
-	playerUsers,
 	watcherCount,
 	currentZoomLevel,
 	onJoinGame,
@@ -198,6 +191,10 @@ const PlayGame = ({
 	const [selectedPlayerColor, setSelectedPlayerColor] = useState<string|null>(null);
 	const [selectedIndicatorEl, setSelectedIndicatorEl] = useState<Element|null>(null);
 
+	const selectedPlayer = selectedPlayerColor === null ?
+		null :
+		game.players.find((player) => player.color === selectedPlayerColor);
+
 	const mounted = useRef();
 	useEffect(() => {
 		if (!mounted.current) {
@@ -207,7 +204,6 @@ const PlayGame = ({
 					hasJoinedGame,
 					isInGame,
 					onJoinGame,
-					playerUsers,
 				});
 			}
 		}
@@ -221,22 +217,20 @@ const PlayGame = ({
 	useEffect(() => {
 		if (
 			game &&
-			playerUsers &&
-			playerUsers.length === new Set(game.players.map(
+			game.players.length === new Set(game.players.map(
 				(player) => player.user.id)
 			).size &&
 			isInGame
 		) {
 			joinGame({
 				game,
-				playerUsers,
 				hasJoinedGame,
 				isInGame,
 				onJoinGame,
 			});
 		}
 
-	}, [game, playerUsers, isInGame, onJoinGame, hasJoinedGame]);
+	}, [game, isInGame, onJoinGame, hasJoinedGame]);
 
 	/**
 	 * Handles the clicking of a cell.
@@ -304,10 +298,9 @@ const PlayGame = ({
 			hasJoinedGame,
 			isInGame,
 			onJoinGame,
-			playerUsers,
 			colors: [ color ],
 		});
-	}, [game, hasJoinedGame, isInGame, onJoinGame, playerUsers]);
+	}, [game, hasJoinedGame, isInGame, onJoinGame]);
 
 	/**
 	 * Handles cancelling game joining.
@@ -466,7 +459,6 @@ const PlayGame = ({
 					<PlayerIndicators
 						game={game}
 						markActive={gameIsStarted}
-						playerUsers={playerUsers}
 						onIndicatorClick={handlePlayerIndicatorClick}
 					/>
 					{
@@ -494,11 +486,11 @@ const PlayGame = ({
 					}}
 				>
 					{
-						selectedIndicatorEl === null ?
+						selectedIndicatorEl !== null ?
 							(
 								//TODO: FIX onDisplayNameChange, playerUser
 								<PlayerInfoPopup
-									playerUser={playerUsers[0]}
+									playerUser={selectedPlayer.user}
 									onDisplayNameChange={() => {}}
 									player={
 										game.players.find(

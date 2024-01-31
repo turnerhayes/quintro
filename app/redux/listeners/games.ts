@@ -1,12 +1,11 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { joinGame, playersJoined, watchGame } from "@lib/redux/actions/games";
-import { EventName, clientInstance } from "@lib/services/game-socket-client";
+import { GameSocketClient, EventName } from "@lib/services/game-socket-client";
 import { gameApiSlice } from "@lib/services/games-service";
 import { makeOrGetStore } from "@lib/redux/store";
 
-
-clientInstance.listen(EventName.PLAYERS_JOINED, (err, {players}) => {
-    makeOrGetStore().dispatch(playersJoined({players}));
+GameSocketClient.instance.listen(EventName.PLAYERS_JOINED, (err, {gameName, players}) => {
+    makeOrGetStore().dispatch(playersJoined({gameName, players}));
 });
 
 const gamesListenerMiddleware = createListenerMiddleware();
@@ -14,7 +13,7 @@ const gamesListenerMiddleware = createListenerMiddleware();
 gamesListenerMiddleware.startListening({
     actionCreator: joinGame,
     effect({payload: {gameName, colors}}, api) {
-        clientInstance.joinGame(gameName, colors);
+        GameSocketClient.instance.joinGame(gameName, colors);
     },
 });
 
@@ -34,7 +33,7 @@ gamesListenerMiddleware.startListening({
 gamesListenerMiddleware.startListening({
     actionCreator: watchGame,
     effect({payload: gameName}) {
-        clientInstance.watchGame(gameName);
+        GameSocketClient.instance.watchGame(gameName);
     },
 })
 

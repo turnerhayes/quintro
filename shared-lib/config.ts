@@ -1,8 +1,59 @@
+import { User } from "next-auth";
+
 export interface PlayerColor {
 	id: string;
 	name: string;
 	hex: string;
 }
+
+export enum AuthProvider {
+    GOOGLE = "google",
+    FACEBOOK = "facebook",
+	ANONYMOUS = "anonymous",
+}
+
+export interface ProviderInfo {
+    id: AuthProvider;
+    name: string;
+	isEnabled: boolean;
+	secret?: string;
+}
+
+export interface QuintroUser extends User {
+	id: string;
+	username: string;
+    provider?: AuthProvider;
+    names?: {
+        given: string;
+        family?: string;
+        display: string;
+    };
+}
+
+export const ANONYMOUS_USERNAME = "<anonymous>";
+
+export const facebookProviderInfo: ProviderInfo = {
+	id: AuthProvider.FACEBOOK,
+	name: "Facebook",
+	isEnabled: Boolean(process.env.NEXT_PUBLIC_CREDENTIALS_FACEBOOK_ENABLED),
+	secret: process.env.CREDENTIALS_FACEBOOK_APP_SECRET,
+};
+
+export const googleProviderInfo: ProviderInfo = {
+	id: AuthProvider.GOOGLE,
+	name: "Google",
+	isEnabled: Boolean(process.env.NEXT_PUBLIC_CREDENTIALS_GOOGLE_ENABLED),
+	secret: process.env.CREDENTIALS_GOOGLE_CLIENT_SECRET,
+};
+
+const PROVIDERS: ProviderInfo[] = [
+    googleProviderInfo,
+	facebookProviderInfo,
+];
+
+const enabledProviders = PROVIDERS.filter(
+	({isEnabled}) => isEnabled
+);
 
 const port = process.env.PORT || process.env.NEXT_PUBLIC_PORT;
 const host = process.env.APP_ADDRESS_HOST || process.env.NEXT_PUBLIC_APP_ADDRESS_HOST;
@@ -22,7 +73,7 @@ const websocketsPath = webSocketsInline ?
 	"/sockets" :
 	undefined;
 
-let staticContentURL = process.env.STATIC_CONTENT_URL;
+let staticContentURL = process.env.STATIC_CONTENT_URL || "";
 const staticContentInline = !staticContentURL;
 
 // istanbul ignore else
@@ -121,6 +172,11 @@ const colors = new ColorList(
 		hex: "#000000",
 	},
 );
+
+export const providerAuth = {
+	allProviders: PROVIDERS,
+	enabledProviders,
+};
 
 export const game = {
 	board: {

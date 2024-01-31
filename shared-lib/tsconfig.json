@@ -3,11 +3,14 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "noEmit": false,
-        "module": "CommonJS"
+        "module": "CommonJS",
+        "paths": {
+            "@server/*": ["../server/*"]
+        }
     },
     "include": [
-        "./**/*.ts",
-        "./**/*.js"
+        "**/*.ts",
+        "**/*.js"
     ],
     "exclude": [
         "dist/"

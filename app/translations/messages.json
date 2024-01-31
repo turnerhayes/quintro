@@ -23,9 +23,21 @@
     "defaultMessage": "Find",
     "description": "Label for the button to start searching for games on the Find Game page"
   },
+  "quintro.components.FindGame.goToGameButton": {
+    "defaultMessage": "Go to Game",
+    "description": "Button text to go to a particular game found in the Find Game page which they are already a participant in"
+  },
   "quintro.components.FindGame.header": {
     "defaultMessage": "Find a Game",
     "description": "Header for the Find Game page"
+  },
+  "quintro.components.FindGame.joinGameButton": {
+    "defaultMessage": "Join",
+    "description": "Button text to join a particular game found in the Find Game page"
+  },
+  "quintro.components.FindGame.noResults": {
+    "defaultMessage": "No results found. You can change your search parameters, create a new game, or try again later.",
+    "description": "Message shown when no games were found in the Find Game page"
   },
   "quintro.components.FindGame.searchingText": {
     "defaultMessage": "Searching for open games, please wait",
