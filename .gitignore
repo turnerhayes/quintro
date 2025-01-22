@@ -1,16 +1,3 @@
-# Don't check auto-generated stuff into git
-coverage
-/dist
-logs
-node_modules
-stats.json
-.env
-
-*.crt
-*.key
-
-# Cruft
-.DS_Store
-npm-debug.log
-.idea
-.vscode
+__current/
+.env*
+node_modules/
