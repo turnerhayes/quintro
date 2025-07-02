@@ -10,6 +10,10 @@ export interface ServerToClientEvents {
     gameName: GameID;
     playerIndexes: number[];
   }) => void;
+  "game:started": (args: {
+    gameName: GameID;
+    startedAtTimestamp: number;
+  }) => void;
   "board:marble:placed": (args: {
     gameName: GameID;
     position: BoardPosition;
@@ -23,6 +27,9 @@ export interface ClientToServerEvents {
     color: ColorID;
   }) => void;
   "game:connect": (args: {
+    gameName: GameID;
+  }) => void;
+  "game:start": (args: {
     gameName: GameID;
   }) => void;
   "board:place-marble": (args: {

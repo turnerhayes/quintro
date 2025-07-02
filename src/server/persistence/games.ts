@@ -1,7 +1,7 @@
-import { Transaction } from 'kysely';
+import { sql, Transaction } from 'kysely';
 import { jsonArrayFrom, jsonBuildObject } from 'kysely/helpers/postgres';
 import { customAlphabet } from 'nanoid';
-import { FilledCell, Game, Player, User, UserID } from '@root/types/index';
+import { FilledCell, Game, GameID, Player, User, UserID } from '@root/types/index';
 import { ColorID } from '@root/config';
 import db from '@server/persistence/db';
 import { ServerGame, ServerPlayer } from '@server/index.d';
@@ -181,7 +181,7 @@ export const startGame = async (
         gameName: string;
         transaction?: Transaction<Database>;
     }
-) => {
+): Promise<Date> => {
     const dbInstance = transaction || db;
     const game = await getGame({
         name: gameName,
@@ -195,15 +195,17 @@ export const startGame = async (
     }
     const result = await dbInstance.updateTable("games")
         .set({
-            started_at: new Date(),
+            started_at: sql`now()`,
         })
         .where("name", "=", gameName)
-        .returning("name")
+        .returning("started_at")
         .executeTakeFirst();
 
     if (!result) {
         throw new Error("Failed to start game");
     }
+
+    return result.started_at!;
 }
 
 export const findGames = async (

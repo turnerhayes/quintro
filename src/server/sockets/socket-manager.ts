@@ -1,9 +1,10 @@
 import assert from "node:assert";
 import { Server, Socket } from "socket.io";
 import Config, { ColorID } from "@root/config";
-import { BoardPosition, FilledCell, GameID, Player, Quintro, UserID } from "@root/types/index";
+import { findQuintros } from "@root/quintros";
+import { BoardPosition, GameID, Player, UserID } from "@root/types/index";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "@root/types/sockets";
-import { getGame, joinGame, updateGame } from "@server/persistence/games";
+import { getGame, joinGame, startGame, updateGame } from "@server/persistence/games";
 import { ServerGame, ServerPlayer } from "@server/index.d";
 import { serverGameToGame } from "@server/utils";
 
@@ -42,180 +43,6 @@ const getNextColor = (currentPlayerColors: ColorID[]) => {
             colorDefinition.id
         )
     );
-};
-
-const findQuintros = (cells: FilledCell[], width: number, height: number): Quintro[] => {
-    if (cells.length < 5) {
-        return [];
-    }
-    const lastCell = cells[cells.length - 1];
-
-    const { position, color } = lastCell;
-
-    const adjacentCellCoords = [];
-
-    const cellMap = cells.reduce(
-        (map, cell) => {
-            map[JSON.stringify(cell.position)] = cell.color!;
-            return map;
-        },
-        {} as {[key: string]: ColorID}
-    );
-
-    const quintros: Quintro[] = [];
-    const [cellX, cellY] = position;
-
-    // Check horizontal
-    {
-        const cells: FilledCell[] = [];
-        cells.push(lastCell);
-
-        for (let x = cellX - 1; x >= 0; x--) {
-            if (cellMap[JSON.stringify([x, cellY])] === color) {
-                cells.unshift({
-                    position: [x, cellY],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-
-        for (let x = cellX + 1; x < width; x++) {
-            if (cellMap[JSON.stringify([x, cellY])] === color) {
-                cells.push({
-                    position: [x, cellY],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        if (cells.length >= 5) {
-            quintros.push({
-                cells,
-                color,
-                numberOfEmptyCells: 0,
-            });
-        }
-    }
-
-    // Check vertical
-    {
-        const cells: FilledCell[] = [];
-        cells.push(lastCell);
-
-        for (let y = cellY - 1; y >= 0; y--) {
-            if (cellMap[JSON.stringify([cellX, y])] === color) {
-                cells.unshift({
-                    position: [cellX, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-
-        for (let y = cellY + 1; y < height; y++) {
-            if (cellMap[JSON.stringify([cellX, y])] === color) {
-                cells.push({
-                    position: [cellX, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        if (cells.length >= 5) {
-            quintros.push({
-                cells,
-                color,
-                numberOfEmptyCells: 0,
-            });
-        }
-    }
-
-    // Check diagonal (top-left --> bottom-right)
-    {
-        const cells: FilledCell[] = [];
-        cells.push(lastCell);
-
-        for (let x = cellX - 1, y = cellY - 1; x >= 0 && y >=0; x--, y--) {
-            if (cellMap[JSON.stringify([x, y])] === color) {
-                cells.unshift({
-                    position: [x, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        
-        for (let x = cellX + 1, y = cellY + 1; x < width && y < height; x++, y++) {
-            if (cellMap[JSON.stringify([x, y])] === color) {
-                cells.unshift({
-                    position: [x, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        
-        if (cells.length >= 5) {
-            quintros.push({
-                cells,
-                color,
-                numberOfEmptyCells: 0,
-            });
-        }
-    }
-    
-    // Check diagonal (top-right --> bottom-left)
-    {
-        const cells: FilledCell[] = [];
-        cells.push(lastCell);
-
-        for (let x = cellX + 1, y = cellY - 1; x < width && y >=0; x++, y--) {
-            if (cellMap[JSON.stringify([x, y])] === color) {
-                cells.unshift({
-                    position: [x, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        
-        for (let x = cellX - 1, y = cellY + 1; x >= 0 && y < height; x--, y++) {
-            if (cellMap[JSON.stringify([x, y])] === color) {
-                cells.unshift({
-                    position: [x, y],
-                    color,
-                });
-            }
-            else {
-                break;
-            }
-        }
-        
-        if (cells.length >= 5) {
-            quintros.push({
-                cells,
-                color,
-                numberOfEmptyCells: 0,
-            });
-        }
-    }
-
-    return quintros;
 };
 
 const getCurrentPlayerIndex = (game: ServerGame): number|null => {
@@ -439,8 +266,11 @@ class SocketManager {
             players: Player[];
             selfPlayerIndexes: number[];
         }>) => {
-            console.log("on game:join");
             this.onJoinGame(socket, args, fn);
+        });
+
+        socket.on('game:start', (args: BaseArgs, fn: AckCallback) => {
+            this.onStartGame(socket, args, fn);
         });
 
         socket.on('game:players:presence', (args: BaseArgs, fn: AckCallback<{
@@ -625,6 +455,51 @@ class SocketManager {
             }
 
             throw ex;
+        }
+    }
+
+    private async onStartGame(socket: Socket, { gameName }: BaseArgs, fn: AckCallback) {
+        const game = await getGame({
+            name: gameName,
+        });
+
+        if (!game) {
+            return fn({
+                error: true,
+                message: `Game with name ${gameName} not found`,
+                code: "NO_GAME",
+            });
+        }
+
+        if (game.startedAtTimestamp != null) {
+            return fn({
+                error: true,
+                message: `Game with name ${gameName} already started`,
+                code: "GAME_ALREADY_STARTED",
+            });
+        }
+
+        try {
+            const startedAt = await startGame({
+                gameName,
+            });
+
+            console.log("start timestamp:", startedAt);
+
+            this.io.to(gameName).emit("game:started", {
+                gameName,
+                startedAtTimestamp: startedAt.getTime(),
+            });
+
+            fn();
+        }
+        catch (ex) {
+            console.error(ex);
+            return fn({
+                error: true,
+                message: ex instanceof Error ? ex.message : `${ex ?? ""}`,
+                code: "START_GAME_ERROR",
+            });
         }
     }
 

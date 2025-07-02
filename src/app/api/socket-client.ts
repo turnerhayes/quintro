@@ -6,7 +6,6 @@ import { ServerToClientEvents, ClientToServerEvents } from "@root/types/sockets"
 import { store } from "@/redux/store";
 import { gamesApi } from "./games";
 import { EventNames } from "socket.io/dist/typed-events";
-import { FallbackToUntypedListener } from "@socket.io/component-emitter";
 
 
 type EmitWithAckWorkaround = <Ev extends keyof ClientToServerEvents>(ev: Ev, ...args: Parameters<ClientToServerEvents[Ev]>) => Promise<any>;
@@ -21,6 +20,9 @@ export class SocketClient {
             withCredentials: true,
         });
 
+        // The typing of this method doesn't work; see https://github.com/socketio/socket.io/issues/5367
+        // Overriding the typing here until this is resolved
+        // TODO: Remove this when the issue is fixed
         this.emitWithAck = this.socket.emitWithAck.bind(this.socket) as EmitWithAckWorkaround;
 
         this.socket.on(
@@ -37,10 +39,6 @@ export class SocketClient {
                     gameName,
                     position,
                     color,
-                }: {
-                    gameName: GameID;
-                    position: BoardPosition;
-                    color: ColorID;
                 }
             ) => {
                 store.dispatch(
@@ -54,6 +52,8 @@ export class SocketClient {
                                 position,
                                 color,
                             });
+
+                            return game;
                         }
                     )
                 );
@@ -72,6 +72,29 @@ export class SocketClient {
                     },
                     (game) => {
                         game.players = updatedPlayerList;
+
+                        return game;
+                    }
+                )
+            );
+        });
+
+        this.socket.on("game:started", (
+            {
+                gameName,
+                startedAtTimestamp,
+            }
+        ) => {
+            store.dispatch(
+                gamesApi.util.updateQueryData(
+                    "getGame",
+                    {
+                        gameName,
+                    },
+                    (game) => {
+                        game.startedAtTimestamp = startedAtTimestamp;
+
+                        return game;
                     }
                 )
             );
@@ -92,7 +115,7 @@ export class SocketClient {
             color,
         });
 
-        if (result.error) {
+        if (result?.error) {
             throw new Error(result.message);
         }
     }
@@ -111,7 +134,7 @@ export class SocketClient {
             }
         );
 
-        if (result.error) {
+        if (result?.error) {
             throw new Error(result.message);
         }
 
@@ -135,7 +158,47 @@ export class SocketClient {
             color,
         });
 
-        if (result.error) {
+        if (result?.error) {
+            // Remove the marble if the placement failed
+            store.dispatch(
+                gamesApi.util.updateQueryData(
+                    "getGame",
+                    {
+                        gameName,
+                    },
+                    (game) => {
+                        const index = game.board.filledCells.findIndex(
+                            (cell) => cell.position[0] === position[0] &&
+                                cell.position[1] === position[1] &&
+                                cell.color === color
+                        );
+
+                        if (index >= 0) {
+                            game.board.filledCells.splice(index, 1);
+                        }
+
+                        return game;
+                    }
+                )
+            );
+            throw new Error(result.message);
+        }
+
+        return result;
+    }
+
+    async startGame(
+        {
+            gameName,
+        }: {
+            gameName: GameID;
+        }
+    ) {
+        const result = await this.emitWithAck("game:start", {
+            gameName,
+        });
+
+        if (result?.error) {
             throw new Error(result.message);
         }
 

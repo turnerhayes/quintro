@@ -12,7 +12,7 @@ import { ZoomControls, ZoomControlsProps }       from "@/components/Board/ZoomCo
 import { PlayerIndicators, PlayerIndicatorsProps } from "@/components/PlayerIndicators";
 import { PlayerInfoPopup }    from "@/components/PlayerInfoPopup";
 import { AddPlayerButton, AddPlayerButtonProps } from "@/components/AddPlayerButton";
-import { useGetGameQuery } from "@/api/games";
+import { gamesApi, useGetGameQuery } from "@/api/games";
 import { getCurrentPlayer, getUserPlayers } from "@/redux/selectors/game-selectors";
 import Config            from "@root/config";
 import type { Game, Player, SelfPlayer } from "@root/types";
@@ -21,6 +21,7 @@ import { socketClient } from "@root/app/api/socket-client";
 import { StartGameOverlay, StartGameOverlayProps } from "./StartGameOverlay";
 import { WinnerBanner }     from "./WinnerBanner";
 import * as styles from "./PlayGame.module.scss";
+import { useAppDispatch } from "@root/app/redux/hooks";
 
 
 const PlayGameContent = (
@@ -36,6 +37,7 @@ const PlayGameContent = (
     const [selectedPlayerColor, setSelectedPlayerColor] = useState<string|null>(null);
     const [selectedIndicatorEl, setSelectedIndicatorEl] = useState<HTMLElement|null>(null);
     const [currentZoomLevel, setCurrentZoomLevel] = useState(1);
+    const dispatch = useAppDispatch();
     const isWatchingGame = false; //TODO: implement watching logic
 
 
@@ -143,9 +145,13 @@ const PlayGameContent = (
 
     const handleStartGameButtonClick = useCallback(
         (() => {
-
+            socketClient.startGame({
+                gameName: game.name,
+            });
         }) as NonNullable<StartGameOverlayProps["onStartClick"]>,
-        []
+        [
+            game,
+        ]
     );
 
     const handleCellClick = useCallback(
@@ -165,13 +171,36 @@ const PlayGameContent = (
                 return;
             }
 
+            dispatch(
+                gamesApi.util.updateQueryData(
+                    "getGame",
+                    {
+                        gameName: game.name,
+                    },
+                    (game) => {
+                        game.board.filledCells.push(
+                            {
+                                color: currentPlayer.color,
+                                position: cell.position,
+                            }
+                        );
+
+                        return game;
+                    }
+                )
+            );
+
             socketClient.placeMarble({
                 gameName: game.name,
                 position: cell.position,
                 color: currentPlayer.color,
             });
         }) as NonNullable<BoardProps["onCellClick"]>,
-        []
+        [
+            currentUserPlayers,
+            game,
+            dispatch,
+        ]
     )
 
     const gameIsOver = game.winnerIndex != undefined;
@@ -207,7 +236,7 @@ const PlayGameContent = (
 
     const currentPlayer = getCurrentPlayer(game);
     const myTurn = currentPlayer !== null && currentUserPlayers.includes(currentPlayer as SelfPlayer);
-    const gameIsStarted = game.startedAtTimestamp != undefined && !gameIsOver;
+    const gameIsStarted = game.startedAtTimestamp != null && !gameIsOver;
 
     let watcherSummary: string|null = null;
 
