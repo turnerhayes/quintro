@@ -1,0 +1,17 @@
+.root {
+    display: flex;
+    flex-direction: row;
+}
+
+.dimensionSeparator {
+    margin: 0 0.5em;
+    align-self: center;
+}
+
+.inputLabel {
+    position: static;
+}
+
+.keepRatioButton {
+    align-self: center;
+}

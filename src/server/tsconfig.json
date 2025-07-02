@@ -1,0 +1,15 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "module": "CommonJS",
+        "outDir": "../../dist/server",
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "../.."
+    },
+    "include": [
+        "./**/*.ts",
+    ],
+    "exclude": [
+        "./sockets/**"
+    ]
+}

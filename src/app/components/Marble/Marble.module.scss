@@ -1,0 +1,17 @@
+.root {
+    border-radius: 100%;
+    width: var(--size);
+    height: var(--size);
+    min-width: var(--size);
+    max-width: var(--size);
+    min-height: var(--size);
+    max-height: var(--size);
+}
+
+.empty {
+    background-color: lightgrey;
+}
+
+.filled {
+    background: radial-gradient(circle at 10px 7px, var(--color), #FFFFFF);
+}

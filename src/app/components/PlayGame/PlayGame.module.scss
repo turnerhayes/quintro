@@ -1,0 +1,51 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.gameControls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.playerControls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addPlayerButton {
+    margin-left: 2em;
+}
+
+.zoomControls {
+    margin-left: auto;
+}
+
+.gameArea {
+    flex: 1;
+    overflow: auto;
+}
+
+.boardContainer {
+    position: relative;
+    display: inline-block;
+    align-self: center;
+    font-size: calc(var(--zoom-level) * 1em);
+
+    &.myTurn {
+        outline: 1px solid black;
+        border: 7px solid var(--self-player-color);
+    }
+}
+
+.watcherIcon {
+    font-size: 1.7em;
+}
+
+.watcherBadge {
+    margin-right: 1em;
+}

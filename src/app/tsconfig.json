@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "jsx": "react",
+        "module": "es6",
+        "outDir": "../../dist/client"
+    },
+    "include": [
+        "./**/*"
+    ]
+}
