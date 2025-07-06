@@ -1,11 +1,6 @@
+import "../read-env"; // Don't use @/ prefix; this is used by kysely and that doesn't seem to work with aliases
 import { PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
-import path from 'node:path';
-
-import dotenv from 'dotenv';
-dotenv.config({
-    path: path.resolve(__dirname, '../../.env'),
-});
 
 const dialect = new PostgresDialect({
     pool: new Pool({

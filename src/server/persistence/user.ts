@@ -1,6 +1,6 @@
-import { User, UserID } from "@root/types/index";
-import db from "@server/persistence/db";
-import { User as UserRow } from "@server/persistence/types";
+import { User, UserID } from "@/types/index";
+import db from "@/server/persistence/db";
+import { User as UserRow } from "@/server/persistence/types";
 
 
 const SELECT_COLUMNS: ReadonlyArray<keyof UserRow> = [
@@ -14,6 +14,7 @@ const resultToUser = (row: Pick<UserRow, typeof SELECT_COLUMNS[number]>): User =
     name: {
         display: row.display_name,
     },
+    provider: row.provider_id,
 });
 
 export const getUsers = async (

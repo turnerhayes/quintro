@@ -1,6 +1,6 @@
+import { AuthProviderID } from '@/config';
 import { SessionData } from 'express-session';
 import {
-    ColumnType,
     Generated,
     Insertable,
     JSONColumnType,
@@ -14,6 +14,7 @@ export interface UserTable {
     email: string;
     display_name: string;
     created_at: Generated<Date>;
+    provider_id: AuthProviderID;
 }
 
 export interface PlayerTable {

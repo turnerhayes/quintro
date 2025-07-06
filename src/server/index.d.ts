@@ -1,17 +1,18 @@
 import { Session, SessionData } from "express-session";
-import { Player, Game } from "@root/types/index";
+import { Player, Game, User } from "@/types/index";
 
 declare module 'http' {
     interface IncomingMessage {
         cookieHolder?: string;
         session: Session & Partial<SessionData>;
+        user?: User;
     }
 }
 
-export interface ServerPlayer extends Player {
+export type ServerPlayer = Omit<Player, "sessionID"> & {
     sessionID: string;
-}
+};
 
-export interface ServerGame extends Game {
+export type ServerGame = Omit<Game, "players"> & {
     players: ServerPlayer[];
-}
+};

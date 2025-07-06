@@ -1,64 +1,65 @@
-import {join} from "node:path";
-import {config} from "dotenv";
-const envPath = join(__dirname, "..", ".env");
-
-config({
-    path: envPath,
-});
+import "@/server/read-env";
+import { createServer } from "node:http";
 import express from "express";
-import errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware';
-import webpack, { Configuration } from "webpack";
-import webpackDevMiddleware from "webpack-dev-middleware";
-import webpackHotMiddleware from "webpack-hot-middleware";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import cors from "cors";
 import passport from "passport";
+import { Server } from "socket.io";
 
-import webpackConfigGenerator from "../../webpack.config";
-import gamesRouter from "@server/routes/games";
-import authRouter from "@server/routes/auth";
-import sessionMiddleware from "@server/session-middleware";
+import SocketManager from "@/server/socket-manager";
+import gamesRouter from "@/server/routes/games";
+import authRouter from "@/server/routes/auth";
+import sessionMiddleware from "@/server/session-middleware";
+
+
+interface SocketRequest extends Request {
+    _query: {
+        sid: string;
+    };
+}
+
+function onlyForHandshake(middleware: RequestHandler) {
+  return (req: SocketRequest, res: Response, next: NextFunction) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
+
 
 const app = express();
+const httpServer = createServer(app);
 
-const webpackConfig = webpackConfigGenerator("development") as Configuration;
-const compiler = webpack(webpackConfig);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "http://localhost:5173", //TODO: Get origin from environment variables
+        credentials: true,
+    },
+});
+
+io.engine.use(onlyForHandshake(sessionMiddleware));
+io.engine.use(onlyForHandshake(passport.session()));
+
+new SocketManager(io);
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(errorOverlayMiddleware());
 app.use(express.json());
-app.use(cors());
-
-app.use(webpackDevMiddleware(compiler, {
-    publicPath: webpackConfig.output?.publicPath,
+app.use(cors({
+  origin: "http://localhost:5173", //TODO: Get origin from environment variables
+  credentials: true,
 }));
-app.use(webpackHotMiddleware(compiler));
 
 app.use('/api/games', gamesRouter);
 
 app.use("/auth", authRouter);
 
-app.use("*", (req, res, next) => {
-    if (req.path.includes("/socket.io/")) {
-        return next();
-    }
-    const filename = join(compiler.outputPath, "index.html");
-    if (compiler.outputFileSystem == null) {
-        throw Error("Cannot serve index file: no output filesystem on the Webpack compiler.");
-    }
-    compiler.outputFileSystem.readFile(filename, (err, result) => {
-        if (err) {
-            return next(err);
-        }
-        res.set("content-type", "text/html");
-        res.send(result);
-        res.end();
-    });
-});
+const PORT = 8070; //TODO: Get port from environment
 
-const PORT = 8070;
-
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log("Listening on port", PORT);
 });

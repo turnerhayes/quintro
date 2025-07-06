@@ -1,4 +1,4 @@
-import { ColorID } from "@root/config";
+import type { ColorID, AuthProviderID } from "@/config";
 
 export type GameID = string;
 
@@ -11,6 +11,7 @@ export interface User {
     name: {
         display: string;
     };
+    provider?: AuthProviderID;
 }
 
 export type UserList = {[userID: UserID]: User};

@@ -1,11 +1,11 @@
-import { sql, Transaction } from 'kysely';
-import { jsonArrayFrom, jsonBuildObject } from 'kysely/helpers/postgres';
+import { sql, type Transaction } from 'kysely';
+import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { customAlphabet } from 'nanoid';
-import { FilledCell, Game, GameID, Player, User, UserID } from '@root/types/index';
-import { ColorID } from '@root/config';
-import db from '@server/persistence/db';
-import { ServerGame, ServerPlayer } from '@server/index.d';
-import { Database, Game as GameRow, Player as PlayerRow, User as UserRow } from '@server/persistence/types';
+import type { FilledCell, User, UserID } from '@/types/index';
+import { ColorID } from '@/config';
+import db from '@/server/persistence/db';
+import { ServerGame, ServerPlayer } from '@/server/index.d';
+import type { Database, Game as GameRow, Player as PlayerRow } from '@/server/persistence/types';
 import { getUsers } from './user';
 
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);

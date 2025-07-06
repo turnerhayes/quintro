@@ -1,0 +1,36 @@
+.gameControls {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1em;
+}
+
+.playerControls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addPlayerButton {
+    margin-left: 2em;
+}
+
+.zoomControls {
+    margin-left: auto;
+}
+
+.watcherIcon {
+    font-size: 1.7em;
+}
+
+.watcherBadge {
+    margin-right: 1em;
+}
+
+.startGameOverlay {
+    z-index: 1;
+}
+
+.winnerBanner {
+    z-index: 1;
+}

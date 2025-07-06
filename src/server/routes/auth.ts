@@ -1,7 +1,7 @@
-import { User } from "@root/types/index";
 import express from "express";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { User } from "@/types/index";
 
 const router = express.Router();
 
@@ -27,6 +27,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
         name: {
             display: 'Test User',
         },
+        provider: null,
     };
     return done(null, user);
 }));

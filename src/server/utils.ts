@@ -1,11 +1,10 @@
-import { ServerGame, ServerPlayer } from "@server/index.d";
-import { Game, Player } from "@root/types/index";
+import { ServerGame, ServerPlayer } from "@/server/index.d";
+import { Game, Player } from "@/types/index";
 
 
 export const serverPlayerToPlayer = (player: ServerPlayer): Player => {
-    const converted: Player = {
+    const converted: ServerPlayer = {
         ...player,
-        sessionID: undefined,
     };
 
     delete converted.sessionID;

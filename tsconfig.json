@@ -1,26 +1,8 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-
-    "allowJs": true,
-    "sourceMap": true,
-
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@server/*": ["./src/server/*"],
-      "@root/*": ["./src/*"],
-      "@/*": ["./src/app/*"]
-    }
-  },
-  "exclude": [
-    "./__current"
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ]
 }

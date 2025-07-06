@@ -1,15 +1,15 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "module": "CommonJS",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "target": "esnext",
+        "module": "esnext",
         "outDir": "../../dist/server",
         "allowSyntheticDefaultImports": true,
-        "baseUrl": "../.."
+        "baseUrl": "../..",
     },
     "include": [
         "./**/*.ts",
     ],
-    "exclude": [
-        "./sockets/**"
-    ]
 }

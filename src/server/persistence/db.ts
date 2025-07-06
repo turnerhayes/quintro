@@ -1,5 +1,5 @@
-import { Kysely, LogConfig } from "kysely";
-import { Database } from "./types";
+import { Kysely, type LogConfig } from "kysely";
+import type { Database } from "./types";
 
 import dialect from "./dialect";
 

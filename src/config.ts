@@ -4,7 +4,14 @@
 // 	"/sockets" :
 // 	undefined;
 
-const websocketsPortString = process.env.WEBSOCKETS_PORT;
+let websocketsPortString: string|undefined;
+
+if ("process" in globalThis) {
+	websocketsPortString = process.env.VITE_WEBSOCKETS_PORT
+}
+else {
+	websocketsPortString = import.meta.env.VITE_WEBSOCKETS_PORT;
+}
 
 if (!websocketsPortString) {
 	throw new Error(`"${websocketsPortString}" is not set. Set a valid port number in the environment variable WEBSOCKETS_PORT.`)
@@ -108,6 +115,27 @@ Object.defineProperties(
 	}
 );
 
+interface AuthConfig {
+	isEnabled: boolean;
+}
+
+const auth = {
+	facebook: {
+	} as AuthConfig,
+	google: {
+	} as AuthConfig,
+};
+
+if ("process" in globalThis) {
+	auth.facebook.isEnabled = Boolean(process.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
+	auth.google.isEnabled = Boolean(process.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
+}
+else {
+	auth.facebook.isEnabled = Boolean(import.meta.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
+	auth.google.isEnabled = Boolean(import.meta.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
+}
+
+export type AuthProviderID = keyof typeof auth;
 
 export default {
 	game: {
@@ -127,6 +155,8 @@ export default {
 		},
 		colors: colors as ColorList,
 	},
+
+	auth,
 
 	staticContent: {
 		// inline: staticContentInline,

@@ -1,12 +1,8 @@
-import { join } from "node:path";
-import { config } from "dotenv";
-config({
-    path: join(__dirname, "..", ".env"),
-});
-
+import "@/server/read-env";
 import assert from "node:assert";
-import session, { SessionOptions } from "express-session";
-import SessionStore from "./persistence/session-store";
+import session from "express-session";
+import type { SessionOptions } from "express-session";
+import SessionStore from "@/server/persistence/session-store";
 
 const sessionSecret = process.env.SESSION_SECRET;
 

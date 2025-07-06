@@ -1,5 +1,0 @@
-{
-  "watch": ["src/server/"],
-  "ext": "ts",
-  "ignore": ["src/app/", "webpack.config.js"]
-}

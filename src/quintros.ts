@@ -1,5 +1,5 @@
-import { ColorID } from "@root/config";
-import { FilledCell, Quintro } from "@root/types";
+import type { ColorID } from "@/config";
+import type { FilledCell, Quintro } from "@/types";
 
 export const findQuintros = (cells: FilledCell[], width: number, height: number): Quintro[] => {
     if (cells.length < 5) {
@@ -8,8 +8,6 @@ export const findQuintros = (cells: FilledCell[], width: number, height: number)
     const lastCell = cells[cells.length - 1];
 
     const { position, color } = lastCell;
-
-    const adjacentCellCoords = [];
 
     const cellMap = cells.reduce(
         (map, cell) => {

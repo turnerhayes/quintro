@@ -85,7 +85,9 @@ class SessionStore extends Store {
                 return null;
             }
             let data: any|null = result.data;
+            console.log("Got session for session ID %s", sid);
             if (!isNotExpired(data)) {
+                console.log("Session is expired; deleting");
                 await this.destroy(sid);
                 callback(null, null);
                 return null;

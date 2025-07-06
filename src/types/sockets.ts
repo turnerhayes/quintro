@@ -1,4 +1,4 @@
-import { ColorID } from "@root/config";
+import { ColorID } from "@/config";
 import { BoardPosition, GameID, Player } from ".";
 
 export interface ServerToClientEvents {
