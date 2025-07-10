@@ -408,8 +408,12 @@ const PlayGameContent = (
             <div
                 className={styles.gameControls}
             >
-                <div
-                    className={styles.playerControls}
+                <Box
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    pb={2}
                 >
                     <PlayerIndicators
                         game={game}
@@ -425,7 +429,7 @@ const PlayGameContent = (
                             />
                         )
                     }
-                </div>
+                </Box>
                 <Popover
                     key="player indicator popover"
                     open={!!selectedIndicatorEl}

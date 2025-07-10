@@ -4,13 +4,6 @@
     padding-top: 1em;
 }
 
-.playerControls {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .addPlayerButton {
     margin-left: 2em;
 }

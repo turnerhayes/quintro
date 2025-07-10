@@ -11,6 +11,7 @@ import {
     MenuItem,
     SpeedDial,
     SpeedDialAction,
+    Stack,
     Switch,
     Typography,
     useTheme
@@ -279,17 +280,24 @@ const PlayerControls = (
                     Players
                 </Typography>
             </Box>
-            <PlayerLimitInput
-                playerLimit={"" + game.playerLimit}
-                onPlayerLimitChange={handlePlayerLimitChange}
-                className={styles.playerLimitInput}
-            />
-            <PlayerIndicators
-                className={styles.playerIndicators}
-                game={game}
-                indicatorProps={indicatorPropsFunction}
-                markActive
-            />
+            <Box
+                width="100%"
+            >
+                <PlayerLimitInput
+                    playerLimit={"" + game.playerLimit}
+                    onPlayerLimitChange={handlePlayerLimitChange}
+                />
+            </Box>
+            <Box
+                display="flex"
+                alignItems="center"
+            >
+                <PlayerIndicators
+                    game={game}
+                    indicatorProps={indicatorPropsFunction}
+                    markActive
+                />
+            </Box>
             {
                 contextMenuAnchorEl !== null && (
                     <Menu
@@ -347,8 +355,9 @@ const PlayerControls = (
                     </Menu>
                 ) : null
             }
-            <div
-                className={styles.addRemovePlayerContainer}
+            <Stack
+                direction="row"
+                alignItems="center"
             >
                 <AddPlayerButton
                     game={game}
@@ -369,7 +378,7 @@ const PlayerControls = (
                         </IconButton>
                     )
                 }
-            </div>
+            </Stack>
         </Box>
     );
 };

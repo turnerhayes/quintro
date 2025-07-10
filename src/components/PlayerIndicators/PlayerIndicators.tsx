@@ -142,10 +142,7 @@ export const PlayerIndicators = (
 
 	return (
 		<div
-			className={classNames(
-				styles.root,
-				className
-			)}
+			className={className}
 		>
 			<ul
 				className={styles.list}

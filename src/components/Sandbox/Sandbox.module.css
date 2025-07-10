@@ -22,11 +22,6 @@
     width: 100%;
 }
 
-.addRemovePlayerContainer {
-    display: flex;
-    flex-direction: column;
-}
-
 .hiddenAddPlayerButton {
     visibility: hidden;
 }
