@@ -1,5 +1,5 @@
-import { ColorID } from "@/config";
-import { BoardPosition, GameID, Player } from ".";
+import type { ColorID } from "@/config";
+import type { BoardPosition, GameID, Player, Quintro } from ".";
 
 export interface ServerToClientEvents {
   "game:players:joined": (args: {
@@ -18,6 +18,11 @@ export interface ServerToClientEvents {
     gameName: GameID;
     position: BoardPosition;
     color: ColorID;
+  }) => void;
+  "game:over": (args: {
+    gameName: GameID;
+    winnerIndex: number;
+    quintros: Quintro[];
   }) => void;
 }
 

@@ -67,17 +67,20 @@ const validatePlayerLimit = (
 	return error;
 };
 
+export interface PlayerLimitInputProps {
+    className?: string;
+    playerLimit: string;
+    error?: string;
+    onPlayerLimitChange?: (args: {value: string; error: string|null}) => void;
+}
 
 export const PlayerLimitInput = (
     {
+        className,
         playerLimit,
         error,
         onPlayerLimitChange,
-    }: {
-        playerLimit: string;
-        error: string|null;
-        onPlayerLimitChange?: (args: {value: string; error: string|null}) => void;
-    }
+    }: PlayerLimitInputProps
 ) => {
     const intl = useIntl();
 
@@ -107,7 +110,9 @@ export const PlayerLimitInput = (
     ]);
 
     return (
-        <div>
+        <div
+            className={className}
+        >
             <TextField
                 type="number"
                 label={

@@ -1,69 +1,55 @@
-# React + TypeScript + Vite
+# Quintro
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Classic marble game in HTML
 
-Currently, two official plugins are available:
+# Game description
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The game is quite simple: players go around in a set order, placing marbles of their color onto a board. The goal of the game is to get at least five marbles of your color in a line (vertically, horizontally, or diagonally). As the board gets more and more marbles on it, players have to keep track of more potential wins and decide whether to interfere with them or continue with their own efforts.
 
-## Expanding the ESLint configuration
+# Technical structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Anyone can create a game, with some configurable parameters like board width/height and maximum number of players. Users connect to a created game and communicate with a [Socket.io](https://socket.io) server that tracks game state, storing it in a [Postgres](https://www.postgresql.org/) database. The server uses [Express](http://expressjs.com/) and builds the client code using [Vite](https://vite.dev/).
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+The frontend is a [ReactJS](https://facebook.github.io/react/)/[Redux](http://redux.js.org/) web application and uses CSS Modules and [Material UI](https://mui.com/material-ui) for styling.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+The socket server runs as part of the Express API server that provides access to the game and other data.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Installation
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Clone this repo and run `npm install` from within its root directory.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# Configuration
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The application requires a few things at minimum to run correctly. Configuration values are set via a [.env](https://github.com/motdotla/dotenv) file. A sample file with the relevant keys is available at `.env.example`.
+
+## Database
+
+The app uses a [Postgres](https://www.postgresql.org/) database to back its sessions, game state, etc. There is a key in the .env file that defines the connection to the database:
+
+- `CREDENTIALS_DB_URL`: this should be a [Postgres connection string uri](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) to the database where the application data is stored (game state, user profiles, etc.)
+
+
+## SSL
+
+The application can be served with or without SSL. To serve it over SSL, specify the following `.env` variables:
+
+- `APP_SSL_KEY`: a file path to an SSL key file
+- `APP_SSL_CERT`: a file path to an SSL cert file
+
+See [here](https://devcenter.heroku.com/articles/ssl-certificate-self) for instructions on how to create self-signed SSL keys and certificates--these are fine for development, but not good for production purposes.
+
+
+## Sessions
+
+You must also set the `SESSION_SECRET` setting; this is used to encrypt secure cookies.
+
+## Running the app
+
+For development purposes, just run `npm start` with the `$NODE_ENV` environment variable set to `development` or not set at all. This will start a server on `localhost` on the port specified by the `$PORT` environment variable, defaulting to `4000`if not specified. The server includes a [Webpack dev server](https://webpack.js.org/guides/development/#using-webpack-dev-server) instance that watches for changes to static content and automatically recompiles them and triggers a reload of the browser.
+
+For production purposes, build a production bundle via `npm run build` and start the server by running `npm start` with the `$NODE_ENV` environment variable set to `production`.
+
+
+## Other Configuration Values
+
+There are some other configuration options you can set in your `.env` file, including options for logging and social login flows like Facebook and Twitter. For descriptions of these options, look at the [example .env file](.env.example).

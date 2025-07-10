@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import { Server, Socket } from "socket.io";
+import createDebugger from "debug";
 import Config, { ColorID } from "@/config";
 import { findQuintros } from "@/quintros";
 import { BoardPosition, GameID, Player, UserID } from "@/types/index";
@@ -8,6 +9,7 @@ import { getGame, joinGame, startGame, updateGame } from "@/server/persistence/g
 import { ServerGame, ServerPlayer } from "@/server/index.d";
 import { serverGameToGame } from "@/server/utils";
 
+const debug = createDebugger("quintro:socket-manager");
 
 export class SocketError extends Error {
     readonly code: string;
@@ -15,6 +17,13 @@ export class SocketError extends Error {
     constructor(message: string, code: string) {
         super(message);
         this.code = code;
+    }
+
+    toJSON() {
+        return {
+            message: this.message,
+            code: this.code,
+        };
     }
 }
 
@@ -31,7 +40,7 @@ interface JoinGameHandlerArgs extends BaseArgs {
     color?: ColorID;
 }
 
-type AckCallback<A = void> = (args: {
+type AckCallback<A = void> = (error: SocketError|null, args?: {
     error: true;
     message: string;
     code: string;
@@ -108,7 +117,7 @@ const addPlayerToGame = async (
 
     const userID: UserID|undefined = socket.request.user?.id;
 
-    joinGame({
+    await joinGame({
         gameName: game.name,
         color,
         userID,
@@ -134,11 +143,8 @@ const getSocketPlayerIndexes = (
 	const playerIndexes: {
         [key: ColorID]: number;
     } = {};
-    console.log(`socket session ID: ${socket.request.session.id}`);
-
     for (let index = 0; index < game.players.length; index++) {
         const player = game.players[index];
-        console.log(`Player session ID: ${player.sessionID}`);
         if (player.sessionID === socket.request.session.id) {
             playerIndexes[player.color] = index;
         }
@@ -159,11 +165,11 @@ const resolvePlayerJoinData = async (
         colors?: ColorID[];
     }
 ): Promise<ServerGame> => {
-    const playerIndexes = getSocketPlayerIndexes({ socket, game });
+    const playerColors = game.players.map((player) => player.color);
 
     const missingColors = (colors ?? []).reduce(
         (missing, color) => {
-            if (!(color in playerIndexes)) {
+            if (!(color in playerColors)) {
                 missing.push(color);
             }
 
@@ -188,7 +194,7 @@ const resolvePlayerJoinData = async (
         const updatedGame = await getGame({
             name: game.name,
         });
-    
+
         if (updatedGame == null) {
             throw new Error(`Game ${game.name} was not found after adding a player`);
         }
@@ -298,19 +304,17 @@ class SocketManager {
         });
 
         if (!game) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} not found`,
-                code: "NO_GAME",
-            });
+            return fn(new SocketError(
+                `Game with name ${gameName} not found`,
+                "NO_GAME"
+            ));
         }
 
         if (game.startedAtTimestamp == null) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} is not started yet.`,
-                code: "NOT_STARTED",
-            })
+            return fn(new SocketError(
+                `Game with name ${gameName} is not started yet.`,
+                "NOT_STARTED"
+            ));
         }
 
         const currentPlayerIndex = getCurrentPlayerIndex(game);
@@ -320,11 +324,7 @@ class SocketManager {
         }
 
         if (game.players[currentPlayerIndex].color !== color) {
-            return fn({
-                error: true,
-                message: `It is not ${color}'s turn to play.`,
-                code: "WRONG_COLOR",
-            });
+            return fn(new SocketError(`It is not ${color}'s turn to play.`, "WRONG_COLOR"));
         }
 
         const filledCell = game.board.filledCells.find(
@@ -332,11 +332,10 @@ class SocketManager {
         );
 
         if (filledCell) {
-            return fn({
-                error: true,
-                message: `The cell at position ${position} is already filled by ${color}`,
-                code: 'CELL_OCCUPIED',
-            });
+            return fn(new SocketError(
+                `The cell at position ${position} is already filled by ${color}`,
+                'CELL_OCCUPIED'
+            ));
         }
 
         game.board.filledCells.push({
@@ -358,28 +357,27 @@ class SocketManager {
             await updateGame(game);
         }
         catch(err) {
-            return fn({
-                error: true,
-                message: `Game ${gameName} was unable to be updated`,
-                code: 'UPDATE_GAME_ERROR',
-            });
+            return fn(new SocketError(
+                `Game ${gameName} was unable to be updated`,
+                'UPDATE_GAME_ERROR'
+            ));
         }
 
-        socket.to(gameName).emit("board:marble:placed", {
+        this.io.to(gameName).emit("board:marble:placed", {
             gameName,
             position,
             color
         });
 
         if (game.winnerIndex != null) {
-            socket.to(gameName).emit("game:over", {
+            this.io.to(gameName).emit("game:over", {
                 gameName,
                 winnerIndex: game.winnerIndex,
                 quintros,
             });
         }
 
-        fn();
+        fn(null);
     }
 
     private async onJoinGame(
@@ -393,19 +391,14 @@ class SocketManager {
             selfPlayerIndexes: number[];
         }>
     ) {
-        console.log("Joining game %s with color %s", gameName, color);
         try {
             let game = await getGame({
                 name: gameName,
             });
 
             if (!game) {
-                console.error(`Game with name ${gameName} not found`);
-                return fn({
-                    error: true,
-                    message: `Game with name ${gameName} not found`,
-                    code: "NO_GAME",
-                });
+                debug(`Game with name ${gameName} not found`);
+                return fn(new SocketError(`Game with name ${gameName} not found`, "NO_GAME"));
             }
 
             socket.join(gameName);
@@ -421,13 +414,11 @@ class SocketManager {
                 game,
             });
 
-            const players = serverGameToGame(game).players;
-
-            console.log("players:", players);
+            const players = serverGameToGame(game, socket.request.session.id).players;
 
             const selfPlayerIndexes = players.reduce(
                 (indexes, player, index) => {
-                    if (player.sessionID === socket.request.session.id) {
+                    if ("isMe" in player) {
                         indexes.push(index);
                     }
                     return indexes;
@@ -435,23 +426,20 @@ class SocketManager {
                 [] as number[]
             );
 
-            fn({
+            fn(null, {
                 players,
                 selfPlayerIndexes,
-            })
+            });
 
-            socket.broadcast.to(gameName).emit("game:players:joined", {
-                players,
+            this.io.to(gameName).emit("game:players:joined", {
+                gameName,
+                updatedPlayerList: players,
             });
         }
         catch(ex) {
+            debug(ex);
             if (ex instanceof SocketError) {
-                console.error(ex);
-                return fn({
-                    error: true,
-                    message: ex.message,
-                    code: ex.code
-                });
+                return fn(ex);
             }
 
             throw ex;
@@ -464,19 +452,17 @@ class SocketManager {
         });
 
         if (!game) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} not found`,
-                code: "NO_GAME",
-            });
+            return fn(new SocketError(
+                `Game with name ${gameName} not found`,
+                "NO_GAME"
+            ));
         }
 
         if (game.startedAtTimestamp != null) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} already started`,
-                code: "GAME_ALREADY_STARTED",
-            });
+            return fn(new SocketError(
+                `Game with name ${gameName} already started`,
+                "GAME_ALREADY_STARTED"
+            ));
         }
 
         try {
@@ -484,22 +470,19 @@ class SocketManager {
                 gameName,
             });
 
-            console.log("start timestamp:", startedAt);
-
             this.io.to(gameName).emit("game:started", {
                 gameName,
                 startedAtTimestamp: startedAt.getTime(),
             });
 
-            fn();
+            fn(null);
         }
         catch (ex) {
-            console.error(ex);
-            return fn({
-                error: true,
-                message: ex instanceof Error ? ex.message : `${ex ?? ""}`,
-                code: "START_GAME_ERROR",
-            });
+            debug(ex);
+            return fn(new SocketError(
+                ex instanceof Error ? ex.message : `${ex ?? ""}`,
+                "START_GAME_ERROR"
+            ));
         }
     }
 
@@ -512,11 +495,7 @@ class SocketManager {
         });
 
         if (!game) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} not found`,
-                code: "NO_GAME",
-            });
+            return fn(new SocketError(`Game with name ${gameName} not found`, "NO_GAME"));
         }
 
         const playerSocketMap = game.players.reduce(
@@ -541,11 +520,7 @@ class SocketManager {
         });
 
         if (!game) {
-            return fn({
-                error: true,
-                message: `Game with name ${gameName} not found`,
-                code: "NO_GAME",
-            });
+            return fn(new SocketError(`Game with name ${gameName} not found`, "NO_GAME"));
         }
 
         const playerIndexes = getSocketPlayerIndexes({
@@ -557,7 +532,7 @@ class SocketManager {
             playerIndexes: Object.values(playerIndexes),
         });
 
-        fn();
+        fn(null);
     }
 
     private async onGetWatcherCount(socket: Socket, { gameName }: BaseArgs, fn: AckCallback<number>) {
@@ -570,20 +545,17 @@ class SocketManager {
         });
 
         if (game == null) {
-            return fn({
-                error: true,
-                message: `No game "${gameName}" found`,
-                code: "NO_GAME_FOUND",
-            });
+            return fn(new SocketError(
+                `No game "${gameName}" found`,
+                "NO_GAME_FOUND"
+            ));
         }
 
         const playerSessionIDs = new Set(game.players.map(({sessionID}) => sessionID));
 
         const watchers = sessionIDs.difference(playerSessionIDs);
 
-        console.log("watchers:", watchers);
-
-        fn(watchers.size);
+        fn(null, watchers.size);
     }
 }
 

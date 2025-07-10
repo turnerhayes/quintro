@@ -5,12 +5,15 @@ import type { NextFunction, Request, RequestHandler, Response } from "express";
 import cors from "cors";
 import passport from "passport";
 import { Server } from "socket.io";
+import createDebugger from "debug";
 
 import SocketManager from "@/server/socket-manager";
 import gamesRouter from "@/server/routes/games";
 import authRouter from "@/server/routes/auth";
 import sessionMiddleware from "@/server/session-middleware";
 
+
+const debug = createDebugger("quintro:server");
 
 interface SocketRequest extends Request {
     _query: {
@@ -61,5 +64,5 @@ app.use("/auth", authRouter);
 const PORT = 8070; //TODO: Get port from environment
 
 httpServer.listen(PORT, () => {
-    console.log("Listening on port", PORT);
+    debug("Listening on port %d", PORT);
 });

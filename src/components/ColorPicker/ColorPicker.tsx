@@ -59,16 +59,18 @@ const ColorOption = (
 	);
 };
 
+export interface ColorPickerProps {
+	game: Game;
+	selectedColor?: ColorID;
+	onColorChosen: (args: {color: ColorID;}) => void;
+}
+
 export const ColorPicker = (
 	{
 		game,
 		selectedColor,
 		onColorChosen,
-	}: {
-		game: Game;
-		selectedColor?: ColorID;
-		onColorChosen: (args: {color: ColorID;}) => void;
-	}
+	}: ColorPickerProps
 ) => {
 	const [colorDisplayEl, setColorDisplayEl] = useState<HTMLElement|null>(null);
 	const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);

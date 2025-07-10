@@ -12,6 +12,7 @@ export default [
     route("game/create", "./routes/create-game.tsx"),
     route("game/play/:gameName", "./routes/play-game.tsx"),
     route("how-to-play", "./routes/how-to-play.tsx"),
+    route("sandbox", "./routes/sandbox.tsx"),
     route("*?", "./catchall.tsx"),
   ]),
 ] satisfies RouteConfig;

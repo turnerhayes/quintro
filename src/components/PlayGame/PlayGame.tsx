@@ -1,32 +1,112 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { useIntl } from "react-intl";
-import classnames         from "classnames";
-import Icon               from "@mui/material/Icon";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useNavigate, useParams } from "react-router";
+import createDebugger from "debug";
 import Badge              from "@mui/material/Badge";
-import Popover, { type PopoverProps }            from "@mui/material/Popover";
+import Popover, { type PopoverProps } from "@mui/material/Popover";
+import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import { useTheme, type SxProps } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import EyeIcon from "@mui/icons-material/Visibility";
 
-import { GameJoinDialog, type GameJoinDialogProps } from "@/components/GameJoinDialog";
+import {
+    GameJoinDialog,
+    type GameJoinDialogProps
+} from "@/components/GameJoinDialog";
 import { Board, type BoardProps }          from "@/components/Board";
-import { ZoomControls, type ZoomControlsProps }       from "@/components/Board/ZoomControls";
-import { PlayerIndicators, type PlayerIndicatorsProps } from "@/components/PlayerIndicators";
-import { PlayerInfoPopup }    from "@/components/PlayerInfoPopup";
-import { AddPlayerButton, type AddPlayerButtonProps } from "@/components/AddPlayerButton";
+import {
+    ZoomControls,
+    type ZoomControlsProps
+}       from "@/components/Board/ZoomControls";
+import {
+    PlayerIndicators,
+    type PlayerIndicatorsProps
+} from "@/components/PlayerIndicators";
+import { PlayerInfoPopup } from "@/components/PlayerInfoPopup";
+import {
+    AddPlayerButton,
+    type AddPlayerButtonProps
+} from "@/components/AddPlayerButton";
 import { gamesApi } from "@/api/games";
 import { getCurrentPlayer, getUserPlayers } from "@/redux/selectors/game";
 import { useAppDispatch } from "@/redux/hooks";
-import Config            from "@/config";
+import Config from "@/config";
 import type { Game, Player, SelfPlayer } from "@/types";
 import { socketClient } from "@/api/socket-client.client";
+import { findQuintros } from "@/quintros";
 
 import { StartGameOverlay, type StartGameOverlayProps } from "./StartGameOverlay";
-import { WinnerBanner }     from "./WinnerBanner";
 import styles from "./PlayGame.module.css";
-import { findQuintros } from "@/quintros";
-import { Box, useTheme, type SxProps } from "@mui/material";
-import { useNavigate } from "react-router";
 
 
-export const PlayGame = (
+const debug = createDebugger("quintro:client:components:PlayGame");
+
+const WinnerBanner = (
+    {
+        game,
+    }: {
+        game: Game;
+    }
+) => {
+    const [hideWinnerBanner, setHideWinnerBanner] = useState(false);
+    const handleWinnerBannerClose = useCallback(
+        () => {
+            setHideWinnerBanner(true);
+        },
+        [
+            setHideWinnerBanner,
+        ]
+    );
+
+    if (hideWinnerBanner) {
+        return null;
+    }
+
+    return (
+        <Dialog
+            open
+            maxWidth="lg"
+            onClose={handleWinnerBannerClose}
+        >
+            <DialogTitle
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                }}
+            >
+                <IconButton
+                    aria-label="Close"
+                    onClick={handleWinnerBannerClose}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent
+            >
+                <DialogContentText
+                    variant="h1"
+                >
+                    <FormattedMessage
+                        id="quintro.components.PlayGame.winMessage"
+                        defaultMessage="{winnerColor} wins!"
+                        values={{
+                            winnerColor: Config.game.colors.get(
+                                game.players[game.winnerIndex!].color
+                            ).name,
+                        }}
+                    />
+                </DialogContentText>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+const PlayGameContent = (
     {
         game,
     }: {
@@ -170,22 +250,23 @@ export const PlayGame = (
     );
 
     const handleCellClick = useCallback(
-        (({
+        (async ({
             cell,
         }) => {
             if (
                 game.winnerIndex != null || cell.color ||
                 !hasJoinedGame
             ) {
+                debug("Game is over or cell is already filled or you are not a part of the game, ignoring click.");
                 return;
             }
     
-            const currentPlayer = getCurrentPlayer(game);
-    
             if (!(currentUserPlayers as Player[]).includes(currentPlayer)) {
+                debug("It is not your turn, ignoring click.");
                 return;
             }
 
+            // Optimistically update the game state in the Redux store
             dispatch(
                 gamesApi.util.updateQueryData(
                     "getGame",
@@ -213,10 +294,13 @@ export const PlayGame = (
         }) as NonNullable<BoardProps["onCellClick"]>,
         [
             currentUserPlayers,
-            game,
+            game.name,
+            game.board.filledCells,
+            game.winnerIndex,
+            hasJoinedGame,
             dispatch,
         ]
-    )
+    );
 
     const gameIsOver = game.winnerIndex != undefined;
 
@@ -315,12 +399,8 @@ export const PlayGame = (
                             color="primary"
                             className={styles.watcherBadge}
                         >
-                            <Icon
-                                className={classnames(
-                                    "icon",
-                                    styles.watcherIcon
-                                )}
-                            >watcher</Icon>
+                            <EyeIcon
+                            />
                         </Badge> {watcherSummary}
                     </div>
                 )
@@ -384,7 +464,6 @@ export const PlayGame = (
                 {
                     !gameIsStarted && !gameIsOver && !isWatchingGame && (
                         <StartGameOverlay
-                            className={styles.startGameOverlay}
                             canStart={game.players.length >= Config.game.players.min}
                             onStartClick={handleStartGameButtonClick}
                         />
@@ -393,8 +472,7 @@ export const PlayGame = (
                 {
                     gameIsOver && (
                         <WinnerBanner
-                            className={styles.winnerBanner}
-                            winnerColor={game.players[game.winnerIndex!].color}
+                            game={game}
                         />
                     )
                 }
@@ -420,4 +498,49 @@ export const PlayGame = (
             </Box>
         </Box>
     );
-}
+};
+
+export const PlayGame = () => {
+    const params = useParams() as { gameName: string };
+
+    const { data: game, isLoading, error } = gamesApi.endpoints.getGame.useQuery(
+        {
+            gameName: params.gameName,
+        }
+    );
+
+    if (isLoading) {
+        // TODO: Show loading UI
+        return (
+            <div>
+                Loading game...
+            </div>
+        );
+    }
+
+    if (error) {
+        debug("Error loading game:", error);
+        // TODO: Show error UI
+        return (
+            <div>
+                Error loading game. Please try again later.
+            </div>
+        );
+    }
+
+    if (!game) {
+        debug("Game not found:", params.gameName);
+        // TODO Show missing game UI
+        return (
+            <div>
+                Game not found. Please check the URL or try again later.
+            </div>
+        );
+    }
+
+    return (
+        <PlayGameContent
+            game={game}
+        />
+    );
+};

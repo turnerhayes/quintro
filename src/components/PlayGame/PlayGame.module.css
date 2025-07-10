@@ -19,18 +19,6 @@
     margin-left: auto;
 }
 
-.watcherIcon {
-    font-size: 1.7em;
-}
-
 .watcherBadge {
     margin-right: 1em;
-}
-
-.startGameOverlay {
-    z-index: 1;
-}
-
-.winnerBanner {
-    z-index: 1;
 }

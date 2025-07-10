@@ -24,7 +24,6 @@ class SessionStore extends Store {
         const query = db.deleteFrom("sessions")
             .where(sql`${sql.ref('data')}->${sql.lit('cookie')}->${sql.lit('expires')}`, 'is not', null)
             .where(sql`to_timestamp((${sql.ref('data')}->${sql.lit('cookie')}->>${sql.lit('expires')})::int)`, "<=", sql`CURRENT_TIMESTAMP`);
-        console.log("query:", query.compile().sql);
         await query.execute();
     }
 
@@ -85,9 +84,7 @@ class SessionStore extends Store {
                 return null;
             }
             let data: any|null = result.data;
-            console.log("Got session for session ID %s", sid);
             if (!isNotExpired(data)) {
-                console.log("Session is expired; deleting");
                 await this.destroy(sid);
                 callback(null, null);
                 return null;

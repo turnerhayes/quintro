@@ -1,1 +1,1 @@
-export { PlayerIndicators, type PlayerIndicatorProps, type PlayerIndicatorsProps } from "./PlayerIndicators";
+export { PlayerIndicators, type PlayerIndicatorProps, type PlayerIndicatorsProps, type IndicatorPropsFunction, type IndicatorProps } from "./PlayerIndicators";

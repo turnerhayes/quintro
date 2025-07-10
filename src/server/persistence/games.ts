@@ -41,7 +41,7 @@ const gameRowToGame = (
                 undefined :
                 users[rowPlayer.user_id],
             sessionID: rowPlayer.session_id,
-        })
+        });
     }
 
     return {

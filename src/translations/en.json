@@ -46,6 +46,7 @@
   "quintro.components.PlayGame.WinnerBanner.winMessage": "{winnerColor} wins!",
   "quintro.components.PlayGame.watchers.summary.withYou": "{watcherCount,plural,=0{You  are watching this game.} one{You and 1 other person are watching this game.} other{You and {watcherCount} other people are watching this game.}}",
   "quintro.components.PlayGame.watchers.summary.withoutYou": "{watcherCount,plural,one{1 person is watching this game.} other{{watcherCount} people are watching this game.}}",
+  "quintro.components.PlayGame.winMessage": "{winnerColor} wins!",
   "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.absent": "Player {playerColor} is absent",
   "quintro.components.PlayerIndicators.indicatorMessages.anonymousPlayer.present": "Player {playerColor}",
   "quintro.components.PlayerIndicators.indicatorMessages.availableSlot": "This spot is open for another player.",

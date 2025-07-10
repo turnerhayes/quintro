@@ -1,0 +1,15 @@
+.root {
+    display: flex;
+    flex-direction: column;
+}
+
+.listHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list {
+    overflow: auto;
+    flex: 1;
+}

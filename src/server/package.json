@@ -2,7 +2,7 @@
   "name": "quintro-server",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tsx watch -r tsconfig-paths/register index.ts",
+    "dev": "DEBUG=quintro:* tsx watch -r tsconfig-paths/register index.ts",
     "migrate:up": "kysely migrate:up",
     "migrate:down": "kysely migrate:down"
   },
@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "debug": "^4.4.1",
     "dotenv": "^17.0.1",
     "dotenv-expand": "^12.0.2",
     "express": "^5.1.0",
@@ -27,6 +28,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.12",
     "@types/express": "^5.0.3",
     "@types/express-session": "^1.18.2",
     "kysely-ctl": "^0.13.1",

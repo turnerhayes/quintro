@@ -2,12 +2,16 @@
 
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
+import createDebugger from "debug";
 import Config, { type ColorID } from "@/config";
 import type { BoardPosition, GameID } from "@/types/index";
 import type { ServerToClientEvents, ClientToServerEvents } from "@/types/sockets";
-import { store } from "@/redux/store";
+import { getStore } from "@/redux/store";
 import { gamesApi } from "./games";
 
+const debug = createDebugger("quintro:client:socket-client");
+
+const { store } = getStore();
 
 type EmitWithAckWorkaround = <Ev extends keyof ClientToServerEvents>(ev: Ev, ...args: Parameters<ClientToServerEvents[Ev]>) => Promise<any>;
 
@@ -29,9 +33,13 @@ export class SocketClient {
         this.socket.on(
             "connect_error",
             (err) => {
-                console.log("[SocketClient] Connect error event:", err);
+                debug("Connect error event:", err);
             }
         );
+
+        this.socket.on("connect", () => {
+            debug("Socket connected");
+        });
 
         this.socket.on(
             "board:marble:placed",
@@ -49,6 +57,17 @@ export class SocketClient {
                             gameName,
                         },
                         (game) => {
+                            const existingCellIndex = game.board.filledCells.findIndex(
+                                (cell) => cell.position[0] === position[0] &&
+                                    cell.position[1] === position[1]);
+                            if (existingCellIndex >= 0) {
+                                if (game.board.filledCells[existingCellIndex].color !== color) {
+                                    debug("Cell at %s already exists with a different color, updating it", position);
+                                    game.board.filledCells[existingCellIndex].color = color;
+                                }
+                                // If the cell already exists, update its color
+                                return game;
+                            }
                             game.board.filledCells.push({
                                 position,
                                 color,
@@ -100,6 +119,25 @@ export class SocketClient {
                 )
             );
         });
+        
+        this.socket.on("game:over", ({
+            gameName,
+            winnerIndex,
+        }) => {
+            store.dispatch(
+                gamesApi.util.updateQueryData(
+                    "getGame",
+                    {
+                        gameName,
+                    },
+                    (game) => {
+                        game.winnerIndex = winnerIndex;
+
+                        return game;
+                    }
+                )
+            );
+        });
     }
 
     async joinGame(
@@ -111,14 +149,11 @@ export class SocketClient {
             color: ColorID;
         }
     ) {
-        const result = await this.emitWithAck("game:join", {
+        return await this.emitWithAck("game:join", {
             gameName,
             color,
         });
 
-        if (result?.error) {
-            throw new Error(result.message);
-        }
     }
 
     async establishGameConnection(
@@ -128,18 +163,12 @@ export class SocketClient {
             gameName: GameID;
         }
     ) {
-        const result = await this.emitWithAck(
+        return await this.emitWithAck(
             "game:connect",
             {
                 gameName,
             }
         );
-
-        if (result?.error) {
-            throw new Error(result.message);
-        }
-
-        return result;
     }
 
     async placeMarble(
@@ -153,13 +182,15 @@ export class SocketClient {
             color: ColorID;
         }
     ) {
-        const result = await this.emitWithAck("board:place-marble", {
-            gameName,
-            position,
-            color,
-        });
-
-        if (result?.error) {
+        try {
+            return await this.emitWithAck("board:place-marble", {
+                gameName,
+                position,
+                color,
+            });
+        }
+        catch(ex) {
+            debug("Error placing marble:", ex);
             // Remove the marble if the placement failed
             store.dispatch(
                 gamesApi.util.updateQueryData(
@@ -173,19 +204,16 @@ export class SocketClient {
                                 cell.position[1] === position[1] &&
                                 cell.color === color
                         );
-
+    
                         if (index >= 0) {
                             game.board.filledCells.splice(index, 1);
                         }
-
+    
                         return game;
                     }
                 )
             );
-            throw new Error(result.message);
         }
-
-        return result;
     }
 
     async startGame(
@@ -195,15 +223,9 @@ export class SocketClient {
             gameName: GameID;
         }
     ) {
-        const result = await this.emitWithAck("game:start", {
+        return await this.emitWithAck("game:start", {
             gameName,
         });
-
-        if (result?.error) {
-            throw new Error(result.message);
-        }
-
-        return result;
     }
 
     listen<E extends keyof ServerToClientEvents>(eventName: E, callback: ServerToClientEvents[E]) {

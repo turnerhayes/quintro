@@ -1,1 +1,1 @@
-export {PlayerLimitInput} from './PlayerLimitInput';
+export { PlayerLimitInput, type PlayerLimitInputProps } from './PlayerLimitInput';

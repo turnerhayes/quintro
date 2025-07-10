@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
 import { IntlProvider } from 'react-intl';
-import { Provider } from 'react-redux';
-import { Box, createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material';
+import { ClientApp } from '@/components/App/ClientApp';
 import messages from '@/translations/en.json';
-import { store } from '@/redux/store';
 import "@/api/socket-client.client";
 
 import "./App.css";
@@ -26,23 +25,12 @@ export const App = (
         <ThemeProvider theme={theme}>
             <IntlProvider
                 locale={navigator.language}
-                defaultLocale='en'
+                defaultLocale='en-US'
                 messages={messages}
             >
-                <Provider store={store}>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            height: '100vh',
-                            width: '100vw',
-                            overflow: 'hidden',
-                            backgroundColor: 'background.default',
-                        }}
-                    >
-                        {children}
-                    </Box>
-                </Provider>
+                <ClientApp>
+                    {children}
+                </ClientApp>
             </IntlProvider>
         </ThemeProvider>
     );

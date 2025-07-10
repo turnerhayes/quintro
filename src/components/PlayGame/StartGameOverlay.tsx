@@ -1,37 +1,42 @@
 import { FormattedMessage } from "react-intl";
-import classNames from "classnames";
 import Button from "@mui/material/Button";
+import { alpha, Box, useTheme } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-
-import styles from "./StartGameOverlay.module.css";
-import { useTheme } from "@mui/material";
 
 
 export interface StartGameOverlayProps {
 	canStart: boolean;
 	onStartClick: () => void;
-	className?: string;
 }
 
 export const StartGameOverlay = (
     {
         canStart,
         onStartClick,
-		className,
     }: StartGameOverlayProps
 ) => {
 	const theme = useTheme();
 
 	return (
-		<div
-			className={classNames(
-				styles.root,
-				className
-			)}
+		<Box
+			sx={(theme) => ({
+				position: "absolute",
+				top: 0,
+				right: 0,
+				bottom: 0,
+				left: 0,
+				backgroundColor: alpha(theme.palette.grey[700], 0.6),
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+				zIndex: "modal",
+			})}
 		>
 			{
-				<div
-					className={styles.dialog}
+				<Box
+					sx={{
+						fontSize: "5em",
+					}}
 				>
 					<Button
 						disabled={!canStart}
@@ -53,8 +58,8 @@ export const StartGameOverlay = (
 							defaultMessage="Start Game"
 						/>
 					</Button>
-				</div>
+				</Box>
 			}
-		</div>
+		</Box>
 	);
 }

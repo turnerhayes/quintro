@@ -150,6 +150,17 @@ const ToggleKeepRatioButton = (
     );
 };
 
+export interface DimensionInputProps {
+    width: string|number;
+    height: string|number;
+    keepRatio: boolean;
+    onWidthChange: (params: {value: string; error: string|null;}) => void;
+    onHeightChange: (params: {value: string; error: string|null;}) => void;
+    onToggleKeepRatio?: () => void;
+    widthError?: string;
+    heightError?: string;
+};
+
 export const DimensionInput = (
     {
         width,
@@ -160,16 +171,7 @@ export const DimensionInput = (
         onToggleKeepRatio,
         widthError,
         heightError,
-    }: {
-        width: string|number;
-        height: string|number;
-        keepRatio: boolean;
-        onWidthChange: (params: {value: string; error: string|null;}) => void;
-        onHeightChange: (params: {value: string; error: string|null;}) => void;
-        onToggleKeepRatio?: () => void;
-        widthError?: string;
-        heightError?: string;
-    }
+    }: DimensionInputProps
 ) => {
     const intl = useIntl();
     const handleDimensionInputChange = useCallback((dimension: Dimension, value: string) => {

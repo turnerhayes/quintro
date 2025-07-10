@@ -93,9 +93,6 @@ export const Board = (
 		<table
 			className={classnames([
 				styles.root,
-				{
-					"allow-placement": allowPlacement,
-				},
 			])}
 		>
 			<tbody>

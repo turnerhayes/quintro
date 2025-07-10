@@ -1,1 +1,1 @@
-export {DimensionInput} from './DimensionInput';
+export { DimensionInput, type DimensionInputProps } from './DimensionInput';

@@ -29,9 +29,9 @@ export interface PlayerIndicatorProps {
 	}) => void;
 }
 
-type IndicatorProps = Omit<React.JSX.IntrinsicElements["li"], "onClick">;
+export type IndicatorProps = Omit<React.JSX.IntrinsicElements["li"], "onClick">;
 
-type IndicatorPropsFunction = (args: {
+export type IndicatorPropsFunction = (args: {
 	player: Player|null;
 	index: number;
 	active: boolean;
@@ -47,6 +47,7 @@ export interface PlayerIndicatorsProps {
 		element: HTMLElement;
 	}) => void;
 	indicatorProps?: IndicatorProps|IndicatorPropsFunction;
+	className?: string;
 }
 
 const PlayerIndicator = (
@@ -58,8 +59,8 @@ const PlayerIndicator = (
 		indicatorProps,
 		markActive,
 		isActive,
-		className,
 		onClick,
+		className,
 	}: PlayerIndicatorProps
 ) => {
 	const theme = useTheme();
@@ -118,10 +119,11 @@ export const PlayerIndicators = (
 		markActive,
 		onIndicatorClick,
 		indicatorProps,
+		className,
 	}: PlayerIndicatorsProps
 ) => {
 	const intl = useIntl();
-	const currentPlayerColor = getCurrentPlayer(game).color;
+	const currentPlayerColor = getCurrentPlayer(game)?.color;
 	const handlePlayerIndicatorClick = useCallback((
 		{
 			player,
@@ -140,17 +142,13 @@ export const PlayerIndicators = (
 
 	return (
 		<div
-			className={styles.root}
+			className={classNames(
+				styles.root,
+				className
+			)}
 		>
 			<ul
-				style={{
-					listStyleType: 'none',
-					paddingLeft: 0,
-					margin: 0,
-					display: 'flex',
-					flexDirection: 'row',
-					alignItems: 'flex-start',
-				}}
+				className={styles.list}
 			>
 				{
 					game.players.map(

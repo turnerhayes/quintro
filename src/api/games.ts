@@ -1,12 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import createDebugger from "debug";
 
 import type { BoardPosition, Game, GameID, GameSummary } from "@/types";
 import { type ColorID } from "@/config";
+
+
+const debug = createDebugger("quintro:client:api:games");
 
 const SERVER_URL = "http://localhost:8070"; //TODO: Inject this from environment variables
 
 export const gamesApi = createApi({
     reducerPath: "games",
+    tagTypes: ['Game'],
     baseQuery: fetchBaseQuery({
         baseUrl: `${SERVER_URL}/api`,
         credentials: "include",
@@ -17,6 +22,7 @@ export const gamesApi = createApi({
                 url: `/games/${gameName}`,
                 method: "GET",
             }),
+            providesTags: ['Game'],
         }),
 
         findGames: builder.query<GameSummary[], { numberOfPlayers: number | null }>({
@@ -120,7 +126,7 @@ export const createGame = async (
     });
     if (!response.ok) {
         const msg = `Failed to create game: ${response.statusText}`;
-        console.error(msg);
+        debug(msg);
         throw new Error(msg);
     }
     const result = await response.json();

@@ -34,7 +34,7 @@ export const Cell = (
 			}
 		});
 	}, [
-		onclick,
+		onClick,
 	]);
 
 	const color = cell.color;

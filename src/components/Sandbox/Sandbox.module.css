@@ -1,0 +1,38 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dimensionSeparator {
+    margin: 0 0.5em;
+    vertical-align: bottom;
+}
+
+.board {
+    flex: 1;
+    overflow: auto;
+}
+
+.moveList {
+    min-width: 20%;
+}
+
+.playerLimitInput {
+    width: 100%;
+}
+
+.addRemovePlayerContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.hiddenAddPlayerButton {
+    visibility: hidden;
+}
+
+.resetGameButton {
+    position: absolute;
+    right: 0;
+    top: 0;
+}

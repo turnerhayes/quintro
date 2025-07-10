@@ -1,14 +1,21 @@
-import { useCallback, useEffect, useState, type ChangeEvent }        from "react";
-import Switch       from "@mui/material/Switch";
+import { useCallback, type ChangeEvent }        from "react";
 import {
 	FormattedMessage,
 	useIntl,
 }                   from "react-intl";
+import {
+	MenuItem,
+	Select,
+	Switch,
+	Stack,
+	useColorScheme,
+	type SelectProps,
+	type SupportedColorScheme
+} from "@mui/material";
 import { NOTIFICATIONS_SUPPORTED, needsPermission, requestPermission } from "./notify.client";
-import { MenuItem, Select, Stack, useColorScheme, type SelectProps, type SupportedColorScheme } from "@mui/material";
-import { useAppSelector } from "@/redux/hooks";
-import { getColorScheme, getNotificationsEnabled, getSoundEffectsEnabled } from "@/redux/selectors/settings";
-import { setColorScheme, setNotificationsEnabled, setSoundEffectsEnabled } from "@/redux/slices/settings";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { getNotificationsEnabled, getSoundEffectsEnabled } from "@/redux/selectors/settings";
+import { setNotificationsEnabled, setSoundEffectsEnabled } from "@/redux/slices/settings";
 
 
 /**
@@ -16,27 +23,12 @@ import { setColorScheme, setNotificationsEnabled, setSoundEffectsEnabled } from 
  *
  * @memberof client.react-components
  */
-export const QuickSettingsDialog = (
-) => {
+export const QuickSettingsDialog = () => {
 	const intl = useIntl();
-	const [isMounted, setIsMounted] = useState(false);
 	const { mode: colorScheme, setMode} = useColorScheme();
 	const soundEffectsEnabled = useAppSelector(getSoundEffectsEnabled);
 	const notificationsEnabled = useAppSelector(getNotificationsEnabled);
-	const reduxColorScheme = useAppSelector(getColorScheme);
-
-	useEffect(() => {
-		if (!isMounted) {
-			setIsMounted(true);
-			if (reduxColorScheme != null) {
-				setMode(reduxColorScheme);
-			}
-		}
-	}, [
-		isMounted,
-		setIsMounted,
-		reduxColorScheme,
-	]);
+	const dispatch = useAppDispatch();
 
 	const onChangeSetting = useCallback(
 		(settings: {
@@ -45,14 +37,15 @@ export const QuickSettingsDialog = (
 			colorScheme?: SupportedColorScheme;
 		}) => {
 			if (settings.enableSoundEffects != null) {
-				setSoundEffectsEnabled(settings.enableSoundEffects);
+				dispatch(setSoundEffectsEnabled(settings.enableSoundEffects));
 			}
 			if (settings.enableNotifications != null) {
-				setNotificationsEnabled(settings.enableNotifications);
+				dispatch(setNotificationsEnabled(settings.enableNotifications));
 			}
 			if (settings.colorScheme != null) {
+				// MUI takes care of storing color scheme preferences in localStorage
+				// so we don't have to
 				setMode(settings.colorScheme);
-				setColorScheme(settings.colorScheme as SupportedColorScheme);
 			}
 		},
 		[
@@ -90,7 +83,6 @@ export const QuickSettingsDialog = (
 						await requestPermission();
 					}
 				}
-
 			}
 
 			onChangeSetting({
@@ -106,13 +98,13 @@ export const QuickSettingsDialog = (
 	 * Toggles what color scheme should be used.
 	 */
 	const onChangeColorScheme = useCallback(
-		(event: Parameters<NonNullable<SelectProps<SupportedColorScheme>["onChange"]>>[0]) => {
+		((event) => {
 			const scheme = event.target.value as SupportedColorScheme;
 
 			onChangeSetting({
 				colorScheme: scheme,
 			});
-		},
+		}) as NonNullable<SelectProps<"light"|"dark"|"system">["onChange"]>,
 		[
 			onChangeSetting,
 		]
