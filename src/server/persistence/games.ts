@@ -67,7 +67,6 @@ const gameRowToGame = (
         startedAtTimestamp:  row.started_at?.getTime() ?? null,
         endedAtTimestamp: row.ended_at?.getTime() ?? null,
         winnerIndex: row.winner_index,
-        playerPresence: {},
     } as ServerGame;
 };
 

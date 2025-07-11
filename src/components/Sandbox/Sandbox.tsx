@@ -28,7 +28,7 @@ import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import ShowingMoveListIcon from "@mui/icons-material/ViewListOutlined";
 
 import { Board, type BoardProps } from "@/components/Board";
-import type { FilledCell, Game, Player, SelfPlayer } from "@/types";
+import type { PlayerPresence, FilledCell, Game, Player, SelfPlayer } from "@/types";
 import Config, { type ColorID } from "@/config";
 import { findQuintros } from "@/quintros";
 import { getCurrentPlayer } from "@/redux/selectors/game";
@@ -105,6 +105,7 @@ interface PlayerControlsProps {
     game: Game;
     onPlayerLimitChange: (newLimit: number) => void;
     onPlayerColorChange: (args: {color: ColorID; index: number;}) => void;
+    onIsMeChange: (playerIndex: number, isMe: boolean) => void;
     onAddPlayer: (color: ColorID) => void;
     onRemovePlayer: () => void;
 }
@@ -114,6 +115,7 @@ const PlayerControls = (
         game,
         onPlayerLimitChange,
         onPlayerColorChange,
+        onIsMeChange,
         onAddPlayer,
         onRemovePlayer,
     }: PlayerControlsProps
@@ -121,6 +123,7 @@ const PlayerControls = (
     const [contextMenuAnchorEl, setContextMenuAnchorEl] = useState<HTMLElement|null>(null);
     const [contextMenuPlayerIndex, setContextMenuPlayerIndex] = useState<number|null>(null);
     const [submenuAnchorEl, setSubmenuAnchorEl] = useState<HTMLElement|null>(null);
+    const [playerPresence, setPlayerPresence] = useState<PlayerPresence>({});
 
     const contextMenuPlayer = contextMenuPlayerIndex == null ? null :
         game.players[contextMenuPlayerIndex];
@@ -170,23 +173,22 @@ const PlayerControls = (
 
     const handleTogglePresenceMenuItemClick = useCallback(
         () => {
-            // const color = game.players[contextMenuPlayerIndex].color;
+            if (contextMenuPlayerIndex == null) {
+                throw new Error("Tried to toggle player presence, but no player was selected.");
+            }
+            const color = game.players[contextMenuPlayerIndex].color;
 
-            // const updatedGame = {
-            //     ...updateGame,
+            const updatedPresence: PlayerPresence = {
+                ...playerPresence,
+                [color]: !playerPresence[color],
+            };
 
-            // };
-
-            // setGame(game);
-            // return {
-            //     game: prevState.game.setIn(
-            //         ["playerPresence", color],
-            //         !prevState.game.getIn(["playerPresence", color], false)
-            //     ),
-            // };
+            setPlayerPresence(updatedPresence);
         },
         [
-            game,
+            contextMenuPlayerIndex,
+            playerPresence,
+            setPlayerPresence,
         ]
     );
 
@@ -195,27 +197,12 @@ const PlayerControls = (
             if (contextMenuPlayerIndex == null) {
                 throw new Error("Tried to toggle the isMe attribute on a player, but no player was selected");
             }
-            const updatedGame: Game = {
-                ...game,
-            };
 
-            updatedGame.players = {
-                ...game.players,
-            };
-
-            if ((
-                updatedGame.players[contextMenuPlayerIndex] as SelfPlayer
-            ).isMe) {
-                const {isMe, ...player} = (updatedGame.players[contextMenuPlayerIndex] as SelfPlayer);
-                updatedGame.players[contextMenuPlayerIndex] = player as Player;
-            }
-            else {
-                (updatedGame.players[contextMenuPlayerIndex] as SelfPlayer).isMe = true;
-            }
-
+            const isMe = !((game.players[contextMenuPlayerIndex] as SelfPlayer).isMe);
+            onIsMeChange(contextMenuPlayerIndex, isMe);
         },
         [
-            game,
+            onIsMeChange,
             contextMenuPlayerIndex,
         ]
     );
@@ -295,6 +282,7 @@ const PlayerControls = (
                 <PlayerIndicators
                     game={game}
                     indicatorProps={indicatorPropsFunction}
+                    playerPresence={playerPresence}
                     markActive
                 />
             </Box>
@@ -309,14 +297,18 @@ const PlayerControls = (
                             vertical: "bottom",
                         }}
                     >
-                        {/* <MenuItem
+                        <MenuItem
                             onClick={handleTogglePresenceMenuItemClick}
                         >
                             <Switch
-                                checked={game.playerPresence[contextMenuPlayer.color] || false}
+                                checked={
+                                    contextMenuPlayer == null ?
+                                        false :
+                                        playerPresence[contextMenuPlayer?.color] || false
+                                }
                             />
                             Toggle presence
-                        </MenuItem> */}
+                        </MenuItem>
                         <MenuItem
                             onClick={handleToggleIsMeMenuItemClick}
                         >
@@ -387,6 +379,7 @@ interface GameControlsProps {
     game: Game;
     onPlayerLimitChange: PlayerControlsProps["onPlayerLimitChange"];
     onPlayerColorChange: PlayerControlsProps["onPlayerColorChange"];
+    onIsMeChange: PlayerControlsProps["onIsMeChange"];
     onAddPlayer: PlayerControlsProps["onAddPlayer"];
     onRemovePlayer: PlayerControlsProps["onRemovePlayer"];
     onDimensionChange: (args: {width?: number, height?: number}) => void;
@@ -398,6 +391,7 @@ const GameControls = (
         game,
         onPlayerLimitChange,
         onPlayerColorChange,
+        onIsMeChange,
         onAddPlayer,
         onRemovePlayer,
         onDimensionChange,
@@ -513,6 +507,7 @@ const GameControls = (
                     game={game}
                     onPlayerLimitChange={onPlayerLimitChange}
                     onPlayerColorChange={onPlayerColorChange}
+                    onIsMeChange={onIsMeChange}
                     onAddPlayer={onAddPlayer}
                     onRemovePlayer={onRemovePlayer}
                 />
@@ -814,6 +809,31 @@ export const Sandbox = () => {
         ]
     );
 
+    const handleIsMeChange = useCallback(
+        (index: number, isMe: boolean) => {
+            const updatedGame: Game = {
+                ...game,
+                players: [
+                    ...game.players.map((player) => ({...player})),
+                ],
+            };
+
+            if (isMe) {
+                (updatedGame.players[index] as SelfPlayer).isMe = isMe;
+            }
+            else {
+                const {isMe, ...player} = updatedGame.players[index] as SelfPlayer;
+                updatedGame.players[index] = player;
+            }
+
+            setGame(updatedGame);
+        },
+        [
+            game,
+            setGame,
+        ]
+    );
+
     const handleAddPlayer = useCallback(
         (color: ColorID) => {
             const nextIndex = game.players.length;
@@ -989,6 +1009,7 @@ export const Sandbox = () => {
                     game={game}
                     onPlayerLimitChange={handlePlayerLimitChange}
                     onPlayerColorChange={handlePlayerColorChange}
+                    onIsMeChange={handleIsMeChange}
                     onAddPlayer={handleAddPlayer}
                     onRemovePlayer={handleRemovePlayer}
                     onDimensionChange={handleDimensionChange}

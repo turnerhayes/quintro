@@ -10,9 +10,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import { useTheme, type SxProps } from "@mui/material";
+import { Stack, Typography, useTheme, type SxProps } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EyeIcon from "@mui/icons-material/Visibility";
+
+import loadingImage from "@/assets/images/marble_progress.gif";
+
 
 import {
     GameJoinDialog,
@@ -36,7 +39,7 @@ import { gamesApi } from "@/api/games";
 import { getCurrentPlayer, getUserPlayers } from "@/redux/selectors/game";
 import { useAppDispatch } from "@/redux/hooks";
 import Config from "@/config";
-import type { Game, Player, SelfPlayer } from "@/types";
+import type { PlayerPresence, Game, Player, SelfPlayer } from "@/types";
 import { socketClient } from "@/api/socket-client.client";
 import { findQuintros } from "@/quintros";
 
@@ -121,6 +124,7 @@ const PlayGameContent = (
     const [selectedPlayerColor, setSelectedPlayerColor] = useState<string|null>(null);
     const [selectedIndicatorEl, setSelectedIndicatorEl] = useState<HTMLElement|null>(null);
     const [currentZoomLevel, setCurrentZoomLevel] = useState(1);
+    const [playerPresence, setPlayerPresence] = useState<PlayerPresence>({});
     const dispatch = useAppDispatch();
     const isWatchingGame = false; //TODO: implement watching logic
     const quintros = useMemo(
@@ -138,17 +142,25 @@ const PlayGameContent = (
 	useEffect(() => {
         if (!isMounted) {
             setIsMounted(true);
-        }
+    
+            if (hasJoinedGame) {
+                socketClient.establishGameConnection({
+                    gameName: game.name,
+                });
+            }
 
-        if (hasJoinedGame) {
-            socketClient.establishGameConnection({
-                gameName: game.name,
-            });
+            socketClient.getPlayerPresence(game.name).then(
+                (presence) => {
+                    debug("Got player presence map:", presence);
+                    setPlayerPresence(presence);
+                }
+            );
         }
 	}, [
         isMounted,
         setIsMounted,
         hasJoinedGame,
+        setPlayerPresence,
         game,
     ]);
 
@@ -419,6 +431,7 @@ const PlayGameContent = (
                         game={game}
                         markActive={gameIsStarted}
                         onIndicatorClick={handlePlayerIndicatorClick}
+                        playerPresence={playerPresence}
                     />
                     {
                         game.players.length < game.playerLimit && (
@@ -514,11 +527,29 @@ export const PlayGame = () => {
     );
 
     if (isLoading) {
-        // TODO: Show loading UI
         return (
-            <div>
-                Loading game...
-            </div>
+            <Box
+                width="100%"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Stack
+                    alignItems="center"
+                >
+                    <img
+                        src={loadingImage}
+                        width={100}
+                    />
+
+                    <Typography
+                        variant="h3"
+                    >
+                        Loading game...
+                    </Typography>
+                </Stack>
+            </Box>
         );
     }
 

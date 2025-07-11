@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import createDebugger from "debug";
 import Config, { ColorID } from "@/config";
 import { findQuintros } from "@/quintros";
-import { BoardPosition, GameID, Player, UserID } from "@/types/index";
+import { BoardPosition, GameID, Player, PlayerPresence, UserID } from "@/types/index";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "@/types/sockets";
 import { getGame, joinGame, startGame, updateGame } from "@/server/persistence/games";
 import { ServerGame, ServerPlayer } from "@/server/index.d";
@@ -40,11 +40,7 @@ interface JoinGameHandlerArgs extends BaseArgs {
     color?: ColorID;
 }
 
-type AckCallback<A = void> = (error: SocketError|null, args?: {
-    error: true;
-    message: string;
-    code: string;
-} | A) => void;
+type AckCallback<A = void> = (args?: A|Error) => void;
 
 const getNextColor = (currentPlayerColors: ColorID[]) => {
     return Config.game.colors.find(
@@ -279,9 +275,7 @@ class SocketManager {
             this.onStartGame(socket, args, fn);
         });
 
-        socket.on('game:players:presence', (args: BaseArgs, fn: AckCallback<{
-            presentColors: ColorID[];
-        }>) => {
+        socket.on('game:presence:get', (args: BaseArgs, fn: AckCallback<PlayerPresence>) => {
             this.onGetPlayerPresence(socket, args, fn);
         });
 
@@ -377,7 +371,7 @@ class SocketManager {
             });
         }
 
-        fn(null);
+        fn();
     }
 
     private async onJoinGame(
@@ -426,7 +420,7 @@ class SocketManager {
                 [] as number[]
             );
 
-            fn(null, {
+            fn({
                 players,
                 selfPlayerIndexes,
             });
@@ -475,7 +469,7 @@ class SocketManager {
                 startedAtTimestamp: startedAt.getTime(),
             });
 
-            fn(null);
+            fn();
         }
         catch (ex) {
             debug(ex);
@@ -486,9 +480,8 @@ class SocketManager {
         }
     }
 
-    private async onGetPlayerPresence(socket: Socket, { gameName }: BaseArgs, fn: AckCallback<{
-        presentColors: ColorID[];
-    }>) {
+    private async onGetPlayerPresence(socket: Socket, { gameName }: BaseArgs, fn: AckCallback<PlayerPresence>) {
+        debug("Fetching player presence for game %s", gameName);
         const sockets = await this.io.in(gameName).fetchSockets();
         const game = await getGame({
             name: gameName,
@@ -500,18 +493,35 @@ class SocketManager {
 
         const playerSocketMap = game.players.reduce(
             (map, player) => {
-                map[player.sessionID] = player;
+                if (!(player.sessionID in map)) {
+                    map[player.sessionID] = [];
+                }
+                map[player.sessionID].push(player);
                 return map;
             },
-            {} as {[sesionID: string]: ServerPlayer}
+            {} as {[sesionID: string]: ServerPlayer[]}
         );
 
-        const colors = sockets.map(
-            (socket) => playerSocketMap[socket.data.sessionID]?.color)
-                .filter((color) => Boolean(color)
+        const presence = sockets.reduce(
+            (presence, socket) => {
+                const colors = (playerSocketMap[socket.data.sessionID] || []).map(
+                    (player) => player.color
+                );
+
+                if (colors.length > 0) {
+                    for (const color of colors) {
+                        presence[color] = true;
+                    }
+                }
+
+                return presence;
+            },
+            {} as PlayerPresence
         );
 
-        return colors;
+        debug("Sending player presence: ", presence);
+
+        fn(presence);
     }
 
     private async onLeaveGame(socket: Socket, { gameName }: BaseArgs, fn: AckCallback) {
@@ -532,7 +542,7 @@ class SocketManager {
             playerIndexes: Object.values(playerIndexes),
         });
 
-        fn(null);
+        fn();
     }
 
     private async onGetWatcherCount(socket: Socket, { gameName }: BaseArgs, fn: AckCallback<number>) {
@@ -555,7 +565,7 @@ class SocketManager {
 
         const watchers = sessionIDs.difference(playerSessionIDs);
 
-        fn(null, watchers.size);
+        fn(watchers.size);
     }
 }
 

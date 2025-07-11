@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import createDebugger from "debug";
 import Config, { type ColorID } from "@/config";
-import type { BoardPosition, GameID } from "@/types/index";
+import type { BoardPosition, GameID, PlayerPresence } from "@/types/index";
 import type { ServerToClientEvents, ClientToServerEvents } from "@/types/sockets";
 import { getStore } from "@/redux/store";
 import { gamesApi } from "./games";
@@ -21,7 +21,7 @@ export class SocketClient {
     private readonly emitWithAck: EmitWithAckWorkaround;
 
     constructor() {
-        this.socket = io(`//${window.location.hostname}:${Config.websockets.port}`, {
+        this.socket = io(`//${Config.api.host}:${Config.api.port}`, {
             withCredentials: true,
         });
 
@@ -226,6 +226,16 @@ export class SocketClient {
         return await this.emitWithAck("game:start", {
             gameName,
         });
+    }
+
+    async getPlayerPresence(gameName: GameID): Promise<PlayerPresence> {
+        const presence = await this.emitWithAck("game:presence:get", {
+            gameName,
+        });
+
+        debug("Player presence result:", presence);
+
+        return presence;
     }
 
     listen<E extends keyof ServerToClientEvents>(eventName: E, callback: ServerToClientEvents[E]) {

@@ -1,43 +1,44 @@
-// const webSocketsInline = !process.env.WEB_SOCKETS_URL;
-
-// const websocketsPath = webSocketsInline ?
-// 	"/sockets" :
-// 	undefined;
-
-let websocketsPortString: string|undefined;
+let apiPortString: string;
 
 if ("process" in globalThis) {
-	websocketsPortString = process.env.VITE_WEBSOCKETS_PORT
+	apiPortString = process.env.VITE_API_PORT || "";
 }
 else {
-	websocketsPortString = import.meta.env.VITE_WEBSOCKETS_PORT;
+	apiPortString = import.meta.env.VITE_API_PORT || "";
 }
 
-if (!websocketsPortString) {
-	throw new Error(`"${websocketsPortString}" is not set. Set a valid port number in the environment variable WEBSOCKETS_PORT.`)
+if (!apiPortString) {
+	throw new Error(`API port missing; set VITE_API_PORT environment variable`);
 }
 
-const websocketsPort = Number(websocketsPortString);
+const apiPort = Number(apiPortString);
 
-if (isNaN(websocketsPort)) {
-    throw new Error(`"${websocketsPortString}" is not a valid port number. Set a valid port number in the environment variable WEBSOCKETS_PORT.`)
+if (Number.isNaN(apiPort)) {
+	throw new Error(`API port ${
+		apiPortString
+	} is not a valid number; must be an integer. Check your VITE_API_PORT environment variable.`);
 }
 
-// const websocketsUrl = webSocketsInline ?
-// 	"/" :
-// 	process.env.WEB_SOCKETS_URL;
+let apiHost: string;
 
-// let staticContentURL = process.env.STATIC_CONTENT_URL || "";
-// const staticContentInline = !staticContentURL;
+if ("process" in globalThis) {
+	apiHost = process.env.VITE_API_HOST || "";
+}
+else {
+	apiHost = import.meta.env.VITE_API_HOST || "";
+}
 
-// istanbul ignore else
-// if (staticContentInline) {
-// 	staticContentURL = "";
-// }
+if (!apiHost) {
+	if ("location" in globalThis) {
+		apiHost = location.hostname;
+	}
+}
 
-// Normalize URL to not end with a slash
-// staticContentURL = staticContentURL.replace(/\/$/, "");
+let clientOrigin: string = "";
 
+if ("process" in globalThis) {
+	clientOrigin = process.env.CLIENT_ORIGIN || "";
+}
 
 const colors = [
 	{
@@ -115,25 +116,26 @@ Object.defineProperties(
 	}
 );
 
-interface AuthConfig {
-	isEnabled: boolean;
+let isFacebookEnabled: boolean;
+let isGoogleEnabled: boolean;
+
+if ("process" in globalThis) {
+	isFacebookEnabled = Boolean(process.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
+	isGoogleEnabled = Boolean(process.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
+}
+else {
+	isFacebookEnabled = Boolean(import.meta.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
+	isGoogleEnabled = Boolean(import.meta.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
 }
 
 const auth = {
 	facebook: {
-	} as AuthConfig,
+		isEnabled: isFacebookEnabled,
+	},
 	google: {
-	} as AuthConfig,
-};
-
-if ("process" in globalThis) {
-	auth.facebook.isEnabled = Boolean(process.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
-	auth.google.isEnabled = Boolean(process.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
-}
-else {
-	auth.facebook.isEnabled = Boolean(import.meta.env.VITE_CREDENTIALS_FACEBOOK_ENABLED);
-	auth.google.isEnabled = Boolean(import.meta.env.VITE_GOOGLE_CREDENTIALS_ENABLED);
-}
+		isEnabled: isGoogleEnabled,
+	},
+} as const;
 
 export type AuthProviderID = keyof typeof auth;
 
@@ -156,17 +158,14 @@ export default {
 		colors: colors as ColorList,
 	},
 
+	api: {
+		host: apiHost,
+		port: apiPort,
+	},
+
+	client: {
+		origin: clientOrigin,
+	},
+
 	auth,
-
-	staticContent: {
-		// inline: staticContentInline,
-		// url: staticContentURL,
-	},
-
-	websockets: {
-		// inline: webSocketsInline,
-		// url: websocketsUrl,
-		// path: websocketsPath,
-		port: websocketsPort,
-	},
-};
+} as const;

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { IntlProvider } from 'react-intl';
-import { createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { ClientApp } from '@/components/App/ClientApp';
 import messages from '@/translations/en.json';
 import "@/api/socket-client.client";
@@ -23,6 +23,7 @@ export const App = (
 ) => {
     return (
         <ThemeProvider theme={theme}>
+            <CssBaseline />
             <IntlProvider
                 locale={navigator.language}
                 defaultLocale='en-US'

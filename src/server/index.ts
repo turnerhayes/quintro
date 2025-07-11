@@ -7,6 +7,7 @@ import passport from "passport";
 import { Server } from "socket.io";
 import createDebugger from "debug";
 
+import Config from "@/config";
 import SocketManager from "@/server/socket-manager";
 import gamesRouter from "@/server/routes/games";
 import authRouter from "@/server/routes/auth";
@@ -38,7 +39,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:5173", //TODO: Get origin from environment variables
+        origin: Config.client.origin,
         credentials: true,
     },
 });
@@ -53,7 +54,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173", //TODO: Get origin from environment variables
+  origin: Config.client.origin,
   credentials: true,
 }));
 
@@ -61,8 +62,6 @@ app.use('/api/games', gamesRouter);
 
 app.use("/auth", authRouter);
 
-const PORT = 8070; //TODO: Get port from environment
-
-httpServer.listen(PORT, () => {
-    debug("Listening on port %d", PORT);
+httpServer.listen(Config.api.port, () => {
+    debug("Listening on port %d", Config.api.port);
 });

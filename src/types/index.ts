@@ -73,3 +73,7 @@ export interface Game {
     endedAtTimestamp: number | null;
     winnerIndex: number | null;
 }
+
+export interface PlayerPresence {
+    [color: ColorID]: boolean;
+}

@@ -37,6 +37,9 @@ export interface ClientToServerEvents {
   "game:start": (args: {
     gameName: GameID;
   }) => void;
+  "game:presence:get": (args: {
+    gameName: GameID;
+  }) => void;
   "board:place-marble": (args: {
     gameName: GameID;
     position: BoardPosition;

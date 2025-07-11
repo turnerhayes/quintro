@@ -16,9 +16,8 @@ const LayoutComponent = () => {
                 <TopNav
                 />
                 <Box
-                    sx={{
-                        overflow: "auto",
-                    }}
+                    overflow="auto"
+                    flex={1}
                 >
                     <Outlet/>
                 </Box>

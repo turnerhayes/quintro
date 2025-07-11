@@ -3,7 +3,7 @@ import { useIntl } from "react-intl";
 import classNames from "classnames";
 
 import { Marble }         from "@/components/Marble";
-import type { Game, Player } from "@/types";
+import type { Game, Player, PlayerPresence } from "@/types";
 import styles from "./PlayerIndicators.module.css";
 import { getCurrentPlayer } from "@/redux/selectors/game";
 import { useTheme } from "@mui/material";
@@ -47,6 +47,7 @@ export interface PlayerIndicatorsProps {
 		element: HTMLElement;
 	}) => void;
 	indicatorProps?: IndicatorProps|IndicatorPropsFunction;
+	playerPresence: PlayerPresence;
 	className?: string;
 }
 
@@ -119,6 +120,7 @@ export const PlayerIndicators = (
 		markActive,
 		onIndicatorClick,
 		indicatorProps,
+		playerPresence,
 		className,
 	}: PlayerIndicatorsProps
 ) => {
@@ -150,7 +152,7 @@ export const PlayerIndicators = (
 				{
 					game.players.map(
 						(player, index) => {
-							const isPresent = true; // TODO: Handle presence
+							const isPresent = Boolean(playerPresence[player.color]); // TODO: Handle presence
 
 							let label: string;
 
