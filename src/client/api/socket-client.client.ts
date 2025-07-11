@@ -8,6 +8,7 @@ import type { BoardPosition, GameID, PlayerPresence } from "@/types/index";
 import type { ServerToClientEvents, ClientToServerEvents } from "@/types/sockets";
 import { getStore } from "@/client/redux/store";
 import { gamesApi } from "./games";
+import { notifyMarblePlaced } from "@/client/redux/notification-actions";
 
 const debug = createDebugger("quintro:client:socket-client");
 
@@ -77,6 +78,12 @@ export class SocketClient {
                         }
                     )
                 );
+                
+                store.dispatch(notifyMarblePlaced({
+                    gameName,
+                    position,
+                    color,
+                }));
             }
         );
 

@@ -28,3 +28,34 @@ export const requestPermission = (): Promise<void> => {
     
     return _permissionPromise;
 };
+
+export interface SendNotificationParams {
+    content: string;
+    title?: string;
+    onClick?: (close: () => void) => void;
+}
+
+export const sendNotification = (
+    {
+        content,
+        title = "Quintro",
+        onClick,
+    }: SendNotificationParams
+) => {
+    if (!NOTIFICATIONS_SUPPORTED || Notification.permission !== "granted") {
+        return;
+    }
+    const notification = new Notification(title, {
+        body: content,
+    });
+
+    const close = () => {
+        notification.close();
+    };
+
+    notification.onclick = () => {
+        if (onClick) {
+            onClick(close);
+        }
+    };
+};

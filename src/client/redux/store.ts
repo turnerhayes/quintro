@@ -1,13 +1,11 @@
 "use client";
 
 import {
-    combineReducers,
     configureStore
 } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import {
     persistStore,
-    persistReducer,
     type Persistor,
     PERSIST,
     REHYDRATE,
@@ -17,28 +15,13 @@ import {
     REGISTER
 } from 'redux-persist';
 
-import { storage } from "@/client/redux/storage";
 import { gamesApi } from "@/client/api/games";
-import { settingsReducer } from "@/client/redux/slices/settings";
+import notificationListenerMiddleware from "@/client/redux/notification-listener";
+import { persistedReducer } from "@/client/redux/reducer";
 
 
 const _makeStore = () => {
-    const rootReducer = combineReducers(
-        {
-            [gamesApi.reducerPath]: gamesApi.reducer,
-            settings: settingsReducer,
-        }
-    );
-
     let store;
-
-    const persistConfig = {
-        key: 'root',
-        storage,
-    };
-
-    // const persistedReducer = persistReducer(persistConfig, rootReducer);
-    const persistedReducer = rootReducer;
 
     store = configureStore({
         reducer: persistedReducer,
@@ -54,7 +37,7 @@ const _makeStore = () => {
                         REGISTER,
                     ],
                 },
-            }).concat(gamesApi.middleware),
+            }).concat(gamesApi.middleware).prepend(notificationListenerMiddleware),
         devTools: process.env.NODE_ENV !== "production",
     });
 
@@ -69,7 +52,7 @@ let _persistor: Persistor|null = null;
 export const getStore = () => {
     if (!_store) {
         _store = _makeStore();
-        // _persistor = persistStore(_store);
+        _persistor = persistStore(_store);
     }
 
     return {
@@ -79,7 +62,5 @@ export const getStore = () => {
 };
 
 type StoreType = ReturnType<typeof _makeStore>;
-
-export type RootState = ReturnType<StoreType["getState"]>;
 
 export type AppDispatch = StoreType["dispatch"];

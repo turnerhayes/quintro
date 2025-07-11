@@ -17,7 +17,7 @@ export const ClientApp = (
 ) => {
     return (
         <Provider store={store}>
-            {/* <PersistGate persistor={persistor}> */}
+            <PersistGate persistor={persistor}>
                 <Box
                     sx={{
                         display: 'flex',
@@ -30,7 +30,7 @@ export const ClientApp = (
                 >
                     {children}
                 </Box>
-            {/* </PersistGate> */}
+            </PersistGate>
         </Provider>
     );
 };

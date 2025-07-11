@@ -12,7 +12,7 @@ import {
 	type SelectProps,
 	type SupportedColorScheme
 } from "@mui/material";
-import { NOTIFICATIONS_SUPPORTED, needsPermission, requestPermission } from "./notify.client";
+import { NOTIFICATIONS_SUPPORTED, needsPermission, requestPermission } from "../../notify.client";
 import { useAppDispatch, useAppSelector } from "@/client/redux/hooks";
 import { getNotificationsEnabled, getSoundEffectsEnabled } from "@/client/redux/selectors/settings";
 import { setNotificationsEnabled, setSoundEffectsEnabled } from "@/client/redux/slices/settings";
