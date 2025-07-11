@@ -1,9 +1,11 @@
+/// <reference types="vite/client" />
+
 let apiPortString: string;
 
 if ("process" in globalThis) {
 	apiPortString = process.env.VITE_API_PORT || "";
 }
-else {
+else if ("env" in import.meta) {
 	apiPortString = import.meta.env.VITE_API_PORT || "";
 }
 

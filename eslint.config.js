@@ -9,7 +9,7 @@ import { globalIgnores } from 'eslint/config'
 
 
 export default tseslint.config([
-  globalIgnores(['dist', '__current', '__ts']),
+  globalIgnores(['dist', '__current']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

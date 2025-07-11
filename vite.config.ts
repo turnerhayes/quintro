@@ -5,6 +5,11 @@ import checker from 'vite-plugin-checker';
 
 // https://vite.dev/config/
 export default defineConfig({
+  root: path.resolve(__dirname, "src/client"),
+  build: {
+    outDir: '../../dist/client',
+    emptyOutDir: true,
+  },
   css: {
     modules: {
       localsConvention: 'camelCase',

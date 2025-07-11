@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "react-router dev",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build src/client",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "vite preview src/client",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "i18n:extract": "formatjs extract \"src/**/*.{tsx,ts}\" --ignore \"**/*.d.ts\" --out-file src/translations/lang.json",
-    "i18n:compile": "formatjs compile src/translations/lang.json",
-    "i18n": "formatjs extract \"src/**/*.{tsx,ts}\" --ignore \"**/*.d.ts\" --out-file temp.json --flatten --id-interpolation-pattern '[sha512:contenthash:base64:6]' && formatjs compile 'temp.json' --out-file src/translations/en.json && rm temp.json"
+    "i18n:extract": "formatjs extract \"src/client/**/*.{tsx,ts}\" --ignore \"**/*.d.ts\" --out-file src/client/translations/lang.json",
+    "i18n:compile": "formatjs compile src/client/translations/lang.json",
+    "i18n": "formatjs extract \"src/client/**/*.{tsx,ts}\" --ignore \"**/*.d.ts\" --out-file temp.json --flatten --id-interpolation-pattern '[sha512:contenthash:base64:6]' && formatjs compile 'temp.json' --out-file src/client/translations/en.json && rm temp.json"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
