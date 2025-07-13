@@ -19,7 +19,6 @@
     "express-session": "^1.18.1",
     "kysely": "^0.28.2",
     "nanoid": "^5.1.5",
-    "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pg": "^8.16.3",

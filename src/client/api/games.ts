@@ -2,12 +2,12 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import createDebugger from "debug";
 
 import type { BoardPosition, Game, GameID, GameSummary } from "@/types";
-import { type ColorID } from "@/config";
+import Config, { type ColorID } from "@/config";
 
 
 const debug = createDebugger("quintro:client:api:games");
 
-const SERVER_URL = "http://localhost:8070"; //TODO: Inject this from environment variables
+const SERVER_URL = `${Config.api.host}:${Config.api.port}`;
 
 export const gamesApi = createApi({
     reducerPath: "games",

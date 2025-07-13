@@ -1,5 +1,9 @@
 import "@/server/read-env";
 import { createServer } from "node:http";
+import { createServer as createHttpsServer } from "node:https";
+import type { ServerOptions } from "node:https";
+import path from "node:path";
+import fs from "node:fs";
 import express from "express";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import cors from "cors";
@@ -16,6 +20,19 @@ import sessionMiddleware from "@/server/session-middleware";
 
 const debug = createDebugger("quintro:server");
 
+const sslCertFile = process.env.SSL_CERT_PATH || "";
+const sslKeyFile = process.env.SSL_KEY_PATH || "";
+
+const projectRoot = path.resolve(__dirname, "..", "..");
+
+const sslCert = sslCertFile ? fs.readFileSync(path.resolve(projectRoot, sslCertFile)) : null;
+const sslKey = sslKeyFile ? fs.readFileSync(path.resolve(projectRoot, sslKeyFile)) : null;
+
+const httpsConfig: ServerOptions|null = sslCert != null ? {
+  cert: sslCert,
+  key: sslKey,
+} : null;
+
 interface SocketRequest extends Request {
     _query: {
         sid: string;
@@ -26,7 +43,7 @@ function onlyForHandshake(middleware: RequestHandler) {
   return (req: SocketRequest, res: Response, next: NextFunction) => {
     const isHandshake = req._query.sid === undefined;
     if (isHandshake) {
-      middleware(req, res, next);
+      middleware(req as Request, res, next);
     } else {
       next();
     }
@@ -35,7 +52,7 @@ function onlyForHandshake(middleware: RequestHandler) {
 
 
 const app = express();
-const httpServer = createServer(app);
+let httpServer = httpsConfig == null ? createServer(app) : createHttpsServer(httpsConfig, app);
 
 const io = new Server(httpServer, {
     cors: {
@@ -63,5 +80,5 @@ app.use('/api/games', gamesRouter);
 app.use("/auth", authRouter);
 
 httpServer.listen(Config.api.port, () => {
-    debug("Listening on port %d", Config.api.port);
+    debug("API server available at %s:%s", Config.api.host, Config.api.port);
 });

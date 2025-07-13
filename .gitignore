@@ -29,3 +29,8 @@ dist-ssr
 
 
 .env
+
+# SSL certs and keys
+*.cert
+*.pem
+*.key

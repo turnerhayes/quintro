@@ -39,7 +39,14 @@ if (!apiHost) {
 let clientOrigin: string = "";
 
 if ("process" in globalThis) {
-	clientOrigin = process.env.CLIENT_ORIGIN || "";
+	clientOrigin = process.env.VITE_CLIENT_ORIGIN || "";
+}
+else {
+	clientOrigin = import.meta.env.VITE_CLIENT_ORIGIN || "";
+}
+
+if (!clientOrigin && "location" in globalThis) {
+	clientOrigin = location.origin;
 }
 
 const colors = [

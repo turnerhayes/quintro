@@ -22,7 +22,7 @@ export class SocketClient {
     private readonly emitWithAck: EmitWithAckWorkaround;
 
     constructor() {
-        this.socket = io(`//${Config.api.host}:${Config.api.port}`, {
+        this.socket = io(`${Config.api.host}:${Config.api.port}`, {
             withCredentials: true,
         });
 
