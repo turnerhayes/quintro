@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import createDebugger from "debug";
 import Badge              from "@mui/material/Badge";
 import Popover, { type PopoverProps } from "@mui/material/Popover";
@@ -39,7 +39,7 @@ import { gamesApi } from "@/client/api/games";
 import { getCurrentPlayer, getUserPlayers } from "@/client/redux/selectors/game";
 import { useAppDispatch } from "@/client/redux/hooks";
 import Config from "@/config";
-import type { PlayerPresence, Game, Player, SelfPlayer } from "@/types";
+import type { PlayerPresence, Game, Player, SelfPlayer, GameID } from "@/types";
 import { socketClient } from "@/client/api/socket-client.client";
 import { findQuintros } from "@/quintros";
 
@@ -517,14 +517,24 @@ const PlayGameContent = (
     );
 };
 
-export const PlayGame = () => {
-    const params = useParams() as { gameName: string };
-
+export const PlayGame = (
+    {
+        gameName,
+    }: {
+        gameName: GameID;
+    }
+) => {
     const { data: game, isLoading, error } = gamesApi.endpoints.getGame.useQuery(
         {
-            gameName: params.gameName,
+            gameName,
         }
     );
+
+    console.log("PlayGame data:", {
+        game,
+        isLoading,
+        error,
+    });
 
     if (isLoading) {
         return (
@@ -564,7 +574,7 @@ export const PlayGame = () => {
     }
 
     if (!game) {
-        debug("Game not found:", params.gameName);
+        debug("Game not found:", gameName);
         // TODO Show missing game UI
         return (
             <div>

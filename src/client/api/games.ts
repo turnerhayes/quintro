@@ -7,13 +7,30 @@ import Config, { type ColorID } from "@/config";
 
 const debug = createDebugger("quintro:client:api:games");
 
-const SERVER_URL = `${Config.api.host}:${Config.api.port}`;
+// const getGameBaseQuery = fetchBaseQuery({
+//     baseUrl: `${Config.api.origin}/api`,
+//     credentials: "include",
+// });
+
+// const wrappedGetGameBaseQuery = async (...args: Parameters<typeof getGameBaseQuery>) => {
+//     console.log("Making API call:", args);
+//     try {
+//         const result = await getGameBaseQuery(...args);
+//         "API call result:", result);
+//         return result;
+//     }
+//     catch(ex) {
+//         console.error("API fetch error:", ex);
+//         throw ex;
+//     }
+// };
 
 export const gamesApi = createApi({
     reducerPath: "games",
     tagTypes: ['Game'],
+    // baseQuery: wrappedGetGameBaseQuery,
     baseQuery: fetchBaseQuery({
-        baseUrl: `${SERVER_URL}/api`,
+        baseUrl: `${Config.api.origin}/api`,
         credentials: "include",
     }),
     endpoints: (builder) => ({
@@ -113,7 +130,7 @@ export const createGame = async (
         playerLimit: number;
     }
 ): Promise<void> => {
-    const response = await fetch(`${SERVER_URL}/api/games`, {
+    const response = await fetch(`${Config.api.origin}/api/games`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

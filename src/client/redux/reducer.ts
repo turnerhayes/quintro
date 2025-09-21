@@ -1,6 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import {
     persistReducer,
+    type Storage
 } from 'redux-persist';
 import { storage } from "@/client/redux/storage";
 import { gamesApi } from "@/client/api/games";
@@ -13,11 +14,12 @@ export const rootReducer = combineReducers(
     }
 );
 
-const persistConfig = {
-    key: 'root',
-    storage,
-};
 
-export const persistedReducer = persistReducer(persistConfig, rootReducer);
+export const getPersistedReducer = (storageInstance: Storage = storage) => {
+    return persistReducer({
+        key: 'root',
+        storage: storageInstance,
+    }, rootReducer)
+}
 
-export type RootState = ReturnType<typeof persistedReducer>;
+export type RootState = ReturnType<ReturnType<typeof getPersistedReducer>>;

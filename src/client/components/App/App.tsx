@@ -1,18 +1,14 @@
 import type { ReactNode } from 'react';
 import { IntlProvider } from 'react-intl';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ClientApp } from '@/client/components/App/ClientApp';
 import messages from '@/client/translations/en.json';
 import "@/client/api/socket-client.client";
+import {theme} from "@/client/components/App/theme";
 
 import "./App.css";
 
 
-const theme = createTheme({
-    colorSchemes: {
-        dark: true,
-    },
-});
 
 export const App = (
     {

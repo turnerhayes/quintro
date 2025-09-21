@@ -12,19 +12,18 @@ import {
     FLUSH,
     PAUSE,
     PURGE,
-    REGISTER
+    REGISTER,
+    type Storage
 } from 'redux-persist';
 
 import { gamesApi } from "@/client/api/games";
 import notificationListenerMiddleware from "@/client/redux/notification-listener";
-import { persistedReducer } from "@/client/redux/reducer";
+import { getPersistedReducer } from "@/client/redux/reducer";
 
 
-const _makeStore = () => {
-    let store;
-
-    store = configureStore({
-        reducer: persistedReducer,
+const _makeStore = (storage?: Storage) => {
+    const store = configureStore({
+        reducer: getPersistedReducer(storage),
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({
                 serializableCheck: {
@@ -49,9 +48,9 @@ const _makeStore = () => {
 let _store: ReturnType<typeof _makeStore>|null = null;
 let _persistor: Persistor|null = null;
 
-export const getStore = () => {
+export const getStore = (storage?: Storage) => {
     if (!_store) {
-        _store = _makeStore();
+        _store = _makeStore(storage);
         _persistor = persistStore(_store);
     }
 
@@ -61,6 +60,11 @@ export const getStore = () => {
     };
 };
 
-type StoreType = ReturnType<typeof _makeStore>;
+export const resetStore = () => {
+    _store = null;
+    _persistor = null;
+};
+
+export type StoreType = ReturnType<typeof _makeStore>;
 
 export type AppDispatch = StoreType["dispatch"];
