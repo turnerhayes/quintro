@@ -51,7 +51,6 @@ const ProviderWrapper = (
     children: ReactNode;
   }
 ) => {
-  console.log("[render wrapper] rendering with fresh ProviderWrapper");
   // const { store, persistor } = getStore(new TestStorage());
   const [ storeData, setStoreData ] = useState<ReturnType<typeof getStore>>();
 

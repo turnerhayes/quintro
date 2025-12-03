@@ -72,25 +72,12 @@ export default defineConfig({
         { browser: 'firefox' },
       ],
     },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      include: [
+        'src/**',
+      ],
+    },
   },
-  // test: {
-  //   projects: [
-  //     {
-  //       test: {
-  //         root: "src/client",
-  //         include: [
-  //           "**/*.test.{ts,tsx}",
-  //         ],
-  //         browser: {
-  //           provider: 'playwright',
-  //           enabled: true,
-  //           instances: [
-  //             { browser: 'chromium' },
-  //             { browser: 'firefox' },
-  //           ],
-  //         },
-  //       },
-  //     }
-  //   ],
-  // },
 });

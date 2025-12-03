@@ -5,6 +5,7 @@
   "scripts": {
     "test": "vitest",
     "test:chrome": "vitest --browser=chromium",
+    "test:chrome:coverage": "vitest --browser=chromium --coverage",
     "test:firefox": "vitest --browser=firefox",
     "dev": "react-router dev",
     "build": "tsc -b && vite build src/client",
@@ -50,6 +51,7 @@
     "@types/redux-persist": "^4.0.0",
     "@vitejs/plugin-react": "^4.5.2",
     "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-v8": "3.2",
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.29.0",
     "eslint-plugin-react-dom": "^1.52.2",
