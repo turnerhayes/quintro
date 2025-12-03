@@ -74,7 +74,7 @@ export default defineConfig({
     },
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'html'],
       include: [
         'src/**',
       ],

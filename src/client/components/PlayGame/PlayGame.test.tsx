@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw";
 
 import { PlayGame } from "@/client/components/PlayGame/PlayGame";
 import { test } from "@/client/testing/test-base";
-import { render, screen } from "@/client/testing/test-utils";
+import { render, screen, within } from "@/client/testing/test-utils";
 import { worker } from "@/client/testing/browser-mock";
 import { GET_GAME_URL, getGameHandler } from "@/client/testing/service-mocks";
 import { socketClient } from "@/client/api/socket-client.client";
@@ -499,5 +499,113 @@ describe("PlayGame component", () => {
     await screen.findByRole("table");
 
     expect(establishConnectionSpy).toBeCalled();
+  });
+
+  describe("Winner banner", () => {
+    test("Closes winner banner on clicking Close", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            winnerIndex: 0,
+            endedAtTimestamp: Date.now(),
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                user: {
+                  id: 1,
+                  name: {
+                    display: "Player 1",
+                  },
+                },
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const dialog = await screen.findByRole("dialog", {description: "Red wins!"});
+      expect(dialog).toBeInTheDocument();
+
+      const closeButton = await screen.findByRole("button", {name: "Close"});
+      closeButton.click();
+
+      // Defer to next tick to allow dialog to close
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(dialog).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Player indicators", () => {
+    test("shows player info on clicking an indicator", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const indicatorButton = await screen.findByRole("button", {name: "This is you"});
+
+      indicatorButton.click();
+
+      const playerInfoPopup = await screen.findByRole("tooltip");
+
+      expect(playerInfoPopup).toBeInTheDocument();
+      expect(playerInfoPopup).toHaveTextContent("Anonymous User");
+      const editButton = within(playerInfoPopup).getByRole(
+        "button",
+        {
+          name: "Change display name",
+        }
+      );
+
+      expect(editButton).toBeInTheDocument();
+    });
   });
 });

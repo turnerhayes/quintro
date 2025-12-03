@@ -25,6 +25,7 @@ async function setup() {
                 pathname.includes("/socket.io/") ||
                 pathname.includes("/components/") ||
                 pathname.startsWith("/node_modules/") ||
+                pathname.startsWith("/coverage/") ||
                 pathname === '/favicon.ico'
             ) {
                 return; // Silently ignore these

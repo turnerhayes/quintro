@@ -1,16 +1,16 @@
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useNavigate } from "react-router";
 import createDebugger from "debug";
 import Badge              from "@mui/material/Badge";
 import Popover, { type PopoverProps } from "@mui/material/Popover";
-import Box from "@mui/material/Box";
+import Box, { type BoxProps } from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import { Stack, Typography, useTheme, type SxProps } from "@mui/material";
+import { ClickAwayListener, Popper, Stack, Typography, useTheme, type SxProps } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EyeIcon from "@mui/icons-material/Visibility";
 
@@ -28,6 +28,7 @@ import {
 }       from "@/client/components/Board/ZoomControls";
 import {
     PlayerIndicators,
+    type IndicatorPropsFunction,
     type PlayerIndicatorsProps
 } from "@/client/components/PlayerIndicators";
 import { PlayerInfoPopup } from "@/client/components/PlayerInfoPopup";
@@ -129,6 +130,7 @@ const PlayGameContent = (
     const [playerPresence, setPlayerPresence] = useState<PlayerPresence>({});
     const dispatch = useAppDispatch();
     const isWatchingGame = false; //TODO: implement watching logic
+    const playerInfoPopupRef = useRef<HTMLDivElement>(null);
     const quintros = useMemo(
         () => findQuintros(game.board.filledCells, game.board.width, game.board.height),
         [
@@ -206,6 +208,8 @@ const PlayGameContent = (
             }
         ) => {
             if (selectedPlayer == null) {
+                setSelectedIndicatorEl(null);
+                setSelectedPlayerColor(null);
                 return;
             }
 
@@ -316,6 +320,41 @@ const PlayGameContent = (
         ]
     );
 
+    const handleClickAway = useCallback(
+        (event: Parameters<NonNullable<BoxProps["onClick"]>>[0]) => {
+            const target = event.target as HTMLElement;
+
+            if (
+                playerInfoPopupRef.current != null &&
+                !playerInfoPopupRef.current.contains(target)
+            ) {
+                setSelectedIndicatorEl(null);
+                setSelectedPlayerColor(null);
+            }
+        },
+        [
+            playerInfoPopupRef,
+            selectedIndicatorEl,
+            setSelectedIndicatorEl,
+            setSelectedPlayerColor,
+        ]
+    );
+
+    const generateIndicatorProps = useCallback((({
+        player,
+    }) => {
+        const props: ReturnType<IndicatorPropsFunction> = {};
+
+        if (selectedPlayerColor != undefined && selectedPlayerColor === player?.color) {
+            props["aria-haspopup"] = "true";
+            props["aria-expanded"] = "true";
+        }
+
+        return props;
+    }) as IndicatorPropsFunction, [
+        selectedPlayerColor,
+    ]);
+
     const gameIsOver = game.winnerIndex != undefined;
 
     if (!(hasJoinedGame || isWatchingGame || gameIsOver)) {
@@ -330,22 +369,9 @@ const PlayGameContent = (
     }
 
     let playerInfoPopover: ReactNode|null = null;
-
-    if (selectedPlayerColor != null) {
-        const player = game.players.find(
-            (player: Player) => player.color === selectedPlayerColor
-        );
-    
-        if (!player) {
-            throw new Error(`Could not find player for color ${selectedPlayerColor}`);
-        }
-    
-        playerInfoPopover = selectedIndicatorEl === null ? null : (
-            <PlayerInfoPopup
-                player={player}
-            />
-        );
-    }
+    const selectedPlayer = game.players.find(
+        (player: Player) => player.color === selectedPlayerColor
+    );
 
     const currentPlayer = getCurrentPlayer(game);
     const myTurn = currentPlayer !== null && currentUserPlayers.includes(currentPlayer as SelfPlayer);
@@ -397,6 +423,7 @@ const PlayGameContent = (
 
     return (
         <Box
+            onClick={handleClickAway}
             sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -434,6 +461,7 @@ const PlayGameContent = (
                         markActive={gameIsStarted}
                         onIndicatorClick={handlePlayerIndicatorClick}
                         playerPresence={playerPresence}
+                        indicatorProps={generateIndicatorProps}
                     />
                     {
                         game.players.length < game.playerLimit && (
@@ -445,7 +473,16 @@ const PlayGameContent = (
                         )
                     }
                 </Box>
-                <Popover
+                {
+                    selectedIndicatorEl == null ? null : (
+                        <PlayerInfoPopup
+                            ref={playerInfoPopupRef}
+                            player={selectedPlayer!}
+                            anchorEl={selectedIndicatorEl!}
+                        />
+                    )
+                }
+                {/* <Popover
                     key="player indicator popover"
                     open={!!selectedIndicatorEl}
                     onClose={closePopover}
@@ -461,7 +498,7 @@ const PlayGameContent = (
                     }}
                 >
                     {playerInfoPopover}
-                </Popover>
+                </Popover> */}
                 <ZoomControls
                     className={styles.zoomControls}
                     onZoomLevelChange={handleZoomLevelChange}
