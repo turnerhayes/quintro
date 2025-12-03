@@ -1,9 +1,8 @@
 import { type FormEvent, useCallback, useEffect, useState }         from "react";
 import { Link }      from "react-router";
 import Dialog        from "@mui/material/Dialog";
-import Card          from "@mui/material/Card";
-import CardHeader    from "@mui/material/CardHeader";
-import CardContent   from "@mui/material/CardContent";
+import DialogContent        from "@mui/material/DialogContent";
+import DialogTitle        from "@mui/material/DialogTitle";
 import Button        from "@mui/material/Button";
 import {
 	FormattedMessage,
@@ -257,19 +256,17 @@ export const GameJoinDialog = (
         <Dialog
             open
         >
-            <Card>
-                { canJoin && (
-                    <CardHeader
-                        title={<FormattedMessage
-                            id="quintro.components.GameJoinDialog.joinThisGamePrompt"
-                            defaultMessage="Join this game"
-                        />}
+            {canJoin && (
+                <DialogTitle>
+                    <FormattedMessage
+                        id="quintro.components.GameJoinDialog.joinThisGamePrompt"
+                        defaultMessage="Join this game"
                     />
-                ) }
-                <CardContent>
-                    { body }
-                </CardContent>
-            </Card>
+                </DialogTitle>
+            )}
+            <DialogContent>
+                { body }
+            </DialogContent>
         </Dialog>
     );
 }

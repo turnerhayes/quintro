@@ -1,5 +1,6 @@
+import.meta.env.RTL_SKIP_AUTO_CLEANUP = true
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { beforeEach } from 'vitest';
 import { gamesApi } from '@/client/api/games';
 import { resetStore } from '@/client/redux/store';
 import { worker } from '@/client/testing/browser-mock';
@@ -26,17 +27,17 @@ async function setup() {
                 pathname.startsWith("/node_modules/") ||
                 pathname === '/favicon.ico'
             ) {
-                return; // 🙈 Silently ignore these
+                return; // Silently ignore these
             }
 
-            print.warning(); // ⚠️ Warn for everything else
+            print.warning(); // Warn for everything else
         },
     });
 }
 
 setup();
 
-afterEach(() => {
+beforeEach(() => {
     const {store} = getStore();
     cleanup();
     worker.resetHandlers();

@@ -75,6 +75,7 @@ const WinnerBanner = (
             open
             maxWidth="lg"
             onClose={handleWinnerBannerClose}
+            aria-describedby="winner-dialog-description"
         >
             <DialogTitle
                 sx={{
@@ -93,6 +94,7 @@ const WinnerBanner = (
             >
                 <DialogContentText
                     variant="h1"
+                    id="winner-dialog-description"
                 >
                     <FormattedMessage
                         id="quintro.components.PlayGame.winMessage"
@@ -529,12 +531,6 @@ export const PlayGame = (
             gameName,
         }
     );
-
-    console.log("PlayGame data:", {
-        game,
-        isLoading,
-        error,
-    });
 
     if (isLoading) {
         return (

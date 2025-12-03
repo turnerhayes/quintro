@@ -4,11 +4,17 @@ import Config from "@/config";
 import type { Game } from "@/types";
 
 
+type DeepPartial<T> = {
+    [P in keyof T]?: DeepPartial<T[P]>;
+};
+
+export type PartialGame = DeepPartial<Game>;
+
 const socketServer = ws.link(Config.api.origin);
 
 export const GET_GAME_URL = `${Config.api.origin}/api/games/:gameName`;
 
-const mergeGameWithDefault = (game?: Partial<Game>) => {
+const mergeGameWithDefault = (game?: PartialGame) => {
     const defaultGame: Game = {
         name: "test-game",
         board:  {
@@ -46,7 +52,7 @@ export const getGameHandler = (
         game,
         delay,
     }: {
-        game?: Partial<Omit<Game, "name">>;
+        game?: PartialGame;
         delay?: DelayMode | number;
     } = {}
 ) => {
