@@ -1,16 +1,15 @@
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useNavigate } from "react-router";
 import createDebugger from "debug";
 import Badge              from "@mui/material/Badge";
-import Popover, { type PopoverProps } from "@mui/material/Popover";
 import Box, { type BoxProps } from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import { ClickAwayListener, Popper, Stack, Typography, useTheme, type SxProps } from "@mui/material";
+import { Stack, Typography, useTheme, type SxProps } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EyeIcon from "@mui/icons-material/Visibility";
 
@@ -236,17 +235,6 @@ const PlayGameContent = (
         ]
     );
 
-    const closePopover = useCallback(
-        (() => {
-            setSelectedIndicatorEl(null);
-            setSelectedPlayerColor(null);
-        }) as NonNullable<PopoverProps["onClose"]>,
-        [
-            setSelectedIndicatorEl,
-            setSelectedPlayerColor,
-        ]
-    );
-
     const handleZoomLevelChange = useCallback(
         ((zoomLevel) => {
             setCurrentZoomLevel(zoomLevel);
@@ -368,7 +356,6 @@ const PlayGameContent = (
         );
     }
 
-    let playerInfoPopover: ReactNode|null = null;
     const selectedPlayer = game.players.find(
         (player: Player) => player.color === selectedPlayerColor
     );
@@ -482,23 +469,6 @@ const PlayGameContent = (
                         />
                     )
                 }
-                {/* <Popover
-                    key="player indicator popover"
-                    open={!!selectedIndicatorEl}
-                    onClose={closePopover}
-                    anchorEl={selectedIndicatorEl}
-                    closeAfterTransition
-                    anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "center",
-                    }}
-                    transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                    }}
-                >
-                    {playerInfoPopover}
-                </Popover> */}
                 <ZoomControls
                     className={styles.zoomControls}
                     onZoomLevelChange={handleZoomLevelChange}
