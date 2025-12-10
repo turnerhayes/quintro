@@ -576,15 +576,13 @@ export const PlayGame = (
         );
     }
 
+    /* v8 ignore start */
     if (!game) {
-        debug("Game not found:", gameName);
-        // TODO Show missing game UI
-        return (
-            <div>
-                Game not found. Please check the URL or try again later.
-            </div>
-        );
+        // This should never happen because isLoading would be true if the data
+        // is not yet loaded, and error would be set if there was an error.
+        throw new Error("Game data is undefined after successful load.");
     }
+    /* v8 ignore end */
 
     return (
         <PlayGameContent

@@ -607,5 +607,108 @@ describe("PlayGame component", () => {
 
       expect(editButton).toBeInTheDocument();
     });
+
+    test("closes the player info popup when clicks outside of the popup", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const indicatorButton = await screen.findByRole("button", {name: "This is you"});
+
+      indicatorButton.click();
+
+      const playerInfoPopup = await screen.findByRole("tooltip");
+
+      expect(playerInfoPopup).toBeInTheDocument();
+
+      indicatorButton.click();
+
+      // Defer to next tick to allow popup to close
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(playerInfoPopup).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Player presence", () => {
+    test("lists player presence correctly", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      vi.spyOn(socketClient, "getPlayerPresence").mockReturnValue(Promise.resolve({
+        red: true,
+        blue: true,
+        yellow: false,
+      }));
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      let indicator = await screen.findByRole("button", {name: "This is you"});
+
+      expect(indicator).toBeInTheDocument();
+
+      indicator = await screen.findByRole("button", {name: "Player blue"});
+
+      expect(indicator).toBeInTheDocument();
+
+      indicator = await screen.findByRole("button", {name: "Player yellow is absent"});
+
+      expect(indicator).toBeInTheDocument();
+    });
   });
 });
