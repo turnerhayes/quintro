@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw";
 
 import { PlayGame } from "@/client/components/PlayGame/PlayGame";
 import { test } from "@/client/testing/test-base";
-import { render, screen, within } from "@/client/testing/test-utils";
+import { render, renderWithRouter, screen, within } from "@/client/testing/test-utils";
 import { worker } from "@/client/testing/browser-mock";
 import { GET_GAME_URL, getGameHandler } from "@/client/testing/service-mocks";
 import { socketClient } from "@/client/api/socket-client.client";
@@ -183,7 +183,7 @@ describe("PlayGame component", () => {
       })
     );
 
-    const startGameSpy = vi.spyOn(socketClient, "startGame").mockImplementation(() => Promise.resolve());
+    const startGameSpy = vi.spyOn(socketClient, "startGame").mockResolvedValue(null);
 
     render(
       (
@@ -259,7 +259,7 @@ describe("PlayGame component", () => {
       })
     );
 
-    const joinGameSpy = vi.spyOn(socketClient, "joinGame").mockImplementation(() => Promise.resolve());
+    const joinGameSpy = vi.spyOn(socketClient, "joinGame").mockResolvedValue(null);
 
     render(
       (
@@ -272,6 +272,40 @@ describe("PlayGame component", () => {
     await page.getByRole("dialog", {name: "Join this game"}).getByRole("button", {name: "Join"}).click();
 
     expect(joinGameSpy).toBeCalled();
+  });
+
+  test("navigates back if join game is canceled", async () => {
+    worker.use(
+      getGameHandler({
+        game: {
+          name: "test-game",
+          playerLimit: 3,
+          players: [
+          ],
+        },
+      })
+    );
+
+    const joinGameSpy = vi.spyOn(socketClient, "joinGame").mockResolvedValue(null);
+    
+    const [_, router] = renderWithRouter(
+      <PlayGame
+        gameName="test-game"
+      />,
+      {
+        initialEntries: ["/games/find", "/games/test-game"],
+        initialIndex: 1,
+      }
+    );
+
+    vi.spyOn(router!, "navigate");
+
+    const dialog = await screen.findByRole("dialog", {name: "Join this game"});
+    const cancelButton = within(dialog).getByRole("button", {name: "Cancel"});
+    cancelButton.click();
+
+    expect(joinGameSpy).not.toBeCalled();
+    expect(router!.navigate).toBeCalledWith(-1);
   });
 
   describe("placeMarble", () => {
@@ -308,7 +342,7 @@ describe("PlayGame component", () => {
         })
       );
 
-      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockImplementation(() => Promise.resolve());
+      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockResolvedValue(null);
 
       render(
         (
@@ -373,7 +407,7 @@ describe("PlayGame component", () => {
         })
       );
 
-      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockImplementation(() => Promise.resolve());
+      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockResolvedValue(null);
 
       render(
         (
@@ -430,7 +464,7 @@ describe("PlayGame component", () => {
         })
       );
 
-      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockImplementation(() => Promise.resolve());
+      const placeMarbleSpy = vi.spyOn(socketClient, "placeMarble").mockResolvedValue(null);
 
       render(
         (
@@ -486,7 +520,7 @@ describe("PlayGame component", () => {
       })
     );
 
-    const establishConnectionSpy = vi.spyOn(socketClient, "establishGameConnection").mockImplementation(() => Promise.resolve());
+    const establishConnectionSpy = vi.spyOn(socketClient, "establishGameConnection").mockResolvedValue(null);
 
     render(
       (
@@ -598,6 +632,8 @@ describe("PlayGame component", () => {
 
       expect(playerInfoPopup).toBeInTheDocument();
       expect(playerInfoPopup).toHaveTextContent("Anonymous User");
+
+      // Find edit button to ensure it's the correct popup
       const editButton = within(playerInfoPopup).getByRole(
         "button",
         {
