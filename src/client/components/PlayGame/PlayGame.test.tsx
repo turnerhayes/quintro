@@ -152,6 +152,110 @@ describe("PlayGame component", () => {
     expect(button).toBeDisabled();
   });
 
+  describe("add player button", () => {
+    test("call joinGame on clicking the Add Player button", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                user: {
+                  id: 1,
+                  name: {
+                    display: "Player 1",
+                  },
+                },
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+            ],
+          },
+        })
+      );
+
+      const joinGameSpy = vi.spyOn(socketClient, "joinGame").mockResolvedValue(null);
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const button = await screen.findByRole("button", {name: "Add Player"});
+
+      button.click();
+
+      expect(joinGameSpy).toBeCalledWith({
+        gameName: "test-game",
+        color: "yellow",
+      });
+    });
+
+    test("call joinGame with the chosen color on clicking the Add Player button", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                user: {
+                  id: 1,
+                  name: {
+                    display: "Player 1",
+                  },
+                },
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+            ],
+          },
+        })
+      );
+
+      const joinGameSpy = vi.spyOn(socketClient, "joinGame").mockResolvedValue(null);
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const colorPickerButton = await screen.findByRole("button", {name: "Choose Player Color"});
+
+      colorPickerButton.click();
+
+      const purpleColorOption = await screen.findByRole("menuitem", {name: "Purple"});
+
+      purpleColorOption.click();
+
+      const button = await screen.findByRole("button", {name: "Add Player"});
+
+      button.click();
+
+      expect(joinGameSpy).toBeCalledWith({
+        gameName: "test-game",
+        color: "purple",
+      });
+    });
+  });
+
   test("starts game when the Start Game button is clicked", async () => {
     worker.use(
       getGameHandler({

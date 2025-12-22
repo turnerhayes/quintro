@@ -1,6 +1,7 @@
 {
   "quintro.components.AccountDialog.actions.logInWith": "Log in with {provider}",
   "quintro.components.AddPlayerButton.buttonTitle": "Add Player",
+  "quintro.components.ColorPicker.title": "Choose Player Color",
   "quintro.components.CreateGame.error": "Error creating game: {error}",
   "quintro.components.CreateGame.form.dimensions.label": "Dimensions",
   "quintro.components.CreateGame.form.submitButton.label": "Create",
@@ -43,7 +44,6 @@
   "quintro.components.HowToPlay.sections.winning.header": "Winning",
   "quintro.components.HowToPlay.sections.winning.text": "Any line of five or more marbles of your color will cause you to win and the game to end. Lines can be horizontal, vertical, or diagonal. It is possible to have multiple \"quintros\" at once, if the last marble placed would complete multiple lines at once.",
   "quintro.components.PlayGame.StartGameOverlay.buttonText": "Start Game",
-  "quintro.components.PlayGame.WinnerBanner.winMessage": "{winnerColor} wins!",
   "quintro.components.PlayGame.watchers.summary.withYou": "{watcherCount,plural,=0{You  are watching this game.} one{You and 1 other person are watching this game.} other{You and {watcherCount} other people are watching this game.}}",
   "quintro.components.PlayGame.watchers.summary.withoutYou": "{watcherCount,plural,one{1 person is watching this game.} other{{watcherCount} people are watching this game.}}",
   "quintro.components.PlayGame.winMessage": "{winnerColor} wins!",
