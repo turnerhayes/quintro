@@ -1,6 +1,9 @@
 {
   "quintro.components.AccountDialog.actions.logInWith": "Log in with {provider}",
   "quintro.components.AddPlayerButton.buttonTitle": "Add Player",
+  "quintro.components.Board.ZoomControls.zoomInLabel": "Zoom In",
+  "quintro.components.Board.ZoomControls.zoomLevelLabel": "Zoom Level",
+  "quintro.components.Board.ZoomControls.zoomOutLabel": "Zoom Out",
   "quintro.components.ColorPicker.title": "Choose Player Color",
   "quintro.components.CreateGame.error": "Error creating game: {error}",
   "quintro.components.CreateGame.form.dimensions.label": "Dimensions",

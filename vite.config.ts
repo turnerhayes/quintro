@@ -78,6 +78,9 @@ export default defineConfig({
       include: [
         'src/**',
       ],
+      exclude: [
+        "src/client/components/**/index.ts",
+      ],
     },
   },
 });

@@ -256,6 +256,92 @@ describe("PlayGame component", () => {
     });
   });
 
+  describe("zoom controls", () => {
+    test("zoom in button increases board zoom level", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const zoomInButton = await screen.findByRole("button", {name: "Zoom In"});
+
+      zoomInButton.click();
+
+      const zoomLevelInput = await screen.findByRole<HTMLInputElement>("spinbutton", {name: "Zoom Level"});
+
+      expect(zoomLevelInput).toHaveValue(1.2);
+    });
+    
+    test("zoom out button decreases board zoom level", async () => {
+      worker.use(
+        getGameHandler({
+          game: {
+            name: "test-game",
+            playerLimit: 3,
+            players: [
+              {
+                id: 1,
+                color: "red",
+                isMe: true,
+              } as SelfPlayer,
+              {
+                id: 2,
+                color: "blue",
+              },
+              {
+                id: 3,
+                color: "yellow",
+              },
+            ],
+          },
+        })
+      );
+
+      render(
+        (
+          <PlayGame
+            gameName="test-game"
+          />
+        )
+      );
+
+      const zoomOutButton = await screen.findByRole("button", {name: "Zoom Out"});
+      
+      zoomOutButton.click();
+    
+      const zoomLevelInput = await screen.findByRole<HTMLInputElement>("spinbutton", {name: "Zoom Level"});
+
+      expect(zoomLevelInput).toHaveValue(0.8);
+    });
+  });
+
   test("starts game when the Start Game button is clicked", async () => {
     worker.use(
       getGameHandler({

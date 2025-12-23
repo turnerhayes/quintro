@@ -3,6 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import { useIntl } from "react-intl";
 
 
 type ChangeZoomArgs = {
@@ -32,6 +33,26 @@ export const ZoomControls = (
 		className,
 	}: ZoomControlsProps
 ) => {
+	const intl = useIntl();
+
+	const zoomInLabel = intl.formatMessage({
+		id: "quintro.components.Board.ZoomControls.zoomInLabel",
+		defaultMessage: "Zoom In",
+		description: "Label for the button to zoom in on the board",
+	});
+	
+	const zoomOutLabel = intl.formatMessage({
+		id: "quintro.components.Board.ZoomControls.zoomOutLabel",
+		defaultMessage: "Zoom Out",
+		description: "Label for the button to zoom out on the board",
+	});
+
+	const zoomLevelLabel = intl.formatMessage({
+		id: "quintro.components.Board.ZoomControls.zoomLevelLabel",
+		defaultMessage: "Zoom Level",
+		description: "Label for the zoom level input field",
+	});
+
 	const changeZoom = useCallback(
 		({ value, delta }: ChangeZoomArgs) => {
 			let _value: number;
@@ -116,6 +137,8 @@ export const ZoomControls = (
 		>
 			<IconButton
 				onClick={handleZoomOutClicked}
+				title={zoomOutLabel}
+				aria-label={zoomOutLabel}
 			>
 				<ZoomOutIcon />
 			</IconButton>
@@ -127,6 +150,8 @@ export const ZoomControls = (
 				slotProps={{
 					htmlInput: {
 						step: stepSize,
+						title: zoomLevelLabel,
+						"aria-label": zoomLevelLabel,
 					},
 				}}
 				value={currentZoomLevel}
@@ -134,6 +159,8 @@ export const ZoomControls = (
 			/>
 			<IconButton
 				onClick={handleZoomInClicked}
+				title={zoomInLabel}
+				aria-label={zoomInLabel}
 			>
 				<ZoomInIcon
 					sx={{
