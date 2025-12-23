@@ -42,7 +42,7 @@ export interface PlayerIndicatorsProps {
 	game: Game;
 	markActive: boolean;
 	onIndicatorClick?: (args: {
-		selectedPlayer: Player|null;
+		selectedPlayer: Player;
 		index: number;
 		element: HTMLElement;
 	}) => void;
@@ -138,6 +138,9 @@ export const PlayerIndicators = (
 			element: HTMLElement;
 		}
 	) => {
+		if (player == null) {
+			return;
+		}
 		onIndicatorClick && onIndicatorClick({ selectedPlayer: player, index, element });
 	}, [
 		onIndicatorClick,

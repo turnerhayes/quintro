@@ -206,14 +206,8 @@ const PlayGameContent = (
                 element,
             }
         ) => {
-            if (selectedPlayer == null) {
-                setSelectedIndicatorEl(null);
-                setSelectedPlayerColor(null);
-                return;
-            }
-
             setSelectedIndicatorEl(element);
-            setSelectedPlayerColor(selectedPlayer?.color ?? null);
+            setSelectedPlayerColor(selectedPlayer.color);
         }) as NonNullable<PlayerIndicatorsProps["onIndicatorClick"]>,
         [
             setSelectedIndicatorEl,
