@@ -80,6 +80,8 @@ export default defineConfig({
       ],
       exclude: [
         "src/client/components/**/index.ts",
+        "src/client/testing/**",
+        "src/server/**",
       ],
     },
   },

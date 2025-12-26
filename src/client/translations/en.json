@@ -5,7 +5,7 @@
   "quintro.components.Board.ZoomControls.zoomLevelLabel": "Zoom Level",
   "quintro.components.Board.ZoomControls.zoomOutLabel": "Zoom Out",
   "quintro.components.ColorPicker.title": "Choose Player Color",
-  "quintro.components.CreateGame.error": "Error creating game: {error}",
+  "quintro.components.CreateGame.error": "Error creating game. Please try again later.",
   "quintro.components.CreateGame.form.dimensions.label": "Dimensions",
   "quintro.components.CreateGame.form.submitButton.label": "Create",
   "quintro.components.CreateGame.header": "Create a Game",

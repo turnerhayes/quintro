@@ -99,34 +99,3 @@ export const {
     useStartGameMutation,
     usePlaceMarbleMutation,
 } = gamesApi;
-
-export const createGame = async (
-    {
-        width,
-        height,
-        playerLimit,
-    }: {
-        width: number;
-        height: number;
-        playerLimit: number;
-    }
-): Promise<void> => {
-    const response = await fetch(`${Config.api.origin}/api/games`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            width,
-            height,
-            playerLimit,
-        }),
-    });
-    if (!response.ok) {
-        const msg = `Failed to create game: ${response.statusText}`;
-        debug(msg);
-        throw new Error(msg);
-    }
-    const result = await response.json();
-    return result.gameName;
-};

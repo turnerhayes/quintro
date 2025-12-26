@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import type { Storage } from 'redux-persist';
 
-import {theme} from "@/client/components/App/theme";
+import { theme } from "@/client/components/App/theme";
 import { getStore } from '@/client/redux/store';
 import messages from "@/client/translations/en.json";
 import routes from '@/client/routes';
@@ -166,10 +166,15 @@ export const renderWithRouter = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'|'container'> & {
     initialEntries: string[];
-    initialIndex: number;
+    initialIndex?: number;
   },
 ) => {
-  const {initialEntries, initialIndex} = options || {};
+  let {initialEntries, initialIndex} = options || {};
+
+  if (initialIndex == undefined) {
+    initialIndex = 0;
+  }
+
   const [ Wrapper, router ] = getProviderWrapper(
     {
       children: ui,
