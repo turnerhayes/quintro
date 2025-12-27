@@ -82,6 +82,7 @@ export default defineConfig({
         "src/client/components/**/index.ts",
         "src/client/testing/**",
         "src/server/**",
+        "src/client/**/*.test.{ts,tsx}",
       ],
     },
   },

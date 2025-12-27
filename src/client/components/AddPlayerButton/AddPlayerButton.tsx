@@ -23,35 +23,20 @@ export const AddPlayerButton = (
 	}: AddPlayerButtonProps
 ) => {
 	const intl = useIntl();
-	const [color, setColor] = useState<ColorID|null>(null);
-
-	useEffect(() => {
-		setColor(
-			getDefaultColorForGame({
-				game,
-			}) || null
-		);
-	}, []);
-
-	const canAdd = color != null && canAddColor(game, color);
-
-	useEffect(() => {
-		if (!canAdd) {
-			setColor(
-				getDefaultColorForGame({
-					game,
-				}) || null
-			);
-		}
-	}, [
-		game,
-		setColor,
-	]);
+	const [color, setColor] = useState<ColorID|null>(
+		getDefaultColorForGame({
+			game,
+		}) ?? null
+	);
 
 	const handleClick = useCallback(() => {
+		/* v8 ignore start */
 		if (!color) {
+			// This should never happen; the only way to not have a color is if all colors are taken,
+			// in which case the button should be disabled.
 			throw new Error('Cannot add player without a color selected');
 		}
+		/* v8 ignore end */
 		onAdd({
 			color,
 		});
@@ -80,6 +65,7 @@ export const AddPlayerButton = (
 				onClick={handleClick}
 				aria-label={title}
 				title={title}
+				disabled={!color}
 			>
 				<PersonAddIcon
 				/>
