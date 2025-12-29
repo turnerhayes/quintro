@@ -1,4 +1,4 @@
-/// <reference types="@vitest/browser/providers/playwright" />
+/// <reference types="@vitest/browser-playwright" />
 
 import { expect, describe, vi } from "vitest";
 import { http, HttpResponse } from "msw";
@@ -10,7 +10,7 @@ import { worker } from "@/client/testing/browser-mock";
 import { GET_GAME_URL, getGameHandler } from "@/client/testing/service-mocks";
 import { socketClient } from "@/client/api/socket-client.client";
 import type { SelfPlayer } from "@/types";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 
 
 

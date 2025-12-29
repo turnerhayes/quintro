@@ -1,5 +1,7 @@
+/// <reference types="@vitest/browser-playwright" />
+
 import { describe, expect, test, vi } from "vitest";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { render, screen } from "@/client/testing/test-utils";
 import { PlayerInfoPopup } from "@/client/components/PlayerInfoPopup/PlayerInfoPopup";
 import type { Player, SelfPlayer } from "@/types";

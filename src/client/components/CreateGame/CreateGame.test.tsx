@@ -1,10 +1,12 @@
-import { http, HttpResponse } from "msw";
+/// <reference types="@vitest/browser-playwright" />
+
 import { describe, expect, test, vi} from "vitest";
+import { userEvent } from "vitest/browser";
+import { http, HttpResponse } from "msw";
 
 import { CreateGame } from "@/client/components/CreateGame/CreateGame";
 import { worker } from "@/client/testing/browser-mock";
 import { render, renderWithRouter, screen } from "@/client/testing/test-utils";
-import { userEvent } from "@vitest/browser/context";
 import Config from "@/config";
 
 describe("CreateGame component", () => {

@@ -1,7 +1,7 @@
 import { type CSSProperties } from "react";
+import classNames from "classnames";
 import Config, { type ColorID } from "@/config";
 import styles from "./ColorSwatch.module.css";
-import classNames from "classnames";
 
 
 export const ColorSwatch = (

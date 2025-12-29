@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 import { reactRouter } from "@react-router/dev/vite";
 import checker from 'vite-plugin-checker';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { playwright } from '@vitest/browser-playwright';
 
 const sslCertPath = process.env.SSL_CERT_PATH;
 const sslKeyPath = process.env.SSL_KEY_PATH;
@@ -55,6 +56,9 @@ export default defineConfig({
     env: {
       VITE_IS_API_SECURE: "",
     },
+    clearMocks: true,
+    mockReset: true,
+    restoreMocks: true,
     include: [
       "./src/client/**/*.test.{ts,tsx}",
     ],
@@ -65,7 +69,7 @@ export default defineConfig({
       './src/client/testing/setup.ts',
     ],
     browser: {
-      provider: 'playwright',
+      provider: playwright(),
       enabled: true,
       instances: [
         { browser: 'chromium' },
@@ -76,13 +80,14 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: [
-        'src/**',
+        'src/**/*.{ts,tsx}',
       ],
       exclude: [
         "src/client/components/**/index.ts",
         "src/client/testing/**",
-        "src/server/**",
         "src/client/**/*.test.{ts,tsx}",
+        "src/server/**",
+        "src/types/**",
       ],
     },
   },

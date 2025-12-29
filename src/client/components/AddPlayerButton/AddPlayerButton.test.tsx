@@ -1,8 +1,10 @@
+/// <reference types="@vitest/browser-playwright" />
+
 import { AddPlayerButton } from "@/client/components/AddPlayerButton/AddPlayerButton";
 import { render, screen } from "@/client/testing/test-utils";
 import type { Game } from "@/types";
-import { userEvent } from "@vitest/browser/context";
 import { describe, expect, it, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 
 describe('AddPlayerButton component', () => {
     it("changes the color when a new color is selected", async () => {
