@@ -1,11 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import createDebugger from "debug";
 
 import type { BoardPosition, Game, GameID, GameSummary } from "@/types";
 import Config, { type ColorID } from "@/config";
 
-
-const debug = createDebugger("quintro:client:api:games");
 
 export const gamesApi = createApi({
     reducerPath: "games",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useIntl } from "react-intl";
 import IconButton from "@mui/material/IconButton";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -6,7 +6,6 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { ColorPicker, getDefaultColorForGame } from "@/client/components/ColorPicker";
 import { type ColorID } from "@/config";
 import type { Game } from "@/types";
-import { canAddColor } from "@/client/redux/selectors/game";
 import { Stack } from "@mui/material";
 
 export interface AddPlayerButtonProps {

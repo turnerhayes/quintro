@@ -1,3 +1,25 @@
+.root {
+    --cell-size: 4em;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    min-width: var(--cell-size);
+    min-height: var(--cell-size);
+    max-width: var(--cell-size);
+    max-height: var(--cell-size);
+    border-width: 1px;
+    border-style: solid;
+    font-size: 1em;
+    cursor: pointer;
+}
+
 .marble {
     margin: 5%; /*(100% - 90% [marble width/height]) / 2 (top/bottom, left/right) */
+}
+
+.noPlacement {
+    cursor: not-allowed;
+}
+
+.quintroMember {
+    background-color: rgba(255, 255, 0, 0.6);
 }
