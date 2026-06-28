@@ -27,6 +27,8 @@
     "@reduxjs/toolkit": "^2.8.2",
     "classnames": "^2.5.1",
     "debug": "^4.4.1",
+    "dotenv": "^17.4.2",
+    "dotenv-expand": "^13.0.0",
     "isbot": "^5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
