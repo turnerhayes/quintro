@@ -20,9 +20,9 @@ import {
 	useFindGamesQuery
 }                         from "@/client/api/games";
 import Config             from "@/config";
-import type {
-	GameSummary
-}                         from "@/types";
+// import type {
+// 	GameSummary
+// }                         from "@/types";
 
 import styles             from "./FindGame.module.css";
 
@@ -167,9 +167,9 @@ export const FindGame = () => {
 
 	const navigate = useNavigate();
 
-	const handleJoinGame = useCallback((game: GameSummary) => {
-		navigate(`/game/play/${game.name}`);
-	}, []);
+	// const handleJoinGame = useCallback((game: GameSummary) => {
+	// 	navigate(`/game/play/${game.name}`);
+	// }, []);
 
 	const handleCancelSearch = useCallback(() => {
 		setIsSearching(false);
@@ -177,7 +177,7 @@ export const FindGame = () => {
 		setIsSearching,
 	]);
 
-	const {data: results, isLoading, error } = useFindGamesQuery(
+	const {data: results, isLoading } = useFindGamesQuery(
 		isSearching ? {
 			numberOfPlayers: null,
 		} : skipToken
@@ -200,8 +200,8 @@ export const FindGame = () => {
 		navigate,
 	]);
 
-	const handleSearch = useCallback((params: SearchParameters) => {
-		const {numberOfPlayers} = params;
+	const handleSearch = useCallback((/*params: SearchParameters*/) => {
+		// const {numberOfPlayers} = params;
 		setIsSearching(true);
 
 		// searchForGames({

@@ -168,7 +168,7 @@ export const CreateGame = () => {
                     <PlayerLimitInput
                         playerLimit={playerLimit}
                         onPlayerLimitChange={handlePlayerLimitChange}
-                        error={playerLimitError}
+                        error={playerLimitError ?? undefined}
                     />
                 </Box>
                 <Button

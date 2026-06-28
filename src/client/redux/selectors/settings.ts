@@ -1,4 +1,4 @@
-import type { RootState } from "@/client/redux/store";
+import type { RootState } from "@/client/redux/reducer";
 
 export const getNotificationsEnabled = (state: RootState) => state.settings.notificationsEnabled;
 

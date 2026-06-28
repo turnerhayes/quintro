@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_CREDENTIALS_USER}
+      POSTGRES_PASSWORD: ${DB_CREDENTIALS_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_CREDENTIALS_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    env_file:
+      - .env
+
+  api:
+    build:
+      context: .
+      dockerfile: ./src/server/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8070:${VITE_API_PORT}"
+    command: sh -c "npm run --prefix src/server migrate:up && npm run --prefix src/server dev"
+    volumes:
+      - .:/app
+      - /app/src/server/node_modules
+    env_file:
+      - .env
+
+  client:
+    build:
+      context: .
+      dockerfile: ./src/client/Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

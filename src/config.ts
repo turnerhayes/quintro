@@ -3,10 +3,13 @@
 let apiPortString: string;
 
 if ("process" in globalThis) {
-	apiPortString = process.env.VITE_API_PORT || "";
+	apiPortString = ((globalThis as any)["process"] as any).env.VITE_API_PORT || "";
 }
 else if ("env" in import.meta) {
 	apiPortString = import.meta.env.VITE_API_PORT || "";
+}
+else {
+	throw new Error(`No environment variables available`);
 }
 
 if (!apiPortString) {
