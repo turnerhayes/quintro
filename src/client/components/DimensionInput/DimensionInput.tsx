@@ -87,13 +87,13 @@ const validateDimension = (
     }
 	
     if (dimension === "width") {
-        if (valueAsNumber > Config.game.board.height.max) {
+        if (valueAsNumber > Config.game.board.width.max) {
             return intl.formatMessage({
                 id: "quintro.components.GameFormControls.DimensionInput.errors.width.tooLarge",
                 defaultMessage: "{value} is greater than the maximum width ({max})",
             }, {
                 value: valueAsNumber,
-                max: Config.game.board.height.min,
+                max: Config.game.board.width.max,
             });
         }
 	}

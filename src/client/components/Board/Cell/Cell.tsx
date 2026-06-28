@@ -4,14 +4,13 @@ import {
 import type { Cell as CellType } from "@/types";
 import { Marble }                from "@/client/components/Marble";
 import styles                    from "./Cell.module.css";
-import { TableCell, useTheme, type SxProps } from "@mui/material";
+import { TableCell, useTheme } from "@mui/material";
+import classNames from "classnames";
 
 
 export interface CellWithQuintroStatus extends CellType {
 	isQuintroMember: boolean;
 }
-
-const CELL_SIZE = "3.9em";
 
 export const Cell = (
 	{
@@ -42,30 +41,20 @@ export const Cell = (
 	const isQuintroMember = isFilled && !!cell.isQuintroMember;
 	const theme = useTheme();
 
-	const cellSx: SxProps = {
-		width: CELL_SIZE,
-		height: CELL_SIZE,
-		minWidth: CELL_SIZE,
-		minHeight: CELL_SIZE,
-		maxWidth: CELL_SIZE,
-		maxHeight: CELL_SIZE,
-		border: `1px solid ${theme.palette.divider}`,
-		padding: 0,
-		fontSize: "1em",
-		cursor: "pointer",
-	};
-
-	if (!allowPlacement) {
-		cellSx.cursor = "not-allowed";
-	}
-
-	if (isQuintroMember) {
-		cellSx.backgroundColor = "rgba(255, 255, 0, 0.6)";
-	}
-
 	return (
 		<TableCell
-			sx={cellSx}
+			className={classNames(
+				styles.root,
+				{
+					[styles.noPlacement]: !allowPlacement,
+					[styles.quintroMember]: isQuintroMember,
+				}
+			)}
+			sx={{
+				borderColor: theme.palette.divider,
+				// Need to set padding here to override MUI default padding
+				padding: 0,
+			}}
 			onClick={handleClick}
 		>
 			{

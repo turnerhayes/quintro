@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState }              from "react";
+import { type ChangeEvent, type FormEvent, forwardRef, useCallback, useEffect, useRef, useState }              from "react";
 import Card               from "@mui/material/Card";
 import CardHeader         from "@mui/material/CardHeader";
 import CardContent        from "@mui/material/CardContent";
@@ -11,6 +11,9 @@ import CheckIcon          from "@mui/icons-material/Check";
 import { Link }           from "react-router";
 import type { Player } from "@/types";
 import { FormattedMessage, useIntl } from "react-intl";
+import { Popper, Stack, Typography } from "@mui/material";
+
+import styles from "./PlayerInfoPopup.module.css";
 
 
 export interface PlayerInfoPopupProps {
@@ -19,6 +22,7 @@ export interface PlayerInfoPopupProps {
 		player: Player;
 		displayName: string;
 	}) => void;
+	anchorEl: HTMLElement;
 }
 
 /**
@@ -26,11 +30,12 @@ export interface PlayerInfoPopupProps {
  *
  * @memberof client.react-components
  */
-export const PlayerInfoPopup = (
+export const PlayerInfoPopup = forwardRef<HTMLDivElement, PlayerInfoPopupProps>((
 	{
 		player,
 		onDisplayNameChange,
-	}: PlayerInfoPopupProps
+		anchorEl,
+	}: PlayerInfoPopupProps, ref
 ) => {
 	const intl = useIntl();
 	const [isFormVisible, setIsFormVisible] = useState(false);
@@ -162,45 +167,80 @@ export const PlayerInfoPopup = (
 	});
 
 	return (
-		<Card>
-			<CardHeader
-				title={(
-					<div>
-						<span>
-							{
-								player.user?.name.display || (
-									<FormattedMessage
-										id="quintro.components.PlayerInfoPopup.anonymousUserTitle"
-										defaultMessage="Anonymous User"
-									/>
-								)
-							}
-						</span>
-						{
-							!isFormVisible &&
-							player.user == null &&
-							isMe && (
-								<IconButton
-									key="edit icon"
-									title={showFormButtonTitle}
-									aria-label={showFormButtonTitle}
-									onClick={showForm}
+		<Popper
+			ref={ref}
+			open
+			anchorEl={anchorEl}
+			popperOptions={{
+				modifiers: [
+					{
+						name: 'offset',
+						options: {
+							offset: [0, 8],
+						},
+					},
+					{
+						name: 'arrow',
+					},
+				],
+			}}
+			sx={{
+				zIndex: "tooltip",
+			}}
+		>
+			<Card>
+				<CardHeader
+					title={(
+						<>
+							<div
+								data-popper-arrow
+								className={styles.popperArrow}
+							>
+							</div>
+							<Stack
+								direction="row"
+							>
+								<Typography
+									variant="h6"
 								>
-									<EditIcon
-									/>
-								</IconButton>
-							)
-						}
-					</div>
-				)}
-			/>
-			{
-				content && (
-					<CardContent>
-						{content}
-					</CardContent>
-				)
-			}
-		</Card>
+									{
+										player.user?.name.display || (
+											<FormattedMessage
+												id="quintro.components.PlayerInfoPopup.anonymousUserTitle"
+												defaultMessage="Anonymous User"
+											/>
+										)
+									}
+								</Typography>
+								{
+									!isFormVisible &&
+									player.user == null &&
+									isMe && (
+										<IconButton
+											key="edit icon"
+											title={showFormButtonTitle}
+											aria-label={showFormButtonTitle}
+											onClick={showForm}
+										>
+											<EditIcon
+											/>
+										</IconButton>
+									)
+								}
+							</Stack>
+						</>
+					)}
+				/>
+				{
+					content && (
+						<CardContent>
+							{content}
+						</CardContent>
+					)
+				}
+			</Card>
+		</Popper>
 	);
-}
+});
+
+PlayerInfoPopup.displayName = "PlayerInfoPopup";

@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-let apiPortString: string;
+let apiPortString: string = "";
 
 if ("process" in globalThis) {
 	apiPortString = ((globalThis as any)["process"] as any).env.VITE_API_PORT || "";
@@ -51,6 +51,17 @@ else {
 if (!clientOrigin && "location" in globalThis) {
 	clientOrigin = location.origin;
 }
+
+let isApiSecureString: string = "";
+
+if ("process" in globalThis) {
+	isApiSecureString = process.env.VITE_IS_API_SECURE || "";
+}
+else {
+	isApiSecureString = import.meta.env.VITE_IS_API_SECURE || "";
+}
+
+const isApiSecure = Boolean(isApiSecureString);
 
 const colors = [
 	{
@@ -173,6 +184,8 @@ export default {
 	api: {
 		host: apiHost,
 		port: apiPort,
+		isSecure: isApiSecure,
+		origin: `${isApiSecure ? "https" : "http"}://${apiHost}:${apiPort}`,
 	},
 
 	client: {

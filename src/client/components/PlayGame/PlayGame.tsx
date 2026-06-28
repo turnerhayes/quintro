@@ -1,10 +1,9 @@
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import createDebugger from "debug";
 import Badge              from "@mui/material/Badge";
-import Popover, { type PopoverProps } from "@mui/material/Popover";
-import Box from "@mui/material/Box";
+import Box, { type BoxProps } from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
@@ -28,6 +27,7 @@ import {
 }       from "@/client/components/Board/ZoomControls";
 import {
     PlayerIndicators,
+    type IndicatorPropsFunction,
     type PlayerIndicatorsProps
 } from "@/client/components/PlayerIndicators";
 import { PlayerInfoPopup } from "@/client/components/PlayerInfoPopup";
@@ -39,7 +39,7 @@ import { gamesApi } from "@/client/api/games";
 import { getCurrentPlayer, getUserPlayers } from "@/client/redux/selectors/game";
 import { useAppDispatch } from "@/client/redux/hooks";
 import Config from "@/config";
-import type { PlayerPresence, Game, Player, SelfPlayer } from "@/types";
+import type { PlayerPresence, Game, Player, SelfPlayer, GameID } from "@/types";
 import { socketClient } from "@/client/api/socket-client.client";
 import { findQuintros } from "@/quintros";
 
@@ -75,6 +75,7 @@ const WinnerBanner = (
             open
             maxWidth="lg"
             onClose={handleWinnerBannerClose}
+            aria-describedby="winner-dialog-description"
         >
             <DialogTitle
                 sx={{
@@ -93,6 +94,7 @@ const WinnerBanner = (
             >
                 <DialogContentText
                     variant="h1"
+                    id="winner-dialog-description"
                 >
                     <FormattedMessage
                         id="quintro.components.PlayGame.winMessage"
@@ -127,6 +129,7 @@ const PlayGameContent = (
     const [playerPresence, setPlayerPresence] = useState<PlayerPresence>({});
     const dispatch = useAppDispatch();
     const isWatchingGame = false; //TODO: implement watching logic
+    const playerInfoPopupRef = useRef<HTMLDivElement>(null);
     const quintros = useMemo(
         () => findQuintros(game.board.filledCells, game.board.width, game.board.height),
         [
@@ -203,12 +206,8 @@ const PlayGameContent = (
                 element,
             }
         ) => {
-            if (selectedPlayer == null) {
-                return;
-            }
-
             setSelectedIndicatorEl(element);
-            setSelectedPlayerColor(selectedPlayer?.color ?? null);
+            setSelectedPlayerColor(selectedPlayer.color);
         }) as NonNullable<PlayerIndicatorsProps["onIndicatorClick"]>,
         [
             setSelectedIndicatorEl,
@@ -227,17 +226,6 @@ const PlayGameContent = (
         }) as AddPlayerButtonProps["onAdd"],
         [
             game,
-        ]
-    );
-
-    const closePopover = useCallback(
-        (() => {
-            setSelectedIndicatorEl(null);
-            setSelectedPlayerColor(null);
-        }) as NonNullable<PopoverProps["onClose"]>,
-        [
-            setSelectedIndicatorEl,
-            setSelectedPlayerColor,
         ]
     );
 
@@ -314,6 +302,41 @@ const PlayGameContent = (
         ]
     );
 
+    const handleClickAway = useCallback(
+        (event: Parameters<NonNullable<BoxProps["onClick"]>>[0]) => {
+            const target = event.target as HTMLElement;
+
+            if (
+                playerInfoPopupRef.current != null &&
+                !playerInfoPopupRef.current.contains(target)
+            ) {
+                setSelectedIndicatorEl(null);
+                setSelectedPlayerColor(null);
+            }
+        },
+        [
+            playerInfoPopupRef,
+            selectedIndicatorEl,
+            setSelectedIndicatorEl,
+            setSelectedPlayerColor,
+        ]
+    );
+
+    const generateIndicatorProps = useCallback((({
+        player,
+    }) => {
+        const props: ReturnType<IndicatorPropsFunction> = {};
+
+        if (selectedPlayerColor != undefined && selectedPlayerColor === player?.color) {
+            props["aria-haspopup"] = "true";
+            props["aria-expanded"] = "true";
+        }
+
+        return props;
+    }) as IndicatorPropsFunction, [
+        selectedPlayerColor,
+    ]);
+
     const gameIsOver = game.winnerIndex != undefined;
 
     if (!(hasJoinedGame || isWatchingGame || gameIsOver)) {
@@ -327,23 +350,9 @@ const PlayGameContent = (
         );
     }
 
-    let playerInfoPopover: ReactNode|null = null;
-
-    if (selectedPlayerColor != null) {
-        const player = game.players.find(
-            (player: Player) => player.color === selectedPlayerColor
-        );
-    
-        if (!player) {
-            throw new Error(`Could not find player for color ${selectedPlayerColor}`);
-        }
-    
-        playerInfoPopover = selectedIndicatorEl === null ? null : (
-            <PlayerInfoPopup
-                player={player}
-            />
-        );
-    }
+    const selectedPlayer = game.players.find(
+        (player: Player) => player.color === selectedPlayerColor
+    );
 
     const currentPlayer = getCurrentPlayer(game);
     const myTurn = currentPlayer !== null && currentUserPlayers.includes(currentPlayer as SelfPlayer);
@@ -395,6 +404,7 @@ const PlayGameContent = (
 
     return (
         <Box
+            onClick={handleClickAway}
             sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -432,6 +442,7 @@ const PlayGameContent = (
                         markActive={gameIsStarted}
                         onIndicatorClick={handlePlayerIndicatorClick}
                         playerPresence={playerPresence}
+                        indicatorProps={generateIndicatorProps}
                     />
                     {
                         game.players.length < game.playerLimit && (
@@ -443,23 +454,15 @@ const PlayGameContent = (
                         )
                     }
                 </Box>
-                <Popover
-                    key="player indicator popover"
-                    open={!!selectedIndicatorEl}
-                    onClose={closePopover}
-                    anchorEl={selectedIndicatorEl}
-                    closeAfterTransition
-                    anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "center",
-                    }}
-                    transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                    }}
-                >
-                    {playerInfoPopover}
-                </Popover>
+                {
+                    selectedIndicatorEl == null ? null : (
+                        <PlayerInfoPopup
+                            ref={playerInfoPopupRef}
+                            player={selectedPlayer!}
+                            anchorEl={selectedIndicatorEl!}
+                        />
+                    )
+                }
                 <ZoomControls
                     className={styles.zoomControls}
                     onZoomLevelChange={handleZoomLevelChange}
@@ -517,12 +520,16 @@ const PlayGameContent = (
     );
 };
 
-export const PlayGame = () => {
-    const params = useParams() as { gameName: string };
-
+export const PlayGame = (
+    {
+        gameName,
+    }: {
+        gameName: GameID;
+    }
+) => {
     const { data: game, isLoading, error } = gamesApi.endpoints.getGame.useQuery(
         {
-            gameName: params.gameName,
+            gameName,
         }
     );
 
@@ -563,15 +570,13 @@ export const PlayGame = () => {
         );
     }
 
+    /* v8 ignore start */
     if (!game) {
-        debug("Game not found:", params.gameName);
-        // TODO Show missing game UI
-        return (
-            <div>
-                Game not found. Please check the URL or try again later.
-            </div>
-        );
+        // This should never happen because isLoading would be true if the data
+        // is not yet loaded, and error would be set if there was an error.
+        throw new Error("Game data is undefined after successful load.");
     }
+    /* v8 ignore end */
 
     return (
         <PlayGameContent

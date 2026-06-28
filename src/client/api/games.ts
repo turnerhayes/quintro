@@ -1,19 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import createDebugger from "debug";
 
 import type { BoardPosition, Game, GameID, GameSummary } from "@/types";
 import Config, { type ColorID } from "@/config";
 
 
-const debug = createDebugger("quintro:client:api:games");
-
-const SERVER_URL = `${Config.api.host}:${Config.api.port}`;
-
 export const gamesApi = createApi({
     reducerPath: "games",
     tagTypes: ['Game'],
     baseQuery: fetchBaseQuery({
-        baseUrl: `${SERVER_URL}/api`,
+        baseUrl: `${Config.api.origin}/api`,
         credentials: "include",
     }),
     endpoints: (builder) => ({
@@ -101,34 +96,3 @@ export const {
     useStartGameMutation,
     usePlaceMarbleMutation,
 } = gamesApi;
-
-export const createGame = async (
-    {
-        width,
-        height,
-        playerLimit,
-    }: {
-        width: number;
-        height: number;
-        playerLimit: number;
-    }
-): Promise<void> => {
-    const response = await fetch(`${SERVER_URL}/api/games`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            width,
-            height,
-            playerLimit,
-        }),
-    });
-    if (!response.ok) {
-        const msg = `Failed to create game: ${response.statusText}`;
-        debug(msg);
-        throw new Error(msg);
-    }
-    const result = await response.json();
-    return result.gameName;
-};

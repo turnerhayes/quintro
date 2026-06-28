@@ -44,6 +44,6 @@ export const getUserPlayers = (game: Game): SelfPlayer[] => (
 export const canAddColor = (
     game: Game,
     color: ColorID
-): boolean => game.players.find(
+): boolean => game.players.findIndex(
     (player) => player.color === color
-) == null;
+) < 0;

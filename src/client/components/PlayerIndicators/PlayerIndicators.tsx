@@ -42,7 +42,7 @@ export interface PlayerIndicatorsProps {
 	game: Game;
 	markActive: boolean;
 	onIndicatorClick?: (args: {
-		selectedPlayer: Player|null;
+		selectedPlayer: Player;
 		index: number;
 		element: HTMLElement;
 	}) => void;
@@ -75,8 +75,18 @@ const PlayerIndicator = (
 		onClick,
 	]);
 
+	const props = typeof indicatorProps === "function" ?
+		indicatorProps({
+			player,
+			index,
+			active: isActive,
+			isPresent: false,
+		}) :
+		indicatorProps;
+
 	return (
 		<li
+			role="button"
 			className={classNames([
 				className,
 				styles.indicator,
@@ -91,16 +101,7 @@ const PlayerIndicator = (
 			onClick={handleClick}
 			title={title}
 			{
-			...(
-				typeof indicatorProps === "function" ?
-					indicatorProps({
-						player: null,
-						index,
-						active: false,
-						isPresent: false,
-					}) :
-					indicatorProps
-			)
+				...props
 			}
 		>
 			{children}
@@ -137,6 +138,9 @@ export const PlayerIndicators = (
 			element: HTMLElement;
 		}
 	) => {
+		if (player == null) {
+			return;
+		}
 		onIndicatorClick && onIndicatorClick({ selectedPlayer: player, index, element });
 	}, [
 		onIndicatorClick,

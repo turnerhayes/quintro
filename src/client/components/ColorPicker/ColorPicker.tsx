@@ -8,6 +8,7 @@ import type { Game } from "@/types";
 
 import { ColorSwatch } from "./ColorSwatch";
 import styles from "./ColorPicker.module.css";
+import { useIntl } from "react-intl";
 
 
 function colorFilterForGame(
@@ -59,6 +60,39 @@ const ColorOption = (
 	);
 };
 
+const ColorMenuItem = (
+	{
+		color,
+		selected,
+		onClick,
+	}: {
+		color: ColorDefinition;
+		selected: boolean;
+		onClick: (args: {color: ColorID;}) => void;
+	}
+) => {
+	const handleClick = useCallback(() => {
+		onClick({
+			color: color.id,
+		});
+	}, [
+		onClick,
+		color,
+	]);
+
+	return (
+		<MenuItem
+			data-color={color.id}
+			selected={selected}
+			onClick={handleClick}
+		>
+			<ColorOption
+				colorDefinition={color}
+			/>
+		</MenuItem>
+	);
+};
+
 export interface ColorPickerProps {
 	game: Game;
 	selectedColor?: ColorID;
@@ -74,6 +108,7 @@ export const ColorPicker = (
 ) => {
 	const [colorDisplayEl, setColorDisplayEl] = useState<HTMLElement|null>(null);
 	const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+	const intl = useIntl();
 
 	const getDefaultColor = useCallback(() => {
 		// If there's no game and no default color getter prop, just take the first
@@ -137,6 +172,11 @@ export const ColorPicker = (
 
 	const defaultColor = getDefaultColor();
 
+	const title = intl.formatMessage({
+		id: "quintro.components.ColorPicker.title",
+		defaultMessage: "Choose Player Color",
+	});
+
 	let colors: ColorDefinition[] = Config.game.colors;
 	
 	if (game) {
@@ -155,6 +195,8 @@ export const ColorPicker = (
 			<Button
 				key="color-change-button"
 				onClick={handleCurrentColorClicked}
+				title={title}
+				aria-label={title}
 			>
 				<ColorOption
 					colorDefinition={Config.game.colors.get(selectedColor || defaultColor!)}
@@ -169,18 +211,12 @@ export const ColorPicker = (
 					colors.map(
 						(colorDefinition) => {
 							return (
-								<MenuItem
+								<ColorMenuItem
 									key={colorDefinition.id}
-									data-color={colorDefinition.id}
+									color={colorDefinition}
 									selected={colorDefinition.id === (selectedColor || defaultColor)}
-									onClick={() => handleColorClicked({
-										color: colorDefinition.id
-									})}
-								>
-									<ColorOption
-										colorDefinition={colorDefinition}
-									/>
-								</MenuItem>
+									onClick={handleColorClicked}
+								/>
 							);
 						}
 					)

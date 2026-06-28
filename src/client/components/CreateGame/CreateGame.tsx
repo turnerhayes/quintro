@@ -1,4 +1,4 @@
-import { type FormEvent, useCallback, useState }             from "react";
+import { type FormEvent, useCallback, useEffect, useState }             from "react";
 import {
 	FormattedMessage
 }                        from "react-intl";
@@ -13,21 +13,29 @@ import {
 import {
 	PlayerLimitInput
 }                        from "@/client/components/PlayerLimitInput";
-import { createGame }    from "@/client/api/games";
+import { useCreateGameMutation }    from "@/client/api/games";
+import Config from "@/config";
 
 
 /**
  * Component for rendering the Create a Game UI.
  */
 export const CreateGame = () => {
-    const [width, setWidth] = useState("15");
-    const [height, setHeight] = useState("15");
+    const [width, setWidth] = useState(Config.game.board.width.min.toString());
+    const [height, setHeight] = useState(Config.game.board.height.min.toString());
     const [widthError, setWidthError] = useState<string|null>(null);
     const [heightError, setHeightError] = useState<string|null>(null);
-    const [playerLimit, setPlayerLimit] = useState("3");
+    const [playerLimit, setPlayerLimit] = useState(Config.game.players.min.toString());
     const [playerLimitError, setPlayerLimitError] = useState<string|null>(null);
     const [keepRatio, setKeepRatio] = useState(false);
-    const [createError, setCreateError] = useState<string|null>(null);
+    const [
+        createGame,
+        {
+            error: createGameError,
+            isSuccess: createGameSuccess,
+            data: gameName,
+        }
+    ] = useCreateGameMutation();
 
     const navigate = useNavigate();
 
@@ -86,33 +94,33 @@ export const CreateGame = () => {
         setPlayerLimitError,
     ]);
 
-	/**
-	 * Handles the game creation form being submitted.
-	 */
 	const handleFormSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-        try {
-            const gameName = await createGame({
-                width: Number(width),
-                height: Number(height),
-                playerLimit: Number(playerLimit),
-            });
-
-            navigate(`/game/play/${gameName}`);
-        }
-        catch (error) {
-            setCreateError(
-                error instanceof Error ? error.message : "Unknown error"
-            );
-        }
+        await createGame({
+            width: Number(width),
+            height: Number(height),
+            playerLimit: Number(playerLimit),
+        });
 	}, [
         width,
         height,
         playerLimit,
-        setCreateError,
         navigate,
+    ]);    
+
+    useEffect(() => {
+        if (createGameSuccess && gameName) {
+            navigate(`/game/play/${gameName}`);
+        }   
+    }, [
+        createGameSuccess,
+        gameName,
     ]);
+
+    if (createGameSuccess) {
+        return null;
+    }
 
     return (
         <div>
@@ -122,7 +130,7 @@ export const CreateGame = () => {
                     defaultMessage="Create a Game"
                 />
             </h1>
-            {createError && (
+            {createGameError != undefined && (
                 <Box
                     sx={{
                         color: "error.main",
@@ -131,8 +139,7 @@ export const CreateGame = () => {
                 >
                     <FormattedMessage
                         id="quintro.components.CreateGame.error"
-                        defaultMessage="Error creating game: {error}"
-                        values={{ error: createError }}
+                        defaultMessage="Error creating game. Please try again later."
                     />
                 </Box>
             )}

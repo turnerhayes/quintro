@@ -1,0 +1,25 @@
+.popperArrow {
+    width: 10px;
+    height: 10px;
+    top: -4px;
+    background-color: inherit;
+    width: 16px;
+    height: 8px;
+    top: -8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.popperArrow::after {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: inherit;
+    background-image: var(--Paper-overlay);
+    transform: rotate(45deg);
+    box-shadow: var(--Paper-shadow);
+    position: relative;
+    top: 3px;
+}
